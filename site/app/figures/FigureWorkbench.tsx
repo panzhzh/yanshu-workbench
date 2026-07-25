@@ -6,12 +6,15 @@ import { PRODUCT_CONFIG, type Language } from "../config";
 import {
   buildFigurePrompt,
   DEFAULT_FIGURE_PREFERENCES,
-  FIGURE_CANVAS_PRESET_IDS,
-  FIGURE_CANVAS_PRESETS,
+  FIGURE_ASPECT_RATIO_IDS,
+  FIGURE_ASPECT_RATIOS,
   FIGURE_COPY,
-  FIGURE_DEFAULT_CANVAS,
+  FIGURE_DEFAULT_LAYOUT,
+  FIGURE_PLACEMENT_IDS,
+  FIGURE_PLACEMENTS,
   FIGURE_PROMPT_ORDER,
   FIGURE_PROMPTS,
+  FIGURE_STYLE_DEFAULTS,
   FIGURE_STYLE_IDS,
   FIGURE_STYLES,
   type FigurePreferences,
@@ -32,6 +35,9 @@ const DEFAULT_PROMPT_EXPANSION: PromptExpansion = {
   "method-overview": false,
   "technical-detail": false,
 };
+
+const ACCENT_COLOR_COUNTS = [1, 2, 3] as const;
+const FONT_SIZE_LEVELS = [2, 3] as const;
 
 async function writeClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
@@ -82,8 +88,16 @@ export default function FigureWorkbench() {
   const promptNextLanguage =
     activePromptLanguage === "zh" ? "English" : "中文";
   const promptContentId = `figure-prompt-${activePromptId}`;
-  const selectedCanvas = FIGURE_CANVAS_PRESETS[preferences.canvasPresetId];
+  const selectedPlacement = FIGURE_PLACEMENTS[preferences.placementId];
+  const selectedAspectRatio =
+    FIGURE_ASPECT_RATIOS[preferences.aspectRatioId];
   const selectedStyle = FIGURE_STYLES[preferences.styleId];
+  const visualSummary =
+    uiLanguage === "zh"
+      ? `${preferences.accentColorCount} 种强调色 · ${preferences.fontSizeLevels} 级字号`
+      : `${preferences.accentColorCount} accent color${
+          preferences.accentColorCount === 1 ? "" : "s"
+        } · ${preferences.fontSizeLevels} type-size levels`;
 
   useEffect(() => {
     document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
@@ -111,9 +125,17 @@ export default function FigureWorkbench() {
       return {
         ...current,
         promptId,
-        canvasPresetId: FIGURE_DEFAULT_CANVAS[promptId],
+        ...FIGURE_DEFAULT_LAYOUT[promptId],
       };
     });
+  }
+
+  function selectFigureStyle(styleId: FigurePreferences["styleId"]) {
+    updatePreferences((current) => ({
+      ...current,
+      styleId,
+      ...FIGURE_STYLE_DEFAULTS[styleId],
+    }));
   }
 
   function resetDefaults() {
@@ -249,53 +271,110 @@ export default function FigureWorkbench() {
                 <span className="control-index">03</span>
                 {copy.canvas}
               </legend>
-              <div
-                className="figure-canvas-options"
-                role="radiogroup"
-                aria-label={copy.canvas}
-              >
-                {FIGURE_CANVAS_PRESET_IDS.map((canvasPresetId) => {
-                  const canvas = FIGURE_CANVAS_PRESETS[canvasPresetId];
-                  const active =
-                    preferences.canvasPresetId === canvasPresetId;
-                  const recommended =
-                    FIGURE_DEFAULT_CANVAS[preferences.promptId] ===
-                    canvasPresetId;
+              <div className="figure-layout-groups">
+                <div className="figure-layout-group">
+                  <p>{copy.paperPlacement}</p>
+                  <div
+                    className="figure-placement-options"
+                    role="radiogroup"
+                    aria-label={copy.paperPlacement}
+                  >
+                    {FIGURE_PLACEMENT_IDS.map((placementId) => {
+                      const placement = FIGURE_PLACEMENTS[placementId];
+                      const active = preferences.placementId === placementId;
+                      const recommended =
+                        FIGURE_DEFAULT_LAYOUT[preferences.promptId]
+                          .placementId === placementId;
 
-                  return (
-                    <button
-                      type="button"
-                      role="radio"
-                      aria-checked={active}
-                      className={active ? "active" : ""}
-                      key={canvasPresetId}
-                      onClick={() =>
-                        updatePreferences((current) => ({
-                          ...current,
-                          canvasPresetId,
-                        }))
-                      }
-                    >
-                      <span
-                        className={`figure-canvas-sample ${canvasPresetId}`}
-                        aria-hidden="true"
-                      >
-                        <i />
-                        <b>{canvas.ratio}</b>
-                      </span>
-                      <span>
-                        <span className="figure-option-heading">
-                          <strong>{canvas.label[uiLanguage]}</strong>
-                          {recommended && <em>{copy.recommended}</em>}
-                        </span>
-                        <small>
-                          {canvas.placement[uiLanguage]} ·{" "}
-                          {canvas.shortDescription[uiLanguage]}
-                        </small>
-                      </span>
-                    </button>
-                  );
-                })}
+                      return (
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          className={active ? "active" : ""}
+                          key={placementId}
+                          onClick={() =>
+                            updatePreferences((current) => ({
+                              ...current,
+                              placementId,
+                            }))
+                          }
+                        >
+                          <span
+                            className={`figure-placement-sample ${placementId}`}
+                            aria-hidden="true"
+                          >
+                            <i />
+                            <i />
+                          </span>
+                          <span>
+                            <span className="figure-option-heading">
+                              <strong>{placement.label[uiLanguage]}</strong>
+                              {recommended && <em>{copy.recommended}</em>}
+                            </span>
+                            <small>
+                              {placement.shortDescription[uiLanguage]}
+                            </small>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <div className="figure-layout-group">
+                  <p>{copy.aspectRatio}</p>
+                  <div
+                    className="figure-canvas-options"
+                    role="radiogroup"
+                    aria-label={copy.aspectRatio}
+                  >
+                    {FIGURE_ASPECT_RATIO_IDS.map((aspectRatioId) => {
+                      const aspectRatio =
+                        FIGURE_ASPECT_RATIOS[aspectRatioId];
+                      const active =
+                        preferences.aspectRatioId === aspectRatioId;
+                      const recommended =
+                        FIGURE_DEFAULT_LAYOUT[preferences.promptId]
+                          .aspectRatioId === aspectRatioId;
+
+                      return (
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          className={active ? "active" : ""}
+                          key={aspectRatioId}
+                          onClick={() =>
+                            updatePreferences((current) => ({
+                              ...current,
+                              aspectRatioId,
+                            }))
+                          }
+                        >
+                          <span
+                            className={`figure-canvas-sample ${aspectRatioId}`}
+                            aria-hidden="true"
+                          >
+                            <i />
+                            <b>{aspectRatio.ratio}</b>
+                          </span>
+                          <span>
+                            <span className="figure-option-heading">
+                              <strong>
+                                {aspectRatio.label[uiLanguage]}
+                              </strong>
+                              {recommended && <em>{copy.recommended}</em>}
+                            </span>
+                            <small>
+                              {aspectRatio.shortDescription[uiLanguage]}
+                            </small>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
               <small>{copy.canvasHint}</small>
             </fieldset>
@@ -316,12 +395,7 @@ export default function FigureWorkbench() {
                       aria-checked={active}
                       className={active ? "active" : ""}
                       key={styleId}
-                      onClick={() =>
-                        updatePreferences((current) => ({
-                          ...current,
-                          styleId,
-                        }))
-                      }
+                      onClick={() => selectFigureStyle(styleId)}
                     >
                       <span
                         className={`figure-style-sample ${styleId}`}
@@ -344,75 +418,236 @@ export default function FigureWorkbench() {
               <small>{copy.visualStyleHint}</small>
             </fieldset>
 
-            <div className="figure-control-card figure-policy-control">
-              <div className="figure-control-title">
+            <fieldset className="figure-control-card figure-visual-rules-control">
+              <legend>
                 <span className="control-index">05</span>
-                <strong>{copy.semanticIcons}</strong>
-              </div>
-              <button
-                className={`switch-row ${
-                  preferences.allowSemanticIcons ? "active" : ""
-                }`}
-                type="button"
-                role="switch"
-                aria-checked={preferences.allowSemanticIcons}
-                onClick={() =>
-                  updatePreferences((current) => ({
-                    ...current,
-                    allowSemanticIcons: !current.allowSemanticIcons,
-                  }))
-                }
-              >
-                <span className="switch-track" aria-hidden="true">
-                  <span />
-                </span>
-                <strong>
-                  {preferences.allowSemanticIcons
-                    ? copy.semanticIconsOn
-                    : copy.semanticIconsOff}
-                </strong>
-              </button>
-              <small>
-                {preferences.allowSemanticIcons
-                  ? copy.semanticIconsOnHint
-                  : copy.semanticIconsOffHint}
-              </small>
-            </div>
+                {copy.visualRules}
+              </legend>
+              <div className="figure-visual-rules-grid">
+                <div className="figure-visual-rule">
+                  <strong>{copy.lineColors}</strong>
+                  <div
+                    className="figure-compact-options"
+                    role="radiogroup"
+                    aria-label={copy.lineColors}
+                  >
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={preferences.lineColorMode === "neutral"}
+                      className={
+                        preferences.lineColorMode === "neutral" ? "active" : ""
+                      }
+                      onClick={() =>
+                        updatePreferences((current) => ({
+                          ...current,
+                          lineColorMode: "neutral",
+                        }))
+                      }
+                    >
+                      {copy.lineColorsNeutral}
+                    </button>
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={preferences.lineColorMode === "semantic"}
+                      className={
+                        preferences.lineColorMode === "semantic"
+                          ? "active"
+                          : ""
+                      }
+                      onClick={() =>
+                        updatePreferences((current) => ({
+                          ...current,
+                          lineColorMode: "semantic",
+                        }))
+                      }
+                    >
+                      {copy.lineColorsSemantic}
+                    </button>
+                  </div>
+                  <small>
+                    {preferences.lineColorMode === "semantic"
+                      ? copy.lineColorsSemanticHint
+                      : copy.lineColorsNeutralHint}
+                  </small>
+                </div>
 
-            <div className="figure-control-card figure-policy-control">
-              <div className="figure-control-title">
-                <span className="control-index">06</span>
-                <strong>{copy.largeTitle}</strong>
+                <div className="figure-visual-rule">
+                  <strong>{copy.accentColors}</strong>
+                  <div
+                    className="figure-compact-options figure-color-options"
+                    role="radiogroup"
+                    aria-label={copy.accentColors}
+                  >
+                    {ACCENT_COLOR_COUNTS.map((accentColorCount) => (
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={
+                          preferences.accentColorCount === accentColorCount
+                        }
+                        className={
+                          preferences.accentColorCount === accentColorCount
+                            ? "active"
+                            : ""
+                        }
+                        key={accentColorCount}
+                        onClick={() =>
+                          updatePreferences((current) => ({
+                            ...current,
+                            accentColorCount,
+                          }))
+                        }
+                      >
+                        <span className="figure-color-dots" aria-hidden="true">
+                          {Array.from(
+                            { length: accentColorCount },
+                            (_, index) => (
+                              <i key={index} />
+                            ),
+                          )}
+                        </span>
+                        {accentColorCount}
+                      </button>
+                    ))}
+                  </div>
+                  <small>{copy.visualRulesHint}</small>
+                </div>
+
+                <div className="figure-visual-rule">
+                  <strong>{copy.lightIllustrations}</strong>
+                  <button
+                    className={`figure-rule-switch ${
+                      preferences.allowLightIllustrations ? "active" : ""
+                    }`}
+                    type="button"
+                    role="switch"
+                    aria-checked={preferences.allowLightIllustrations}
+                    onClick={() =>
+                      updatePreferences((current) => ({
+                        ...current,
+                        allowLightIllustrations:
+                          !current.allowLightIllustrations,
+                      }))
+                    }
+                  >
+                    <span className="switch-track" aria-hidden="true">
+                      <span />
+                    </span>
+                    {preferences.allowLightIllustrations
+                      ? copy.lightIllustrationsOn
+                      : copy.lightIllustrationsOff}
+                  </button>
+                  <small>
+                    {preferences.allowLightIllustrations
+                      ? copy.lightIllustrationsOnHint
+                      : copy.lightIllustrationsOffHint}
+                  </small>
+                </div>
+
+                <div className="figure-visual-rule">
+                  <strong>{copy.cardFills}</strong>
+                  <button
+                    className={`figure-rule-switch ${
+                      preferences.useCardFills ? "active" : ""
+                    }`}
+                    type="button"
+                    role="switch"
+                    aria-checked={preferences.useCardFills}
+                    onClick={() =>
+                      updatePreferences((current) => ({
+                        ...current,
+                        useCardFills: !current.useCardFills,
+                      }))
+                    }
+                  >
+                    <span className="switch-track" aria-hidden="true">
+                      <span />
+                    </span>
+                    {preferences.useCardFills
+                      ? copy.cardFillsOn
+                      : copy.cardFillsOff}
+                  </button>
+                  <small>
+                    {preferences.useCardFills
+                      ? copy.cardFillsOnHint
+                      : copy.cardFillsOffHint}
+                  </small>
+                </div>
+
+                <div className="figure-visual-rule">
+                  <strong>{copy.fontSizes}</strong>
+                  <div
+                    className="figure-compact-options"
+                    role="radiogroup"
+                    aria-label={copy.fontSizes}
+                  >
+                    {FONT_SIZE_LEVELS.map((fontSizeLevels) => (
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={
+                          preferences.fontSizeLevels === fontSizeLevels
+                        }
+                        className={
+                          preferences.fontSizeLevels === fontSizeLevels
+                            ? "active"
+                            : ""
+                        }
+                        key={fontSizeLevels}
+                        onClick={() =>
+                          updatePreferences((current) => ({
+                            ...current,
+                            fontSizeLevels,
+                          }))
+                        }
+                      >
+                        {fontSizeLevels === 2
+                          ? copy.fontSizesTwo
+                          : copy.fontSizesThree}
+                      </button>
+                    ))}
+                  </div>
+                  <small>
+                    {preferences.fontSizeLevels === 2
+                      ? copy.fontSizesTwoHint
+                      : copy.fontSizesThreeHint}
+                  </small>
+                </div>
+
+                <div className="figure-visual-rule">
+                  <strong>{copy.largeTitle}</strong>
+                  <button
+                    className={`figure-rule-switch ${
+                      preferences.includeLargeTitle ? "active" : ""
+                    }`}
+                    type="button"
+                    role="switch"
+                    aria-checked={preferences.includeLargeTitle}
+                    onClick={() =>
+                      updatePreferences((current) => ({
+                        ...current,
+                        includeLargeTitle: !current.includeLargeTitle,
+                      }))
+                    }
+                  >
+                    <span className="switch-track" aria-hidden="true">
+                      <span />
+                    </span>
+                    {preferences.includeLargeTitle
+                      ? copy.largeTitleOn
+                      : copy.largeTitleOff}
+                  </button>
+                  <small>
+                    {preferences.includeLargeTitle
+                      ? copy.largeTitleOnHint
+                      : copy.largeTitleOffHint}
+                  </small>
+                </div>
               </div>
-              <button
-                className={`switch-row ${
-                  preferences.includeLargeTitle ? "active" : ""
-                }`}
-                type="button"
-                role="switch"
-                aria-checked={preferences.includeLargeTitle}
-                onClick={() =>
-                  updatePreferences((current) => ({
-                    ...current,
-                    includeLargeTitle: !current.includeLargeTitle,
-                  }))
-                }
-              >
-                <span className="switch-track" aria-hidden="true">
-                  <span />
-                </span>
-                <strong>
-                  {preferences.includeLargeTitle
-                    ? copy.largeTitleOn
-                    : copy.largeTitleOff}
-                </strong>
-              </button>
-              <small>
-                {preferences.includeLargeTitle
-                  ? copy.largeTitleOnHint
-                  : copy.largeTitleOffHint}
-              </small>
-            </div>
+              <p className="figure-contrast-rule">{copy.textContrastRule}</p>
+            </fieldset>
           </div>
         </section>
 
@@ -433,7 +668,8 @@ export default function FigureWorkbench() {
             <span>
               <small>{copy.selectedCanvas}</small>
               <strong>
-                {selectedCanvas.label[uiLanguage]} · {selectedCanvas.ratio}
+                {selectedPlacement.label[uiLanguage]} ·{" "}
+                {selectedAspectRatio.label[uiLanguage]}
               </strong>
             </span>
             <span>
@@ -441,8 +677,8 @@ export default function FigureWorkbench() {
               <strong>{selectedStyle.label[uiLanguage]}</strong>
             </span>
             <span>
-              <small>{copy.generationMode}</small>
-              <strong>{copy.onePromptOneFigure}</strong>
+              <small>{copy.visualSummary}</small>
+              <strong>{visualSummary}</strong>
             </span>
           </div>
 
@@ -468,8 +704,8 @@ export default function FigureWorkbench() {
                   <div>
                     <span className="placeholder-tag">
                       {activePromptSpec.tag[uiLanguage]} ·{" "}
-                      {selectedCanvas.label[uiLanguage]}{" "}
-                      {selectedCanvas.ratio}
+                      {selectedPlacement.label[uiLanguage]} ·{" "}
+                      {selectedAspectRatio.ratio}
                     </span>
                     <h3>{activePromptSpec.label[uiLanguage]}</h3>
                     <p>{activePromptSpec.purpose[uiLanguage]}</p>

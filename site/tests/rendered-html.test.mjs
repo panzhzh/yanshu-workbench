@@ -132,23 +132,33 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /引言图/);
   assert.match(html, /方法总览图/);
   assert.match(html, /关键技术细节图/);
-  assert.match(html, /顶会极简线稿/);
-  assert.match(html, /结构化技术图/);
-  assert.match(html, /轻量学术插画/);
+  assert.match(html, /极简论文线稿/);
+  assert.match(html, /轻插图技术图/);
   assert.match(html, /三选一/);
-  assert.match(html, /版面与画布/);
-  assert.match(html, /单栏紧凑/);
-  assert.match(html, /单栏横向/);
-  assert.match(html, /双栏横向/);
-  assert.match(html, /双栏论文 · 单栏宽/);
-  assert.match(html, /双栏论文 · 跨双栏宽/);
+  assert.match(html, /论文占栏与画布/);
+  assert.match(html, /单栏/);
+  assert.match(html, /跨双栏/);
+  assert.match(html, /横版 4:3/);
+  assert.match(html, /竖版 3:4/);
+  assert.match(html, /横版 16:9/);
+  assert.match(html, /竖版 9:16/);
   assert.match(html, /4:3/);
-  assert.match(html, /3:2/);
-  assert.match(html, /2:1/);
-  assert.match(html, /克制使用/);
+  assert.match(html, /3:4/);
+  assert.match(html, /16:9/);
+  assert.match(html, /9:16/);
+  assert.doesNotMatch(html, />2:1</);
+  assert.match(html, /线条颜色/);
+  assert.match(html, /统一深色/);
+  assert.match(html, /按语义区分/);
+  assert.match(html, /强调色数量/);
+  assert.match(html, /轻插图与图标/);
+  assert.match(html, /模块卡片底色/);
+  assert.match(html, /字号层级/);
+  assert.match(html, /2 级字号/);
+  assert.match(html, /3 级字号/);
+  assert.match(html, /禁止浅灰文字/);
   assert.match(html, /不使用/);
   assert.match(html, /当前绘图 Prompt/);
-  assert.match(html, /1 Prompt · 1 张图/);
   assert.match(html, /问题与意义/);
   assert.match(html, /整体心智地图/);
   assert.equal((html.match(/class="prompt-card(?:\s|")/g) ?? []).length, 1);
@@ -507,32 +517,42 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     ]);
 
   assert.match(figureConfig, /promptId:\s*"introduction"/);
-  assert.match(figureConfig, /canvasPresetId:\s*"single-column-compact"/);
+  assert.match(figureConfig, /placementId:\s*"single-column"/);
+  assert.match(figureConfig, /aspectRatioId:\s*"landscape-4-3"/);
   assert.doesNotMatch(
     figureConfig,
-    /includeIntroductionFigure|includeMethodOverview|includeTechnicalDetailFigure/,
+    /canvasPresetId|includeIntroductionFigure|includeMethodOverview|includeTechnicalDetailFigure/,
   );
   assert.doesNotMatch(figureConfig, /technicalFigureCount|TechnicalFigureCount/);
   assert.match(
     figureConfig,
-    /introduction:\s*"single-column-compact"/,
+    /introduction:\s*\{[\s\S]*?placementId:\s*"single-column"[\s\S]*?aspectRatioId:\s*"landscape-4-3"/,
   );
-  assert.match(figureConfig, /"method-overview":\s*"double-column-wide"/);
   assert.match(
     figureConfig,
-    /"technical-detail":\s*"single-column-landscape"/,
+    /"method-overview":\s*\{[\s\S]*?placementId:\s*"double-column"[\s\S]*?aspectRatioId:\s*"landscape-16-9"/,
   );
   assert.match(figureConfig, /ratio:\s*"4:3"/);
-  assert.match(figureConfig, /ratio:\s*"3:2"/);
-  assert.match(figureConfig, /ratio:\s*"2:1"/);
+  assert.match(figureConfig, /ratio:\s*"3:4"/);
+  assert.match(figureConfig, /ratio:\s*"16:9"/);
+  assert.match(figureConfig, /ratio:\s*"9:16"/);
+  assert.doesNotMatch(figureConfig, /ratio:\s*"2:1"|ratio:\s*"1:2"/);
   assert.match(figureConfig, /双栏论文中的单栏宽度/);
   assert.match(figureConfig, /横跨两栏的通栏宽度/);
   assert.match(figureConfig, /styleId:\s*"conference-minimal"/);
-  assert.match(figureConfig, /allowSemanticIcons:\s*true/);
+  assert.match(figureConfig, /lineColorMode:\s*"neutral"/);
+  assert.match(figureConfig, /accentColorCount:\s*1/);
+  assert.match(figureConfig, /allowLightIllustrations:\s*false/);
+  assert.match(figureConfig, /useCardFills:\s*false/);
+  assert.match(figureConfig, /fontSizeLevels:\s*2/);
   assert.match(figureConfig, /includeLargeTitle:\s*false/);
   assert.match(figureConfig, /"conference-minimal"/);
-  assert.match(figureConfig, /"structured-technical"/);
-  assert.match(figureConfig, /"light-academic"/);
+  assert.match(figureConfig, /"illustrated-technical"/);
+  assert.doesNotMatch(figureConfig, /"structured-technical"|"light-academic"/);
+  assert.match(
+    figureConfig,
+    /"illustrated-technical":\s*\{[\s\S]*?lineColorMode:\s*"semantic"[\s\S]*?accentColorCount:\s*2[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?useCardFills:\s*true[\s\S]*?fontSizeLevels:\s*3/,
+  );
   assert.match(figureConfig, /FIGURE_PROMPT_ORDER/);
   assert.match(figureConfig, /buildFigurePrompt/);
   assert.match(figureConfig, /不得翻译、改写或自造近义词/);
@@ -540,20 +560,30 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /整个方法如何组织并运转/);
   assert.match(figureConfig, /最需要视觉解释的一项核心机制/);
   assert.match(figureConfig, /只生成这一张图/);
-  assert.match(figureConfig, /论文版面与画布/);
-  assert.match(figureConfig, /画布比例描述的是导出图片本身/);
+  assert.match(figureConfig, /论文占栏/);
+  assert.match(figureConfig, /比例选择器设为/);
   assert.match(figureConfig, /目标 venue 的正式模板/);
+  assert.match(figureConfig, /全图严格只使用两级字号/);
+  assert.match(figureConfig, /最大字号不得超过最小字号的 1\.25 倍/);
+  assert.match(figureConfig, /最大字号不得超过最小字号的 1\.35 倍/);
+  assert.match(figureConfig, /禁止浅灰色、低透明度或低对比度文字/);
+  assert.match(figureConfig, /纯白背景、黑色文字和深色中性结构线/);
   assert.match(figureConfig, /After I approve the plan, generate exactly this one image/);
   assert.match(figureComponent, /buildFigurePrompt\(\s*activePromptId/);
   assert.match(figureComponent, /setPromptLanguages/);
   assert.match(figureComponent, /selectFigurePrompt/);
   assert.match(
     figureComponent,
-    /canvasPresetId:\s*FIGURE_DEFAULT_CANVAS\[promptId\]/,
+    /\.\.\.FIGURE_DEFAULT_LAYOUT\[promptId\]/,
   );
+  assert.match(figureComponent, /selectFigureStyle/);
+  assert.match(figureComponent, /\.\.\.FIGURE_STYLE_DEFAULTS\[styleId\]/);
   assert.match(figureComponent, /role="radiogroup"/);
   assert.match(figureComponent, /role="radio"/);
-  assert.match(figureComponent, /FIGURE_CANVAS_PRESET_IDS\.map/);
+  assert.match(figureComponent, /FIGURE_PLACEMENT_IDS\.map/);
+  assert.match(figureComponent, /FIGURE_ASPECT_RATIO_IDS\.map/);
+  assert.match(figureComponent, /ACCENT_COLOR_COUNTS\.map/);
+  assert.match(figureComponent, /FONT_SIZE_LEVELS\.map/);
   assert.doesNotMatch(figureComponent, /selectedPromptIds\.map/);
   assert.match(figureComponent, /copiedPrompt === activePromptId/);
   assert.doesNotMatch(figureComponent, /setTechnicalFigureCount/);
