@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import SiteNavigation from "../SiteNavigation";
+import PromptResizeHandle from "../PromptResizeHandle";
 import { PRODUCT_CONFIG, type Language } from "../config";
 import {
   buildFigurePrompt,
@@ -713,6 +714,8 @@ export default function FigureWorkbench() {
             </fieldset>
           </div>
         </section>
+
+        <PromptResizeHandle language={uiLanguage} />
 
         <section className="content-section prompt-rail figure-prompt-section">
           <div className="section-heading-row workflow-heading">

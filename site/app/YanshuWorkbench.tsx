@@ -8,6 +8,7 @@ import {
   type SectionDefinition,
 } from "./config";
 import SiteNavigation from "./SiteNavigation";
+import PromptResizeHandle from "./PromptResizeHandle";
 import { buildPrompt } from "../content/prompts/buildPrompt";
 import { RECONSTRUCTION_PROMPTS } from "../content/prompts/templates";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -681,6 +682,8 @@ export default function YanshuWorkbench() {
             </div>
           )}
         </section>
+
+        <PromptResizeHandle language={uiLanguage} />
 
         <section
           className="workflow-section content-section prompt-rail"

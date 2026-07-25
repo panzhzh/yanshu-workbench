@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { PRODUCT_CONFIG, UI_COPY, type Language } from "./config";
 
 type ActivePage = "reconstruction" | "figures" | "submission";
@@ -24,7 +23,6 @@ export default function SiteNavigation({
   onMenuClose,
 }: SiteNavigationProps) {
   const copy = UI_COPY[language];
-  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const siteLinks = [
     {
       id: "home",
@@ -67,76 +65,68 @@ export default function SiteNavigation({
         {copy.skipToContent}
       </a>
 
-      <header className="mobile-header">
-        <Link className="mobile-brand" href="/" aria-label="YanShu">
-          <span className="brand-seal" aria-hidden="true">
-            研
-          </span>
-          <span>
-            <strong>{PRODUCT_CONFIG.productName}</strong>
-            <small>YanShu</small>
-          </span>
-        </Link>
-        <button
-          className="mobile-menu-button"
-          type="button"
-          aria-label={mobileMenuOpen ? copy.closeMenu : copy.mobileMenu}
-          aria-expanded={mobileMenuOpen}
-          aria-controls="site-sidebar"
-          onClick={onMenuToggle}
-        >
-          <span aria-hidden="true">{mobileMenuOpen ? "×" : "☰"}</span>
-        </button>
-      </header>
+      <header className="site-topbar">
+        <div className="topbar-inner">
+          <Link
+            className="topbar-brand"
+            href="/"
+            aria-label={PRODUCT_CONFIG.productNameEn}
+            onClick={onMenuClose}
+          >
+            <span className="brand-seal" aria-hidden="true">
+              研
+            </span>
+            <span className="topbar-brand-copy">
+              <strong>{PRODUCT_CONFIG.productName}</strong>
+              <small>{PRODUCT_CONFIG.productNameEn}</small>
+            </span>
+          </Link>
 
-      {mobileMenuOpen && (
-        <button
-          className="nav-backdrop"
-          type="button"
-          aria-label={copy.closeMenu}
-          onClick={onMenuClose}
-        />
-      )}
+          <nav
+            className={`top-navigation ${mobileMenuOpen ? "is-open" : ""}`}
+            id="site-navigation"
+            aria-label={copy.navLabel}
+          >
+            <div className="top-nav-list">
+              {siteLinks.map((item) => {
+                const isActive = item.id === activePage;
+                return item.status === "available" ? (
+                  <Link
+                    className={isActive ? "active" : ""}
+                    href={item.href}
+                    key={item.id}
+                    aria-current={isActive ? "page" : undefined}
+                    onClick={onMenuClose}
+                  >
+                    {item.label}
+                  </Link>
+                ) : (
+                  <span
+                    className="top-nav-future"
+                    key={item.id}
+                    aria-disabled="true"
+                  >
+                    {item.label}
+                    <small>{copy.comingSoon}</small>
+                  </span>
+                );
+              })}
+            </div>
+            <div className="top-navigation-mobile-meta">
+              <span>{copy.productTagline}</span>
+              <a
+                href="https://github.com/panzhzh/yanshu-workbench"
+                target="_blank"
+                rel="noreferrer"
+              >
+                {copy.github}
+                <span aria-hidden="true">↗</span>
+              </a>
+            </div>
+          </nav>
 
-      <aside
-        className={`site-sidebar ${mobileMenuOpen ? "is-open" : ""} ${
-          desktopCollapsed ? "is-collapsed" : ""
-        }`}
-        id="site-sidebar"
-      >
-        <div className="sidebar-header">
-          <div className="sidebar-title-row">
-            <Link className="brand" href="/" onClick={onMenuClose}>
-              <span className="brand-seal" aria-hidden="true">
-                研
-              </span>
-              <span className="brand-copy">
-                <strong>{PRODUCT_CONFIG.productName}</strong>
-                <small>{PRODUCT_CONFIG.productNameEn}</small>
-              </span>
-            </Link>
-            <button
-              className="sidebar-collapse-button"
-              type="button"
-              aria-label={copy.collapseNavigation}
-              title={copy.collapseNavigation}
-              onClick={() => setDesktopCollapsed(true)}
-            >
-              <span aria-hidden="true">‹</span>
-            </button>
-            <button
-              className="sidebar-mobile-close-button"
-              type="button"
-              aria-label={copy.closeMenu}
-              title={copy.closeMenu}
-              onClick={onMenuClose}
-            >
-              <span aria-hidden="true">×</span>
-            </button>
-          </div>
-          <p>{copy.productTagline}</p>
-          <div className="sidebar-meta-row">
-            <span className="version-tag">{copy.version}</span>
+          <div className="topbar-actions">
+            <span className="topbar-version">{copy.version}</span>
             <div
               className="global-language-control"
               role="group"
@@ -161,67 +151,38 @@ export default function SiteNavigation({
                 EN
               </button>
             </div>
+            <a
+              className="topbar-github"
+              href="https://github.com/panzhzh/yanshu-workbench"
+              target="_blank"
+              rel="noreferrer"
+              aria-label={copy.github}
+            >
+              GitHub
+              <span aria-hidden="true">↗</span>
+            </a>
+            <button
+              className="topbar-menu-button"
+              type="button"
+              aria-label={mobileMenuOpen ? copy.closeMenu : copy.mobileMenu}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="site-navigation"
+              onClick={onMenuToggle}
+            >
+              <span aria-hidden="true">{mobileMenuOpen ? "×" : "☰"}</span>
+            </button>
           </div>
         </div>
+      </header>
 
-        <nav className="sidebar-nav" aria-label={copy.navLabel}>
-          <p>{copy.navDirectory}</p>
-          <div className="nav-list">
-            {siteLinks.map((item, index) => {
-              const isActive = item.id === activePage;
-              return item.status === "available" ? (
-                <Link
-                  className={isActive ? "active" : ""}
-                  href={item.href}
-                  key={item.id}
-                  aria-current={isActive ? "page" : undefined}
-                  onClick={onMenuClose}
-                >
-                  <span aria-hidden="true">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span>{item.label}</span>
-                </Link>
-              ) : (
-                <span
-                  className="nav-item is-future"
-                  key={item.id}
-                  aria-disabled="true"
-                >
-                  <span aria-hidden="true">
-                    {String(index + 1).padStart(2, "0")}
-                  </span>
-                  <span className="nav-link-copy">
-                    {item.label}
-                    <small>{copy.comingSoon}</small>
-                  </span>
-                </span>
-              );
-            })}
-          </div>
-        </nav>
-
-        <a
-          className="sidebar-github"
-          href="https://github.com/panzhzh/yanshu-workbench"
-          target="_blank"
-          rel="noreferrer"
-        >
-          <span>{copy.github}</span>
-          <span aria-hidden="true">↗</span>
-        </a>
-      </aside>
-
-      <button
-        className="sidebar-reopen-button"
-        type="button"
-        aria-label={copy.expandNavigation}
-        title={copy.expandNavigation}
-        hidden={!desktopCollapsed}
-        onClick={() => setDesktopCollapsed(false)}
-      >
-        <span aria-hidden="true">›</span>
-      </button>
+      {mobileMenuOpen && (
+        <button
+          className="nav-backdrop"
+          type="button"
+          aria-label={copy.closeMenu}
+          onClick={onMenuClose}
+        />
+      )}
     </>
   );
 }

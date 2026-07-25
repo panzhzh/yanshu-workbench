@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import SiteNavigation from "../SiteNavigation";
+import PromptResizeHandle from "../PromptResizeHandle";
 import {
   PRODUCT_CONFIG,
   type Language,
@@ -409,6 +410,8 @@ export default function SubmissionStrategy() {
             </fieldset>
           </div>
         </section>
+
+        <PromptResizeHandle language={uiLanguage} />
 
         <section className="content-section prompt-rail submission-prompt-section">
           <div className="section-heading-row workflow-heading">
