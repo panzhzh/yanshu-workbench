@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useState } from "react";
 import { PRODUCT_CONFIG, UI_COPY, type Language } from "./config";
 
 type ActivePage = "reconstruction" | "figures" | "submission";
@@ -23,6 +24,7 @@ export default function SiteNavigation({
   onMenuClose,
 }: SiteNavigationProps) {
   const copy = UI_COPY[language];
+  const [desktopCollapsed, setDesktopCollapsed] = useState(false);
   const siteLinks = [
     {
       id: "home",
@@ -97,19 +99,41 @@ export default function SiteNavigation({
       )}
 
       <aside
-        className={`site-sidebar ${mobileMenuOpen ? "is-open" : ""}`}
+        className={`site-sidebar ${mobileMenuOpen ? "is-open" : ""} ${
+          desktopCollapsed ? "is-collapsed" : ""
+        }`}
         id="site-sidebar"
       >
         <div className="sidebar-header">
-          <Link className="brand" href="/" onClick={onMenuClose}>
-            <span className="brand-seal" aria-hidden="true">
-              研
-            </span>
-            <span className="brand-copy">
-              <strong>{PRODUCT_CONFIG.productName}</strong>
-              <small>{PRODUCT_CONFIG.productNameEn}</small>
-            </span>
-          </Link>
+          <div className="sidebar-title-row">
+            <Link className="brand" href="/" onClick={onMenuClose}>
+              <span className="brand-seal" aria-hidden="true">
+                研
+              </span>
+              <span className="brand-copy">
+                <strong>{PRODUCT_CONFIG.productName}</strong>
+                <small>{PRODUCT_CONFIG.productNameEn}</small>
+              </span>
+            </Link>
+            <button
+              className="sidebar-collapse-button"
+              type="button"
+              aria-label={copy.collapseNavigation}
+              title={copy.collapseNavigation}
+              onClick={() => setDesktopCollapsed(true)}
+            >
+              <span aria-hidden="true">‹</span>
+            </button>
+            <button
+              className="sidebar-mobile-close-button"
+              type="button"
+              aria-label={copy.closeMenu}
+              title={copy.closeMenu}
+              onClick={onMenuClose}
+            >
+              <span aria-hidden="true">×</span>
+            </button>
+          </div>
           <p>{copy.productTagline}</p>
           <div className="sidebar-meta-row">
             <span className="version-tag">{copy.version}</span>
@@ -187,6 +211,17 @@ export default function SiteNavigation({
           <span aria-hidden="true">↗</span>
         </a>
       </aside>
+
+      <button
+        className="sidebar-reopen-button"
+        type="button"
+        aria-label={copy.expandNavigation}
+        title={copy.expandNavigation}
+        hidden={!desktopCollapsed}
+        onClick={() => setDesktopCollapsed(false)}
+      >
+        <span aria-hidden="true">›</span>
+      </button>
     </>
   );
 }

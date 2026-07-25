@@ -33,6 +33,8 @@ test("server-renders the YanShu research workbench", async () => {
   const html = await response.text();
   assert.match(html, /<title>研术台 · YanShu Workbench<\/title>/i);
   assert.match(html, /论文重构/);
+  assert.match(html, /收起左侧导航/);
+  assert.match(html, /class="workflow-section content-section prompt-rail"/);
   assert.match(html, /会议/);
   assert.match(html, /期刊/);
   assert.match(html, /限制正文字数/);
@@ -90,6 +92,10 @@ test("server-renders submission strategy filters and its live prompt", async () 
 
   const html = await response.text();
   assert.match(html, /投稿策略/);
+  assert.match(
+    html,
+    /class="content-section prompt-rail submission-prompt-section"/,
+  );
   assert.match(html, /是否 OA/);
   assert.match(html, /是否有 APC/);
   assert.match(html, /JCR 分区/);
@@ -125,6 +131,10 @@ test("server-renders independent research-figure prompt cards", async () => {
 
   const html = await response.text();
   assert.match(html, /科研绘图/);
+  assert.match(
+    html,
+    /class="content-section prompt-rail figure-prompt-section"/,
+  );
   assert.match(html, /论文材料/);
   assert.match(html, /\.tex/);
   assert.match(html, /\.pdf/);
@@ -175,6 +185,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     config,
     component,
     navigation,
+    styles,
     submission,
     submissionConfig,
     wordCountPolicy,
@@ -190,6 +201,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     readFile(new URL("../app/config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/YanshuWorkbench.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/SiteNavigation.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(
       new URL("../app/submission/SubmissionStrategy.tsx", import.meta.url),
       "utf8",
@@ -240,6 +252,8 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(config, /wordLimitOff:\s*"无特殊规定"/);
   assert.match(config, /appendixOn:\s*"允许附录"/);
   assert.match(config, /四步重构工作流/);
+  assert.match(config, /collapseNavigation:\s*"收起左侧导航"/);
+  assert.match(config, /expandNavigation:\s*"展开左侧导航"/);
   assert.match(config, /满足当前适用的总量与章节预算时不得使用/);
   assert.match(config, /defaultUnlimitedCoreSections:\s*false/);
   assert.match(
@@ -386,8 +400,19 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(component, /setAllocationExpanded\(enabled\)/);
   assert.match(component, /formatRatio\(actualRatio\)/);
   assert.match(component, /<SiteNavigation/);
+  assert.match(component, /content-section prompt-rail/);
   assert.match(navigation, /global-language-control/);
+  assert.match(navigation, /desktopCollapsed,\s*setDesktopCollapsed/);
+  assert.match(navigation, /sidebar-collapse-button/);
+  assert.match(navigation, /sidebar-mobile-close-button/);
+  assert.match(navigation, /sidebar-reopen-button/);
   assert.match(navigation, /href:\s*"\/submission"/);
+  assert.match(
+    styles,
+    /@media \(min-width: 1281px\)[\s\S]*?grid-template-columns:[\s\S]*?\.prompt-rail[\s\S]*?position: sticky/,
+  );
+  assert.match(styles, /\.site-sidebar\.is-collapsed ~ \.site-main/);
+  assert.match(submission, /content-section prompt-rail submission-prompt-section/);
   assert.match(component, /className="allocation-target"/);
   assert.doesNotMatch(component, /paperStyle\.defaultTargetWords[\s\S]{0,180}copy\.words/);
   assert.doesNotMatch(component, /config-control language-control/);
@@ -607,6 +632,10 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.doesNotMatch(figureComponent, /setTechnicalFigureCount/);
   assert.match(figureComponent, /navigator\.clipboard/);
   assert.match(figureComponent, /activePage="figures"/);
+  assert.match(
+    figureComponent,
+    /content-section prompt-rail figure-prompt-section/,
+  );
   assert.match(figurePage, /<FigureWorkbench \/>/);
   assert.match(navigation, /href:\s*"\/figures"/);
 });

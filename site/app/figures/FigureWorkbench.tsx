@@ -714,7 +714,7 @@ export default function FigureWorkbench() {
           </div>
         </section>
 
-        <section className="content-section figure-prompt-section">
+        <section className="content-section prompt-rail figure-prompt-section">
           <div className="section-heading-row workflow-heading">
             <div>
               <p className="eyebrow">{copy.promptEyebrow}</p>

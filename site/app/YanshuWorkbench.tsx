@@ -682,7 +682,10 @@ export default function YanshuWorkbench() {
           )}
         </section>
 
-        <section className="workflow-section content-section" id="workflow">
+        <section
+          className="workflow-section content-section prompt-rail"
+          id="workflow"
+        >
           <div className="section-heading-row workflow-heading">
             <div>
               <p className="eyebrow">{copy.workflowEyebrow}</p>

@@ -410,7 +410,7 @@ export default function SubmissionStrategy() {
           </div>
         </section>
 
-        <section className="content-section submission-prompt-section">
+        <section className="content-section prompt-rail submission-prompt-section">
           <div className="section-heading-row workflow-heading">
             <div>
               <p className="eyebrow">{copy.promptEyebrow}</p>
