@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { PRODUCT_CONFIG, UI_COPY, type Language } from "./config";
 
-type ActivePage = "reconstruction" | "submission";
+type ActivePage = "reconstruction" | "figures" | "submission";
 
 interface SiteNavigationProps {
   language: Language;
@@ -38,7 +38,8 @@ export default function SiteNavigation({
     {
       id: "figures",
       label: copy.navFigures,
-      status: "future",
+      href: "/figures",
+      status: "available",
     },
     {
       id: "writing",

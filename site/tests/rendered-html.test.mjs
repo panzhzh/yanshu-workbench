@@ -118,6 +118,35 @@ test("server-renders submission strategy filters and its live prompt", async () 
   assert.doesNotMatch(html, /四步重构工作流/);
 });
 
+test("server-renders the research-figure planner and exact-term prompt", async () => {
+  const response = await render("/figures");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /科研绘图/);
+  assert.match(html, /论文材料/);
+  assert.match(html, /\.tex/);
+  assert.match(html, /\.pdf/);
+  assert.match(html, /本站不读取或保存论文/);
+  assert.match(html, /引言图/);
+  assert.match(html, /方法 Overview/);
+  assert.match(html, /技术细节图/);
+  assert.match(html, /顶会极简线稿/);
+  assert.match(html, /结构化技术图/);
+  assert.match(html, /轻量学术插画/);
+  assert.match(html, /克制使用/);
+  assert.match(html, /不使用/);
+  assert.match(html, /图中所有文字/);
+  assert.match(html, /必须与论文中的术语完全一致/);
+  assert.match(html, /不得发明论文中不存在的模块/);
+  assert.match(html, /Overview 与技术细节图必须分工明确/);
+  assert.match(html, /先输出一份不超过 8 行的绘图计划/);
+  assert.match(html, /一次只生成一张/);
+  assert.match(html, /可下载的高分辨率 PNG/);
+  assert.doesNotMatch(html, /上传文件<\/button>/);
+});
+
 test("keeps presets and production prompts configuration-driven", async () => {
   const [
     config,
@@ -455,4 +484,36 @@ test("keeps presets and production prompts configuration-driven", async () => {
   await assert.rejects(
     access(new URL("app/_sites-preview/", templateRoot)),
   );
+});
+
+test("keeps research-figure choices and prompt rules configuration-driven", async () => {
+  const [figureConfig, figureComponent, figurePage, navigation] =
+    await Promise.all([
+      readFile(new URL("../app/figures/config.ts", import.meta.url), "utf8"),
+      readFile(
+        new URL("../app/figures/FigureWorkbench.tsx", import.meta.url),
+        "utf8",
+      ),
+      readFile(new URL("../app/figures/page.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/SiteNavigation.tsx", import.meta.url), "utf8"),
+    ]);
+
+  assert.match(figureConfig, /includeIntroductionFigure:\s*true/);
+  assert.match(figureConfig, /includeMethodOverview:\s*true/);
+  assert.match(figureConfig, /technicalFigureCount:\s*1/);
+  assert.match(figureConfig, /styleId:\s*"conference-minimal"/);
+  assert.match(figureConfig, /allowSemanticIcons:\s*true/);
+  assert.match(figureConfig, /includeLargeTitle:\s*false/);
+  assert.match(figureConfig, /"conference-minimal"/);
+  assert.match(figureConfig, /"structured-technical"/);
+  assert.match(figureConfig, /"light-academic"/);
+  assert.match(figureConfig, /buildFigurePrompt/);
+  assert.match(figureConfig, /不得翻译、改写或自造近义词/);
+  assert.match(figureConfig, /Regenerate any image containing misspelled/);
+  assert.match(figureComponent, /buildFigurePrompt\(preferences/);
+  assert.match(figureComponent, /setPromptLanguage/);
+  assert.match(figureComponent, /navigator\.clipboard/);
+  assert.match(figureComponent, /activePage="figures"/);
+  assert.match(figurePage, /<FigureWorkbench \/>/);
+  assert.match(navigation, /href:\s*"\/figures"/);
 });
