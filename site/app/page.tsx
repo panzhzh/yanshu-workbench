@@ -1,5 +1,5 @@
-import YanshuWorkbench from "./YanshuWorkbench";
+import HomePage from "./HomePage";
 
 export default function Home() {
-  return <YanshuWorkbench />;
+  return <HomePage />;
 }

@@ -25,6 +25,8 @@ const LABELS = {
     openAccess: "是否 OA",
     apc: "是否有 APC",
     apcRange: "APC 范围",
+    impactFactor: "影响因子（IF）",
+    reviewArticles: "综述文章",
     jcrQuartiles: "JCR 分区",
     casZones: "中科院分区",
     citationIndexes: "收录索引",
@@ -33,7 +35,7 @@ const LABELS = {
     yes: "是",
     no: "否",
     submissionFilterInstruction:
-      "除“不限”外，以上均为候选池筛选条件。必须逐项通过官网或权威来源核验；不得猜测，无法核验的候选应明确标记并单独列出。",
+      "除“不限”外，以上均为候选池筛选条件。必须逐项通过官网或权威来源核验；不得猜测，无法核验的候选应明确标记并单独列出。候选期刊还必须处于正常运营且当前可投稿状态；不得把 CiteScore、SJR 或其他指标冒充 JCR Journal Impact Factor。",
     inputs: "## 本轮输入",
     evidence: "## 证据与事实规则",
     manuscriptProtection: "## TeX 与格式保护",
@@ -73,6 +75,8 @@ const LABELS = {
     openAccess: "OA",
     apc: "APC charged",
     apcRange: "APC range",
+    impactFactor: "Impact factor (IF)",
+    reviewArticles: "Review articles",
     jcrQuartiles: "JCR quartiles",
     casZones: "CAS zones",
     citationIndexes: "Citation indexes",
@@ -81,7 +85,7 @@ const LABELS = {
     yes: "Yes",
     no: "No",
     submissionFilterInstruction:
-      "Treat every value other than “Any” as a candidate-pool filter. Verify each item against an official or authoritative source; never guess, and clearly separate candidates whose status cannot be verified.",
+      "Treat every value other than “Any” as a candidate-pool filter. Verify each item against an official or authoritative source; never guess, and clearly separate candidates whose status cannot be verified. Every candidate journal must also be active and currently accepting submissions. Never present CiteScore, SJR, or another metric as the JCR Journal Impact Factor.",
     inputs: "## Inputs for This Round",
     evidence: "## Evidence and Fact Rules",
     manuscriptProtection: "## TeX and Format Protection",
@@ -154,6 +158,18 @@ function buildConfiguration(
             ),
           ]
         : []),
+      field(
+        labels.impactFactor,
+        preferences?.useImpactFactorRange
+          ? `${preferences.impactFactorMin.toFixed(1)}–${preferences.impactFactorMax.toFixed(1)}`
+          : labels.unrestricted,
+      ),
+      field(
+        labels.reviewArticles,
+        preferences?.requireReviewArticles
+          ? labels.yes
+          : labels.unrestricted,
+      ),
       field(
         labels.jcrQuartiles,
         selectedOrAny(preferences?.jcrQuartiles ?? []),

@@ -591,10 +591,10 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
 Prioritize the official Call for Papers, author guide, and organizer pages. Record historical acceptance rates only when an official or verifiable source provides them. Never treat a previous edition's rules as current.`,
       },
       journal: {
-        zh: `当前目标为期刊。核验期刊全名、出版社、Aims and Scope、文章类型、SCIE/SSCI/ESCI 等收录、可核验的 JCR 年份/类别/分区、OA 模式、APC 与币种、篇幅/图表/摘要/参考文献要求、附加文件、投稿入口和数据政策。
-不得把 SJR/Scopus 分区写成 JCR，也不得混写中科院分区。审稿周期、出版频率或接收率只有官网明确提供时才记录。`,
-        en: `The current target is a journal. Verify full title, publisher, Aims and Scope, article type, SCIE/SSCI/ESCI indexing, verifiable JCR year/category/quartile, OA model, APC and currency, length/figure/abstract/reference requirements, additional files, submission portal, and data policies.
-Never present SJR/Scopus quartiles as JCR or mix CAS rankings with JCR. Record review time, publication frequency, or acceptance rate only when the official site explicitly provides it.`,
+        zh: `当前目标为期刊。核验期刊全名、出版社、Aims and Scope、当前可投稿状态、文章类型、SCIE/SSCI/ESCI 等收录、可核验的 JCR 年份/类别/分区与 Journal Impact Factor、OA 模式、APC 与币种、篇幅/图表/摘要/参考文献要求、附加文件、投稿入口和数据政策。
+不得把 CiteScore、SJR、Scopus 分区写成 JCR Journal Impact Factor 或 JCR 分区，也不得混写中科院分区。若要求综述文章，只能以当前官网 Author Guidelines 或 Article Types 页面明确接受 Review/Survey 为依据，不能仅凭历史上发表过综述推断。审稿周期、出版频率或接收率只有官网明确提供时才记录。`,
+        en: `The current target is a journal. Verify full title, publisher, Aims and Scope, current submission status, article type, SCIE/SSCI/ESCI indexing, verifiable JCR year/category/quartile and Journal Impact Factor, OA model, APC and currency, length/figure/abstract/reference requirements, additional files, submission portal, and data policies.
+Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Factor or JCR quartile, and never mix CAS rankings with JCR. If review articles are required, rely only on a current official Author Guidelines or Article Types page that explicitly accepts Review/Survey submissions; prior publication of a review is not sufficient evidence. Record review time, publication frequency, or acceptance rate only when the official site explicitly provides it.`,
       },
     },
     tasks: [
@@ -614,8 +614,8 @@ Never present SJR/Scopus quartiles as JCR or mix CAS rankings with JCR. Record r
           en: "B. Build a Candidate Pool, Then Verify It",
         },
         body: {
-          zh: "建立 10–15 个候选，逐项核验名称、官方链接、范围匹配、文章/track 类型、当前收录或等级信息、篇幅与附录政策、费用、额外材料、投稿入口和所有影响投稿的规则。每个当前事实都附官方或权威来源；无法核验就明确写“未核验”。MDPI、Hindawi 和 Frontiers 是用户明确排除项，其旗下期刊不得进入候选池、评分或推荐梯队，只在排除记录中注明“用户排除”，不得作无依据的泛化质量定性。",
-          en: "Build a pool of 10–15 candidates. For each, verify name, official link, scope fit, article/track type, current indexing or ranking information, length and appendix policy, fees, additional materials, submission portal, and every rule that affects submission. Cite an official or authoritative source for each current fact and mark anything unresolved as 'Not verified.' MDPI, Hindawi, and Frontiers are explicit user exclusions: do not place their journals in the pool, scoring, or recommendation tiers. Record them only as 'excluded by user' without unsupported general quality claims.",
+          zh: "建立 10–15 个候选，逐项核验名称、官方链接、范围匹配、当前是否正常接收投稿、文章/track 类型、当前收录或等级信息、篇幅与附录政策、费用、额外材料、投稿入口和所有影响投稿的规则。每个当前事实都附官方或权威来源；无法核验就明确写“未核验”。已停刊、仅保留历史页面、转投专用或当前无法正常投稿的 venue 不得进入推荐梯队。MDPI、Hindawi 和 Frontiers 是用户明确排除项，其旗下期刊不得进入候选池、评分或推荐梯队，只在排除记录中注明“用户排除”，不得作无依据的泛化质量定性。",
+          en: "Build a pool of 10–15 candidates. For each, verify name, official link, scope fit, whether it is active and currently accepting normal submissions, article/track type, current indexing or ranking information, length and appendix policy, fees, additional materials, submission portal, and every rule that affects submission. Cite an official or authoritative source for each current fact and mark anything unresolved as 'Not verified.' Do not recommend venues that have ceased publication, retain only an archive page, accept transfer-only submissions, or are otherwise not open for normal submission. MDPI, Hindawi, and Frontiers are explicit user exclusions: do not place their journals in the pool, scoring, or recommendation tiers. Record them only as 'excluded by user' without unsupported general quality claims.",
         },
       },
       {

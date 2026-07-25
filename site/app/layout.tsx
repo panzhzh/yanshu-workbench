@@ -2,17 +2,21 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
+const siteDescription =
+  "面向 CS 研究者的论文初稿、结构重构、科研绘图与投稿策略工作台。";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: "研术台 · YanShu Workbench",
-  description:
-    "面向计算机科学研究者的科研方法文档站与交互式论文重构工作台。",
+  description: siteDescription,
   applicationName: "研术台",
   keywords: [
     "计算机科学",
     "科研写作",
+    "论文初稿",
     "论文重构",
+    "科研绘图",
+    "投稿策略",
     "学术写作",
     "Research workflow",
   ],
@@ -23,8 +27,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     title: "研术台 · YanShu Workbench",
-    description:
-      "面向计算机科学研究者的科研方法文档站与交互式论文重构工作台。",
+    description: siteDescription,
     images: [
       {
         url: "/og.png",
@@ -37,8 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "研术台 · YanShu Workbench",
-    description:
-      "面向计算机科学研究者的科研方法文档站与交互式论文重构工作台。",
+    description: siteDescription,
     images: ["/og.png"],
   },
 };

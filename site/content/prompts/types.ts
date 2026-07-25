@@ -44,6 +44,10 @@ export interface SubmissionPreferences {
   apcCurrency: ApcCurrency;
   apcMin: number;
   apcMax: number;
+  useImpactFactorRange: boolean;
+  impactFactorMin: number;
+  impactFactorMax: number;
+  requireReviewArticles: boolean;
   jcrQuartiles: JcrQuartile[];
   casZones: CasZone[];
   citationIndexes: CitationIndex[];

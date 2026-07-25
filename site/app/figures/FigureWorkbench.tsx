@@ -9,10 +9,14 @@ import {
   DEFAULT_FIGURE_PREFERENCES,
   FIGURE_ASPECT_RATIO_IDS,
   FIGURE_ASPECT_RATIOS,
+  FIGURE_COLOR_PALETTE_IDS,
+  FIGURE_COLOR_PALETTES,
   FIGURE_COPY,
   FIGURE_DEFAULT_LAYOUT,
   FIGURE_PLACEMENT_IDS,
   FIGURE_PLACEMENTS,
+  FIGURE_FONT_FAMILIES,
+  FIGURE_FONT_FAMILY_IDS,
   FIGURE_PROMPT_ORDER,
   FIGURE_PROMPTS,
   FIGURE_STYLE_DEFAULTS,
@@ -95,12 +99,16 @@ export default function FigureWorkbench() {
     FIGURE_ASPECT_RATIOS[preferences.aspectRatioId];
   const selectedAspectRatioValue = getFigureAspectRatio(preferences);
   const selectedStyle = FIGURE_STYLES[preferences.styleId];
+  const selectedPalette = FIGURE_COLOR_PALETTES[preferences.paletteId];
+  const selectedFont = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
   const visualSummary =
     uiLanguage === "zh"
-      ? `${preferences.accentColorCount} 种强调色 · ${preferences.fontSizeLevels} 级字号`
-      : `${preferences.accentColorCount} accent color${
+      ? `${selectedPalette.label.zh} · ${selectedFont.label} · ${preferences.fontSizeLevels} 级字号`
+      : `${selectedPalette.label.en} · ${selectedFont.label} · ${
+          preferences.accentColorCount
+        } accent color${
           preferences.accentColorCount === 1 ? "" : "s"
-        } · ${preferences.fontSizeLevels} type-size levels`;
+        }`;
 
   useEffect(() => {
     document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
@@ -488,6 +496,61 @@ export default function FigureWorkbench() {
                 {copy.visualRules}
               </legend>
               <div className="figure-visual-rules-grid">
+                <div className="figure-visual-rule">
+                  <strong>{copy.colorPalette}</strong>
+                  <select
+                    className="figure-rule-select"
+                    value={preferences.paletteId}
+                    onChange={(event) =>
+                      updatePreferences((current) => ({
+                        ...current,
+                        paletteId:
+                          event.target
+                            .value as FigurePreferences["paletteId"],
+                      }))
+                    }
+                    aria-label={copy.colorPalette}
+                  >
+                    {FIGURE_COLOR_PALETTE_IDS.map((paletteId) => (
+                      <option value={paletteId} key={paletteId}>
+                        {FIGURE_COLOR_PALETTES[paletteId].label[uiLanguage]}
+                      </option>
+                    ))}
+                  </select>
+                  <span className="figure-palette-preview" aria-hidden="true">
+                    {FIGURE_COLOR_PALETTES[preferences.paletteId].colors.map(
+                      (color) => (
+                        <i key={color} style={{ backgroundColor: color }} />
+                      ),
+                    )}
+                  </span>
+                  <small>{copy.colorPaletteHint}</small>
+                </div>
+
+                <div className="figure-visual-rule">
+                  <strong>{copy.fontFamily}</strong>
+                  <select
+                    className="figure-rule-select"
+                    value={preferences.fontFamilyId}
+                    onChange={(event) =>
+                      updatePreferences((current) => ({
+                        ...current,
+                        fontFamilyId:
+                          event.target
+                            .value as FigurePreferences["fontFamilyId"],
+                      }))
+                    }
+                    aria-label={copy.fontFamily}
+                  >
+                    {FIGURE_FONT_FAMILY_IDS.map((fontFamilyId) => (
+                      <option value={fontFamilyId} key={fontFamilyId}>
+                        {FIGURE_FONT_FAMILIES[fontFamilyId].label}
+                      </option>
+                    ))}
+                  </select>
+                  <small>{copy.fontFamilyHint}</small>
+                </div>
+
                 <div className="figure-visual-rule">
                   <strong>{copy.lineColors}</strong>
                   <div

@@ -163,6 +163,28 @@ export default function SubmissionStrategy() {
     setCopied(false);
   }
 
+  function updateImpactFactorMinimum(rawValue: number) {
+    if (!Number.isFinite(rawValue)) return;
+    const value = Math.max(0, Math.round(rawValue * 10) / 10);
+    setPreferences((current) => ({
+      ...current,
+      impactFactorMin: value,
+      impactFactorMax: Math.max(value, current.impactFactorMax),
+    }));
+    setCopied(false);
+  }
+
+  function updateImpactFactorMaximum(rawValue: number) {
+    if (!Number.isFinite(rawValue)) return;
+    const value = Math.max(0, Math.round(rawValue * 10) / 10);
+    setPreferences((current) => ({
+      ...current,
+      impactFactorMin: Math.min(current.impactFactorMin, value),
+      impactFactorMax: value,
+    }));
+    setCopied(false);
+  }
+
   function resetFilters() {
     setPreferences({ ...DEFAULT_SUBMISSION_PREFERENCES });
     setCopied(false);
@@ -306,9 +328,101 @@ export default function SubmissionStrategy() {
               )}
             </fieldset>
 
-            <fieldset className="submission-filter-card">
+            <fieldset
+              className={`submission-filter-card if-filter ${
+                preferences.useImpactFactorRange ? "has-range" : ""
+              }`}
+            >
               <legend>
                 <span className="control-index">03</span>
+                {copy.impactFactor}
+              </legend>
+              <button
+                className={`figure-rule-switch ${
+                  preferences.useImpactFactorRange ? "active" : ""
+                }`}
+                type="button"
+                role="switch"
+                aria-label={copy.impactFactorToggle}
+                aria-checked={preferences.useImpactFactorRange}
+                onClick={() =>
+                  updatePreference(
+                    "useImpactFactorRange",
+                    !preferences.useImpactFactorRange,
+                  )
+                }
+              >
+                <span className="switch-track" aria-hidden="true">
+                  <span />
+                </span>
+                {preferences.useImpactFactorRange
+                  ? copy.impactFactorOn
+                  : copy.impactFactorOff}
+              </button>
+              {preferences.useImpactFactorRange ? (
+                <div className="apc-range if-range">
+                  <label>
+                    <span>{copy.minimum}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={preferences.impactFactorMin}
+                      onChange={(event) =>
+                        updateImpactFactorMinimum(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                  <span aria-hidden="true">—</span>
+                  <label>
+                    <span>{copy.maximum}</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.1"
+                      value={preferences.impactFactorMax}
+                      onChange={(event) =>
+                        updateImpactFactorMaximum(event.target.valueAsNumber)
+                      }
+                    />
+                  </label>
+                </div>
+              ) : null}
+              <small>{copy.impactFactorHint}</small>
+            </fieldset>
+
+            <fieldset className="submission-filter-card compact-filter">
+              <legend>
+                <span className="control-index">04</span>
+                {copy.reviewArticles}
+              </legend>
+              <button
+                className={`figure-rule-switch ${
+                  preferences.requireReviewArticles ? "active" : ""
+                }`}
+                type="button"
+                role="switch"
+                aria-checked={preferences.requireReviewArticles}
+                onClick={() =>
+                  updatePreference(
+                    "requireReviewArticles",
+                    !preferences.requireReviewArticles,
+                  )
+                }
+              >
+                <span className="switch-track" aria-hidden="true">
+                  <span />
+                </span>
+                {preferences.requireReviewArticles
+                  ? copy.reviewArticlesOn
+                  : copy.reviewArticlesOff}
+              </button>
+              <small>{copy.reviewArticlesHint}</small>
+            </fieldset>
+
+            <fieldset className="submission-filter-card">
+              <legend>
+                <span className="control-index">05</span>
                 {copy.jcr}
               </legend>
               <div className="filter-chip-list">
@@ -343,7 +457,7 @@ export default function SubmissionStrategy() {
 
             <fieldset className="submission-filter-card">
               <legend>
-                <span className="control-index">04</span>
+                <span className="control-index">06</span>
                 {copy.cas}
               </legend>
               <div className="filter-chip-list">
@@ -376,7 +490,7 @@ export default function SubmissionStrategy() {
 
             <fieldset className="submission-filter-card index-filter">
               <legend>
-                <span className="control-index">05</span>
+                <span className="control-index">07</span>
                 {copy.indexes}
               </legend>
               <div className="filter-chip-list index-chip-list">

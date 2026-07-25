@@ -33,9 +33,9 @@ Runtime variables:
 - `sectionBudgets`: current per-section allocation, including Abstract.
 - `includeAppendix`, `appendixLabel`, `appendixDirective`: appendix state and
   its main-text-counting rule.
-- `submissionPreferences`: OA, APC range, JCR quartile, CAS zone,
-  SCIE/SSCI/ESCI filters, and fixed publisher exclusions used only by the
-  submission-strategy prompt.
+- `submissionPreferences`: OA, APC and IF ranges, review-article acceptance,
+  JCR quartile, CAS zone, SCIE/SSCI/ESCI filters, and fixed publisher
+  exclusions used only by the submission-strategy prompt.
 
 Shared word-count policy lives in `wordCountPolicy.ts`. Each table or figure is
 currently counted as 200 words in its section and in any applicable main-text

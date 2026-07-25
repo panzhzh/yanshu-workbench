@@ -21,6 +21,18 @@ export type FigureAspectRatioId =
 export type FigureLineColorMode = "neutral" | "semantic";
 export type FigureAccentColorCount = 1 | 2 | 3;
 export type FigureFontSizeLevels = 2 | 3;
+export type FigurePaletteId =
+  | "academic-blue"
+  | "blue-orange"
+  | "teal-purple"
+  | "warm-earth"
+  | "cool-monochrome";
+export type FigureFontFamilyId =
+  | "times-new-roman"
+  | "arial"
+  | "calibri"
+  | "helvetica"
+  | "comic-sans";
 
 export interface FigurePreferences {
   promptId: FigurePromptId;
@@ -29,6 +41,8 @@ export interface FigurePreferences {
   customAspectWidth: number;
   customAspectHeight: number;
   styleId: FigureStyleId;
+  paletteId: FigurePaletteId;
+  fontFamilyId: FigureFontFamilyId;
   lineColorMode: FigureLineColorMode;
   accentColorCount: FigureAccentColorCount;
   allowLightIllustrations: boolean;
@@ -65,6 +79,8 @@ export const DEFAULT_FIGURE_PREFERENCES: FigurePreferences = {
   customAspectWidth: 5,
   customAspectHeight: 4,
   styleId: "conference-minimal",
+  paletteId: "academic-blue",
+  fontFamilyId: "arial",
   lineColorMode: "neutral",
   accentColorCount: 1,
   allowLightIllustrations: false,
@@ -294,6 +310,87 @@ export const FIGURE_STYLE_DEFAULTS = {
   }
 >;
 
+export const FIGURE_COLOR_PALETTES = {
+  "academic-blue": {
+    label: { zh: "学术蓝", en: "Academic blue" },
+    colors: ["#24495F", "#4F7D86", "#9A7444"],
+  },
+  "blue-orange": {
+    label: { zh: "蓝橙对照", en: "Blue–orange" },
+    colors: ["#2F5D8A", "#D27A35", "#6F8C73"],
+  },
+  "teal-purple": {
+    label: { zh: "青紫结构", en: "Teal–purple" },
+    colors: ["#2F7775", "#7467A2", "#AA7E42"],
+  },
+  "warm-earth": {
+    label: { zh: "暖色大地", en: "Warm earth" },
+    colors: ["#7A5541", "#B07D3C", "#456D78"],
+  },
+  "cool-monochrome": {
+    label: { zh: "冷调单色", en: "Cool monochrome" },
+    colors: ["#294B5A", "#607D88", "#91A6AE"],
+  },
+} as const satisfies Record<
+  FigurePaletteId,
+  {
+    label: Record<Language, string>;
+    colors: readonly [string, string, string];
+  }
+>;
+
+export const FIGURE_COLOR_PALETTE_IDS = Object.keys(
+  FIGURE_COLOR_PALETTES,
+) as FigurePaletteId[];
+
+export const FIGURE_FONT_FAMILIES = {
+  "times-new-roman": {
+    label: "Times New Roman",
+    directive: {
+      zh: "全图统一使用 Times New Roman，不混用其他字体。",
+      en: "Use Times New Roman throughout the figure and do not mix typefaces.",
+    },
+  },
+  arial: {
+    label: "Arial",
+    directive: {
+      zh: "全图统一使用 Arial，不混用其他字体。",
+      en: "Use Arial throughout the figure and do not mix typefaces.",
+    },
+  },
+  calibri: {
+    label: "Calibri",
+    directive: {
+      zh: "全图统一使用 Calibri，不混用其他字体。",
+      en: "Use Calibri throughout the figure and do not mix typefaces.",
+    },
+  },
+  helvetica: {
+    label: "Helvetica",
+    directive: {
+      zh: "全图统一使用 Helvetica，不混用其他字体。",
+      en: "Use Helvetica throughout the figure and do not mix typefaces.",
+    },
+  },
+  "comic-sans": {
+    label: "Comic Sans MS",
+    directive: {
+      zh: "全图统一使用 Comic Sans MS（不可用时使用 Comic Neue），只用于轻量科研漫画或示意图气质，仍须克制、清晰且易印刷，不混用其他字体。",
+      en: "Use Comic Sans MS throughout the figure (Comic Neue only as a fallback) for a restrained scientific-cartoon or schematic character. Keep it clear and print-safe, and do not mix typefaces.",
+    },
+  },
+} as const satisfies Record<
+  FigureFontFamilyId,
+  {
+    label: string;
+    directive: Record<Language, string>;
+  }
+>;
+
+export const FIGURE_FONT_FAMILY_IDS = Object.keys(
+  FIGURE_FONT_FAMILIES,
+) as FigureFontFamilyId[];
+
 interface FigurePromptSpec {
   number: string;
   label: Record<Language, string>;
@@ -393,14 +490,12 @@ export const FIGURE_PROMPTS = {
         "从 .tex 中确认正式定义的输入、输出、主要组件与接口；每个主要组件只出现一次，并用层级、分组和箭头表达关系。",
         "优先呈现决定整体理解的主路径。仅当论文确实依赖分支、共享参数、循环、跨阶段反馈或多模态交互时，才显示这些结构。",
         "只有在训练与推理的差异影响方法理解时才明确区分两者；不得为了画面复杂而增加并行流程。",
-        "保持 Overview 粒度：组件内部只保留一句话无法替代的结构关系，局部计算交给技术细节图。",
         "让图的阅读顺序、箭头方向和颜色语义全局一致；输入与输出必须有清楚边界。",
       ],
       en: [
         "Use the .tex to verify formally defined inputs, outputs, major components, and interfaces. Show each major component once and express relationships through hierarchy, grouping, and arrows.",
         "Prioritize the main path needed for system-level understanding. Show branches, shared parameters, loops, cross-stage feedback, or multimodal interaction only when the paper actually depends on them.",
         "Separate training from inference only when that distinction is material to understanding the method; do not add parallel flows merely to make the figure look complex.",
-        "Stay at overview granularity. Keep only internal structure that cannot be replaced by one sentence, and leave local computation to the technical-detail figure.",
         "Use a consistent reading order, arrow direction, and color semantics throughout. Inputs and outputs must have clear boundaries.",
       ],
     },
@@ -446,14 +541,14 @@ export const FIGURE_PROMPTS = {
     designRules: {
       zh: [
         "先比较论文中的候选机制，只选择同时满足四项条件的一项：属于核心贡献；仅靠文字或公式较难理解；能够与 Overview 明确分工；在 .tex 与 .pdf 中有充分证据。",
-        "若没有任何机制同时满足四项条件，先说明原因并请求我确认，不得为了完成任务而发明一张技术图。",
+        "若没有任何机制同时满足四项条件，直接说明证据不足并停止，不得为了完成任务而发明一张技术图。",
         "围绕这一项机制展示必要的输入或状态、操作顺序、实体间关系、中间表示与输出；每个元素都必须直接服务于机制理解。",
         "只在公式对机制不可替代且能以论文原式清晰呈现时保留一个局部公式；否则使用准确的结构与信息流表达。",
         "明确检查与方法总览的差异：总览给出系统位置与接口，本图放大局部运作；不得重新绘制整条方法流水线。",
       ],
       en: [
         "Compare candidate mechanisms and select exactly one that meets all four conditions: central to the contribution, hard to understand from prose or equations alone, clearly separable from the overview, and sufficiently supported by both the .tex and .pdf.",
-        "If no mechanism meets all four conditions, explain why and ask for confirmation before drawing. Do not invent a technical figure merely to complete the task.",
+        "If no mechanism meets all four conditions, state that the evidence is insufficient and stop. Do not invent a technical figure merely to complete the task.",
         "Show only the input or state, operation sequence, entity relationships, intermediate representation, and output needed to understand this mechanism. Every element must serve that explanation.",
         "Include at most one local equation, and only when it is indispensable and can be reproduced exactly from the paper; otherwise use precise structure and information flow.",
         "Explicitly check the division of labor with the Method Overview: the overview establishes system position and interfaces, while this figure magnifies local operation. Do not redraw the full pipeline.",
@@ -485,7 +580,7 @@ export const FIGURE_COPY = {
     eyebrow: "RESEARCH FIGURES",
     title: "科研绘图",
     subtitle: "选择什么，就得到什么独立 Prompt；一次只让 GPT 生成一张图。",
-    preset: "论文取证 → 单图方案 → 确认后生成",
+    preset: "论文取证 → 直接生成最终单图",
     reset: "恢复默认配置",
     resetHint:
       "恢复默认图型、占栏、画布比例和视觉规范；保留当前语言。",
@@ -520,6 +615,12 @@ export const FIGURE_COPY = {
     lineColorsSemanticHint:
       "仅在信息流或实体类别确需区分时使用强调色线条。",
     accentColors: "强调色数量",
+    colorPalette: "色系",
+    colorPaletteHint:
+      "下拉选择全图强调色系；实际只使用前述数量的颜色，所有正文仍为黑色。",
+    fontFamily: "全图字体",
+    fontFamilyHint:
+      "全图只使用一种字体；Comic Sans MS 仅适合轻量科研漫画或示意图。",
     lightIllustrations: "轻插图与图标",
     lightIllustrationsOn: "允许轻卡通",
     lightIllustrationsOff: "不使用",
@@ -564,7 +665,7 @@ export const FIGURE_COPY = {
     title: "Research figures",
     subtitle:
       "Select a figure type to get its independent prompt. GPT generates one image at a time.",
-    preset: "Read evidence → plan one figure → generate after approval",
+    preset: "Read evidence → generate the final figure",
     reset: "Restore defaults",
     resetHint:
       "Restores the default figure type, placement, canvas ratio, and visual specification while keeping the current language.",
@@ -601,6 +702,12 @@ export const FIGURE_COPY = {
     lineColorsSemanticHint:
       "Use accent-colored lines only when flows or entity types genuinely need distinction.",
     accentColors: "Accent colors",
+    colorPalette: "Color palette",
+    colorPaletteHint:
+      "Choose the accent palette. Use only the selected number of colors; all body text remains black.",
+    fontFamily: "Global typeface",
+    fontFamilyHint:
+      "Use one typeface throughout. Comic Sans MS is reserved for restrained scientific cartoons or schematics.",
     lightIllustrations: "Light illustrations & icons",
     lightIllustrationsOn: "Allow light-cartoon",
     lightIllustrationsOff: "Do not use",
@@ -664,13 +771,18 @@ export function buildFigurePrompt(
   const placement = FIGURE_PLACEMENTS[preferences.placementId];
   const aspectRatio = FIGURE_ASPECT_RATIOS[preferences.aspectRatioId];
   const selectedAspectRatio = getFigureAspectRatio(preferences);
+  const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
+  const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
+  const activePalette = palette.colors
+    .slice(0, preferences.accentColorCount)
+    .join(", ");
 
   if (language === "zh") {
     const lineColorRule =
       preferences.lineColorMode === "semantic"
         ? "只在不同信息流、实体类别或状态确实需要区分时，才让边框、箭头或连接线使用强调色；相同语义必须使用相同颜色，不得为了好看制造彩虹线条。"
         : "所有边框、箭头和连接线统一使用深色中性细线，不用线条颜色区分语义；需要区分时改用形状、线型或直接标签。";
-    const colorRule = `全图最多使用 ${preferences.accentColorCount} 种有彩色相；这一数量不包括纯白背景、黑色文字和深色中性结构线。颜色必须低饱和、含义稳定，且任何关键区别都不能只依赖颜色。`;
+    const colorRule = `使用“${palette.label.zh}”色系，允许的强调色依次为 ${activePalette}；全图最多使用 ${preferences.accentColorCount} 种有彩色相。这一数量不包括纯白背景、黑色文字和深色中性结构线。不得自行替换或增加颜色；任何关键区别都不能只依赖颜色。`;
     const illustrationRule = preferences.allowLightIllustrations
       ? "允许克制的轻卡通技术插图、语义 icon 和略带圆润感的无衬线字体，但它们只能表示论文中的真实对象或过程，不得代替核心机制，也不得呈现漫画、吉祥物、手写体、气泡字或营销插画效果。"
       : "不使用轻卡通插图、icon、拟物对象或装饰字体；所有关系只用模块、线条、箭头、简单几何形状和必要文字表达。";
@@ -703,7 +815,7 @@ ${buildList(spec.exclusions.zh)}
 
 ## 统一视觉与文字约束
 - 图中所有文字——包括标题、模块名、箭头标签、图例、缩写和变量符号——必须与论文中的术语完全一致，保留原有大小写、连字符和符号。不得翻译、改写或自造近义词；只能使用论文已经定义的缩写。
-- 规划时把拟出现在图中的每个标签逐项放在引号中；冷门方法名或自造词须逐字符核对，但最终图片中显示正常写法。若文字放不下，调整版式，不得擅自缩写。
+- 生成前在内部建立精确标签清单，并逐字符核对冷门方法名或自造词；不要向我输出这份清单。若文字放不下，调整版式，不得擅自缩写。
 - 不得发明论文中不存在的模块、数据流、公式、指标、实验结果或因果关系。证据不足的内容先询问，不要补全。
 - 论文占栏：${placement.directive.zh}
 - 画布比例：${aspectRatio.directive.zh}
@@ -712,6 +824,7 @@ ${buildList(spec.exclusions.zh)}
 - 视觉风格：${style.directive.zh}
 - 线条颜色：${lineColorRule}
 - 强调色：${colorRule}
+- 全图字体：${fontFamily.directive.zh}
 - 轻插图与图标：${illustrationRule}
 - 模块卡片底色：${cardFillRule}
 - 字号层级：${typographyRule}
@@ -719,10 +832,8 @@ ${buildList(spec.exclusions.zh)}
 - 大标题：${titleRule}
 - 文字短而清晰，不写段落。严格服从所选画布比例与目标栏宽，保持一条清楚的阅读路径；避免垂直文字、交叉箭头和无意义留白。
 
-## 工作顺序
-1. 先输出不超过 6 行的单图方案：唯一主旨、占栏方式与画布比例、构图与阅读顺序、拟使用的全部精确标签、精确配色与字号层级，以及任何证据不足之处。此时不要生成图片。
-2. 等我确认方案后，只生成这一张图，不提供备选版本或第二张图。
-3. 生成后逐项核对图片中的术语、拼写、结构、箭头语义和缩小后的可读性；如有错误，只修正受影响部分，不改变已确认的其余设计。
+## 直接生成
+材料足够时直接生成最终图片，不先输出方案、标签清单、配色说明、备选版本，也不征求设计确认。生成时在内部逐项核对术语、拼写、结构、箭头语义和缩小后的可读性；若发现错误，只修正受影响部分，不改变其余设计。
 
 ## 输出
 生成一个画布比例严格为 ${selectedAspectRatio}、可直接下载的高分辨率 PNG。不要生成联系表，不要添加水印、作者信息、论文完整标题或图片 caption。图片之后只附一行核对结果。`;
@@ -732,7 +843,7 @@ ${buildList(spec.exclusions.zh)}
     preferences.lineColorMode === "semantic"
       ? "Use accent-colored borders, arrows, or connectors only when different information flows, entity types, or states genuinely need distinction. Keep identical semantics in the same color and never add rainbow lines for decoration."
       : "Use one dark neutral color for all borders, arrows, and connectors. Do not distinguish meaning through line color; use shape, line style, or direct labels instead.";
-  const colorRule = `Use at most ${preferences.accentColorCount} chromatic accent color${preferences.accentColorCount === 1 ? "" : "s"} across the entire figure. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Keep colors muted and semantically stable, and never rely on color alone for a critical distinction.`;
+  const colorRule = `Use the “${palette.label.en}” palette with the allowed accent colors ${activePalette}, in that order. Use at most ${preferences.accentColorCount} chromatic accent color${preferences.accentColorCount === 1 ? "" : "s"} across the entire figure. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Do not substitute or add colors, and never rely on color alone for a critical distinction.`;
   const illustrationRule = preferences.allowLightIllustrations
     ? "Restrained light-cartoon technical illustrations, semantic icons, and subtly rounded sans-serif type are allowed only when they represent real objects or processes in the paper. They must not replace the core mechanism or look comic-like, mascot-driven, handwritten, bubbly, or promotional."
     : "Do not use light-cartoon illustrations, icons, skeuomorphic objects, or decorative type. Express all relationships with modules, lines, arrows, simple geometry, and necessary text.";
@@ -765,7 +876,7 @@ ${buildList(spec.exclusions.en)}
 
 ## Shared visual and text constraints
 - Every piece of in-figure text—including titles, module names, arrow labels, legends, abbreviations, and variable symbols—must exactly match the paper’s terminology, capitalization, hyphenation, and notation. Do not translate, paraphrase, or invent synonyms. Use only abbreviations already defined in the paper.
-- In the plan, place every proposed in-figure label in quotation marks. Check uncommon method names and coined terms character by character, while displaying their normal spelling in the final image. If a label does not fit, revise the layout rather than shortening it.
+- Before generation, build an internal exact-label list and check uncommon method names and coined terms character by character; do not output that list. If a label does not fit, revise the layout rather than shortening it.
 - Do not invent modules, data flows, equations, metrics, experimental results, or causal relationships that are absent from the paper. Ask before visualizing anything unsupported.
 - Paper placement: ${placement.directive.en}
 - Canvas ratio: ${aspectRatio.directive.en}
@@ -774,6 +885,7 @@ ${buildList(spec.exclusions.en)}
 - Visual style: ${style.directive.en}
 - Line colors: ${lineColorRule}
 - Accent colors: ${colorRule}
+- Global typeface: ${fontFamily.directive.en}
 - Light illustrations and icons: ${illustrationRule}
 - Module card fills: ${cardFillRule}
 - Type-size hierarchy: ${typographyRule}
@@ -781,10 +893,8 @@ ${buildList(spec.exclusions.en)}
 - Large title: ${titleRule}
 - Keep text short and avoid paragraphs. Follow the selected canvas ratio and target column width exactly. Maintain one clear reading path and avoid vertical text, crossing arrows, and meaningless whitespace.
 
-## Workflow
-1. First provide a single-figure plan in no more than six lines: the one take-home message, paper placement and canvas ratio, composition and reading order, every exact label, the exact palette and type-size hierarchy, and any evidence gap. Do not generate an image yet.
-2. After I approve the plan, generate exactly this one image—no alternative design and no second image.
-3. Audit terminology, spelling, structure, arrow semantics, and legibility at reduced size. If anything is wrong, correct only the affected part while preserving the rest of the approved design.
+## Generate directly
+When the materials are sufficient, generate the final image immediately. Do not first output a plan, label list, palette explanation, alternative design, or confirmation request. During generation, internally audit terminology, spelling, structure, arrow semantics, and reduced-size legibility. If anything is wrong, correct only the affected part while preserving the rest of the design.
 
 ## Output
 Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas. Do not create a contact sheet or add watermarks, author information, the full paper title, or the figure caption inside the image. After the image, provide only a one-line audit result.`;
