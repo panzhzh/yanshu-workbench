@@ -1,18 +1,35 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import SiteNavigation from "../SiteNavigation";
 import { PRODUCT_CONFIG, type Language } from "../config";
 import {
   buildFigurePrompt,
   DEFAULT_FIGURE_PREFERENCES,
   FIGURE_COPY,
+  FIGURE_PROMPT_ORDER,
+  FIGURE_PROMPTS,
   FIGURE_STYLE_IDS,
   FIGURE_STYLES,
-  TECHNICAL_FIGURE_COUNTS,
+  isFigurePromptSelected,
   type FigurePreferences,
-  type TechnicalFigureCount,
+  type FigurePromptId,
 } from "./config";
+
+type PromptLanguages = Record<FigurePromptId, Language>;
+type PromptExpansion = Record<FigurePromptId, boolean>;
+
+const DEFAULT_PROMPT_LANGUAGES: PromptLanguages = {
+  introduction: PRODUCT_CONFIG.defaultPromptLanguage,
+  "method-overview": PRODUCT_CONFIG.defaultPromptLanguage,
+  "technical-detail": PRODUCT_CONFIG.defaultPromptLanguage,
+};
+
+const DEFAULT_PROMPT_EXPANSION: PromptExpansion = {
+  introduction: false,
+  "method-overview": false,
+  "technical-detail": false,
+};
 
 async function writeClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
@@ -31,32 +48,51 @@ async function writeClipboard(text: string) {
   if (!copied) throw new Error("Clipboard unavailable");
 }
 
+function togglePromptPreference(
+  promptId: FigurePromptId,
+  current: FigurePreferences,
+): FigurePreferences {
+  if (promptId === "introduction") {
+    return {
+      ...current,
+      includeIntroductionFigure: !current.includeIntroductionFigure,
+    };
+  }
+  if (promptId === "method-overview") {
+    return {
+      ...current,
+      includeMethodOverview: !current.includeMethodOverview,
+    };
+  }
+  return {
+    ...current,
+    includeTechnicalDetailFigure: !current.includeTechnicalDetailFigure,
+  };
+}
+
 export default function FigureWorkbench() {
   const [uiLanguage, setUiLanguage] = useState<Language>(
     PRODUCT_CONFIG.defaultLanguage,
   );
-  const [promptLanguage, setPromptLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultPromptLanguage,
-  );
+  const [promptLanguages, setPromptLanguages] = useState<PromptLanguages>({
+    ...DEFAULT_PROMPT_LANGUAGES,
+  });
   const [preferences, setPreferences] = useState<FigurePreferences>({
     ...DEFAULT_FIGURE_PREFERENCES,
   });
-  const [expanded, setExpanded] = useState(true);
-  const [copied, setCopied] = useState(false);
+  const [expandedPrompts, setExpandedPrompts] = useState<PromptExpansion>({
+    ...DEFAULT_PROMPT_EXPANSION,
+  });
+  const [copiedPrompt, setCopiedPrompt] = useState<FigurePromptId | null>(null);
   const [copyError, setCopyError] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const copy = FIGURE_COPY[uiLanguage];
-  const selectedFigureCount =
-    Number(preferences.includeIntroductionFigure) +
-    Number(preferences.includeMethodOverview) +
-    preferences.technicalFigureCount;
-  const selectedStyle = FIGURE_STYLES[preferences.styleId];
-  const prompt = useMemo(
-    () => buildFigurePrompt(preferences, promptLanguage),
-    [preferences, promptLanguage],
+  const selectedPromptIds = FIGURE_PROMPT_ORDER.filter((promptId) =>
+    isFigurePromptSelected(promptId, preferences),
   );
+  const selectedStyle = FIGURE_STYLES[preferences.styleId];
 
   useEffect(() => {
     document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
@@ -74,76 +110,56 @@ export default function FigureWorkbench() {
     update: (current: FigurePreferences) => FigurePreferences,
   ) {
     setPreferences(update);
-    setCopied(false);
+    setCopiedPrompt(null);
     setCopyError(false);
   }
 
-  function toggleIntroductionFigure() {
+  function toggleFigurePrompt(promptId: FigurePromptId) {
     updatePreferences((current) => {
-      if (
-        current.includeIntroductionFigure &&
-        !current.includeMethodOverview &&
-        current.technicalFigureCount === 0
-      ) {
-        return current;
-      }
-      return {
-        ...current,
-        includeIntroductionFigure: !current.includeIntroductionFigure,
-      };
-    });
-  }
+      const selectedCount = FIGURE_PROMPT_ORDER.filter((id) =>
+        isFigurePromptSelected(id, current),
+      ).length;
 
-  function toggleMethodOverview() {
-    updatePreferences((current) => {
-      if (
-        current.includeMethodOverview &&
-        !current.includeIntroductionFigure &&
-        current.technicalFigureCount === 0
-      ) {
+      if (isFigurePromptSelected(promptId, current) && selectedCount === 1) {
         return current;
       }
-      return {
-        ...current,
-        includeMethodOverview: !current.includeMethodOverview,
-      };
-    });
-  }
-
-  function setTechnicalFigureCount(value: TechnicalFigureCount) {
-    updatePreferences((current) => {
-      if (
-        value === 0 &&
-        !current.includeIntroductionFigure &&
-        !current.includeMethodOverview
-      ) {
-        return current;
-      }
-      return { ...current, technicalFigureCount: value };
+      return togglePromptPreference(promptId, current);
     });
   }
 
   function resetDefaults() {
     setPreferences({ ...DEFAULT_FIGURE_PREFERENCES });
-    setCopied(false);
+    setCopiedPrompt(null);
     setCopyError(false);
   }
 
-  async function copyPrompt() {
+  function togglePromptLanguage(promptId: FigurePromptId) {
+    setPromptLanguages((current) => ({
+      ...current,
+      [promptId]: current[promptId] === "zh" ? "en" : "zh",
+    }));
+    setCopiedPrompt(null);
+    setCopyError(false);
+  }
+
+  async function copyPrompt(promptId: FigurePromptId) {
+    const prompt = buildFigurePrompt(
+      promptId,
+      preferences,
+      promptLanguages[promptId],
+    );
+
     try {
       await writeClipboard(prompt);
       setCopyError(false);
-      setCopied(true);
+      setCopiedPrompt(promptId);
       if (copyTimer.current) clearTimeout(copyTimer.current);
-      copyTimer.current = setTimeout(() => setCopied(false), 2200);
+      copyTimer.current = setTimeout(() => setCopiedPrompt(null), 2200);
     } catch {
-      setCopied(false);
+      setCopiedPrompt(null);
       setCopyError(true);
     }
   }
-
-  const promptNextLanguage =
-    promptLanguage === "zh" ? "English" : "中文";
 
   return (
     <div className="site-shell">
@@ -153,7 +169,7 @@ export default function FigureWorkbench() {
         mobileMenuOpen={mobileMenuOpen}
         onLanguageChange={(language) => {
           setUiLanguage(language);
-          setCopied(false);
+          setCopiedPrompt(null);
         }}
         onMenuToggle={() => setMobileMenuOpen((open) => !open)}
         onMenuClose={() => setMobileMenuOpen(false)}
@@ -208,72 +224,29 @@ export default function FigureWorkbench() {
                 {copy.figureTasks}
               </legend>
               <div className="figure-task-list">
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={preferences.includeIntroductionFigure}
-                  className={
-                    preferences.includeIntroductionFigure ? "active" : ""
-                  }
-                  onClick={toggleIntroductionFigure}
-                >
-                  <span className="figure-task-marker" aria-hidden="true">
-                    {preferences.includeIntroductionFigure ? "✓" : ""}
-                  </span>
-                  <span>
-                    <strong>{copy.introductionFigure}</strong>
-                    <small>{copy.introductionFigureHint}</small>
-                  </span>
-                </button>
+                {FIGURE_PROMPT_ORDER.map((promptId) => {
+                  const promptSpec = FIGURE_PROMPTS[promptId];
+                  const active = isFigurePromptSelected(promptId, preferences);
 
-                <button
-                  type="button"
-                  role="switch"
-                  aria-checked={preferences.includeMethodOverview}
-                  className={
-                    preferences.includeMethodOverview ? "active" : ""
-                  }
-                  onClick={toggleMethodOverview}
-                >
-                  <span className="figure-task-marker" aria-hidden="true">
-                    {preferences.includeMethodOverview ? "✓" : ""}
-                  </span>
-                  <span>
-                    <strong>{copy.methodOverview}</strong>
-                    <small>{copy.methodOverviewHint}</small>
-                  </span>
-                </button>
-
-                <div className="technical-count-row">
-                  <span>
-                    <strong>{copy.technicalFigures}</strong>
-                    <small>{copy.technicalFiguresHint}</small>
-                  </span>
-                  <div
-                    className="technical-count-options"
-                    role="radiogroup"
-                    aria-label={copy.technicalFigures}
-                  >
-                    {TECHNICAL_FIGURE_COUNTS.map((count) => (
-                      <button
-                        type="button"
-                        role="radio"
-                        aria-checked={
-                          preferences.technicalFigureCount === count
-                        }
-                        className={
-                          preferences.technicalFigureCount === count
-                            ? "active"
-                            : ""
-                        }
-                        key={count}
-                        onClick={() => setTechnicalFigureCount(count)}
-                      >
-                        {count}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+                  return (
+                    <button
+                      type="button"
+                      role="switch"
+                      aria-checked={active}
+                      className={active ? "active" : ""}
+                      key={promptId}
+                      onClick={() => toggleFigurePrompt(promptId)}
+                    >
+                      <span className="figure-task-marker" aria-hidden="true">
+                        {active ? "✓" : ""}
+                      </span>
+                      <span>
+                        <strong>{promptSpec.label[uiLanguage]}</strong>
+                        <small>{promptSpec.purpose[uiLanguage]}</small>
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
               <small>{copy.figureTasksHint}</small>
             </fieldset>
@@ -405,9 +378,9 @@ export default function FigureWorkbench() {
 
           <div className="figure-prompt-summary">
             <span>
-              <small>{copy.selectedFigures}</small>
+              <small>{copy.selectedPrompts}</small>
               <strong>
-                {selectedFigureCount} {copy.figuresUnit}
+                {selectedPromptIds.length} {copy.promptUnit}
               </strong>
             </span>
             <span>
@@ -415,8 +388,8 @@ export default function FigureWorkbench() {
               <strong>{selectedStyle.label[uiLanguage]}</strong>
             </span>
             <span>
-              <small>{copy.promptLanguage}</small>
-              <strong>{promptLanguage === "zh" ? "中文" : "English"}</strong>
+              <small>{copy.generationMode}</small>
+              <strong>{copy.onePromptOneFigure}</strong>
             </span>
           </div>
 
@@ -426,62 +399,90 @@ export default function FigureWorkbench() {
             </p>
           )}
 
-          <article className={`prompt-card ${expanded ? "expanded" : ""}`}>
-            <div className="prompt-number" aria-hidden="true">
-              <span>01</span>
-              <i />
-            </div>
-            <div className="prompt-card-main">
-              <div className="prompt-card-header">
-                <div>
-                  <span className="placeholder-tag">{copy.livePrompt}</span>
-                  <h3>{copy.promptTitle}</h3>
-                  <p>{copy.promptBody}</p>
-                </div>
-                <div className="prompt-card-actions">
-                  <button
-                    className="prompt-language-button"
-                    type="button"
-                    aria-label={`${copy.switchPromptLanguage}：${promptNextLanguage}`}
-                    onClick={() => {
-                      setPromptLanguage((language) =>
-                        language === "zh" ? "en" : "zh",
-                      );
-                      setCopied(false);
-                    }}
-                  >
-                    {promptNextLanguage}
-                  </button>
-                  <button
-                    className={`copy-button ${copied ? "copied" : ""}`}
-                    type="button"
-                    onClick={copyPrompt}
-                  >
-                    <span aria-hidden="true">{copied ? "✓" : "⧉"}</span>
-                    {copied ? copy.copied : copy.copy}
-                  </button>
-                  <button
-                    className="expand-button"
-                    type="button"
-                    aria-expanded={expanded}
-                    aria-controls="figure-prompt"
-                    onClick={() => setExpanded((current) => !current)}
-                  >
-                    {expanded ? copy.collapse : copy.expand}
-                    <span aria-hidden="true">{expanded ? "−" : "+"}</span>
-                  </button>
-                </div>
-              </div>
-              {expanded && (
-                <pre className="prompt-content" id="figure-prompt">
-                  {prompt}
-                </pre>
-              )}
-            </div>
-          </article>
+          <div className="figure-prompt-list">
+            {selectedPromptIds.map((promptId) => {
+              const promptSpec = FIGURE_PROMPTS[promptId];
+              const promptLanguage = promptLanguages[promptId];
+              const prompt = buildFigurePrompt(
+                promptId,
+                preferences,
+                promptLanguage,
+              );
+              const expanded = expandedPrompts[promptId];
+              const copied = copiedPrompt === promptId;
+              const promptNextLanguage =
+                promptLanguage === "zh" ? "English" : "中文";
+              const promptContentId = `figure-prompt-${promptId}`;
+
+              return (
+                <article
+                  className={`prompt-card ${expanded ? "expanded" : ""}`}
+                  key={promptId}
+                >
+                  <div className="prompt-number" aria-hidden="true">
+                    <span>{promptSpec.number}</span>
+                    <i />
+                  </div>
+                  <div className="prompt-card-main">
+                    <div className="prompt-card-header">
+                      <div>
+                        <span className="placeholder-tag">
+                          {promptSpec.tag[uiLanguage]} · {copy.independentPrompt}
+                        </span>
+                        <h3>{promptSpec.label[uiLanguage]}</h3>
+                        <p>{promptSpec.purpose[uiLanguage]}</p>
+                      </div>
+                      <div className="prompt-card-actions">
+                        <button
+                          className="prompt-language-button"
+                          type="button"
+                          aria-label={`${copy.switchPromptLanguage}：${promptNextLanguage}`}
+                          onClick={() => togglePromptLanguage(promptId)}
+                        >
+                          {promptNextLanguage}
+                        </button>
+                        <button
+                          className={`copy-button ${copied ? "copied" : ""}`}
+                          type="button"
+                          onClick={() => copyPrompt(promptId)}
+                        >
+                          <span aria-hidden="true">{copied ? "✓" : "⧉"}</span>
+                          {copied ? copy.copied : copy.copy}
+                        </button>
+                        <button
+                          className="expand-button"
+                          type="button"
+                          aria-expanded={expanded}
+                          aria-controls={promptContentId}
+                          onClick={() =>
+                            setExpandedPrompts((current) => ({
+                              ...current,
+                              [promptId]: !current[promptId],
+                            }))
+                          }
+                        >
+                          {expanded ? copy.collapse : copy.expand}
+                          <span aria-hidden="true">
+                            {expanded ? "−" : "+"}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                    {expanded && (
+                      <pre className="prompt-content" id={promptContentId}>
+                        {prompt}
+                      </pre>
+                    )}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
 
           <span className="sr-only" role="status" aria-live="polite">
-            {copied ? copy.copied : ""}
+            {copiedPrompt
+              ? `${FIGURE_PROMPTS[copiedPrompt].label[uiLanguage]} ${copy.copied}`
+              : ""}
           </span>
         </section>
 

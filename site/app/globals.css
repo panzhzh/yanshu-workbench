@@ -160,7 +160,7 @@ a {
 .mobile-brand small {
   margin-top: 2px;
   color: var(--ink-muted);
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.095em;
   line-height: 1.2;
@@ -1222,7 +1222,7 @@ a {
   background: #fff;
   border: 1px solid var(--line);
   border-radius: 5px;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 680;
   white-space: nowrap;
 }
@@ -1237,7 +1237,7 @@ a {
 .figure-input-strip > p {
   margin: 0;
   color: var(--ink-muted);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.55;
 }
 
@@ -1283,7 +1283,7 @@ a {
   margin-top: auto;
   padding-top: 9px;
   color: var(--ink-muted);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.48;
 }
 
@@ -1307,8 +1307,7 @@ a {
   gap: 7px;
 }
 
-.figure-task-list > button,
-.technical-count-row {
+.figure-task-list > button {
   display: flex;
   min-height: 59px;
   align-items: center;
@@ -1361,7 +1360,6 @@ a {
 }
 
 .figure-task-list > button > span:last-child,
-.technical-count-row > span:first-child,
 .figure-style-options button > span:last-child {
   display: flex;
   min-width: 0;
@@ -1370,7 +1368,6 @@ a {
 }
 
 .figure-task-list strong,
-.technical-count-row strong,
 .figure-style-options strong {
   color: inherit;
   font-size: 11px;
@@ -1379,49 +1376,10 @@ a {
 }
 
 .figure-task-list small,
-.technical-count-row small,
 .figure-style-options small {
   color: var(--ink-muted);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.45;
-}
-
-.technical-count-row {
-  justify-content: space-between;
-}
-
-.technical-count-row > span:first-child {
-  padding-left: 30px;
-}
-
-.technical-count-options {
-  display: grid;
-  flex: 0 0 auto;
-  grid-template-columns: repeat(3, 32px);
-  gap: 4px;
-  padding: 2px;
-  background: #e9ede9;
-  border: 1px solid #d9dfda;
-  border-radius: 5px;
-}
-
-.technical-count-options button {
-  min-height: 28px;
-  padding: 4px;
-  color: var(--ink-soft);
-  background: transparent;
-  border: 0;
-  border-radius: 3px;
-  cursor: pointer;
-  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
-  font-size: 10px;
-  font-weight: 750;
-}
-
-.technical-count-options button.active {
-  color: var(--accent-strong);
-  background: #fff;
-  box-shadow: 0 1px 3px rgb(26 45 53 / 0.1);
 }
 
 .figure-style-options {
@@ -1575,7 +1533,13 @@ a {
 }
 
 .figure-prompt-section {
-  padding-top: 42px;
+  padding-top: 36px;
+}
+
+.figure-prompt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
 }
 
 .figure-prompt-summary {
@@ -1602,7 +1566,7 @@ a {
 
 .figure-prompt-summary small {
   color: var(--ink-muted);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.35;
 }
 
@@ -2182,19 +2146,6 @@ select:focus-visible {
     flex-direction: column;
   }
 
-  .technical-count-row {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .technical-count-row > span:first-child {
-    padding-left: 0;
-  }
-
-  .technical-count-options {
-    width: 100%;
-    grid-template-columns: repeat(3, 1fr);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

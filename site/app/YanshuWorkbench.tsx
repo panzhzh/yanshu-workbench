@@ -111,13 +111,13 @@ export default function YanshuWorkbench() {
   const [targetWords, setTargetWords] = useState(
     defaultStyle.defaultTargetWords,
   );
-  const [hasWordLimit, setHasWordLimit] = useState(
+  const [hasWordLimit, setHasWordLimit] = useState<boolean>(
     PRODUCT_CONFIG.wordCount.defaultMode === "target",
   );
-  const [unlimitedCoreSections, setUnlimitedCoreSections] = useState(
+  const [unlimitedCoreSections, setUnlimitedCoreSections] = useState<boolean>(
     PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections,
   );
-  const [includeAppendix, setIncludeAppendix] = useState(
+  const [includeAppendix, setIncludeAppendix] = useState<boolean>(
     defaultStyle.defaultAppendix,
   );
   const [sectionWords, setSectionWords] = useState<SectionWords>(() =>
