@@ -125,11 +125,6 @@ export const DRAFT_COPY = {
     templateSource: "默认 arXiv 样式来源",
     templateBoundary:
       "该 arXiv 样式是 MIT 开源的预印本样式，不是 arXiv 官方投稿格式要求。",
-    promptEyebrow: "DRAFTING PROMPT",
-    promptTitle: "当前论文初稿 Prompt",
-    promptBody:
-      "模板选择会直接进入 Prompt；模型先核验证据与模板，再一次性生成完整可编译工程。",
-    livePrompt: "独立 Prompt",
     switchPromptLanguage: "切换 Prompt 语言",
     copy: "复制",
     copied: "已复制",
@@ -165,11 +160,6 @@ export const DRAFT_COPY = {
     templateSource: "Default arXiv style source",
     templateBoundary:
       "This MIT-licensed arXiv style is a preprint style, not an official arXiv submission requirement.",
-    promptEyebrow: "DRAFTING PROMPT",
-    promptTitle: "Current paper-drafting prompt",
-    promptBody:
-      "The selected template is written directly into the prompt. The model verifies evidence and template provenance before generating a complete compilable project.",
-    livePrompt: "Independent prompt",
     switchPromptLanguage: "Switch prompt language",
     copy: "Copy",
     copied: "Copied",

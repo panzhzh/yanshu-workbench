@@ -441,178 +441,88 @@ export const FIGURE_FONT_FAMILY_IDS = Object.keys(
 ) as FigureFontFamilyId[];
 
 interface FigurePromptSpec {
-  number: string;
   label: Record<Language, string>;
-  tag: Record<Language, string>;
   purpose: Record<Language, string>;
-  heading: Record<Language, string>;
-  objective: Record<Language, string>;
-  successCriterion: Record<Language, string>;
-  designRules: Record<Language, readonly string[]>;
-  exclusions: Record<Language, readonly string[]>;
+  brief: Record<Language, string>;
+  rules: Record<Language, readonly string[]>;
 }
 
 export const FIGURE_PROMPTS = {
   introduction: {
-    number: "01",
     label: {
       zh: "引言图",
       en: "Introduction figure",
-    },
-    tag: {
-      zh: "问题与意义",
-      en: "Problem & significance",
     },
     purpose: {
       zh: "让读者迅速理解问题为何重要、今天仍卡在哪里，以及本文带来什么核心洞察。",
       en: "Show why the problem matters, what still blocks progress today, and the paper’s core insight.",
     },
-    heading: {
-      zh: "为 CS 论文生成一张引言图",
-      en: "Generate One Introduction Figure for a CS Paper",
+    brief: {
+      zh: "本次只设计引言图：用一条清楚的视觉论证呈现研究场景、今天仍存在的关键障碍、直接后果与本文核心洞察，让读者迅速理解研究为什么重要。",
+      en: "Design the Introduction figure only: use one clear visual argument to show the setting, the key obstacle that still exists today, its direct consequence, and the paper’s core insight so readers immediately understand why the research matters.",
     },
-    objective: {
-      zh: "这张图位于 Introduction，用视觉论证引出研究问题与必要性。它不是方法流程图，也不是把全文压缩成一张 graphical abstract。",
-      en: "This figure belongs in the Introduction and visually establishes the research problem and its significance. It is neither a method pipeline nor a graphical abstract that compresses the whole paper.",
-    },
-    successCriterion: {
-      zh: "第一次接触该主题的 CS 读者应能在 10–15 秒内说清：研究场景是什么、今天仍存在什么关键障碍、为什么值得解决，以及本文核心洞察可能改变什么。",
-      en: "Within 10–15 seconds, a CS reader new to the topic should be able to state the setting, the key obstacle that still exists today, why it matters, and what the paper’s core insight is intended to change.",
-    },
-    designRules: {
+    rules: {
       zh: [
-        "从论文中提取一个唯一的视觉主旨；优先呈现任务或应用场景、今天仍存在的关键障碍、障碍造成的直接后果、本文核心洞察及其预期作用。",
-        "选择最适合论文证据的单一阅读路径。只有在内容确实适合时才采用“场景 → 障碍 → 后果 → 核心洞察”的结构，不要机械套模板。",
-        "把现有方法的不足表达为当前仍未解决的具体矛盾，不使用空泛的“性能有限”“仍具挑战”等占位表述。",
-        "本文方法只出现到核心洞察或概念性改变这一层，不展开模块、训练步骤或实现流水线。",
-        "图中文字只保留读者理解问题与意义所必需的短标签；默认不放实验数字，确有必要时也只能使用论文明确支持的极少量关键数字。",
+        "根据论文证据选择最自然的单一阅读路径，不机械套用固定模板；本文方法只出现到核心洞察，不展开组件、训练步骤或实现流程。",
+        "把现有方法的不足写成今天仍未解决的具体矛盾，标签保持简短；默认不放实验数字，确有必要时只保留论文明确支持的极少量数字。",
+        "不加入完整方法架构、公式、超参数、消融或结果榜单，不压入全部贡献，也不夸大影响或补造因果关系。",
       ],
       en: [
-        "Extract one visual take-home message from the paper. Prioritize the task or application setting, the key obstacle that still exists today, its immediate consequence, the paper’s core insight, and the change that insight is intended to enable.",
-        "Choose one reading path that fits the paper’s evidence. Use a setting → obstacle → consequence → core insight structure only when it is genuinely suitable; do not force a template.",
-        "State the limitation of current approaches as a concrete present-day tension, not a placeholder such as “limited performance” or “still challenging.”",
-        "Show the proposed work only at the level of its core insight or conceptual change; do not unfold modules, training steps, or an implementation pipeline.",
-        "Keep only the short labels needed to understand the problem and its significance. Omit experimental numbers by default; if one is indispensable, use only a very small number explicitly supported by the paper.",
-      ],
-    },
-    exclusions: {
-      zh: [
-        "不得加入完整方法架构、模块清单、训练/推理流程、公式、超参数、消融实验或表格与图片编号。",
-        "不得用结果榜单或密集数字替代研究动机，也不得把论文的所有贡献同时塞进一张图。",
-        "不得夸大影响、补造因果关系，或承诺论文证据没有支持的改进。",
-      ],
-      en: [
-        "Do not include the full architecture, a module inventory, training or inference flow, equations, hyperparameters, ablations, or table and figure references.",
-        "Do not replace research motivation with a leaderboard or dense numbers, and do not squeeze every contribution into the figure.",
-        "Do not exaggerate impact, invent causal relationships, or promise improvements unsupported by the paper.",
+        "Choose the most natural single reading path supported by the paper rather than forcing a template. Show the proposed work only at the level of its core insight, without modules, training steps, or an implementation pipeline.",
+        "State the limitation of current approaches as a concrete problem that still exists today and keep labels short. Omit experimental numbers by default; if indispensable, retain only a very small number explicitly supported by the paper.",
+        "Do not include the full architecture, equations, hyperparameters, ablations, or a leaderboard; do not squeeze in every contribution, exaggerate impact, or invent causal relationships.",
       ],
     },
   },
   "method-overview": {
-    number: "02",
     label: {
       zh: "方法总览图",
       en: "Method overview",
-    },
-    tag: {
-      zh: "整体心智地图",
-      en: "System mental model",
     },
     purpose: {
       zh: "在读者进入方法细节前，建立输入、核心阶段、信息流与输出的整体心智地图。",
       en: "Give readers a stable mental model of inputs, major stages, information flow, and outputs before method details.",
     },
-    heading: {
-      zh: "为 CS 论文生成一张方法总览图",
-      en: "Generate One Method Overview Figure for a CS Paper",
+    brief: {
+      zh: "本次只设计方法总览图：让读者沿一条清楚路径理解输入、主要阶段或组件、关键信息流与输出，并带着这张整体心智地图阅读 Method。",
+      en: "Design the Method Overview only: give readers one clear path through the inputs, major stages or components, essential information flow, and outputs so they can read the Method with a stable system-level mental model.",
     },
-    objective: {
-      zh: "这张图是论文方法的总体框架图。它回答“整个方法如何组织并运转”，不负责重新论证研究意义，也不展开某个局部机制。",
-      en: "This is the paper’s overall framework figure. It answers how the method is organized and operates as a whole; it does not re-argue the motivation or unpack a local mechanism.",
-    },
-    successCriterion: {
-      zh: "读者看图后应能沿一条明确路径说清：输入是什么、主要阶段或组件如何连接、关键信息如何流动、最终输出是什么，并能带着这个心智地图阅读 Method。",
-      en: "After viewing the figure, a reader should be able to follow one clear path through the inputs, major stages or components, essential information flow, and outputs, then use that mental model while reading the Method section.",
-    },
-    designRules: {
+    rules: {
       zh: [
-        "从 .tex 中确认正式定义的输入、输出、主要组件与接口；每个主要组件只出现一次，并用层级、分组和箭头表达关系。",
-        "优先呈现决定整体理解的主路径。仅当论文确实依赖分支、共享参数、循环、跨阶段反馈或多模态交互时，才显示这些结构。",
-        "只有在训练与推理的差异影响方法理解时才明确区分两者；不得为了画面复杂而增加并行流程。",
-        "让图的阅读顺序、箭头方向和颜色语义全局一致；输入与输出必须有清楚边界。",
+        "从 TeX 中确认正式定义的输入、输出、主要组件与接口；每个组件只出现一次，用层级、分组和箭头表达关系，并清楚标出输入与输出边界。",
+        "优先呈现决定整体理解的主路径；只有论文真实依赖时才显示分支、共享、循环、反馈、多模态交互或训练/推理差异。",
+        "不重复引言动机，不放实验结果、性能数字、消融或研究影响；不展开每个子操作、完整公式、损失推导、超参数或代码，也不为对称虚构组件。",
       ],
       en: [
-        "Use the .tex to verify formally defined inputs, outputs, major components, and interfaces. Show each major component once and express relationships through hierarchy, grouping, and arrows.",
-        "Prioritize the main path needed for system-level understanding. Show branches, shared parameters, loops, cross-stage feedback, or multimodal interaction only when the paper actually depends on them.",
-        "Separate training from inference only when that distinction is material to understanding the method; do not add parallel flows merely to make the figure look complex.",
-        "Use a consistent reading order, arrow direction, and color semantics throughout. Inputs and outputs must have clear boundaries.",
-      ],
-    },
-    exclusions: {
-      zh: [
-        "不得重复引言图中的场景—问题叙事，也不得加入实验结果、性能数字、消融结论或研究影响。",
-        "不得塞入每个子操作、完整公式、损失项推导、超参数、代码级实现或长段说明文字。",
-        "不得为了视觉对称虚构模块、复制同一组件，或隐藏论文真实存在的关键依赖。",
-      ],
-      en: [
-        "Do not repeat the setting–problem narrative of the Introduction figure or add results, performance numbers, ablation conclusions, or research impact.",
-        "Do not include every sub-operation, full equations, loss derivations, hyperparameters, code-level implementation, or paragraph-like explanations.",
-        "Do not invent modules for visual symmetry, duplicate the same component, or hide a real dependency in the paper.",
+        "Use the TeX to verify formally defined inputs, outputs, major components, and interfaces. Show each component once, express relations through hierarchy, grouping, and arrows, and mark clear input and output boundaries.",
+        "Prioritize the main path needed for system-level understanding. Show branches, sharing, loops, feedback, multimodal interaction, or training/inference differences only when the paper genuinely depends on them.",
+        "Do not repeat the Introduction’s motivation or include results, performance numbers, ablations, or research impact. Omit every sub-operation, full equations, loss derivations, hyperparameters, and code-level details, and never invent a component for symmetry.",
       ],
     },
   },
   "technical-detail": {
-    number: "03",
     label: {
       zh: "关键技术细节图",
       en: "Key technical-detail figure",
-    },
-    tag: {
-      zh: "唯一关键机制",
-      en: "One key mechanism",
     },
     purpose: {
       zh: "自动选择区别于总览、最需要视觉解释的一项核心机制，并只生成这一张图。",
       en: "Select the single mechanism most in need of visual explanation, distinct from the overview, and generate only that figure.",
     },
-    heading: {
-      zh: "为 CS 论文生成一张关键技术细节图",
-      en: "Generate One Key Technical-Detail Figure for a CS Paper",
+    brief: {
+      zh: "本次只设计一张关键技术细节图：选择区别于方法总览、最难仅靠正文或公式理解的一项核心机制，讲清它的输入或状态、关键变换、中间表示与输出或接口。",
+      en: "Design one Key Technical-Detail figure only: select a core mechanism distinct from the Method Overview that is hardest to understand from prose or equations alone, then make its input or state, key transformation, intermediate representation, and output or interface clear.",
     },
-    objective: {
-      zh: "这张图只解释方法中最关键、最难仅靠正文或公式理解的一项局部机制。它必须区别于方法总览，并把“这一机制具体如何工作”讲清楚。",
-      en: "This figure explains exactly one local mechanism that is central to the method and difficult to understand from prose or equations alone. It must be distinct from the overview and make clear how that mechanism actually works.",
-    },
-    successCriterion: {
-      zh: "读者应能从图中追踪该机制的输入或状态、关键变换或交互、中间表示以及输出或接口，同时不会误以为这是整篇方法的总览图。",
-      en: "A reader should be able to trace the mechanism’s input or state, key transformation or interaction, intermediate representation, and output or interface without mistaking the figure for the full method overview.",
-    },
-    designRules: {
+    rules: {
       zh: [
-        "先比较论文中的候选机制，只选择同时满足四项条件的一项：属于核心贡献；仅靠文字或公式较难理解；能够与 Overview 明确分工；在 .tex 与 .pdf 中有充分证据。",
-        "若没有任何机制同时满足四项条件，直接说明证据不足并停止，不得为了完成任务而发明一张技术图。",
-        "围绕这一项机制展示必要的输入或状态、操作顺序、实体间关系、中间表示与输出；每个元素都必须直接服务于机制理解。",
-        "只在公式对机制不可替代且能以论文原式清晰呈现时保留一个局部公式；否则使用准确的结构与信息流表达。",
-        "明确检查与方法总览的差异：总览给出系统位置与接口，本图放大局部运作；不得重新绘制整条方法流水线。",
+        "只选择同时属于核心贡献、难以仅靠文字理解、能与总览明确分工且有充分论文证据的一项机制；没有合适对象时说明证据不足并停止。",
+        "只保留理解该机制必需的操作顺序、实体关系与状态变化；局部公式最多一个，且必须来自论文并确实不可替代。",
+        "不重画完整流水线，不混入研究动机、实验结果、性能比较或第二个机制，也不使用装饰图标代替核心计算或交互。",
       ],
       en: [
-        "Compare candidate mechanisms and select exactly one that meets all four conditions: central to the contribution, hard to understand from prose or equations alone, clearly separable from the overview, and sufficiently supported by both the .tex and .pdf.",
-        "If no mechanism meets all four conditions, state that the evidence is insufficient and stop. Do not invent a technical figure merely to complete the task.",
-        "Show only the input or state, operation sequence, entity relationships, intermediate representation, and output needed to understand this mechanism. Every element must serve that explanation.",
-        "Include at most one local equation, and only when it is indispensable and can be reproduced exactly from the paper; otherwise use precise structure and information flow.",
-        "Explicitly check the division of labor with the Method Overview: the overview establishes system position and interfaces, while this figure magnifies local operation. Do not redraw the full pipeline.",
-      ],
-    },
-    exclusions: {
-      zh: [
-        "只生成一张技术细节图，不得提供第二个机制、多个备选图、联系表或同图多方案。",
-        "不得重复完整输入—输出流水线，也不得混入研究动机、实验结果、性能比较或未被论文定义的类比。",
-        "不得用装饰性图标替代核心计算、交互或状态变化。",
-      ],
-      en: [
-        "Generate one technical-detail figure only: no second mechanism, alternative figures, contact sheet, or multiple designs in one image.",
-        "Do not repeat the full input-to-output pipeline or mix in motivation, experimental results, performance comparisons, or analogies not defined by the paper.",
-        "Do not use decorative icons as substitutes for the core computation, interaction, or state transition.",
+        "Select exactly one mechanism that is central to the contribution, difficult to understand from prose alone, clearly separable from the overview, and fully supported by the paper. If none qualifies, state that the evidence is insufficient and stop.",
+        "Keep only the operation sequence, entity relations, and state changes needed to understand that mechanism. Include at most one local equation, copied exactly from the paper, and only when indispensable.",
+        "Do not redraw the full pipeline or mix in motivation, experimental results, performance comparisons, or a second mechanism. Decorative icons must never replace the core computation or interaction.",
       ],
     },
   },
@@ -636,9 +546,9 @@ export const FIGURE_COPY = {
       "恢复默认图型、占栏、画布比例和视觉规范；保留当前语言。",
     inputTitle: "论文材料",
     inputSource: "论文源文件",
-    inputPdf: "最新编译稿",
+    inputPdf: "可选编译稿",
     inputHint:
-      "复制当前 Prompt 后，在同一个 GPT 对话中上传 .tex 与 .pdf；本站不读取或保存论文。",
+      "复制当前 Prompt 后，在同一个 GPT 对话中上传可用论文材料；优先提供 .tex，可附 .pdf。本站不读取或保存论文。",
     figureTasks: "选择绘图 Prompt",
     figureTasksHint:
       "三选一，默认方法总览图；切换图型会载入推荐占栏和画布比例，之后仍可手动修改。",
@@ -695,15 +605,6 @@ export const FIGURE_COPY = {
     largeTitleOff: "不使用",
     largeTitleOnHint: "仅允许一个来自论文术语的简短标题。",
     largeTitleOffHint: "推荐设置；只保留必要的 panel 标题或步骤标签。",
-    promptEyebrow: "TWO-STEP FIGURE PROMPT",
-    promptTitle: "两步制图 Prompt",
-    promptBody:
-      "第一步只产出详细英文生图 Prompt；输入“开始绘图”后才生成最终图片。语言按钮只切换操作说明，生图 Prompt 始终为英文。",
-    currentPrompt: "当前图型",
-    selectedCanvas: "占栏与画布",
-    selectedStyle: "当前风格",
-    visualSummary: "视觉约束",
-    independentPrompt: "两步 Prompt",
     switchPromptLanguage: "切换说明语言",
     copy: "复制",
     copied: "已复制",
@@ -722,9 +623,9 @@ export const FIGURE_COPY = {
       "Restores the default figure type, placement, canvas ratio, and visual specification while keeping the current language.",
     inputTitle: "Paper materials",
     inputSource: "Paper source",
-    inputPdf: "Latest compiled paper",
+    inputPdf: "Optional compiled paper",
     inputHint:
-      "After copying the current prompt, upload the .tex and .pdf in the same GPT conversation. This site never reads or stores the paper.",
+      "After copying the current prompt, upload the available paper materials in the same GPT conversation. Prefer the .tex and optionally attach the .pdf. This site never reads or stores the paper.",
     figureTasks: "Select a figure prompt",
     figureTasksHint:
       "Choose one of three; Method Overview is the default. Changing the figure type loads its recommended placement and canvas ratio, which you can then override.",
@@ -789,15 +690,6 @@ export const FIGURE_COPY = {
       "Allow one short title composed only of terminology from the paper.",
     largeTitleOffHint:
       "Recommended; retain only necessary panel headings or step labels.",
-    promptEyebrow: "TWO-STEP FIGURE PROMPT",
-    promptTitle: "Two-step figure prompt",
-    promptBody:
-      'Step 1 returns a detailed English image prompt only. The image is generated after you type "Start drawing." The language button changes the operating instructions; the image prompt remains English.',
-    currentPrompt: "Current figure",
-    selectedCanvas: "Placement & canvas",
-    selectedStyle: "Current style",
-    visualSummary: "Visual controls",
-    independentPrompt: "Two-step prompt",
     switchPromptLanguage: "Switch instruction language",
     copy: "Copy",
     copied: "Copied",
@@ -833,7 +725,6 @@ export function buildFigurePrompt(
   const spec = FIGURE_PROMPTS[promptId];
   const style = FIGURE_STYLES[preferences.styleId];
   const placement = FIGURE_PLACEMENTS[preferences.placementId];
-  const aspectRatio = FIGURE_ASPECT_RATIOS[preferences.aspectRatioId];
   const selectedAspectRatio = getFigureAspectRatio(preferences);
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
@@ -852,176 +743,118 @@ export function buildFigurePrompt(
   if (language === "zh") {
     const lineColorRule =
       preferences.lineColorMode === "semantic"
-        ? "深色中性细线是所有边框、箭头和连接线的默认颜色。只在不同信息流、实体类别或状态确实需要区分时，才使用候选强调色；相同语义必须同色，不得为了装饰制造彩虹线条。"
-        : "所有边框、箭头和连接线统一使用深色中性细线，不用线条颜色区分语义；需要区分时改用形状、线型或直接标签。";
-    const colorRule = `使用“${palette.label.zh}”色系，候选强调色及参考值依次为 ${activePalette}。GPT 必须根据真实信息流和语义分组，在 ${accentColorRange.label} 种有彩色相中选择最少够用的数量；能用较少颜色说清时不得增加。这一数量不包括纯白背景、黑色文字和深色中性结构线。颜色应以给定 RGB 为生成参考，不得自行替换或增加色相；任何关键区别都不能只依赖颜色。`;
+        ? "边框与箭头默认使用深色中性细线，只在语义确需区分时使用强调色线；相同语义必须同色。"
+        : "边框、箭头和连接线统一使用深色中性细线；需要区分时使用形状、线型或直接标签。";
+    const colorRule = `候选色仅使用“${palette.label.zh}”中的 ${activePalette}，按真实语义选取 ${accentColorRange.label} 种内最少够用的颜色；白底、黑字和深色结构线不计入，关键区别不能只依赖颜色。`;
     const illustrationRule = preferences.allowLightIllustrations
-      ? "允许克制的轻卡通技术插图、语义 icon 和略带圆润感的无衬线字体，但它们只能表示论文中的真实对象或过程，不得代替核心机制，也不得呈现漫画、吉祥物、手写体、气泡字或营销插画效果。"
-      : "不使用轻卡通插图、icon、拟物对象或装饰字体；所有关系只用模块、线条、箭头、简单几何形状和必要文字表达。";
+      ? "可按需使用克制的轻量技术插图或语义图标，但只能表示论文中的真实对象或过程，不能代替核心机制，也不能漫画化或营销化。"
+      : "不使用插图、图标或拟物对象，只用模块、线条、箭头、简单几何形状和必要文字表达关系。";
     const cardFillRule = preferences.useCardFills
-      ? "主要模块卡片允许使用取自强调色的极浅、低饱和底色；相同角色使用相同底色，文字始终为黑色，不使用渐变、阴影或深色卡片。"
-      : "所有模块卡片保持纯白或透明，不设置底色；仅依靠细边框、对齐、间距和分组标题建立层级。";
+      ? "主要模块可使用来自强调色的极浅低饱和底色，相同角色保持一致；文字始终为黑色。"
+      : "模块保持纯白或透明，只用细边框、对齐、间距和分组标题建立层级。";
     const typographyRule =
       preferences.fontSizeLevels === 2
-        ? "全图严格只使用两级字号：正文/标签与标题；最大字号不得超过最小字号的 1.25 倍。不得另加微型注释、超大标题或第三种字号。"
-        : "全图严格只使用三级字号：标签、子标题与主标题；最大字号不得超过最小字号的 1.35 倍。不得另加微型注释或夸张超大标题。";
+        ? "只使用正文/标签与标题两级字号，最大不超过最小的 1.25 倍。"
+        : "只使用标签、子标题与主标题三级字号，最大不超过最小的 1.35 倍。";
     const titleRule = preferences.includeLargeTitle
-      ? "允许一个 3–7 个英文单词的图内大标题，但必须直接使用论文已有术语且不得带有营销措辞；论文完整标题、作者和 caption 不放入图片。"
-      : "不使用图内大标题；只保留必要的 panel 标题或步骤标签，论文标题、作者和 caption 均不放入图片。";
+      ? "可使用一个由论文原有术语组成的 3–7 词英文标题，不使用营销措辞。"
+      : "不使用图内大标题，只保留必要的 panel 标题或步骤标签。";
 
-    return `# ${spec.heading.zh}
+    return `# ${spec.label.zh}
 
-## 目标
-${spec.objective.zh}
+你是一名擅长从 CS 论文中提炼科学逻辑、信息流与视觉层级的学术配图专家。我会提供已完成的论文材料，通常包含主 \`.tex\`，也可能包含编译后的 \`.pdf\` 或其他附件。完整阅读可用材料；有 TeX 时以其中的正式术语、符号和结构为准，PDF 用于理解上下文与已有版面。材料冲突会影响图义时只问一个必要问题，不得猜测。
 
-成功标准：${spec.successCriterion.zh}
+${spec.brief.zh}
+${buildList(spec.rules.zh)}
 
-## 输入与取证
-在同一对话中提供本 Prompt、论文主 \`.tex\` 源文件和最新编译的 \`.pdf\`。先完整阅读两份材料：以 \`.tex\` 为术语、公式、符号和结构依据，以 \`.pdf\` 理解上下文、版面与现有图表。若两者存在会影响绘图的冲突，只提出必要问题，不要猜测。
+图内标题、模块名、箭头标签、缩写和符号必须逐字匹配论文，保留原有大小写、连字符与记号。不得发明模块、数据流、公式、结果或因果关系；文字放不下时调整布局，不得擅自缩写。
 
-## 这张图必须完成
-${buildList(spec.designRules.zh)}
+## 视觉要求
+- 按${placement.label.zh}与 ${selectedAspectRatio} 画布构图，从一开始适配该比例，不裁切、不画论文栏线；缩放到目标栏宽后仍须清楚。官方模板另有尺寸时，以模板为准并重新排版。
+- ${style.directive.zh}
+- ${colorRule} ${lineColorRule}
+- ${fontFamily.directive.zh} ${typographyRule} 所有文字使用实黑或近黑色，不使用浅灰、低透明度或不可读小字。${titleRule}
+- ${cardFillRule} ${illustrationRule}
 
-## 不得混入
-${buildList(spec.exclusions.zh)}
+## 两步执行
 
-## 统一视觉与文字约束
-- 图中所有文字——包括标题、模块名、箭头标签、图例、缩写和变量符号——必须与论文中的术语完全一致，保留原有大小写、连字符和符号。不得翻译、改写或自造近义词；只能使用论文已经定义的缩写。
-- 生成前在内部建立精确标签清单，并逐字符核对冷门方法名或自造词；不要向我输出这份清单。若文字放不下，调整版式，不得擅自缩写。
-- 不得发明论文中不存在的模块、数据流、公式、指标、实验结果或因果关系。证据不足的内容先询问，不要补全。
-- 论文占栏：${placement.directive.zh}
-- 画布比例：${aspectRatio.directive.zh}
-- 生成前先把图像工具的比例选择器设为 ${selectedAspectRatio}；若当前界面没有该预设或比例选择器，也必须在生成指令中严格执行 ${selectedAspectRatio}（宽:高）。画布比例描述的是导出图片本身，不得在图中绘制论文栏线。
-- 若目标 venue 的正式模板另有尺寸要求，以正式模板为准，但必须重新排版以保持当前占栏意图，不得直接压缩文字或线条。
-- 视觉风格：${style.directive.zh}
-- 线条颜色：${lineColorRule}
-- 强调色：${colorRule}
-- 全图字体：${fontFamily.directive.zh}
-- 轻插图与图标：${illustrationRule}
-- 模块卡片底色：${cardFillRule}
-- 字号层级：${typographyRule}
-- 所有文字统一使用实黑或近黑色；禁止浅灰色、低透明度或低对比度文字。最小一级字号在最终目标栏宽下必须清楚可读，若放不下就删减标签或重排，不能缩成小字。
-- 大标题：${titleRule}
-- 文字短而清晰，不写段落。严格服从所选画布比例与目标栏宽，保持一条清楚的阅读路径；避免垂直文字、交叉箭头和无意义留白。
+### 1. 先生成英文生图 Prompt
+本轮不要生成图片。先在内部完成论文语义拆解：确定唯一主旨、命名区域、区域内部结构，以及每条连接的源、目标、方向、标签和分支/合并/反馈语义。公式、维度或微型示例只在论文明确支持且确有助益时使用；不要输出推理过程或备选方案。
 
-## 两步执行协议
+只输出一个置于 \`text\` 代码块中的 \`FINAL IMAGE PROMPT\`。它必须是可独立生图的完整英文指令，写入论文中的精确内容与当前视觉设置，不使用 \`[Module A]\`、\`TBD\` 或“参考论文”等占位表达，并依次包含：
 
-### 第一步：生成详细英文制图 Prompt（本轮立即执行）
-本轮不得生成图片。先在内部完成论文语义拆解与视觉设计，不展示推理过程、中间草稿或多个备选方案：
+- \`GLOBAL COMPOSITION\`：唯一主旨、${selectedAspectRatio} 画布、${placement.label.zh}意图、阅读方向与区域布局。
+- \`CONTENT AND REGIONS\`：各区域的位置、相对尺寸、内部内容、精确标签与视觉含义。
+- \`CONNECTIONS AND ANNOTATIONS\`：逐条列明源 → 目标、箭头语义及必要的公式、维度、图例或标注。
+- \`STYLE SPECIFICATION\`：完整写入本 Prompt 中已经确定的配色、线条、字体、字号、卡片、插图和可读性要求。
+- \`NEGATIVE CONSTRAINTS\`：写入本图边界，并禁止补造、空框、错拼、重复模块、含糊或交叉箭头、渐变、阴影、3D、低对比文字和微型文字。
 
-1. 从 TeX 与 PDF 中提取这张图唯一要传达的科学主旨、正式术语、输入与输出、主要实体或组件、局部状态、关键变换、数据流或控制流，以及论文明确给出的符号、公式和维度。
-2. 按本图型的目标与边界筛选内容，建立最少但完整的视觉区域。为每个区域确定位置、相对尺寸、内部结构、精确标签和视觉编码；主要区域或组件不得只是一个空框和名称，必须在不超出本图粒度的前提下包含一项无法省略的结构、状态、操作、表示或接口。
-3. 逐条定义连接关系：连接的源与目标、箭头方向、线型、标签，以及分支、合并、反馈、共享或并行的真实语义。公式、张量形状、变量维度和微型数据示例只在论文有明确证据且能提高理解时使用。
-4. 让构图、色彩和排版服务于论文逻辑，而不是装饰。若材料冲突会导致图义不真实，只提出一个不可缺少的澄清问题；其他证据不足的内容直接省略，不得补造。
-
-随后只输出一个标题为 \`FINAL IMAGE PROMPT\` 的完整英文生图 Prompt，并放入标记为 \`text\` 的代码块。该 Prompt 必须脱离本说明也能独立用于生图，不得出现 \`[Module A]\`、\`TBD\` 等占位符，也不得只写“参考论文”或“使用以上设置”。它必须把从论文提取出的精确内容和当前全部配置写实，并按以下五个英文标题组织：
-
-- \`GLOBAL COMPOSITION\`：图的唯一主旨、图型角色、目标读者、${selectedAspectRatio} 画布、${placement.label.zh}意图、阅读方向、总体布局与各命名区域的位置关系。
-- \`CONTENT AND REGIONS\`：逐区说明相对位置与尺寸、应绘制的对象或结构、内部科学内容、全部精确英文标签，以及每个视觉元素承担的含义。
-- \`CONNECTIONS AND ANNOTATIONS\`：逐条写清源 → 目标、箭头方向与类型、必要标签、分支/合并/反馈语义，以及有证据支持的公式、符号、维度、图例或局部标注。
-- \`STYLE SPECIFICATION\`：完整重述当前白底、风格、候选色及 RGB、强调色数量、线条、字体、字号层级、卡片底色、插图与图标、留白和最终栏宽可读性要求。
-- \`NEGATIVE CONSTRAINTS\`：合并本图不得混入的内容、禁止补造的内容，以及禁止空框、乱码、错拼、重复模块、含糊箭头、装饰性连线、交叉箭头、渐变、阴影、3D、低对比文字和不可读小字等约束。
-
-英文生图 Prompt 必须足够具体，使图像模型无需自行猜测模块、布局、标签或箭头语义；同时只能包含论文证据支持的内容。输出代码块后，另起一行写：
+英文 Prompt 必须具体到图像模型无需猜测模块、布局、标签或箭头语义。代码块后只写：
 
 \`详细英文制图 Prompt 已准备好。输入“开始绘图”生成这张图；如需调整，请直接说明修改项。\`
 
-到此停止并等待用户，不得在同一回复中调用生图能力。
+然后停止，不得在同一回复中生成图片。
 
-### 第二步：确认后生成
-只有用户在看到最新英文 Prompt 后输入“开始绘图”、\`Start drawing\` 或语义完全等价的明确指令，才执行以下操作：
-
-- 严格使用最近一次确认的完整英文 Prompt，只生成这一张最终图片，不再提供方案、备选版本或联系表，也不得擅自改变已经确认的结构与术语。
-- 生成一个画布比例严格为 ${selectedAspectRatio}、可直接下载的高分辨率 PNG${outputFileRule}。不得添加水印、作者信息、论文完整标题或图片 caption。
-- 生成后在内部逐项核对术语与拼写、模块完整性、箭头的源/目标和方向、颜色语义、画布比例，以及缩放到目标栏宽后的可读性。若发现错误，只修正受影响部分，不改变已经正确的设计。
-- 如果用户在开始绘图前提出修改，只更新受影响的设计项，重新输出一份完整的 \`FINAL IMAGE PROMPT\`，再次等待“开始绘图”；此时仍不得生成图片。`;
+### 2. 确认后生成
+用户输入“开始绘图”、\`Start drawing\` 或明确同义指令后，严格使用最新英文 Prompt，只生成一张 ${selectedAspectRatio} 高分辨率 PNG${outputFileRule}，不再给方案或备选，不添加水印、作者、论文完整标题或 caption。生成后核对术语、拼写、组件、箭头、颜色和缩小可读性；有误只修正受影响部分。若用户先提出修改，则更新并重新输出完整英文 Prompt，再次等待确认。`;
   }
 
   const lineColorRule =
     preferences.lineColorMode === "semantic"
-      ? "Use thin dark-neutral lines by default for every border, arrow, and connector. Use candidate accent colors only when different information flows, entity types, or states genuinely need distinction. Keep identical semantics in the same color and never add rainbow lines for decoration."
-      : "Use one dark neutral color for all borders, arrows, and connectors. Do not distinguish meaning through line color; use shape, line style, or direct labels instead.";
-  const colorRule = `Use the “${palette.label.en}” palette with candidate accent colors and references ${activePalette}, in that order. GPT must choose the smallest sufficient number of chromatic accents within the ${accentColorRange.label} range according to the real information flows and semantic groups. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Treat the given RGB values as generation references; do not substitute or add hues, and never rely on color alone for a critical distinction.`;
+      ? "Use thin dark-neutral borders and arrows by default; use accent-colored lines only when semantics require them, with identical semantics in identical colors."
+      : "Use one dark neutral color for borders, arrows, and connectors; distinguish meaning through shape, line style, or direct labels.";
+  const colorRule = `Use only these candidate colors from “${palette.label.en}”: ${activePalette}. Select the smallest sufficient number within the ${accentColorRange.label} range according to real semantic groups. White, black, and dark structural lines do not count, and color alone must never carry a critical distinction.`;
   const illustrationRule = preferences.allowLightIllustrations
-    ? "Restrained light-cartoon technical illustrations, semantic icons, and subtly rounded sans-serif type are allowed only when they represent real objects or processes in the paper. They must not replace the core mechanism or look comic-like, mascot-driven, handwritten, bubbly, or promotional."
-    : "Do not use light-cartoon illustrations, icons, skeuomorphic objects, or decorative type. Express all relationships with modules, lines, arrows, simple geometry, and necessary text.";
+    ? "Restrained technical illustrations or semantic icons are allowed only for real objects or processes in the paper. They must not replace the mechanism or look comic-like or promotional."
+    : "Do not use illustrations, icons, or skeuomorphic objects; express relations with modules, lines, arrows, simple geometry, and necessary text.";
   const cardFillRule = preferences.useCardFills
-    ? "Major module cards may use extremely pale, muted fills derived from the accent colors. Keep identical roles in identical fills, keep all text black, and do not use gradients, shadows, or dark cards."
-    : "Keep every module card pure white or transparent with no fill. Establish hierarchy only through thin borders, alignment, spacing, and group headings.";
+    ? "Major modules may use extremely pale muted fills derived from the accents; keep identical roles consistent and all text black."
+    : "Keep modules white or transparent and establish hierarchy through thin borders, alignment, spacing, and group headings.";
   const typographyRule =
     preferences.fontSizeLevels === 2
-      ? "Use exactly two type-size levels across the figure: body/labels and headings. The largest size must be no more than 1.25× the smallest. Do not introduce micro-annotations, an oversized title, or a third size."
-      : "Use exactly three type-size levels across the figure: labels, subheadings, and main headings. The largest size must be no more than 1.35× the smallest. Do not introduce micro-annotations or an exaggerated oversized title.";
+      ? "Use exactly two sizes—body/labels and headings—with the largest no more than 1.25× the smallest."
+      : "Use exactly three sizes—labels, subheadings, and main headings—with the largest no more than 1.35× the smallest.";
   const titleRule = preferences.includeLargeTitle
-    ? "One large in-figure title of 3–7 English words is allowed, but every word must come directly from the paper’s terminology and the title must not sound promotional. Do not place the full paper title, authors, or caption inside the image."
-    : "Do not use a large in-figure title. Retain only necessary panel headings or step labels, and do not place the paper title, authors, or caption inside the image.";
+    ? "Allow one 3–7-word English title built only from the paper’s terminology, with no promotional wording."
+    : "Do not use a large in-figure title; retain only necessary panel headings or step labels.";
 
-  return `# ${spec.heading.en}
+  return `# ${spec.label.en}
 
-## Objective
-${spec.objective.en}
+You are an academic-figure specialist skilled at extracting scientific logic, information flow, and visual hierarchy from CS papers. I will provide a completed manuscript, usually the main \`.tex\` and sometimes a compiled \`.pdf\` or other attachments. Read all available material. When TeX is present, treat its terminology, notation, and structure as authoritative; use the PDF for context and existing layout. If a conflict would make the figure inaccurate, ask one necessary question instead of guessing.
 
-Success criterion: ${spec.successCriterion.en}
+${spec.brief.en}
+${buildList(spec.rules.en)}
 
-## Inputs and evidence
-Provide this prompt, the paper’s main \`.tex\` source, and the latest compiled \`.pdf\` in the same conversation. Read both in full: treat the \`.tex\` as authoritative for terminology, equations, symbols, and structure, and use the \`.pdf\` for context, layout, and existing figures. If a conflict would materially affect the figure, ask only the necessary question instead of guessing.
+Every title, module name, arrow label, abbreviation, and symbol must match the paper exactly, including capitalization, hyphenation, and notation. Never invent modules, flows, equations, results, or causal claims. Reflow the layout rather than abbreviating an exact label.
 
-## What this figure must do
-${buildList(spec.designRules.en)}
+## Visual requirements
+- Compose for ${placement.label.en} on an exact ${selectedAspectRatio} canvas from the start; do not crop or draw paper-column guides. Everything must remain legible at the target column width. If the official venue template differs, follow it and reflow the design.
+- ${style.directive.en}
+- ${colorRule} ${lineColorRule}
+- ${fontFamily.directive.en} ${typographyRule} Use solid black or near-black text—never light gray, low opacity, or microtext. ${titleRule}
+- ${cardFillRule} ${illustrationRule}
 
-## Do not include
-${buildList(spec.exclusions.en)}
+## Two-step execution
 
-## Shared visual and text constraints
-- Every piece of in-figure text—including titles, module names, arrow labels, legends, abbreviations, and variable symbols—must exactly match the paper’s terminology, capitalization, hyphenation, and notation. Do not translate, paraphrase, or invent synonyms. Use only abbreviations already defined in the paper.
-- Before generation, build an internal exact-label list and check uncommon method names and coined terms character by character; do not output that list. If a label does not fit, revise the layout rather than shortening it.
-- Do not invent modules, data flows, equations, metrics, experimental results, or causal relationships that are absent from the paper. Ask before visualizing anything unsupported.
-- Paper placement: ${placement.directive.en}
-- Canvas ratio: ${aspectRatio.directive.en}
-- Before generation, set the image tool’s aspect-ratio picker to ${selectedAspectRatio}. If the current interface does not offer that preset or has no ratio picker, enforce ${selectedAspectRatio} (width:height) directly in the generation instruction. The ratio describes the exported image canvas; do not draw paper column guides inside the figure.
-- If the target venue’s official template specifies a different size, follow it and reflow the design while preserving the selected placement intent. Never solve the mismatch by compressing text or lines.
-- Visual style: ${style.directive.en}
-- Line colors: ${lineColorRule}
-- Accent colors: ${colorRule}
-- Global typeface: ${fontFamily.directive.en}
-- Light illustrations and icons: ${illustrationRule}
-- Module card fills: ${cardFillRule}
-- Type-size hierarchy: ${typographyRule}
-- Use solid black or near-black for every piece of text. Light-gray, low-opacity, and low-contrast text are prohibited. The smallest size must remain clearly legible at the final target column width; if content does not fit, remove labels or reflow the layout rather than shrinking the text.
-- Large title: ${titleRule}
-- Keep text short and avoid paragraphs. Follow the selected canvas ratio and target column width exactly. Maintain one clear reading path and avoid vertical text, crossing arrows, and meaningless whitespace.
+### 1. Produce the English image prompt first
+Do not generate an image in this response. Internally determine the single take-home message, named regions, each region’s meaningful internal structure, and every connection’s source, target, direction, label, and branch/merge/feedback semantics. Use equations, dimensions, or miniature examples only when explicitly supported and genuinely useful. Do not expose reasoning or alternatives.
 
-## Two-step execution protocol
+Output only one \`FINAL IMAGE PROMPT\` inside a \`text\` code block. It must be a self-contained English generation instruction containing exact paper-derived content and the active visual settings—never placeholders such as \`[Module A]\`, \`TBD\`, or “refer to the paper.” Use these sections in order:
 
-### Step 1 — Produce the detailed English image prompt now
-Do not generate an image in this response. First perform the paper analysis and visual design internally; do not expose private reasoning, intermediate drafts, or multiple design alternatives:
+- \`GLOBAL COMPOSITION\`: the single thesis, ${selectedAspectRatio} canvas, ${placement.label.en} intent, reading direction, and region layout.
+- \`CONTENT AND REGIONS\`: each region’s position, relative size, internal content, exact labels, and visual meaning.
+- \`CONNECTIONS AND ANNOTATIONS\`: every source → target link, arrow semantics, and any necessary equation, dimension, legend, or annotation.
+- \`STYLE SPECIFICATION\`: all palette, line, typeface, type-size, card, illustration, and legibility decisions fixed above.
+- \`NEGATIVE CONSTRAINTS\`: the figure’s content boundaries plus no invention, empty boxes, misspellings, duplicated modules, ambiguous or crossing arrows, gradients, shadows, 3D, low-contrast text, or microtext.
 
-1. Extract the figure’s single scientific take-home message, canonical terminology, inputs and outputs, main entities or components, local states, key transformations, data or control flows, and every source-supported symbol, equation, or dimension needed for this figure.
-2. Filter the content through this figure type’s objective and exclusions, then define the smallest complete set of visual regions. For each region, decide its position, relative size, internal structure, exact labels, and visual encoding. A major region or component must not be an empty named box: within the selected figure scope, include at least one indispensable structure, state, operation, representation, or interface.
-3. Specify every connection as a source-to-target relation with direction, line or arrow type, label, and the true meaning of any branch, merge, feedback path, shared element, or parallel path. Include equations, tensor shapes, variable dimensions, or miniature data examples only when the paper explicitly supports them and they materially improve comprehension.
-4. Make composition, color, and typography serve the scientific logic rather than decoration. If a source conflict would make the figure untruthful, ask one indispensable clarification question; otherwise omit unsupported content instead of inventing it.
-
-Then output exactly one complete English image-generation prompt titled \`FINAL IMAGE PROMPT\` inside a \`text\` fenced code block. The prompt must be fully usable without this operating instruction. It must contain the exact paper-derived content and all current configuration values; do not use placeholders such as \`[Module A]\` or \`TBD\`, and do not merely say “refer to the paper” or “use the settings above.” Organize it under these five English headings:
-
-- \`GLOBAL COMPOSITION\`: the single visual thesis, figure role, intended reader, ${selectedAspectRatio} canvas, ${placement.label.en} intent, reading direction, overall arrangement, and positional relationships among named regions.
-- \`CONTENT AND REGIONS\`: for every region, specify relative position and size, objects or structures to render, internal scientific content, every exact English label, and the meaning carried by each visual element.
-- \`CONNECTIONS AND ANNOTATIONS\`: enumerate source → target links, arrow direction and type, necessary labels, branch/merge/feedback semantics, and any evidence-backed equation, symbol, dimension, legend, or local annotation.
-- \`STYLE SPECIFICATION\`: restate the complete white-background style, candidate colors with RGB references, accent-count range, line rules, typeface, type-size hierarchy, module fills, illustration/icon policy, spacing, and target-column legibility requirements.
-- \`NEGATIVE CONSTRAINTS\`: combine this figure type’s exclusions with prohibitions on invented content, empty boxes, garbled or misspelled text, duplicated modules, ambiguous arrows, decorative connectors, crossing arrows, gradients, shadows, 3D, low-contrast text, and illegible microtext.
-
-The English image prompt must be detailed enough that an image model does not need to guess the modules, layout, labels, or arrow semantics, while remaining strictly grounded in the paper. After the code block, write exactly:
+Be specific enough that the image model never has to guess the modules, layout, labels, or arrow semantics. After the code block, write only:
 
 \`The detailed English image prompt is ready. Type "Start drawing" to generate this figure, or describe any changes you want.\`
 
-Stop there and wait. Do not invoke image generation in the same response.
+Then stop. Do not generate an image in the same response.
 
-### Step 2 — Generate only after confirmation
-Only after the user has seen the latest English prompt and types \`Start drawing\`, “开始绘图,” or an unambiguous equivalent:
-
-- Use the most recently confirmed English prompt exactly and generate this one final image only. Do not provide another plan, alternatives, or a contact sheet, and do not silently change the confirmed structure or terminology.
-- Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas${outputFileRule}. Do not add watermarks, author information, the full paper title, or the figure caption inside the image.
-- After generation, internally audit terminology and spelling, component completeness, every arrow’s source, target, and direction, color semantics, canvas ratio, and legibility at the target column width. If anything is wrong, correct only the affected part while preserving the verified design.
-- If the user requests a change before generation, revise only the affected design items, output the complete updated \`FINAL IMAGE PROMPT\`, and wait again for \`Start drawing\`; do not generate an image yet.`;
+### 2. Generate after confirmation
+After the user types \`Start drawing\`, “开始绘图,” or an unambiguous equivalent, use the latest English prompt exactly and generate one high-resolution ${selectedAspectRatio} PNG${outputFileRule}. Do not offer alternatives or add watermarks, authors, the full paper title, or a caption. Audit terminology, spelling, components, arrows, colors, and reduced-size legibility; correct only the affected part. If the user requests changes first, update and return the complete English prompt, then wait again.`;
 }
 
 export function buildFrameworkFigureReconstructionPrompt(

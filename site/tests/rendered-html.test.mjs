@@ -77,11 +77,13 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /不限制方法和实验的字数/);
   assert.match(html, /每张表格或图片按 200 词计入/);
   assert.match(html, /导出桌面配置/);
-  assert.match(html, /五步重构工作流/);
+  assert.match(html, /重新配置/);
+  assert.match(html, /复制全部/);
   assert.equal((html.match(/>English<\/button>/g) ?? []).length, 5);
-  assert.match(html, /真实 Prompt/);
   assert.match(html, /科学定位与结构重构/);
   assert.match(html, /重构方法总览框架图/);
+  assert.doesNotMatch(html, /RECONSTRUCTION WORKFLOW|五步重构工作流/);
+  assert.doesNotMatch(html, /class="workflow-context"|class="prompt-number"/);
   assert.doesNotMatch(html, /投稿目标检索与官网核验/);
   assert.match(html, /Scientific Positioning Contract/);
   assert.match(html, /论文标题与品牌缩写/);
@@ -143,6 +145,9 @@ test("server-renders the evidence-led paper-draft workbench", async () => {
   assert.match(html, /不要先给提纲、写作计划或等待我逐节确认/);
   assert.match(html, /class="prompt-resize-handle"/);
   assert.match(html, /class="prompt-card expanded"/);
+  assert.match(html, /读取完整实验材料，生成证据一致、可编译并可继续修改/);
+  assert.doesNotMatch(html, /DRAFTING PROMPT|当前论文初稿 Prompt|独立 Prompt/);
+  assert.doesNotMatch(html, /class="prompt-number"/);
 });
 
 test("server-renders submission strategy filters and its live prompt", async () => {
@@ -169,6 +174,8 @@ test("server-renders submission strategy filters and its live prompt", async () 
   assert.match(html, /SSCI/);
   assert.match(html, /ESCI/);
   assert.match(html, /投稿目标检索与官网核验/);
+  assert.doesNotMatch(html, /TARGETING PROMPT|投稿目标检索 Prompt|实时 Prompt/);
+  assert.doesNotMatch(html, /class="prompt-number"/);
   assert.match(html, /## 当前配置/);
   assert.match(html, /投稿类型：期刊/);
   assert.match(html, /是否 OA：不限/);
@@ -208,6 +215,7 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /论文材料/);
   assert.match(html, /\.tex/);
   assert.match(html, /\.pdf/);
+  assert.match(html, /可选编译稿/);
   assert.match(html, /本站不读取或保存论文/);
   assert.match(html, /引言图/);
   assert.match(html, /方法总览图/);
@@ -249,15 +257,15 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /3 级字号/);
   assert.match(html, /不得使用浅灰/);
   assert.match(html, /不使用/);
-  assert.match(html, /两步制图 Prompt/);
   assert.match(html, /方法总览图/);
   assert.match(html, /整体心智地图/);
   assert.match(html, /class="prompt-card expanded"/);
   assert.match(html, /aria-expanded="true"/);
-  assert.match(html, /统一视觉与文字约束/);
-  assert.match(html, /## 两步执行协议/);
-  assert.match(html, /第一步：生成详细英文制图 Prompt/);
-  assert.match(html, /本轮不得生成图片/);
+  assert.match(html, /擅长从 CS 论文中提炼科学逻辑、信息流与视觉层级/);
+  assert.match(html, /## 视觉要求/);
+  assert.match(html, /## 两步执行/);
+  assert.match(html, /先生成英文生图 Prompt/);
+  assert.match(html, /本轮不要生成图片/);
   assert.match(html, /FINAL IMAGE PROMPT/);
   assert.match(html, /GLOBAL COMPOSITION/);
   assert.match(html, /CONTENT AND REGIONS/);
@@ -265,7 +273,17 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /STYLE SPECIFICATION/);
   assert.match(html, /NEGATIVE CONSTRAINTS/);
   assert.match(html, /输入“开始绘图”生成这张图/);
-  assert.match(html, /第二步：确认后生成/);
+  assert.match(html, /确认后生成/);
+  assert.doesNotMatch(html, /TWO-STEP FIGURE PROMPT|两步制图 Prompt/);
+  assert.doesNotMatch(html, /class="figure-prompt-summary"|class="prompt-number"/);
+  assert.doesNotMatch(
+    html,
+    /## 目标|成功标准：|## 输入与取证|## 这张图必须完成|## 不得混入|## 统一视觉与文字约束/,
+  );
+  assert.doesNotMatch(
+    html,
+    /论文占栏：|画布比例：|视觉风格：|线条颜色：|强调色：|全图字体：|轻插图与图标：|模块卡片底色：|字号层级：|大标题：/,
+  );
   assert.doesNotMatch(html, /## 直接生成|直接生成最终图片/);
   assert.doesNotMatch(html, /保持 Overview 粒度|Stay at overview granularity/);
   assert.equal((html.match(/class="prompt-card(?:\s|")/g) ?? []).length, 1);
@@ -350,7 +368,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(config, /defaultAppendix:\s*false/);
   assert.match(config, /wordLimitOff:\s*"无特殊规定"/);
   assert.match(config, /appendixOn:\s*"允许附录"/);
-  assert.match(config, /五步重构工作流/);
+  assert.doesNotMatch(config, /workflowTitle|五步重构工作流/);
   assert.match(config, /resizePromptRail:\s*"拖动调整 Prompt 栏宽度"/);
   assert.match(config, /resetPromptRail:\s*"双击恢复为 40%"/);
   assert.match(config, /满足当前适用的总量与章节预算时不得使用/);
@@ -473,9 +491,9 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(
     originalPrompts,
-    /必须注入用户确认的论文占栏（单栏或跨双栏）与画布比例/,
+    /必须注入用户确认的占栏与画布比例/,
   );
-  assert.match(originalPrompts, /在 2–4 种有彩色相中选择最少够用的数量/);
+  assert.match(originalPrompts, /按真实语义在 2–4 种内选择最少够用的颜色/);
   assert.match(originalPrompts, /#0077BB \/ RGB\(0, 119, 187\)/);
   assert.match(originalPrompts, /全图统一使用 Calibri/);
   assert.match(originalPrompts, /使用极简论文线稿/);
@@ -755,19 +773,19 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   );
   assert.match(figureConfig, /FIGURE_PROMPT_ORDER/);
   assert.match(figureConfig, /buildFigurePrompt/);
-  assert.match(figureConfig, /不得翻译、改写或自造近义词/);
-  assert.match(figureConfig, /今天仍存在什么关键障碍/);
-  assert.match(figureConfig, /整个方法如何组织并运转/);
+  assert.match(figureConfig, /逐字匹配论文/);
+  assert.match(figureConfig, /今天仍存在的关键障碍/);
+  assert.match(figureConfig, /整体心智地图阅读 Method/);
   assert.match(figureConfig, /最需要视觉解释的一项核心机制/);
   assert.match(figureConfig, /只生成这一张图/);
   assert.match(figureConfig, /论文占栏/);
-  assert.match(figureConfig, /比例选择器设为/);
-  assert.match(figureConfig, /目标 venue 的正式模板/);
-  assert.match(figureConfig, /全图严格只使用两级字号/);
-  assert.match(figureConfig, /最大字号不得超过最小字号的 1\.25 倍/);
-  assert.match(figureConfig, /最大字号不得超过最小字号的 1\.35 倍/);
-  assert.match(figureConfig, /禁止浅灰色、低透明度或低对比度文字/);
-  assert.match(figureConfig, /纯白背景、黑色文字和深色中性结构线/);
+  assert.match(figureConfig, /从一开始适配该比例/);
+  assert.match(figureConfig, /官方模板另有尺寸/);
+  assert.match(figureConfig, /只使用正文\/标签与标题两级字号/);
+  assert.match(figureConfig, /最大不超过最小的 1\.25 倍/);
+  assert.match(figureConfig, /最大不超过最小的 1\.35 倍/);
+  assert.match(figureConfig, /不使用浅灰、低透明度或不可读小字/);
+  assert.match(figureConfig, /白底、黑字和深色结构线不计入/);
   assert.match(figureConfig, /FIGURE_COLOR_PALETTES/);
   assert.match(figureConfig, /"tol-vibrant"/);
   assert.match(figureConfig, /"tol-bright"/);
@@ -780,8 +798,8 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /FIGURE_FONT_FAMILIES/);
   assert.match(figureConfig, /Times New Roman/);
   assert.match(figureConfig, /Comic Sans MS/);
-  assert.match(figureConfig, /## 两步执行协议/);
-  assert.match(figureConfig, /本轮不得生成图片/);
+  assert.match(figureConfig, /## 两步执行/);
+  assert.match(figureConfig, /本轮不要生成图片/);
   assert.match(figureConfig, /FINAL IMAGE PROMPT/);
   assert.match(figureConfig, /GLOBAL COMPOSITION/);
   assert.match(figureConfig, /CONTENT AND REGIONS/);
@@ -789,10 +807,14 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /STYLE SPECIFICATION/);
   assert.match(figureConfig, /NEGATIVE CONSTRAINTS/);
   assert.match(figureConfig, /输入“开始绘图”生成这张图/);
-  assert.match(figureConfig, /Stop there and wait/);
+  assert.match(figureConfig, /Then stop/);
   assert.doesNotMatch(
     figureConfig,
     /材料足够时直接生成最终图片|## 直接生成|## Generate directly/,
+  );
+  assert.doesNotMatch(
+    figureConfig,
+    /## 目标|Success criterion:|## 输入与取证|## Shared visual and text constraints|论文占栏：|视觉风格：/,
   );
   assert.doesNotMatch(
     figureConfig,
@@ -814,6 +836,10 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureComponent, /getFigureAspectRatio\(preferences\)/);
   assert.match(figureComponent, /copy\.customRatioWidth/);
   assert.match(figureComponent, /copy\.customRatioHeight/);
+  assert.doesNotMatch(
+    figureComponent,
+    /figure-prompt-summary|prompt-number|promptEyebrow|promptTitle|promptBody/,
+  );
   assert.match(
     figureComponent,
     /DEFAULT_PROMPT_EXPANSION[\s\S]*?introduction:\s*true[\s\S]*?"method-overview":\s*true[\s\S]*?"technical-detail":\s*true/,

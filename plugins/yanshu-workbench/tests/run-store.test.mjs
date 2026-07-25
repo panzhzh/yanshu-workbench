@@ -58,11 +58,11 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   assert.match(workflow.rounds[3].prompt, /Use Calibri throughout/);
   assert.match(
     workflow.rounds[3].prompt,
-    /Restrained light-cartoon technical illustrations/,
+    /Restrained technical illustrations or semantic icons/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /Use thin dark-neutral lines by default/,
+    /Use thin dark-neutral borders and arrows by default/,
   );
   assert.match(workflow.rounds[3].prompt, /Do not use a large in-figure title/);
   assert.match(
@@ -71,7 +71,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /## Two-step execution protocol/,
+    /## Two-step execution/,
   );
   assert.match(
     workflow.rounds[3].prompt,
@@ -108,7 +108,7 @@ test("framework figure placement and canvas are configuration-driven", () => {
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /width of one column in a two-column paper/,
+    /Compose for Single column on an exact 3:4 canvas/,
   );
   assert.match(workflow.rounds[3].prompt, /exact 3:4 canvas/);
 });

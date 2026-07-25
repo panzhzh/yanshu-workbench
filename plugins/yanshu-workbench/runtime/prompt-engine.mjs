@@ -416,10 +416,6 @@ var UI_COPY = {
     budget: "\u5B57\u6570\u9884\u7B97",
     editAllocation: "\u7F16\u8F91\u7AE0\u8282",
     hideAllocation: "\u6536\u8D77",
-    workflowEyebrow: "RECONSTRUCTION WORKFLOW",
-    workflowTitle: "\u4E94\u6B65\u91CD\u6784\u5DE5\u4F5C\u6D41",
-    workflowBody: "\u4E94\u4EFD\u771F\u5B9E\u6A21\u677F\u5DF2\u6574\u7406\u4E3A\u53EF\u914D\u7F6E Prompt\uFF1B\u7B2C\u56DB\u6B65\u590D\u7528\u79D1\u7814\u7ED8\u56FE\u89C4\u5219\uFF0C\u53EA\u91CD\u6784\u65B9\u6CD5\u603B\u89C8\u6846\u67B6\u56FE\u3002",
-    placeholder: "\u771F\u5B9E Prompt",
     expand: "\u5C55\u5F00",
     collapse: "\u6536\u8D77",
     copy: "\u590D\u5236",
@@ -504,10 +500,6 @@ var UI_COPY = {
     budget: "Word budget",
     editAllocation: "Edit sections",
     hideAllocation: "Collapse",
-    workflowEyebrow: "RECONSTRUCTION WORKFLOW",
-    workflowTitle: "Five-step reconstruction workflow",
-    workflowBody: "Five source templates are production prompts. Step 4 reuses the research-figure rules and reconstructs only the Method Overview figure.",
-    placeholder: "Live prompt",
     expand: "Expand",
     collapse: "Collapse",
     copy: "Copy",
@@ -787,165 +779,80 @@ var FIGURE_FONT_FAMILY_IDS = Object.keys(
 );
 var FIGURE_PROMPTS = {
   introduction: {
-    number: "01",
     label: {
       zh: "\u5F15\u8A00\u56FE",
       en: "Introduction figure"
-    },
-    tag: {
-      zh: "\u95EE\u9898\u4E0E\u610F\u4E49",
-      en: "Problem & significance"
     },
     purpose: {
       zh: "\u8BA9\u8BFB\u8005\u8FC5\u901F\u7406\u89E3\u95EE\u9898\u4E3A\u4F55\u91CD\u8981\u3001\u4ECA\u5929\u4ECD\u5361\u5728\u54EA\u91CC\uFF0C\u4EE5\u53CA\u672C\u6587\u5E26\u6765\u4EC0\u4E48\u6838\u5FC3\u6D1E\u5BDF\u3002",
       en: "Show why the problem matters, what still blocks progress today, and the paper\u2019s core insight."
     },
-    heading: {
-      zh: "\u4E3A CS \u8BBA\u6587\u751F\u6210\u4E00\u5F20\u5F15\u8A00\u56FE",
-      en: "Generate One Introduction Figure for a CS Paper"
+    brief: {
+      zh: "\u672C\u6B21\u53EA\u8BBE\u8BA1\u5F15\u8A00\u56FE\uFF1A\u7528\u4E00\u6761\u6E05\u695A\u7684\u89C6\u89C9\u8BBA\u8BC1\u5448\u73B0\u7814\u7A76\u573A\u666F\u3001\u4ECA\u5929\u4ECD\u5B58\u5728\u7684\u5173\u952E\u969C\u788D\u3001\u76F4\u63A5\u540E\u679C\u4E0E\u672C\u6587\u6838\u5FC3\u6D1E\u5BDF\uFF0C\u8BA9\u8BFB\u8005\u8FC5\u901F\u7406\u89E3\u7814\u7A76\u4E3A\u4EC0\u4E48\u91CD\u8981\u3002",
+      en: "Design the Introduction figure only: use one clear visual argument to show the setting, the key obstacle that still exists today, its direct consequence, and the paper\u2019s core insight so readers immediately understand why the research matters."
     },
-    objective: {
-      zh: "\u8FD9\u5F20\u56FE\u4F4D\u4E8E Introduction\uFF0C\u7528\u89C6\u89C9\u8BBA\u8BC1\u5F15\u51FA\u7814\u7A76\u95EE\u9898\u4E0E\u5FC5\u8981\u6027\u3002\u5B83\u4E0D\u662F\u65B9\u6CD5\u6D41\u7A0B\u56FE\uFF0C\u4E5F\u4E0D\u662F\u628A\u5168\u6587\u538B\u7F29\u6210\u4E00\u5F20 graphical abstract\u3002",
-      en: "This figure belongs in the Introduction and visually establishes the research problem and its significance. It is neither a method pipeline nor a graphical abstract that compresses the whole paper."
-    },
-    successCriterion: {
-      zh: "\u7B2C\u4E00\u6B21\u63A5\u89E6\u8BE5\u4E3B\u9898\u7684 CS \u8BFB\u8005\u5E94\u80FD\u5728 10\u201315 \u79D2\u5185\u8BF4\u6E05\uFF1A\u7814\u7A76\u573A\u666F\u662F\u4EC0\u4E48\u3001\u4ECA\u5929\u4ECD\u5B58\u5728\u4EC0\u4E48\u5173\u952E\u969C\u788D\u3001\u4E3A\u4EC0\u4E48\u503C\u5F97\u89E3\u51B3\uFF0C\u4EE5\u53CA\u672C\u6587\u6838\u5FC3\u6D1E\u5BDF\u53EF\u80FD\u6539\u53D8\u4EC0\u4E48\u3002",
-      en: "Within 10\u201315 seconds, a CS reader new to the topic should be able to state the setting, the key obstacle that still exists today, why it matters, and what the paper\u2019s core insight is intended to change."
-    },
-    designRules: {
+    rules: {
       zh: [
-        "\u4ECE\u8BBA\u6587\u4E2D\u63D0\u53D6\u4E00\u4E2A\u552F\u4E00\u7684\u89C6\u89C9\u4E3B\u65E8\uFF1B\u4F18\u5148\u5448\u73B0\u4EFB\u52A1\u6216\u5E94\u7528\u573A\u666F\u3001\u4ECA\u5929\u4ECD\u5B58\u5728\u7684\u5173\u952E\u969C\u788D\u3001\u969C\u788D\u9020\u6210\u7684\u76F4\u63A5\u540E\u679C\u3001\u672C\u6587\u6838\u5FC3\u6D1E\u5BDF\u53CA\u5176\u9884\u671F\u4F5C\u7528\u3002",
-        "\u9009\u62E9\u6700\u9002\u5408\u8BBA\u6587\u8BC1\u636E\u7684\u5355\u4E00\u9605\u8BFB\u8DEF\u5F84\u3002\u53EA\u6709\u5728\u5185\u5BB9\u786E\u5B9E\u9002\u5408\u65F6\u624D\u91C7\u7528\u201C\u573A\u666F \u2192 \u969C\u788D \u2192 \u540E\u679C \u2192 \u6838\u5FC3\u6D1E\u5BDF\u201D\u7684\u7ED3\u6784\uFF0C\u4E0D\u8981\u673A\u68B0\u5957\u6A21\u677F\u3002",
-        "\u628A\u73B0\u6709\u65B9\u6CD5\u7684\u4E0D\u8DB3\u8868\u8FBE\u4E3A\u5F53\u524D\u4ECD\u672A\u89E3\u51B3\u7684\u5177\u4F53\u77DB\u76FE\uFF0C\u4E0D\u4F7F\u7528\u7A7A\u6CDB\u7684\u201C\u6027\u80FD\u6709\u9650\u201D\u201C\u4ECD\u5177\u6311\u6218\u201D\u7B49\u5360\u4F4D\u8868\u8FF0\u3002",
-        "\u672C\u6587\u65B9\u6CD5\u53EA\u51FA\u73B0\u5230\u6838\u5FC3\u6D1E\u5BDF\u6216\u6982\u5FF5\u6027\u6539\u53D8\u8FD9\u4E00\u5C42\uFF0C\u4E0D\u5C55\u5F00\u6A21\u5757\u3001\u8BAD\u7EC3\u6B65\u9AA4\u6216\u5B9E\u73B0\u6D41\u6C34\u7EBF\u3002",
-        "\u56FE\u4E2D\u6587\u5B57\u53EA\u4FDD\u7559\u8BFB\u8005\u7406\u89E3\u95EE\u9898\u4E0E\u610F\u4E49\u6240\u5FC5\u9700\u7684\u77ED\u6807\u7B7E\uFF1B\u9ED8\u8BA4\u4E0D\u653E\u5B9E\u9A8C\u6570\u5B57\uFF0C\u786E\u6709\u5FC5\u8981\u65F6\u4E5F\u53EA\u80FD\u4F7F\u7528\u8BBA\u6587\u660E\u786E\u652F\u6301\u7684\u6781\u5C11\u91CF\u5173\u952E\u6570\u5B57\u3002"
+        "\u6839\u636E\u8BBA\u6587\u8BC1\u636E\u9009\u62E9\u6700\u81EA\u7136\u7684\u5355\u4E00\u9605\u8BFB\u8DEF\u5F84\uFF0C\u4E0D\u673A\u68B0\u5957\u7528\u56FA\u5B9A\u6A21\u677F\uFF1B\u672C\u6587\u65B9\u6CD5\u53EA\u51FA\u73B0\u5230\u6838\u5FC3\u6D1E\u5BDF\uFF0C\u4E0D\u5C55\u5F00\u7EC4\u4EF6\u3001\u8BAD\u7EC3\u6B65\u9AA4\u6216\u5B9E\u73B0\u6D41\u7A0B\u3002",
+        "\u628A\u73B0\u6709\u65B9\u6CD5\u7684\u4E0D\u8DB3\u5199\u6210\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u7684\u5177\u4F53\u77DB\u76FE\uFF0C\u6807\u7B7E\u4FDD\u6301\u7B80\u77ED\uFF1B\u9ED8\u8BA4\u4E0D\u653E\u5B9E\u9A8C\u6570\u5B57\uFF0C\u786E\u6709\u5FC5\u8981\u65F6\u53EA\u4FDD\u7559\u8BBA\u6587\u660E\u786E\u652F\u6301\u7684\u6781\u5C11\u91CF\u6570\u5B57\u3002",
+        "\u4E0D\u52A0\u5165\u5B8C\u6574\u65B9\u6CD5\u67B6\u6784\u3001\u516C\u5F0F\u3001\u8D85\u53C2\u6570\u3001\u6D88\u878D\u6216\u7ED3\u679C\u699C\u5355\uFF0C\u4E0D\u538B\u5165\u5168\u90E8\u8D21\u732E\uFF0C\u4E5F\u4E0D\u5938\u5927\u5F71\u54CD\u6216\u8865\u9020\u56E0\u679C\u5173\u7CFB\u3002"
       ],
       en: [
-        "Extract one visual take-home message from the paper. Prioritize the task or application setting, the key obstacle that still exists today, its immediate consequence, the paper\u2019s core insight, and the change that insight is intended to enable.",
-        "Choose one reading path that fits the paper\u2019s evidence. Use a setting \u2192 obstacle \u2192 consequence \u2192 core insight structure only when it is genuinely suitable; do not force a template.",
-        "State the limitation of current approaches as a concrete present-day tension, not a placeholder such as \u201Climited performance\u201D or \u201Cstill challenging.\u201D",
-        "Show the proposed work only at the level of its core insight or conceptual change; do not unfold modules, training steps, or an implementation pipeline.",
-        "Keep only the short labels needed to understand the problem and its significance. Omit experimental numbers by default; if one is indispensable, use only a very small number explicitly supported by the paper."
-      ]
-    },
-    exclusions: {
-      zh: [
-        "\u4E0D\u5F97\u52A0\u5165\u5B8C\u6574\u65B9\u6CD5\u67B6\u6784\u3001\u6A21\u5757\u6E05\u5355\u3001\u8BAD\u7EC3/\u63A8\u7406\u6D41\u7A0B\u3001\u516C\u5F0F\u3001\u8D85\u53C2\u6570\u3001\u6D88\u878D\u5B9E\u9A8C\u6216\u8868\u683C\u4E0E\u56FE\u7247\u7F16\u53F7\u3002",
-        "\u4E0D\u5F97\u7528\u7ED3\u679C\u699C\u5355\u6216\u5BC6\u96C6\u6570\u5B57\u66FF\u4EE3\u7814\u7A76\u52A8\u673A\uFF0C\u4E5F\u4E0D\u5F97\u628A\u8BBA\u6587\u7684\u6240\u6709\u8D21\u732E\u540C\u65F6\u585E\u8FDB\u4E00\u5F20\u56FE\u3002",
-        "\u4E0D\u5F97\u5938\u5927\u5F71\u54CD\u3001\u8865\u9020\u56E0\u679C\u5173\u7CFB\uFF0C\u6216\u627F\u8BFA\u8BBA\u6587\u8BC1\u636E\u6CA1\u6709\u652F\u6301\u7684\u6539\u8FDB\u3002"
-      ],
-      en: [
-        "Do not include the full architecture, a module inventory, training or inference flow, equations, hyperparameters, ablations, or table and figure references.",
-        "Do not replace research motivation with a leaderboard or dense numbers, and do not squeeze every contribution into the figure.",
-        "Do not exaggerate impact, invent causal relationships, or promise improvements unsupported by the paper."
+        "Choose the most natural single reading path supported by the paper rather than forcing a template. Show the proposed work only at the level of its core insight, without modules, training steps, or an implementation pipeline.",
+        "State the limitation of current approaches as a concrete problem that still exists today and keep labels short. Omit experimental numbers by default; if indispensable, retain only a very small number explicitly supported by the paper.",
+        "Do not include the full architecture, equations, hyperparameters, ablations, or a leaderboard; do not squeeze in every contribution, exaggerate impact, or invent causal relationships."
       ]
     }
   },
   "method-overview": {
-    number: "02",
     label: {
       zh: "\u65B9\u6CD5\u603B\u89C8\u56FE",
       en: "Method overview"
-    },
-    tag: {
-      zh: "\u6574\u4F53\u5FC3\u667A\u5730\u56FE",
-      en: "System mental model"
     },
     purpose: {
       zh: "\u5728\u8BFB\u8005\u8FDB\u5165\u65B9\u6CD5\u7EC6\u8282\u524D\uFF0C\u5EFA\u7ACB\u8F93\u5165\u3001\u6838\u5FC3\u9636\u6BB5\u3001\u4FE1\u606F\u6D41\u4E0E\u8F93\u51FA\u7684\u6574\u4F53\u5FC3\u667A\u5730\u56FE\u3002",
       en: "Give readers a stable mental model of inputs, major stages, information flow, and outputs before method details."
     },
-    heading: {
-      zh: "\u4E3A CS \u8BBA\u6587\u751F\u6210\u4E00\u5F20\u65B9\u6CD5\u603B\u89C8\u56FE",
-      en: "Generate One Method Overview Figure for a CS Paper"
+    brief: {
+      zh: "\u672C\u6B21\u53EA\u8BBE\u8BA1\u65B9\u6CD5\u603B\u89C8\u56FE\uFF1A\u8BA9\u8BFB\u8005\u6CBF\u4E00\u6761\u6E05\u695A\u8DEF\u5F84\u7406\u89E3\u8F93\u5165\u3001\u4E3B\u8981\u9636\u6BB5\u6216\u7EC4\u4EF6\u3001\u5173\u952E\u4FE1\u606F\u6D41\u4E0E\u8F93\u51FA\uFF0C\u5E76\u5E26\u7740\u8FD9\u5F20\u6574\u4F53\u5FC3\u667A\u5730\u56FE\u9605\u8BFB Method\u3002",
+      en: "Design the Method Overview only: give readers one clear path through the inputs, major stages or components, essential information flow, and outputs so they can read the Method with a stable system-level mental model."
     },
-    objective: {
-      zh: "\u8FD9\u5F20\u56FE\u662F\u8BBA\u6587\u65B9\u6CD5\u7684\u603B\u4F53\u6846\u67B6\u56FE\u3002\u5B83\u56DE\u7B54\u201C\u6574\u4E2A\u65B9\u6CD5\u5982\u4F55\u7EC4\u7EC7\u5E76\u8FD0\u8F6C\u201D\uFF0C\u4E0D\u8D1F\u8D23\u91CD\u65B0\u8BBA\u8BC1\u7814\u7A76\u610F\u4E49\uFF0C\u4E5F\u4E0D\u5C55\u5F00\u67D0\u4E2A\u5C40\u90E8\u673A\u5236\u3002",
-      en: "This is the paper\u2019s overall framework figure. It answers how the method is organized and operates as a whole; it does not re-argue the motivation or unpack a local mechanism."
-    },
-    successCriterion: {
-      zh: "\u8BFB\u8005\u770B\u56FE\u540E\u5E94\u80FD\u6CBF\u4E00\u6761\u660E\u786E\u8DEF\u5F84\u8BF4\u6E05\uFF1A\u8F93\u5165\u662F\u4EC0\u4E48\u3001\u4E3B\u8981\u9636\u6BB5\u6216\u7EC4\u4EF6\u5982\u4F55\u8FDE\u63A5\u3001\u5173\u952E\u4FE1\u606F\u5982\u4F55\u6D41\u52A8\u3001\u6700\u7EC8\u8F93\u51FA\u662F\u4EC0\u4E48\uFF0C\u5E76\u80FD\u5E26\u7740\u8FD9\u4E2A\u5FC3\u667A\u5730\u56FE\u9605\u8BFB Method\u3002",
-      en: "After viewing the figure, a reader should be able to follow one clear path through the inputs, major stages or components, essential information flow, and outputs, then use that mental model while reading the Method section."
-    },
-    designRules: {
+    rules: {
       zh: [
-        "\u4ECE .tex \u4E2D\u786E\u8BA4\u6B63\u5F0F\u5B9A\u4E49\u7684\u8F93\u5165\u3001\u8F93\u51FA\u3001\u4E3B\u8981\u7EC4\u4EF6\u4E0E\u63A5\u53E3\uFF1B\u6BCF\u4E2A\u4E3B\u8981\u7EC4\u4EF6\u53EA\u51FA\u73B0\u4E00\u6B21\uFF0C\u5E76\u7528\u5C42\u7EA7\u3001\u5206\u7EC4\u548C\u7BAD\u5934\u8868\u8FBE\u5173\u7CFB\u3002",
-        "\u4F18\u5148\u5448\u73B0\u51B3\u5B9A\u6574\u4F53\u7406\u89E3\u7684\u4E3B\u8DEF\u5F84\u3002\u4EC5\u5F53\u8BBA\u6587\u786E\u5B9E\u4F9D\u8D56\u5206\u652F\u3001\u5171\u4EAB\u53C2\u6570\u3001\u5FAA\u73AF\u3001\u8DE8\u9636\u6BB5\u53CD\u9988\u6216\u591A\u6A21\u6001\u4EA4\u4E92\u65F6\uFF0C\u624D\u663E\u793A\u8FD9\u4E9B\u7ED3\u6784\u3002",
-        "\u53EA\u6709\u5728\u8BAD\u7EC3\u4E0E\u63A8\u7406\u7684\u5DEE\u5F02\u5F71\u54CD\u65B9\u6CD5\u7406\u89E3\u65F6\u624D\u660E\u786E\u533A\u5206\u4E24\u8005\uFF1B\u4E0D\u5F97\u4E3A\u4E86\u753B\u9762\u590D\u6742\u800C\u589E\u52A0\u5E76\u884C\u6D41\u7A0B\u3002",
-        "\u8BA9\u56FE\u7684\u9605\u8BFB\u987A\u5E8F\u3001\u7BAD\u5934\u65B9\u5411\u548C\u989C\u8272\u8BED\u4E49\u5168\u5C40\u4E00\u81F4\uFF1B\u8F93\u5165\u4E0E\u8F93\u51FA\u5FC5\u987B\u6709\u6E05\u695A\u8FB9\u754C\u3002"
+        "\u4ECE TeX \u4E2D\u786E\u8BA4\u6B63\u5F0F\u5B9A\u4E49\u7684\u8F93\u5165\u3001\u8F93\u51FA\u3001\u4E3B\u8981\u7EC4\u4EF6\u4E0E\u63A5\u53E3\uFF1B\u6BCF\u4E2A\u7EC4\u4EF6\u53EA\u51FA\u73B0\u4E00\u6B21\uFF0C\u7528\u5C42\u7EA7\u3001\u5206\u7EC4\u548C\u7BAD\u5934\u8868\u8FBE\u5173\u7CFB\uFF0C\u5E76\u6E05\u695A\u6807\u51FA\u8F93\u5165\u4E0E\u8F93\u51FA\u8FB9\u754C\u3002",
+        "\u4F18\u5148\u5448\u73B0\u51B3\u5B9A\u6574\u4F53\u7406\u89E3\u7684\u4E3B\u8DEF\u5F84\uFF1B\u53EA\u6709\u8BBA\u6587\u771F\u5B9E\u4F9D\u8D56\u65F6\u624D\u663E\u793A\u5206\u652F\u3001\u5171\u4EAB\u3001\u5FAA\u73AF\u3001\u53CD\u9988\u3001\u591A\u6A21\u6001\u4EA4\u4E92\u6216\u8BAD\u7EC3/\u63A8\u7406\u5DEE\u5F02\u3002",
+        "\u4E0D\u91CD\u590D\u5F15\u8A00\u52A8\u673A\uFF0C\u4E0D\u653E\u5B9E\u9A8C\u7ED3\u679C\u3001\u6027\u80FD\u6570\u5B57\u3001\u6D88\u878D\u6216\u7814\u7A76\u5F71\u54CD\uFF1B\u4E0D\u5C55\u5F00\u6BCF\u4E2A\u5B50\u64CD\u4F5C\u3001\u5B8C\u6574\u516C\u5F0F\u3001\u635F\u5931\u63A8\u5BFC\u3001\u8D85\u53C2\u6570\u6216\u4EE3\u7801\uFF0C\u4E5F\u4E0D\u4E3A\u5BF9\u79F0\u865A\u6784\u7EC4\u4EF6\u3002"
       ],
       en: [
-        "Use the .tex to verify formally defined inputs, outputs, major components, and interfaces. Show each major component once and express relationships through hierarchy, grouping, and arrows.",
-        "Prioritize the main path needed for system-level understanding. Show branches, shared parameters, loops, cross-stage feedback, or multimodal interaction only when the paper actually depends on them.",
-        "Separate training from inference only when that distinction is material to understanding the method; do not add parallel flows merely to make the figure look complex.",
-        "Use a consistent reading order, arrow direction, and color semantics throughout. Inputs and outputs must have clear boundaries."
-      ]
-    },
-    exclusions: {
-      zh: [
-        "\u4E0D\u5F97\u91CD\u590D\u5F15\u8A00\u56FE\u4E2D\u7684\u573A\u666F\u2014\u95EE\u9898\u53D9\u4E8B\uFF0C\u4E5F\u4E0D\u5F97\u52A0\u5165\u5B9E\u9A8C\u7ED3\u679C\u3001\u6027\u80FD\u6570\u5B57\u3001\u6D88\u878D\u7ED3\u8BBA\u6216\u7814\u7A76\u5F71\u54CD\u3002",
-        "\u4E0D\u5F97\u585E\u5165\u6BCF\u4E2A\u5B50\u64CD\u4F5C\u3001\u5B8C\u6574\u516C\u5F0F\u3001\u635F\u5931\u9879\u63A8\u5BFC\u3001\u8D85\u53C2\u6570\u3001\u4EE3\u7801\u7EA7\u5B9E\u73B0\u6216\u957F\u6BB5\u8BF4\u660E\u6587\u5B57\u3002",
-        "\u4E0D\u5F97\u4E3A\u4E86\u89C6\u89C9\u5BF9\u79F0\u865A\u6784\u6A21\u5757\u3001\u590D\u5236\u540C\u4E00\u7EC4\u4EF6\uFF0C\u6216\u9690\u85CF\u8BBA\u6587\u771F\u5B9E\u5B58\u5728\u7684\u5173\u952E\u4F9D\u8D56\u3002"
-      ],
-      en: [
-        "Do not repeat the setting\u2013problem narrative of the Introduction figure or add results, performance numbers, ablation conclusions, or research impact.",
-        "Do not include every sub-operation, full equations, loss derivations, hyperparameters, code-level implementation, or paragraph-like explanations.",
-        "Do not invent modules for visual symmetry, duplicate the same component, or hide a real dependency in the paper."
+        "Use the TeX to verify formally defined inputs, outputs, major components, and interfaces. Show each component once, express relations through hierarchy, grouping, and arrows, and mark clear input and output boundaries.",
+        "Prioritize the main path needed for system-level understanding. Show branches, sharing, loops, feedback, multimodal interaction, or training/inference differences only when the paper genuinely depends on them.",
+        "Do not repeat the Introduction\u2019s motivation or include results, performance numbers, ablations, or research impact. Omit every sub-operation, full equations, loss derivations, hyperparameters, and code-level details, and never invent a component for symmetry."
       ]
     }
   },
   "technical-detail": {
-    number: "03",
     label: {
       zh: "\u5173\u952E\u6280\u672F\u7EC6\u8282\u56FE",
       en: "Key technical-detail figure"
-    },
-    tag: {
-      zh: "\u552F\u4E00\u5173\u952E\u673A\u5236",
-      en: "One key mechanism"
     },
     purpose: {
       zh: "\u81EA\u52A8\u9009\u62E9\u533A\u522B\u4E8E\u603B\u89C8\u3001\u6700\u9700\u8981\u89C6\u89C9\u89E3\u91CA\u7684\u4E00\u9879\u6838\u5FC3\u673A\u5236\uFF0C\u5E76\u53EA\u751F\u6210\u8FD9\u4E00\u5F20\u56FE\u3002",
       en: "Select the single mechanism most in need of visual explanation, distinct from the overview, and generate only that figure."
     },
-    heading: {
-      zh: "\u4E3A CS \u8BBA\u6587\u751F\u6210\u4E00\u5F20\u5173\u952E\u6280\u672F\u7EC6\u8282\u56FE",
-      en: "Generate One Key Technical-Detail Figure for a CS Paper"
+    brief: {
+      zh: "\u672C\u6B21\u53EA\u8BBE\u8BA1\u4E00\u5F20\u5173\u952E\u6280\u672F\u7EC6\u8282\u56FE\uFF1A\u9009\u62E9\u533A\u522B\u4E8E\u65B9\u6CD5\u603B\u89C8\u3001\u6700\u96BE\u4EC5\u9760\u6B63\u6587\u6216\u516C\u5F0F\u7406\u89E3\u7684\u4E00\u9879\u6838\u5FC3\u673A\u5236\uFF0C\u8BB2\u6E05\u5B83\u7684\u8F93\u5165\u6216\u72B6\u6001\u3001\u5173\u952E\u53D8\u6362\u3001\u4E2D\u95F4\u8868\u793A\u4E0E\u8F93\u51FA\u6216\u63A5\u53E3\u3002",
+      en: "Design one Key Technical-Detail figure only: select a core mechanism distinct from the Method Overview that is hardest to understand from prose or equations alone, then make its input or state, key transformation, intermediate representation, and output or interface clear."
     },
-    objective: {
-      zh: "\u8FD9\u5F20\u56FE\u53EA\u89E3\u91CA\u65B9\u6CD5\u4E2D\u6700\u5173\u952E\u3001\u6700\u96BE\u4EC5\u9760\u6B63\u6587\u6216\u516C\u5F0F\u7406\u89E3\u7684\u4E00\u9879\u5C40\u90E8\u673A\u5236\u3002\u5B83\u5FC5\u987B\u533A\u522B\u4E8E\u65B9\u6CD5\u603B\u89C8\uFF0C\u5E76\u628A\u201C\u8FD9\u4E00\u673A\u5236\u5177\u4F53\u5982\u4F55\u5DE5\u4F5C\u201D\u8BB2\u6E05\u695A\u3002",
-      en: "This figure explains exactly one local mechanism that is central to the method and difficult to understand from prose or equations alone. It must be distinct from the overview and make clear how that mechanism actually works."
-    },
-    successCriterion: {
-      zh: "\u8BFB\u8005\u5E94\u80FD\u4ECE\u56FE\u4E2D\u8FFD\u8E2A\u8BE5\u673A\u5236\u7684\u8F93\u5165\u6216\u72B6\u6001\u3001\u5173\u952E\u53D8\u6362\u6216\u4EA4\u4E92\u3001\u4E2D\u95F4\u8868\u793A\u4EE5\u53CA\u8F93\u51FA\u6216\u63A5\u53E3\uFF0C\u540C\u65F6\u4E0D\u4F1A\u8BEF\u4EE5\u4E3A\u8FD9\u662F\u6574\u7BC7\u65B9\u6CD5\u7684\u603B\u89C8\u56FE\u3002",
-      en: "A reader should be able to trace the mechanism\u2019s input or state, key transformation or interaction, intermediate representation, and output or interface without mistaking the figure for the full method overview."
-    },
-    designRules: {
+    rules: {
       zh: [
-        "\u5148\u6BD4\u8F83\u8BBA\u6587\u4E2D\u7684\u5019\u9009\u673A\u5236\uFF0C\u53EA\u9009\u62E9\u540C\u65F6\u6EE1\u8DB3\u56DB\u9879\u6761\u4EF6\u7684\u4E00\u9879\uFF1A\u5C5E\u4E8E\u6838\u5FC3\u8D21\u732E\uFF1B\u4EC5\u9760\u6587\u5B57\u6216\u516C\u5F0F\u8F83\u96BE\u7406\u89E3\uFF1B\u80FD\u591F\u4E0E Overview \u660E\u786E\u5206\u5DE5\uFF1B\u5728 .tex \u4E0E .pdf \u4E2D\u6709\u5145\u5206\u8BC1\u636E\u3002",
-        "\u82E5\u6CA1\u6709\u4EFB\u4F55\u673A\u5236\u540C\u65F6\u6EE1\u8DB3\u56DB\u9879\u6761\u4EF6\uFF0C\u76F4\u63A5\u8BF4\u660E\u8BC1\u636E\u4E0D\u8DB3\u5E76\u505C\u6B62\uFF0C\u4E0D\u5F97\u4E3A\u4E86\u5B8C\u6210\u4EFB\u52A1\u800C\u53D1\u660E\u4E00\u5F20\u6280\u672F\u56FE\u3002",
-        "\u56F4\u7ED5\u8FD9\u4E00\u9879\u673A\u5236\u5C55\u793A\u5FC5\u8981\u7684\u8F93\u5165\u6216\u72B6\u6001\u3001\u64CD\u4F5C\u987A\u5E8F\u3001\u5B9E\u4F53\u95F4\u5173\u7CFB\u3001\u4E2D\u95F4\u8868\u793A\u4E0E\u8F93\u51FA\uFF1B\u6BCF\u4E2A\u5143\u7D20\u90FD\u5FC5\u987B\u76F4\u63A5\u670D\u52A1\u4E8E\u673A\u5236\u7406\u89E3\u3002",
-        "\u53EA\u5728\u516C\u5F0F\u5BF9\u673A\u5236\u4E0D\u53EF\u66FF\u4EE3\u4E14\u80FD\u4EE5\u8BBA\u6587\u539F\u5F0F\u6E05\u6670\u5448\u73B0\u65F6\u4FDD\u7559\u4E00\u4E2A\u5C40\u90E8\u516C\u5F0F\uFF1B\u5426\u5219\u4F7F\u7528\u51C6\u786E\u7684\u7ED3\u6784\u4E0E\u4FE1\u606F\u6D41\u8868\u8FBE\u3002",
-        "\u660E\u786E\u68C0\u67E5\u4E0E\u65B9\u6CD5\u603B\u89C8\u7684\u5DEE\u5F02\uFF1A\u603B\u89C8\u7ED9\u51FA\u7CFB\u7EDF\u4F4D\u7F6E\u4E0E\u63A5\u53E3\uFF0C\u672C\u56FE\u653E\u5927\u5C40\u90E8\u8FD0\u4F5C\uFF1B\u4E0D\u5F97\u91CD\u65B0\u7ED8\u5236\u6574\u6761\u65B9\u6CD5\u6D41\u6C34\u7EBF\u3002"
+        "\u53EA\u9009\u62E9\u540C\u65F6\u5C5E\u4E8E\u6838\u5FC3\u8D21\u732E\u3001\u96BE\u4EE5\u4EC5\u9760\u6587\u5B57\u7406\u89E3\u3001\u80FD\u4E0E\u603B\u89C8\u660E\u786E\u5206\u5DE5\u4E14\u6709\u5145\u5206\u8BBA\u6587\u8BC1\u636E\u7684\u4E00\u9879\u673A\u5236\uFF1B\u6CA1\u6709\u5408\u9002\u5BF9\u8C61\u65F6\u8BF4\u660E\u8BC1\u636E\u4E0D\u8DB3\u5E76\u505C\u6B62\u3002",
+        "\u53EA\u4FDD\u7559\u7406\u89E3\u8BE5\u673A\u5236\u5FC5\u9700\u7684\u64CD\u4F5C\u987A\u5E8F\u3001\u5B9E\u4F53\u5173\u7CFB\u4E0E\u72B6\u6001\u53D8\u5316\uFF1B\u5C40\u90E8\u516C\u5F0F\u6700\u591A\u4E00\u4E2A\uFF0C\u4E14\u5FC5\u987B\u6765\u81EA\u8BBA\u6587\u5E76\u786E\u5B9E\u4E0D\u53EF\u66FF\u4EE3\u3002",
+        "\u4E0D\u91CD\u753B\u5B8C\u6574\u6D41\u6C34\u7EBF\uFF0C\u4E0D\u6DF7\u5165\u7814\u7A76\u52A8\u673A\u3001\u5B9E\u9A8C\u7ED3\u679C\u3001\u6027\u80FD\u6BD4\u8F83\u6216\u7B2C\u4E8C\u4E2A\u673A\u5236\uFF0C\u4E5F\u4E0D\u4F7F\u7528\u88C5\u9970\u56FE\u6807\u4EE3\u66FF\u6838\u5FC3\u8BA1\u7B97\u6216\u4EA4\u4E92\u3002"
       ],
       en: [
-        "Compare candidate mechanisms and select exactly one that meets all four conditions: central to the contribution, hard to understand from prose or equations alone, clearly separable from the overview, and sufficiently supported by both the .tex and .pdf.",
-        "If no mechanism meets all four conditions, state that the evidence is insufficient and stop. Do not invent a technical figure merely to complete the task.",
-        "Show only the input or state, operation sequence, entity relationships, intermediate representation, and output needed to understand this mechanism. Every element must serve that explanation.",
-        "Include at most one local equation, and only when it is indispensable and can be reproduced exactly from the paper; otherwise use precise structure and information flow.",
-        "Explicitly check the division of labor with the Method Overview: the overview establishes system position and interfaces, while this figure magnifies local operation. Do not redraw the full pipeline."
-      ]
-    },
-    exclusions: {
-      zh: [
-        "\u53EA\u751F\u6210\u4E00\u5F20\u6280\u672F\u7EC6\u8282\u56FE\uFF0C\u4E0D\u5F97\u63D0\u4F9B\u7B2C\u4E8C\u4E2A\u673A\u5236\u3001\u591A\u4E2A\u5907\u9009\u56FE\u3001\u8054\u7CFB\u8868\u6216\u540C\u56FE\u591A\u65B9\u6848\u3002",
-        "\u4E0D\u5F97\u91CD\u590D\u5B8C\u6574\u8F93\u5165\u2014\u8F93\u51FA\u6D41\u6C34\u7EBF\uFF0C\u4E5F\u4E0D\u5F97\u6DF7\u5165\u7814\u7A76\u52A8\u673A\u3001\u5B9E\u9A8C\u7ED3\u679C\u3001\u6027\u80FD\u6BD4\u8F83\u6216\u672A\u88AB\u8BBA\u6587\u5B9A\u4E49\u7684\u7C7B\u6BD4\u3002",
-        "\u4E0D\u5F97\u7528\u88C5\u9970\u6027\u56FE\u6807\u66FF\u4EE3\u6838\u5FC3\u8BA1\u7B97\u3001\u4EA4\u4E92\u6216\u72B6\u6001\u53D8\u5316\u3002"
-      ],
-      en: [
-        "Generate one technical-detail figure only: no second mechanism, alternative figures, contact sheet, or multiple designs in one image.",
-        "Do not repeat the full input-to-output pipeline or mix in motivation, experimental results, performance comparisons, or analogies not defined by the paper.",
-        "Do not use decorative icons as substitutes for the core computation, interaction, or state transition."
+        "Select exactly one mechanism that is central to the contribution, difficult to understand from prose alone, clearly separable from the overview, and fully supported by the paper. If none qualifies, state that the evidence is insufficient and stop.",
+        "Keep only the operation sequence, entity relations, and state changes needed to understand that mechanism. Include at most one local equation, copied exactly from the paper, and only when indispensable.",
+        "Do not redraw the full pipeline or mix in motivation, experimental results, performance comparisons, or a second mechanism. Decorative icons must never replace the core computation or interaction."
       ]
     }
   }
@@ -964,7 +871,6 @@ function buildFigurePrompt(promptId, preferences, language, options = {}) {
   const spec = FIGURE_PROMPTS[promptId];
   const style = FIGURE_STYLES[preferences.styleId];
   const placement = FIGURE_PLACEMENTS[preferences.placementId];
-  const aspectRatio = FIGURE_ASPECT_RATIOS[preferences.aspectRatioId];
   const selectedAspectRatio = getFigureAspectRatio(preferences);
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
@@ -972,151 +878,93 @@ function buildFigurePrompt(promptId, preferences, language, options = {}) {
   const activePalette = palette.colors.slice(0, accentColorRange.max).map(formatPaletteColor).join(", ");
   const outputFileRule = options.outputFileName ? language === "zh" ? `\uFF0C\u6587\u4EF6\u540D\u5FC5\u987B\u4E3A \`${options.outputFileName}\`` : ` named \`${options.outputFileName}\`` : "";
   if (language === "zh") {
-    const lineColorRule2 = preferences.lineColorMode === "semantic" ? "\u6DF1\u8272\u4E2D\u6027\u7EC6\u7EBF\u662F\u6240\u6709\u8FB9\u6846\u3001\u7BAD\u5934\u548C\u8FDE\u63A5\u7EBF\u7684\u9ED8\u8BA4\u989C\u8272\u3002\u53EA\u5728\u4E0D\u540C\u4FE1\u606F\u6D41\u3001\u5B9E\u4F53\u7C7B\u522B\u6216\u72B6\u6001\u786E\u5B9E\u9700\u8981\u533A\u5206\u65F6\uFF0C\u624D\u4F7F\u7528\u5019\u9009\u5F3A\u8C03\u8272\uFF1B\u76F8\u540C\u8BED\u4E49\u5FC5\u987B\u540C\u8272\uFF0C\u4E0D\u5F97\u4E3A\u4E86\u88C5\u9970\u5236\u9020\u5F69\u8679\u7EBF\u6761\u3002" : "\u6240\u6709\u8FB9\u6846\u3001\u7BAD\u5934\u548C\u8FDE\u63A5\u7EBF\u7EDF\u4E00\u4F7F\u7528\u6DF1\u8272\u4E2D\u6027\u7EC6\u7EBF\uFF0C\u4E0D\u7528\u7EBF\u6761\u989C\u8272\u533A\u5206\u8BED\u4E49\uFF1B\u9700\u8981\u533A\u5206\u65F6\u6539\u7528\u5F62\u72B6\u3001\u7EBF\u578B\u6216\u76F4\u63A5\u6807\u7B7E\u3002";
-    const colorRule2 = `\u4F7F\u7528\u201C${palette.label.zh}\u201D\u8272\u7CFB\uFF0C\u5019\u9009\u5F3A\u8C03\u8272\u53CA\u53C2\u8003\u503C\u4F9D\u6B21\u4E3A ${activePalette}\u3002GPT \u5FC5\u987B\u6839\u636E\u771F\u5B9E\u4FE1\u606F\u6D41\u548C\u8BED\u4E49\u5206\u7EC4\uFF0C\u5728 ${accentColorRange.label} \u79CD\u6709\u5F69\u8272\u76F8\u4E2D\u9009\u62E9\u6700\u5C11\u591F\u7528\u7684\u6570\u91CF\uFF1B\u80FD\u7528\u8F83\u5C11\u989C\u8272\u8BF4\u6E05\u65F6\u4E0D\u5F97\u589E\u52A0\u3002\u8FD9\u4E00\u6570\u91CF\u4E0D\u5305\u62EC\u7EAF\u767D\u80CC\u666F\u3001\u9ED1\u8272\u6587\u5B57\u548C\u6DF1\u8272\u4E2D\u6027\u7ED3\u6784\u7EBF\u3002\u989C\u8272\u5E94\u4EE5\u7ED9\u5B9A RGB \u4E3A\u751F\u6210\u53C2\u8003\uFF0C\u4E0D\u5F97\u81EA\u884C\u66FF\u6362\u6216\u589E\u52A0\u8272\u76F8\uFF1B\u4EFB\u4F55\u5173\u952E\u533A\u522B\u90FD\u4E0D\u80FD\u53EA\u4F9D\u8D56\u989C\u8272\u3002`;
-    const illustrationRule2 = preferences.allowLightIllustrations ? "\u5141\u8BB8\u514B\u5236\u7684\u8F7B\u5361\u901A\u6280\u672F\u63D2\u56FE\u3001\u8BED\u4E49 icon \u548C\u7565\u5E26\u5706\u6DA6\u611F\u7684\u65E0\u886C\u7EBF\u5B57\u4F53\uFF0C\u4F46\u5B83\u4EEC\u53EA\u80FD\u8868\u793A\u8BBA\u6587\u4E2D\u7684\u771F\u5B9E\u5BF9\u8C61\u6216\u8FC7\u7A0B\uFF0C\u4E0D\u5F97\u4EE3\u66FF\u6838\u5FC3\u673A\u5236\uFF0C\u4E5F\u4E0D\u5F97\u5448\u73B0\u6F2B\u753B\u3001\u5409\u7965\u7269\u3001\u624B\u5199\u4F53\u3001\u6C14\u6CE1\u5B57\u6216\u8425\u9500\u63D2\u753B\u6548\u679C\u3002" : "\u4E0D\u4F7F\u7528\u8F7B\u5361\u901A\u63D2\u56FE\u3001icon\u3001\u62DF\u7269\u5BF9\u8C61\u6216\u88C5\u9970\u5B57\u4F53\uFF1B\u6240\u6709\u5173\u7CFB\u53EA\u7528\u6A21\u5757\u3001\u7EBF\u6761\u3001\u7BAD\u5934\u3001\u7B80\u5355\u51E0\u4F55\u5F62\u72B6\u548C\u5FC5\u8981\u6587\u5B57\u8868\u8FBE\u3002";
-    const cardFillRule2 = preferences.useCardFills ? "\u4E3B\u8981\u6A21\u5757\u5361\u7247\u5141\u8BB8\u4F7F\u7528\u53D6\u81EA\u5F3A\u8C03\u8272\u7684\u6781\u6D45\u3001\u4F4E\u9971\u548C\u5E95\u8272\uFF1B\u76F8\u540C\u89D2\u8272\u4F7F\u7528\u76F8\u540C\u5E95\u8272\uFF0C\u6587\u5B57\u59CB\u7EC8\u4E3A\u9ED1\u8272\uFF0C\u4E0D\u4F7F\u7528\u6E10\u53D8\u3001\u9634\u5F71\u6216\u6DF1\u8272\u5361\u7247\u3002" : "\u6240\u6709\u6A21\u5757\u5361\u7247\u4FDD\u6301\u7EAF\u767D\u6216\u900F\u660E\uFF0C\u4E0D\u8BBE\u7F6E\u5E95\u8272\uFF1B\u4EC5\u4F9D\u9760\u7EC6\u8FB9\u6846\u3001\u5BF9\u9F50\u3001\u95F4\u8DDD\u548C\u5206\u7EC4\u6807\u9898\u5EFA\u7ACB\u5C42\u7EA7\u3002";
-    const typographyRule2 = preferences.fontSizeLevels === 2 ? "\u5168\u56FE\u4E25\u683C\u53EA\u4F7F\u7528\u4E24\u7EA7\u5B57\u53F7\uFF1A\u6B63\u6587/\u6807\u7B7E\u4E0E\u6807\u9898\uFF1B\u6700\u5927\u5B57\u53F7\u4E0D\u5F97\u8D85\u8FC7\u6700\u5C0F\u5B57\u53F7\u7684 1.25 \u500D\u3002\u4E0D\u5F97\u53E6\u52A0\u5FAE\u578B\u6CE8\u91CA\u3001\u8D85\u5927\u6807\u9898\u6216\u7B2C\u4E09\u79CD\u5B57\u53F7\u3002" : "\u5168\u56FE\u4E25\u683C\u53EA\u4F7F\u7528\u4E09\u7EA7\u5B57\u53F7\uFF1A\u6807\u7B7E\u3001\u5B50\u6807\u9898\u4E0E\u4E3B\u6807\u9898\uFF1B\u6700\u5927\u5B57\u53F7\u4E0D\u5F97\u8D85\u8FC7\u6700\u5C0F\u5B57\u53F7\u7684 1.35 \u500D\u3002\u4E0D\u5F97\u53E6\u52A0\u5FAE\u578B\u6CE8\u91CA\u6216\u5938\u5F20\u8D85\u5927\u6807\u9898\u3002";
-    const titleRule2 = preferences.includeLargeTitle ? "\u5141\u8BB8\u4E00\u4E2A 3\u20137 \u4E2A\u82F1\u6587\u5355\u8BCD\u7684\u56FE\u5185\u5927\u6807\u9898\uFF0C\u4F46\u5FC5\u987B\u76F4\u63A5\u4F7F\u7528\u8BBA\u6587\u5DF2\u6709\u672F\u8BED\u4E14\u4E0D\u5F97\u5E26\u6709\u8425\u9500\u63AA\u8F9E\uFF1B\u8BBA\u6587\u5B8C\u6574\u6807\u9898\u3001\u4F5C\u8005\u548C caption \u4E0D\u653E\u5165\u56FE\u7247\u3002" : "\u4E0D\u4F7F\u7528\u56FE\u5185\u5927\u6807\u9898\uFF1B\u53EA\u4FDD\u7559\u5FC5\u8981\u7684 panel \u6807\u9898\u6216\u6B65\u9AA4\u6807\u7B7E\uFF0C\u8BBA\u6587\u6807\u9898\u3001\u4F5C\u8005\u548C caption \u5747\u4E0D\u653E\u5165\u56FE\u7247\u3002";
-    return `# ${spec.heading.zh}
+    const lineColorRule2 = preferences.lineColorMode === "semantic" ? "\u8FB9\u6846\u4E0E\u7BAD\u5934\u9ED8\u8BA4\u4F7F\u7528\u6DF1\u8272\u4E2D\u6027\u7EC6\u7EBF\uFF0C\u53EA\u5728\u8BED\u4E49\u786E\u9700\u533A\u5206\u65F6\u4F7F\u7528\u5F3A\u8C03\u8272\u7EBF\uFF1B\u76F8\u540C\u8BED\u4E49\u5FC5\u987B\u540C\u8272\u3002" : "\u8FB9\u6846\u3001\u7BAD\u5934\u548C\u8FDE\u63A5\u7EBF\u7EDF\u4E00\u4F7F\u7528\u6DF1\u8272\u4E2D\u6027\u7EC6\u7EBF\uFF1B\u9700\u8981\u533A\u5206\u65F6\u4F7F\u7528\u5F62\u72B6\u3001\u7EBF\u578B\u6216\u76F4\u63A5\u6807\u7B7E\u3002";
+    const colorRule2 = `\u5019\u9009\u8272\u4EC5\u4F7F\u7528\u201C${palette.label.zh}\u201D\u4E2D\u7684 ${activePalette}\uFF0C\u6309\u771F\u5B9E\u8BED\u4E49\u9009\u53D6 ${accentColorRange.label} \u79CD\u5185\u6700\u5C11\u591F\u7528\u7684\u989C\u8272\uFF1B\u767D\u5E95\u3001\u9ED1\u5B57\u548C\u6DF1\u8272\u7ED3\u6784\u7EBF\u4E0D\u8BA1\u5165\uFF0C\u5173\u952E\u533A\u522B\u4E0D\u80FD\u53EA\u4F9D\u8D56\u989C\u8272\u3002`;
+    const illustrationRule2 = preferences.allowLightIllustrations ? "\u53EF\u6309\u9700\u4F7F\u7528\u514B\u5236\u7684\u8F7B\u91CF\u6280\u672F\u63D2\u56FE\u6216\u8BED\u4E49\u56FE\u6807\uFF0C\u4F46\u53EA\u80FD\u8868\u793A\u8BBA\u6587\u4E2D\u7684\u771F\u5B9E\u5BF9\u8C61\u6216\u8FC7\u7A0B\uFF0C\u4E0D\u80FD\u4EE3\u66FF\u6838\u5FC3\u673A\u5236\uFF0C\u4E5F\u4E0D\u80FD\u6F2B\u753B\u5316\u6216\u8425\u9500\u5316\u3002" : "\u4E0D\u4F7F\u7528\u63D2\u56FE\u3001\u56FE\u6807\u6216\u62DF\u7269\u5BF9\u8C61\uFF0C\u53EA\u7528\u6A21\u5757\u3001\u7EBF\u6761\u3001\u7BAD\u5934\u3001\u7B80\u5355\u51E0\u4F55\u5F62\u72B6\u548C\u5FC5\u8981\u6587\u5B57\u8868\u8FBE\u5173\u7CFB\u3002";
+    const cardFillRule2 = preferences.useCardFills ? "\u4E3B\u8981\u6A21\u5757\u53EF\u4F7F\u7528\u6765\u81EA\u5F3A\u8C03\u8272\u7684\u6781\u6D45\u4F4E\u9971\u548C\u5E95\u8272\uFF0C\u76F8\u540C\u89D2\u8272\u4FDD\u6301\u4E00\u81F4\uFF1B\u6587\u5B57\u59CB\u7EC8\u4E3A\u9ED1\u8272\u3002" : "\u6A21\u5757\u4FDD\u6301\u7EAF\u767D\u6216\u900F\u660E\uFF0C\u53EA\u7528\u7EC6\u8FB9\u6846\u3001\u5BF9\u9F50\u3001\u95F4\u8DDD\u548C\u5206\u7EC4\u6807\u9898\u5EFA\u7ACB\u5C42\u7EA7\u3002";
+    const typographyRule2 = preferences.fontSizeLevels === 2 ? "\u53EA\u4F7F\u7528\u6B63\u6587/\u6807\u7B7E\u4E0E\u6807\u9898\u4E24\u7EA7\u5B57\u53F7\uFF0C\u6700\u5927\u4E0D\u8D85\u8FC7\u6700\u5C0F\u7684 1.25 \u500D\u3002" : "\u53EA\u4F7F\u7528\u6807\u7B7E\u3001\u5B50\u6807\u9898\u4E0E\u4E3B\u6807\u9898\u4E09\u7EA7\u5B57\u53F7\uFF0C\u6700\u5927\u4E0D\u8D85\u8FC7\u6700\u5C0F\u7684 1.35 \u500D\u3002";
+    const titleRule2 = preferences.includeLargeTitle ? "\u53EF\u4F7F\u7528\u4E00\u4E2A\u7531\u8BBA\u6587\u539F\u6709\u672F\u8BED\u7EC4\u6210\u7684 3\u20137 \u8BCD\u82F1\u6587\u6807\u9898\uFF0C\u4E0D\u4F7F\u7528\u8425\u9500\u63AA\u8F9E\u3002" : "\u4E0D\u4F7F\u7528\u56FE\u5185\u5927\u6807\u9898\uFF0C\u53EA\u4FDD\u7559\u5FC5\u8981\u7684 panel \u6807\u9898\u6216\u6B65\u9AA4\u6807\u7B7E\u3002";
+    return `# ${spec.label.zh}
 
-## \u76EE\u6807
-${spec.objective.zh}
+\u4F60\u662F\u4E00\u540D\u64C5\u957F\u4ECE CS \u8BBA\u6587\u4E2D\u63D0\u70BC\u79D1\u5B66\u903B\u8F91\u3001\u4FE1\u606F\u6D41\u4E0E\u89C6\u89C9\u5C42\u7EA7\u7684\u5B66\u672F\u914D\u56FE\u4E13\u5BB6\u3002\u6211\u4F1A\u63D0\u4F9B\u5DF2\u5B8C\u6210\u7684\u8BBA\u6587\u6750\u6599\uFF0C\u901A\u5E38\u5305\u542B\u4E3B \`.tex\`\uFF0C\u4E5F\u53EF\u80FD\u5305\u542B\u7F16\u8BD1\u540E\u7684 \`.pdf\` \u6216\u5176\u4ED6\u9644\u4EF6\u3002\u5B8C\u6574\u9605\u8BFB\u53EF\u7528\u6750\u6599\uFF1B\u6709 TeX \u65F6\u4EE5\u5176\u4E2D\u7684\u6B63\u5F0F\u672F\u8BED\u3001\u7B26\u53F7\u548C\u7ED3\u6784\u4E3A\u51C6\uFF0CPDF \u7528\u4E8E\u7406\u89E3\u4E0A\u4E0B\u6587\u4E0E\u5DF2\u6709\u7248\u9762\u3002\u6750\u6599\u51B2\u7A81\u4F1A\u5F71\u54CD\u56FE\u4E49\u65F6\u53EA\u95EE\u4E00\u4E2A\u5FC5\u8981\u95EE\u9898\uFF0C\u4E0D\u5F97\u731C\u6D4B\u3002
 
-\u6210\u529F\u6807\u51C6\uFF1A${spec.successCriterion.zh}
+${spec.brief.zh}
+${buildList(spec.rules.zh)}
 
-## \u8F93\u5165\u4E0E\u53D6\u8BC1
-\u5728\u540C\u4E00\u5BF9\u8BDD\u4E2D\u63D0\u4F9B\u672C Prompt\u3001\u8BBA\u6587\u4E3B \`.tex\` \u6E90\u6587\u4EF6\u548C\u6700\u65B0\u7F16\u8BD1\u7684 \`.pdf\`\u3002\u5148\u5B8C\u6574\u9605\u8BFB\u4E24\u4EFD\u6750\u6599\uFF1A\u4EE5 \`.tex\` \u4E3A\u672F\u8BED\u3001\u516C\u5F0F\u3001\u7B26\u53F7\u548C\u7ED3\u6784\u4F9D\u636E\uFF0C\u4EE5 \`.pdf\` \u7406\u89E3\u4E0A\u4E0B\u6587\u3001\u7248\u9762\u4E0E\u73B0\u6709\u56FE\u8868\u3002\u82E5\u4E24\u8005\u5B58\u5728\u4F1A\u5F71\u54CD\u7ED8\u56FE\u7684\u51B2\u7A81\uFF0C\u53EA\u63D0\u51FA\u5FC5\u8981\u95EE\u9898\uFF0C\u4E0D\u8981\u731C\u6D4B\u3002
+\u56FE\u5185\u6807\u9898\u3001\u6A21\u5757\u540D\u3001\u7BAD\u5934\u6807\u7B7E\u3001\u7F29\u5199\u548C\u7B26\u53F7\u5FC5\u987B\u9010\u5B57\u5339\u914D\u8BBA\u6587\uFF0C\u4FDD\u7559\u539F\u6709\u5927\u5C0F\u5199\u3001\u8FDE\u5B57\u7B26\u4E0E\u8BB0\u53F7\u3002\u4E0D\u5F97\u53D1\u660E\u6A21\u5757\u3001\u6570\u636E\u6D41\u3001\u516C\u5F0F\u3001\u7ED3\u679C\u6216\u56E0\u679C\u5173\u7CFB\uFF1B\u6587\u5B57\u653E\u4E0D\u4E0B\u65F6\u8C03\u6574\u5E03\u5C40\uFF0C\u4E0D\u5F97\u64C5\u81EA\u7F29\u5199\u3002
 
-## \u8FD9\u5F20\u56FE\u5FC5\u987B\u5B8C\u6210
-${buildList(spec.designRules.zh)}
+## \u89C6\u89C9\u8981\u6C42
+- \u6309${placement.label.zh}\u4E0E ${selectedAspectRatio} \u753B\u5E03\u6784\u56FE\uFF0C\u4ECE\u4E00\u5F00\u59CB\u9002\u914D\u8BE5\u6BD4\u4F8B\uFF0C\u4E0D\u88C1\u5207\u3001\u4E0D\u753B\u8BBA\u6587\u680F\u7EBF\uFF1B\u7F29\u653E\u5230\u76EE\u6807\u680F\u5BBD\u540E\u4ECD\u987B\u6E05\u695A\u3002\u5B98\u65B9\u6A21\u677F\u53E6\u6709\u5C3A\u5BF8\u65F6\uFF0C\u4EE5\u6A21\u677F\u4E3A\u51C6\u5E76\u91CD\u65B0\u6392\u7248\u3002
+- ${style.directive.zh}
+- ${colorRule2} ${lineColorRule2}
+- ${fontFamily.directive.zh} ${typographyRule2} \u6240\u6709\u6587\u5B57\u4F7F\u7528\u5B9E\u9ED1\u6216\u8FD1\u9ED1\u8272\uFF0C\u4E0D\u4F7F\u7528\u6D45\u7070\u3001\u4F4E\u900F\u660E\u5EA6\u6216\u4E0D\u53EF\u8BFB\u5C0F\u5B57\u3002${titleRule2}
+- ${cardFillRule2} ${illustrationRule2}
 
-## \u4E0D\u5F97\u6DF7\u5165
-${buildList(spec.exclusions.zh)}
+## \u4E24\u6B65\u6267\u884C
 
-## \u7EDF\u4E00\u89C6\u89C9\u4E0E\u6587\u5B57\u7EA6\u675F
-- \u56FE\u4E2D\u6240\u6709\u6587\u5B57\u2014\u2014\u5305\u62EC\u6807\u9898\u3001\u6A21\u5757\u540D\u3001\u7BAD\u5934\u6807\u7B7E\u3001\u56FE\u4F8B\u3001\u7F29\u5199\u548C\u53D8\u91CF\u7B26\u53F7\u2014\u2014\u5FC5\u987B\u4E0E\u8BBA\u6587\u4E2D\u7684\u672F\u8BED\u5B8C\u5168\u4E00\u81F4\uFF0C\u4FDD\u7559\u539F\u6709\u5927\u5C0F\u5199\u3001\u8FDE\u5B57\u7B26\u548C\u7B26\u53F7\u3002\u4E0D\u5F97\u7FFB\u8BD1\u3001\u6539\u5199\u6216\u81EA\u9020\u8FD1\u4E49\u8BCD\uFF1B\u53EA\u80FD\u4F7F\u7528\u8BBA\u6587\u5DF2\u7ECF\u5B9A\u4E49\u7684\u7F29\u5199\u3002
-- \u751F\u6210\u524D\u5728\u5185\u90E8\u5EFA\u7ACB\u7CBE\u786E\u6807\u7B7E\u6E05\u5355\uFF0C\u5E76\u9010\u5B57\u7B26\u6838\u5BF9\u51B7\u95E8\u65B9\u6CD5\u540D\u6216\u81EA\u9020\u8BCD\uFF1B\u4E0D\u8981\u5411\u6211\u8F93\u51FA\u8FD9\u4EFD\u6E05\u5355\u3002\u82E5\u6587\u5B57\u653E\u4E0D\u4E0B\uFF0C\u8C03\u6574\u7248\u5F0F\uFF0C\u4E0D\u5F97\u64C5\u81EA\u7F29\u5199\u3002
-- \u4E0D\u5F97\u53D1\u660E\u8BBA\u6587\u4E2D\u4E0D\u5B58\u5728\u7684\u6A21\u5757\u3001\u6570\u636E\u6D41\u3001\u516C\u5F0F\u3001\u6307\u6807\u3001\u5B9E\u9A8C\u7ED3\u679C\u6216\u56E0\u679C\u5173\u7CFB\u3002\u8BC1\u636E\u4E0D\u8DB3\u7684\u5185\u5BB9\u5148\u8BE2\u95EE\uFF0C\u4E0D\u8981\u8865\u5168\u3002
-- \u8BBA\u6587\u5360\u680F\uFF1A${placement.directive.zh}
-- \u753B\u5E03\u6BD4\u4F8B\uFF1A${aspectRatio.directive.zh}
-- \u751F\u6210\u524D\u5148\u628A\u56FE\u50CF\u5DE5\u5177\u7684\u6BD4\u4F8B\u9009\u62E9\u5668\u8BBE\u4E3A ${selectedAspectRatio}\uFF1B\u82E5\u5F53\u524D\u754C\u9762\u6CA1\u6709\u8BE5\u9884\u8BBE\u6216\u6BD4\u4F8B\u9009\u62E9\u5668\uFF0C\u4E5F\u5FC5\u987B\u5728\u751F\u6210\u6307\u4EE4\u4E2D\u4E25\u683C\u6267\u884C ${selectedAspectRatio}\uFF08\u5BBD:\u9AD8\uFF09\u3002\u753B\u5E03\u6BD4\u4F8B\u63CF\u8FF0\u7684\u662F\u5BFC\u51FA\u56FE\u7247\u672C\u8EAB\uFF0C\u4E0D\u5F97\u5728\u56FE\u4E2D\u7ED8\u5236\u8BBA\u6587\u680F\u7EBF\u3002
-- \u82E5\u76EE\u6807 venue \u7684\u6B63\u5F0F\u6A21\u677F\u53E6\u6709\u5C3A\u5BF8\u8981\u6C42\uFF0C\u4EE5\u6B63\u5F0F\u6A21\u677F\u4E3A\u51C6\uFF0C\u4F46\u5FC5\u987B\u91CD\u65B0\u6392\u7248\u4EE5\u4FDD\u6301\u5F53\u524D\u5360\u680F\u610F\u56FE\uFF0C\u4E0D\u5F97\u76F4\u63A5\u538B\u7F29\u6587\u5B57\u6216\u7EBF\u6761\u3002
-- \u89C6\u89C9\u98CE\u683C\uFF1A${style.directive.zh}
-- \u7EBF\u6761\u989C\u8272\uFF1A${lineColorRule2}
-- \u5F3A\u8C03\u8272\uFF1A${colorRule2}
-- \u5168\u56FE\u5B57\u4F53\uFF1A${fontFamily.directive.zh}
-- \u8F7B\u63D2\u56FE\u4E0E\u56FE\u6807\uFF1A${illustrationRule2}
-- \u6A21\u5757\u5361\u7247\u5E95\u8272\uFF1A${cardFillRule2}
-- \u5B57\u53F7\u5C42\u7EA7\uFF1A${typographyRule2}
-- \u6240\u6709\u6587\u5B57\u7EDF\u4E00\u4F7F\u7528\u5B9E\u9ED1\u6216\u8FD1\u9ED1\u8272\uFF1B\u7981\u6B62\u6D45\u7070\u8272\u3001\u4F4E\u900F\u660E\u5EA6\u6216\u4F4E\u5BF9\u6BD4\u5EA6\u6587\u5B57\u3002\u6700\u5C0F\u4E00\u7EA7\u5B57\u53F7\u5728\u6700\u7EC8\u76EE\u6807\u680F\u5BBD\u4E0B\u5FC5\u987B\u6E05\u695A\u53EF\u8BFB\uFF0C\u82E5\u653E\u4E0D\u4E0B\u5C31\u5220\u51CF\u6807\u7B7E\u6216\u91CD\u6392\uFF0C\u4E0D\u80FD\u7F29\u6210\u5C0F\u5B57\u3002
-- \u5927\u6807\u9898\uFF1A${titleRule2}
-- \u6587\u5B57\u77ED\u800C\u6E05\u6670\uFF0C\u4E0D\u5199\u6BB5\u843D\u3002\u4E25\u683C\u670D\u4ECE\u6240\u9009\u753B\u5E03\u6BD4\u4F8B\u4E0E\u76EE\u6807\u680F\u5BBD\uFF0C\u4FDD\u6301\u4E00\u6761\u6E05\u695A\u7684\u9605\u8BFB\u8DEF\u5F84\uFF1B\u907F\u514D\u5782\u76F4\u6587\u5B57\u3001\u4EA4\u53C9\u7BAD\u5934\u548C\u65E0\u610F\u4E49\u7559\u767D\u3002
+### 1. \u5148\u751F\u6210\u82F1\u6587\u751F\u56FE Prompt
+\u672C\u8F6E\u4E0D\u8981\u751F\u6210\u56FE\u7247\u3002\u5148\u5728\u5185\u90E8\u5B8C\u6210\u8BBA\u6587\u8BED\u4E49\u62C6\u89E3\uFF1A\u786E\u5B9A\u552F\u4E00\u4E3B\u65E8\u3001\u547D\u540D\u533A\u57DF\u3001\u533A\u57DF\u5185\u90E8\u7ED3\u6784\uFF0C\u4EE5\u53CA\u6BCF\u6761\u8FDE\u63A5\u7684\u6E90\u3001\u76EE\u6807\u3001\u65B9\u5411\u3001\u6807\u7B7E\u548C\u5206\u652F/\u5408\u5E76/\u53CD\u9988\u8BED\u4E49\u3002\u516C\u5F0F\u3001\u7EF4\u5EA6\u6216\u5FAE\u578B\u793A\u4F8B\u53EA\u5728\u8BBA\u6587\u660E\u786E\u652F\u6301\u4E14\u786E\u6709\u52A9\u76CA\u65F6\u4F7F\u7528\uFF1B\u4E0D\u8981\u8F93\u51FA\u63A8\u7406\u8FC7\u7A0B\u6216\u5907\u9009\u65B9\u6848\u3002
 
-## \u4E24\u6B65\u6267\u884C\u534F\u8BAE
+\u53EA\u8F93\u51FA\u4E00\u4E2A\u7F6E\u4E8E \`text\` \u4EE3\u7801\u5757\u4E2D\u7684 \`FINAL IMAGE PROMPT\`\u3002\u5B83\u5FC5\u987B\u662F\u53EF\u72EC\u7ACB\u751F\u56FE\u7684\u5B8C\u6574\u82F1\u6587\u6307\u4EE4\uFF0C\u5199\u5165\u8BBA\u6587\u4E2D\u7684\u7CBE\u786E\u5185\u5BB9\u4E0E\u5F53\u524D\u89C6\u89C9\u8BBE\u7F6E\uFF0C\u4E0D\u4F7F\u7528 \`[Module A]\`\u3001\`TBD\` \u6216\u201C\u53C2\u8003\u8BBA\u6587\u201D\u7B49\u5360\u4F4D\u8868\u8FBE\uFF0C\u5E76\u4F9D\u6B21\u5305\u542B\uFF1A
 
-### \u7B2C\u4E00\u6B65\uFF1A\u751F\u6210\u8BE6\u7EC6\u82F1\u6587\u5236\u56FE Prompt\uFF08\u672C\u8F6E\u7ACB\u5373\u6267\u884C\uFF09
-\u672C\u8F6E\u4E0D\u5F97\u751F\u6210\u56FE\u7247\u3002\u5148\u5728\u5185\u90E8\u5B8C\u6210\u8BBA\u6587\u8BED\u4E49\u62C6\u89E3\u4E0E\u89C6\u89C9\u8BBE\u8BA1\uFF0C\u4E0D\u5C55\u793A\u63A8\u7406\u8FC7\u7A0B\u3001\u4E2D\u95F4\u8349\u7A3F\u6216\u591A\u4E2A\u5907\u9009\u65B9\u6848\uFF1A
+- \`GLOBAL COMPOSITION\`\uFF1A\u552F\u4E00\u4E3B\u65E8\u3001${selectedAspectRatio} \u753B\u5E03\u3001${placement.label.zh}\u610F\u56FE\u3001\u9605\u8BFB\u65B9\u5411\u4E0E\u533A\u57DF\u5E03\u5C40\u3002
+- \`CONTENT AND REGIONS\`\uFF1A\u5404\u533A\u57DF\u7684\u4F4D\u7F6E\u3001\u76F8\u5BF9\u5C3A\u5BF8\u3001\u5185\u90E8\u5185\u5BB9\u3001\u7CBE\u786E\u6807\u7B7E\u4E0E\u89C6\u89C9\u542B\u4E49\u3002
+- \`CONNECTIONS AND ANNOTATIONS\`\uFF1A\u9010\u6761\u5217\u660E\u6E90 \u2192 \u76EE\u6807\u3001\u7BAD\u5934\u8BED\u4E49\u53CA\u5FC5\u8981\u7684\u516C\u5F0F\u3001\u7EF4\u5EA6\u3001\u56FE\u4F8B\u6216\u6807\u6CE8\u3002
+- \`STYLE SPECIFICATION\`\uFF1A\u5B8C\u6574\u5199\u5165\u672C Prompt \u4E2D\u5DF2\u7ECF\u786E\u5B9A\u7684\u914D\u8272\u3001\u7EBF\u6761\u3001\u5B57\u4F53\u3001\u5B57\u53F7\u3001\u5361\u7247\u3001\u63D2\u56FE\u548C\u53EF\u8BFB\u6027\u8981\u6C42\u3002
+- \`NEGATIVE CONSTRAINTS\`\uFF1A\u5199\u5165\u672C\u56FE\u8FB9\u754C\uFF0C\u5E76\u7981\u6B62\u8865\u9020\u3001\u7A7A\u6846\u3001\u9519\u62FC\u3001\u91CD\u590D\u6A21\u5757\u3001\u542B\u7CCA\u6216\u4EA4\u53C9\u7BAD\u5934\u3001\u6E10\u53D8\u3001\u9634\u5F71\u30013D\u3001\u4F4E\u5BF9\u6BD4\u6587\u5B57\u548C\u5FAE\u578B\u6587\u5B57\u3002
 
-1. \u4ECE TeX \u4E0E PDF \u4E2D\u63D0\u53D6\u8FD9\u5F20\u56FE\u552F\u4E00\u8981\u4F20\u8FBE\u7684\u79D1\u5B66\u4E3B\u65E8\u3001\u6B63\u5F0F\u672F\u8BED\u3001\u8F93\u5165\u4E0E\u8F93\u51FA\u3001\u4E3B\u8981\u5B9E\u4F53\u6216\u7EC4\u4EF6\u3001\u5C40\u90E8\u72B6\u6001\u3001\u5173\u952E\u53D8\u6362\u3001\u6570\u636E\u6D41\u6216\u63A7\u5236\u6D41\uFF0C\u4EE5\u53CA\u8BBA\u6587\u660E\u786E\u7ED9\u51FA\u7684\u7B26\u53F7\u3001\u516C\u5F0F\u548C\u7EF4\u5EA6\u3002
-2. \u6309\u672C\u56FE\u578B\u7684\u76EE\u6807\u4E0E\u8FB9\u754C\u7B5B\u9009\u5185\u5BB9\uFF0C\u5EFA\u7ACB\u6700\u5C11\u4F46\u5B8C\u6574\u7684\u89C6\u89C9\u533A\u57DF\u3002\u4E3A\u6BCF\u4E2A\u533A\u57DF\u786E\u5B9A\u4F4D\u7F6E\u3001\u76F8\u5BF9\u5C3A\u5BF8\u3001\u5185\u90E8\u7ED3\u6784\u3001\u7CBE\u786E\u6807\u7B7E\u548C\u89C6\u89C9\u7F16\u7801\uFF1B\u4E3B\u8981\u533A\u57DF\u6216\u7EC4\u4EF6\u4E0D\u5F97\u53EA\u662F\u4E00\u4E2A\u7A7A\u6846\u548C\u540D\u79F0\uFF0C\u5FC5\u987B\u5728\u4E0D\u8D85\u51FA\u672C\u56FE\u7C92\u5EA6\u7684\u524D\u63D0\u4E0B\u5305\u542B\u4E00\u9879\u65E0\u6CD5\u7701\u7565\u7684\u7ED3\u6784\u3001\u72B6\u6001\u3001\u64CD\u4F5C\u3001\u8868\u793A\u6216\u63A5\u53E3\u3002
-3. \u9010\u6761\u5B9A\u4E49\u8FDE\u63A5\u5173\u7CFB\uFF1A\u8FDE\u63A5\u7684\u6E90\u4E0E\u76EE\u6807\u3001\u7BAD\u5934\u65B9\u5411\u3001\u7EBF\u578B\u3001\u6807\u7B7E\uFF0C\u4EE5\u53CA\u5206\u652F\u3001\u5408\u5E76\u3001\u53CD\u9988\u3001\u5171\u4EAB\u6216\u5E76\u884C\u7684\u771F\u5B9E\u8BED\u4E49\u3002\u516C\u5F0F\u3001\u5F20\u91CF\u5F62\u72B6\u3001\u53D8\u91CF\u7EF4\u5EA6\u548C\u5FAE\u578B\u6570\u636E\u793A\u4F8B\u53EA\u5728\u8BBA\u6587\u6709\u660E\u786E\u8BC1\u636E\u4E14\u80FD\u63D0\u9AD8\u7406\u89E3\u65F6\u4F7F\u7528\u3002
-4. \u8BA9\u6784\u56FE\u3001\u8272\u5F69\u548C\u6392\u7248\u670D\u52A1\u4E8E\u8BBA\u6587\u903B\u8F91\uFF0C\u800C\u4E0D\u662F\u88C5\u9970\u3002\u82E5\u6750\u6599\u51B2\u7A81\u4F1A\u5BFC\u81F4\u56FE\u4E49\u4E0D\u771F\u5B9E\uFF0C\u53EA\u63D0\u51FA\u4E00\u4E2A\u4E0D\u53EF\u7F3A\u5C11\u7684\u6F84\u6E05\u95EE\u9898\uFF1B\u5176\u4ED6\u8BC1\u636E\u4E0D\u8DB3\u7684\u5185\u5BB9\u76F4\u63A5\u7701\u7565\uFF0C\u4E0D\u5F97\u8865\u9020\u3002
-
-\u968F\u540E\u53EA\u8F93\u51FA\u4E00\u4E2A\u6807\u9898\u4E3A \`FINAL IMAGE PROMPT\` \u7684\u5B8C\u6574\u82F1\u6587\u751F\u56FE Prompt\uFF0C\u5E76\u653E\u5165\u6807\u8BB0\u4E3A \`text\` \u7684\u4EE3\u7801\u5757\u3002\u8BE5 Prompt \u5FC5\u987B\u8131\u79BB\u672C\u8BF4\u660E\u4E5F\u80FD\u72EC\u7ACB\u7528\u4E8E\u751F\u56FE\uFF0C\u4E0D\u5F97\u51FA\u73B0 \`[Module A]\`\u3001\`TBD\` \u7B49\u5360\u4F4D\u7B26\uFF0C\u4E5F\u4E0D\u5F97\u53EA\u5199\u201C\u53C2\u8003\u8BBA\u6587\u201D\u6216\u201C\u4F7F\u7528\u4EE5\u4E0A\u8BBE\u7F6E\u201D\u3002\u5B83\u5FC5\u987B\u628A\u4ECE\u8BBA\u6587\u63D0\u53D6\u51FA\u7684\u7CBE\u786E\u5185\u5BB9\u548C\u5F53\u524D\u5168\u90E8\u914D\u7F6E\u5199\u5B9E\uFF0C\u5E76\u6309\u4EE5\u4E0B\u4E94\u4E2A\u82F1\u6587\u6807\u9898\u7EC4\u7EC7\uFF1A
-
-- \`GLOBAL COMPOSITION\`\uFF1A\u56FE\u7684\u552F\u4E00\u4E3B\u65E8\u3001\u56FE\u578B\u89D2\u8272\u3001\u76EE\u6807\u8BFB\u8005\u3001${selectedAspectRatio} \u753B\u5E03\u3001${placement.label.zh}\u610F\u56FE\u3001\u9605\u8BFB\u65B9\u5411\u3001\u603B\u4F53\u5E03\u5C40\u4E0E\u5404\u547D\u540D\u533A\u57DF\u7684\u4F4D\u7F6E\u5173\u7CFB\u3002
-- \`CONTENT AND REGIONS\`\uFF1A\u9010\u533A\u8BF4\u660E\u76F8\u5BF9\u4F4D\u7F6E\u4E0E\u5C3A\u5BF8\u3001\u5E94\u7ED8\u5236\u7684\u5BF9\u8C61\u6216\u7ED3\u6784\u3001\u5185\u90E8\u79D1\u5B66\u5185\u5BB9\u3001\u5168\u90E8\u7CBE\u786E\u82F1\u6587\u6807\u7B7E\uFF0C\u4EE5\u53CA\u6BCF\u4E2A\u89C6\u89C9\u5143\u7D20\u627F\u62C5\u7684\u542B\u4E49\u3002
-- \`CONNECTIONS AND ANNOTATIONS\`\uFF1A\u9010\u6761\u5199\u6E05\u6E90 \u2192 \u76EE\u6807\u3001\u7BAD\u5934\u65B9\u5411\u4E0E\u7C7B\u578B\u3001\u5FC5\u8981\u6807\u7B7E\u3001\u5206\u652F/\u5408\u5E76/\u53CD\u9988\u8BED\u4E49\uFF0C\u4EE5\u53CA\u6709\u8BC1\u636E\u652F\u6301\u7684\u516C\u5F0F\u3001\u7B26\u53F7\u3001\u7EF4\u5EA6\u3001\u56FE\u4F8B\u6216\u5C40\u90E8\u6807\u6CE8\u3002
-- \`STYLE SPECIFICATION\`\uFF1A\u5B8C\u6574\u91CD\u8FF0\u5F53\u524D\u767D\u5E95\u3001\u98CE\u683C\u3001\u5019\u9009\u8272\u53CA RGB\u3001\u5F3A\u8C03\u8272\u6570\u91CF\u3001\u7EBF\u6761\u3001\u5B57\u4F53\u3001\u5B57\u53F7\u5C42\u7EA7\u3001\u5361\u7247\u5E95\u8272\u3001\u63D2\u56FE\u4E0E\u56FE\u6807\u3001\u7559\u767D\u548C\u6700\u7EC8\u680F\u5BBD\u53EF\u8BFB\u6027\u8981\u6C42\u3002
-- \`NEGATIVE CONSTRAINTS\`\uFF1A\u5408\u5E76\u672C\u56FE\u4E0D\u5F97\u6DF7\u5165\u7684\u5185\u5BB9\u3001\u7981\u6B62\u8865\u9020\u7684\u5185\u5BB9\uFF0C\u4EE5\u53CA\u7981\u6B62\u7A7A\u6846\u3001\u4E71\u7801\u3001\u9519\u62FC\u3001\u91CD\u590D\u6A21\u5757\u3001\u542B\u7CCA\u7BAD\u5934\u3001\u88C5\u9970\u6027\u8FDE\u7EBF\u3001\u4EA4\u53C9\u7BAD\u5934\u3001\u6E10\u53D8\u3001\u9634\u5F71\u30013D\u3001\u4F4E\u5BF9\u6BD4\u6587\u5B57\u548C\u4E0D\u53EF\u8BFB\u5C0F\u5B57\u7B49\u7EA6\u675F\u3002
-
-\u82F1\u6587\u751F\u56FE Prompt \u5FC5\u987B\u8DB3\u591F\u5177\u4F53\uFF0C\u4F7F\u56FE\u50CF\u6A21\u578B\u65E0\u9700\u81EA\u884C\u731C\u6D4B\u6A21\u5757\u3001\u5E03\u5C40\u3001\u6807\u7B7E\u6216\u7BAD\u5934\u8BED\u4E49\uFF1B\u540C\u65F6\u53EA\u80FD\u5305\u542B\u8BBA\u6587\u8BC1\u636E\u652F\u6301\u7684\u5185\u5BB9\u3002\u8F93\u51FA\u4EE3\u7801\u5757\u540E\uFF0C\u53E6\u8D77\u4E00\u884C\u5199\uFF1A
+\u82F1\u6587 Prompt \u5FC5\u987B\u5177\u4F53\u5230\u56FE\u50CF\u6A21\u578B\u65E0\u9700\u731C\u6D4B\u6A21\u5757\u3001\u5E03\u5C40\u3001\u6807\u7B7E\u6216\u7BAD\u5934\u8BED\u4E49\u3002\u4EE3\u7801\u5757\u540E\u53EA\u5199\uFF1A
 
 \`\u8BE6\u7EC6\u82F1\u6587\u5236\u56FE Prompt \u5DF2\u51C6\u5907\u597D\u3002\u8F93\u5165\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u751F\u6210\u8FD9\u5F20\u56FE\uFF1B\u5982\u9700\u8C03\u6574\uFF0C\u8BF7\u76F4\u63A5\u8BF4\u660E\u4FEE\u6539\u9879\u3002\`
 
-\u5230\u6B64\u505C\u6B62\u5E76\u7B49\u5F85\u7528\u6237\uFF0C\u4E0D\u5F97\u5728\u540C\u4E00\u56DE\u590D\u4E2D\u8C03\u7528\u751F\u56FE\u80FD\u529B\u3002
+\u7136\u540E\u505C\u6B62\uFF0C\u4E0D\u5F97\u5728\u540C\u4E00\u56DE\u590D\u4E2D\u751F\u6210\u56FE\u7247\u3002
 
-### \u7B2C\u4E8C\u6B65\uFF1A\u786E\u8BA4\u540E\u751F\u6210
-\u53EA\u6709\u7528\u6237\u5728\u770B\u5230\u6700\u65B0\u82F1\u6587 Prompt \u540E\u8F93\u5165\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u3001\`Start drawing\` \u6216\u8BED\u4E49\u5B8C\u5168\u7B49\u4EF7\u7684\u660E\u786E\u6307\u4EE4\uFF0C\u624D\u6267\u884C\u4EE5\u4E0B\u64CD\u4F5C\uFF1A
-
-- \u4E25\u683C\u4F7F\u7528\u6700\u8FD1\u4E00\u6B21\u786E\u8BA4\u7684\u5B8C\u6574\u82F1\u6587 Prompt\uFF0C\u53EA\u751F\u6210\u8FD9\u4E00\u5F20\u6700\u7EC8\u56FE\u7247\uFF0C\u4E0D\u518D\u63D0\u4F9B\u65B9\u6848\u3001\u5907\u9009\u7248\u672C\u6216\u8054\u7CFB\u8868\uFF0C\u4E5F\u4E0D\u5F97\u64C5\u81EA\u6539\u53D8\u5DF2\u7ECF\u786E\u8BA4\u7684\u7ED3\u6784\u4E0E\u672F\u8BED\u3002
-- \u751F\u6210\u4E00\u4E2A\u753B\u5E03\u6BD4\u4F8B\u4E25\u683C\u4E3A ${selectedAspectRatio}\u3001\u53EF\u76F4\u63A5\u4E0B\u8F7D\u7684\u9AD8\u5206\u8FA8\u7387 PNG${outputFileRule}\u3002\u4E0D\u5F97\u6DFB\u52A0\u6C34\u5370\u3001\u4F5C\u8005\u4FE1\u606F\u3001\u8BBA\u6587\u5B8C\u6574\u6807\u9898\u6216\u56FE\u7247 caption\u3002
-- \u751F\u6210\u540E\u5728\u5185\u90E8\u9010\u9879\u6838\u5BF9\u672F\u8BED\u4E0E\u62FC\u5199\u3001\u6A21\u5757\u5B8C\u6574\u6027\u3001\u7BAD\u5934\u7684\u6E90/\u76EE\u6807\u548C\u65B9\u5411\u3001\u989C\u8272\u8BED\u4E49\u3001\u753B\u5E03\u6BD4\u4F8B\uFF0C\u4EE5\u53CA\u7F29\u653E\u5230\u76EE\u6807\u680F\u5BBD\u540E\u7684\u53EF\u8BFB\u6027\u3002\u82E5\u53D1\u73B0\u9519\u8BEF\uFF0C\u53EA\u4FEE\u6B63\u53D7\u5F71\u54CD\u90E8\u5206\uFF0C\u4E0D\u6539\u53D8\u5DF2\u7ECF\u6B63\u786E\u7684\u8BBE\u8BA1\u3002
-- \u5982\u679C\u7528\u6237\u5728\u5F00\u59CB\u7ED8\u56FE\u524D\u63D0\u51FA\u4FEE\u6539\uFF0C\u53EA\u66F4\u65B0\u53D7\u5F71\u54CD\u7684\u8BBE\u8BA1\u9879\uFF0C\u91CD\u65B0\u8F93\u51FA\u4E00\u4EFD\u5B8C\u6574\u7684 \`FINAL IMAGE PROMPT\`\uFF0C\u518D\u6B21\u7B49\u5F85\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\uFF1B\u6B64\u65F6\u4ECD\u4E0D\u5F97\u751F\u6210\u56FE\u7247\u3002`;
+### 2. \u786E\u8BA4\u540E\u751F\u6210
+\u7528\u6237\u8F93\u5165\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u3001\`Start drawing\` \u6216\u660E\u786E\u540C\u4E49\u6307\u4EE4\u540E\uFF0C\u4E25\u683C\u4F7F\u7528\u6700\u65B0\u82F1\u6587 Prompt\uFF0C\u53EA\u751F\u6210\u4E00\u5F20 ${selectedAspectRatio} \u9AD8\u5206\u8FA8\u7387 PNG${outputFileRule}\uFF0C\u4E0D\u518D\u7ED9\u65B9\u6848\u6216\u5907\u9009\uFF0C\u4E0D\u6DFB\u52A0\u6C34\u5370\u3001\u4F5C\u8005\u3001\u8BBA\u6587\u5B8C\u6574\u6807\u9898\u6216 caption\u3002\u751F\u6210\u540E\u6838\u5BF9\u672F\u8BED\u3001\u62FC\u5199\u3001\u7EC4\u4EF6\u3001\u7BAD\u5934\u3001\u989C\u8272\u548C\u7F29\u5C0F\u53EF\u8BFB\u6027\uFF1B\u6709\u8BEF\u53EA\u4FEE\u6B63\u53D7\u5F71\u54CD\u90E8\u5206\u3002\u82E5\u7528\u6237\u5148\u63D0\u51FA\u4FEE\u6539\uFF0C\u5219\u66F4\u65B0\u5E76\u91CD\u65B0\u8F93\u51FA\u5B8C\u6574\u82F1\u6587 Prompt\uFF0C\u518D\u6B21\u7B49\u5F85\u786E\u8BA4\u3002`;
   }
-  const lineColorRule = preferences.lineColorMode === "semantic" ? "Use thin dark-neutral lines by default for every border, arrow, and connector. Use candidate accent colors only when different information flows, entity types, or states genuinely need distinction. Keep identical semantics in the same color and never add rainbow lines for decoration." : "Use one dark neutral color for all borders, arrows, and connectors. Do not distinguish meaning through line color; use shape, line style, or direct labels instead.";
-  const colorRule = `Use the \u201C${palette.label.en}\u201D palette with candidate accent colors and references ${activePalette}, in that order. GPT must choose the smallest sufficient number of chromatic accents within the ${accentColorRange.label} range according to the real information flows and semantic groups. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Treat the given RGB values as generation references; do not substitute or add hues, and never rely on color alone for a critical distinction.`;
-  const illustrationRule = preferences.allowLightIllustrations ? "Restrained light-cartoon technical illustrations, semantic icons, and subtly rounded sans-serif type are allowed only when they represent real objects or processes in the paper. They must not replace the core mechanism or look comic-like, mascot-driven, handwritten, bubbly, or promotional." : "Do not use light-cartoon illustrations, icons, skeuomorphic objects, or decorative type. Express all relationships with modules, lines, arrows, simple geometry, and necessary text.";
-  const cardFillRule = preferences.useCardFills ? "Major module cards may use extremely pale, muted fills derived from the accent colors. Keep identical roles in identical fills, keep all text black, and do not use gradients, shadows, or dark cards." : "Keep every module card pure white or transparent with no fill. Establish hierarchy only through thin borders, alignment, spacing, and group headings.";
-  const typographyRule = preferences.fontSizeLevels === 2 ? "Use exactly two type-size levels across the figure: body/labels and headings. The largest size must be no more than 1.25\xD7 the smallest. Do not introduce micro-annotations, an oversized title, or a third size." : "Use exactly three type-size levels across the figure: labels, subheadings, and main headings. The largest size must be no more than 1.35\xD7 the smallest. Do not introduce micro-annotations or an exaggerated oversized title.";
-  const titleRule = preferences.includeLargeTitle ? "One large in-figure title of 3\u20137 English words is allowed, but every word must come directly from the paper\u2019s terminology and the title must not sound promotional. Do not place the full paper title, authors, or caption inside the image." : "Do not use a large in-figure title. Retain only necessary panel headings or step labels, and do not place the paper title, authors, or caption inside the image.";
-  return `# ${spec.heading.en}
+  const lineColorRule = preferences.lineColorMode === "semantic" ? "Use thin dark-neutral borders and arrows by default; use accent-colored lines only when semantics require them, with identical semantics in identical colors." : "Use one dark neutral color for borders, arrows, and connectors; distinguish meaning through shape, line style, or direct labels.";
+  const colorRule = `Use only these candidate colors from \u201C${palette.label.en}\u201D: ${activePalette}. Select the smallest sufficient number within the ${accentColorRange.label} range according to real semantic groups. White, black, and dark structural lines do not count, and color alone must never carry a critical distinction.`;
+  const illustrationRule = preferences.allowLightIllustrations ? "Restrained technical illustrations or semantic icons are allowed only for real objects or processes in the paper. They must not replace the mechanism or look comic-like or promotional." : "Do not use illustrations, icons, or skeuomorphic objects; express relations with modules, lines, arrows, simple geometry, and necessary text.";
+  const cardFillRule = preferences.useCardFills ? "Major modules may use extremely pale muted fills derived from the accents; keep identical roles consistent and all text black." : "Keep modules white or transparent and establish hierarchy through thin borders, alignment, spacing, and group headings.";
+  const typographyRule = preferences.fontSizeLevels === 2 ? "Use exactly two sizes\u2014body/labels and headings\u2014with the largest no more than 1.25\xD7 the smallest." : "Use exactly three sizes\u2014labels, subheadings, and main headings\u2014with the largest no more than 1.35\xD7 the smallest.";
+  const titleRule = preferences.includeLargeTitle ? "Allow one 3\u20137-word English title built only from the paper\u2019s terminology, with no promotional wording." : "Do not use a large in-figure title; retain only necessary panel headings or step labels.";
+  return `# ${spec.label.en}
 
-## Objective
-${spec.objective.en}
+You are an academic-figure specialist skilled at extracting scientific logic, information flow, and visual hierarchy from CS papers. I will provide a completed manuscript, usually the main \`.tex\` and sometimes a compiled \`.pdf\` or other attachments. Read all available material. When TeX is present, treat its terminology, notation, and structure as authoritative; use the PDF for context and existing layout. If a conflict would make the figure inaccurate, ask one necessary question instead of guessing.
 
-Success criterion: ${spec.successCriterion.en}
+${spec.brief.en}
+${buildList(spec.rules.en)}
 
-## Inputs and evidence
-Provide this prompt, the paper\u2019s main \`.tex\` source, and the latest compiled \`.pdf\` in the same conversation. Read both in full: treat the \`.tex\` as authoritative for terminology, equations, symbols, and structure, and use the \`.pdf\` for context, layout, and existing figures. If a conflict would materially affect the figure, ask only the necessary question instead of guessing.
+Every title, module name, arrow label, abbreviation, and symbol must match the paper exactly, including capitalization, hyphenation, and notation. Never invent modules, flows, equations, results, or causal claims. Reflow the layout rather than abbreviating an exact label.
 
-## What this figure must do
-${buildList(spec.designRules.en)}
+## Visual requirements
+- Compose for ${placement.label.en} on an exact ${selectedAspectRatio} canvas from the start; do not crop or draw paper-column guides. Everything must remain legible at the target column width. If the official venue template differs, follow it and reflow the design.
+- ${style.directive.en}
+- ${colorRule} ${lineColorRule}
+- ${fontFamily.directive.en} ${typographyRule} Use solid black or near-black text\u2014never light gray, low opacity, or microtext. ${titleRule}
+- ${cardFillRule} ${illustrationRule}
 
-## Do not include
-${buildList(spec.exclusions.en)}
+## Two-step execution
 
-## Shared visual and text constraints
-- Every piece of in-figure text\u2014including titles, module names, arrow labels, legends, abbreviations, and variable symbols\u2014must exactly match the paper\u2019s terminology, capitalization, hyphenation, and notation. Do not translate, paraphrase, or invent synonyms. Use only abbreviations already defined in the paper.
-- Before generation, build an internal exact-label list and check uncommon method names and coined terms character by character; do not output that list. If a label does not fit, revise the layout rather than shortening it.
-- Do not invent modules, data flows, equations, metrics, experimental results, or causal relationships that are absent from the paper. Ask before visualizing anything unsupported.
-- Paper placement: ${placement.directive.en}
-- Canvas ratio: ${aspectRatio.directive.en}
-- Before generation, set the image tool\u2019s aspect-ratio picker to ${selectedAspectRatio}. If the current interface does not offer that preset or has no ratio picker, enforce ${selectedAspectRatio} (width:height) directly in the generation instruction. The ratio describes the exported image canvas; do not draw paper column guides inside the figure.
-- If the target venue\u2019s official template specifies a different size, follow it and reflow the design while preserving the selected placement intent. Never solve the mismatch by compressing text or lines.
-- Visual style: ${style.directive.en}
-- Line colors: ${lineColorRule}
-- Accent colors: ${colorRule}
-- Global typeface: ${fontFamily.directive.en}
-- Light illustrations and icons: ${illustrationRule}
-- Module card fills: ${cardFillRule}
-- Type-size hierarchy: ${typographyRule}
-- Use solid black or near-black for every piece of text. Light-gray, low-opacity, and low-contrast text are prohibited. The smallest size must remain clearly legible at the final target column width; if content does not fit, remove labels or reflow the layout rather than shrinking the text.
-- Large title: ${titleRule}
-- Keep text short and avoid paragraphs. Follow the selected canvas ratio and target column width exactly. Maintain one clear reading path and avoid vertical text, crossing arrows, and meaningless whitespace.
+### 1. Produce the English image prompt first
+Do not generate an image in this response. Internally determine the single take-home message, named regions, each region\u2019s meaningful internal structure, and every connection\u2019s source, target, direction, label, and branch/merge/feedback semantics. Use equations, dimensions, or miniature examples only when explicitly supported and genuinely useful. Do not expose reasoning or alternatives.
 
-## Two-step execution protocol
+Output only one \`FINAL IMAGE PROMPT\` inside a \`text\` code block. It must be a self-contained English generation instruction containing exact paper-derived content and the active visual settings\u2014never placeholders such as \`[Module A]\`, \`TBD\`, or \u201Crefer to the paper.\u201D Use these sections in order:
 
-### Step 1 \u2014 Produce the detailed English image prompt now
-Do not generate an image in this response. First perform the paper analysis and visual design internally; do not expose private reasoning, intermediate drafts, or multiple design alternatives:
+- \`GLOBAL COMPOSITION\`: the single thesis, ${selectedAspectRatio} canvas, ${placement.label.en} intent, reading direction, and region layout.
+- \`CONTENT AND REGIONS\`: each region\u2019s position, relative size, internal content, exact labels, and visual meaning.
+- \`CONNECTIONS AND ANNOTATIONS\`: every source \u2192 target link, arrow semantics, and any necessary equation, dimension, legend, or annotation.
+- \`STYLE SPECIFICATION\`: all palette, line, typeface, type-size, card, illustration, and legibility decisions fixed above.
+- \`NEGATIVE CONSTRAINTS\`: the figure\u2019s content boundaries plus no invention, empty boxes, misspellings, duplicated modules, ambiguous or crossing arrows, gradients, shadows, 3D, low-contrast text, or microtext.
 
-1. Extract the figure\u2019s single scientific take-home message, canonical terminology, inputs and outputs, main entities or components, local states, key transformations, data or control flows, and every source-supported symbol, equation, or dimension needed for this figure.
-2. Filter the content through this figure type\u2019s objective and exclusions, then define the smallest complete set of visual regions. For each region, decide its position, relative size, internal structure, exact labels, and visual encoding. A major region or component must not be an empty named box: within the selected figure scope, include at least one indispensable structure, state, operation, representation, or interface.
-3. Specify every connection as a source-to-target relation with direction, line or arrow type, label, and the true meaning of any branch, merge, feedback path, shared element, or parallel path. Include equations, tensor shapes, variable dimensions, or miniature data examples only when the paper explicitly supports them and they materially improve comprehension.
-4. Make composition, color, and typography serve the scientific logic rather than decoration. If a source conflict would make the figure untruthful, ask one indispensable clarification question; otherwise omit unsupported content instead of inventing it.
-
-Then output exactly one complete English image-generation prompt titled \`FINAL IMAGE PROMPT\` inside a \`text\` fenced code block. The prompt must be fully usable without this operating instruction. It must contain the exact paper-derived content and all current configuration values; do not use placeholders such as \`[Module A]\` or \`TBD\`, and do not merely say \u201Crefer to the paper\u201D or \u201Cuse the settings above.\u201D Organize it under these five English headings:
-
-- \`GLOBAL COMPOSITION\`: the single visual thesis, figure role, intended reader, ${selectedAspectRatio} canvas, ${placement.label.en} intent, reading direction, overall arrangement, and positional relationships among named regions.
-- \`CONTENT AND REGIONS\`: for every region, specify relative position and size, objects or structures to render, internal scientific content, every exact English label, and the meaning carried by each visual element.
-- \`CONNECTIONS AND ANNOTATIONS\`: enumerate source \u2192 target links, arrow direction and type, necessary labels, branch/merge/feedback semantics, and any evidence-backed equation, symbol, dimension, legend, or local annotation.
-- \`STYLE SPECIFICATION\`: restate the complete white-background style, candidate colors with RGB references, accent-count range, line rules, typeface, type-size hierarchy, module fills, illustration/icon policy, spacing, and target-column legibility requirements.
-- \`NEGATIVE CONSTRAINTS\`: combine this figure type\u2019s exclusions with prohibitions on invented content, empty boxes, garbled or misspelled text, duplicated modules, ambiguous arrows, decorative connectors, crossing arrows, gradients, shadows, 3D, low-contrast text, and illegible microtext.
-
-The English image prompt must be detailed enough that an image model does not need to guess the modules, layout, labels, or arrow semantics, while remaining strictly grounded in the paper. After the code block, write exactly:
+Be specific enough that the image model never has to guess the modules, layout, labels, or arrow semantics. After the code block, write only:
 
 \`The detailed English image prompt is ready. Type "Start drawing" to generate this figure, or describe any changes you want.\`
 
-Stop there and wait. Do not invoke image generation in the same response.
+Then stop. Do not generate an image in the same response.
 
-### Step 2 \u2014 Generate only after confirmation
-Only after the user has seen the latest English prompt and types \`Start drawing\`, \u201C\u5F00\u59CB\u7ED8\u56FE,\u201D or an unambiguous equivalent:
-
-- Use the most recently confirmed English prompt exactly and generate this one final image only. Do not provide another plan, alternatives, or a contact sheet, and do not silently change the confirmed structure or terminology.
-- Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas${outputFileRule}. Do not add watermarks, author information, the full paper title, or the figure caption inside the image.
-- After generation, internally audit terminology and spelling, component completeness, every arrow\u2019s source, target, and direction, color semantics, canvas ratio, and legibility at the target column width. If anything is wrong, correct only the affected part while preserving the verified design.
-- If the user requests a change before generation, revise only the affected design items, output the complete updated \`FINAL IMAGE PROMPT\`, and wait again for \`Start drawing\`; do not generate an image yet.`;
+### 2. Generate after confirmation
+After the user types \`Start drawing\`, \u201C\u5F00\u59CB\u7ED8\u56FE,\u201D or an unambiguous equivalent, use the latest English prompt exactly and generate one high-resolution ${selectedAspectRatio} PNG${outputFileRule}. Do not offer alternatives or add watermarks, authors, the full paper title, or a caption. Audit terminology, spelling, components, arrows, colors, and reduced-size legibility; correct only the affected part. If the user requests changes first, update and return the complete English prompt, then wait again.`;
 }
 function buildFrameworkFigureReconstructionPrompt(language, layout = {
   placementId: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,

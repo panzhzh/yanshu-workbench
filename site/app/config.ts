@@ -364,11 +364,6 @@ export const UI_COPY = {
     budget: "字数预算",
     editAllocation: "编辑章节",
     hideAllocation: "收起",
-    workflowEyebrow: "RECONSTRUCTION WORKFLOW",
-    workflowTitle: "五步重构工作流",
-    workflowBody:
-      "五份真实模板已整理为可配置 Prompt；第四步复用科研绘图规则，只重构方法总览框架图。",
-    placeholder: "真实 Prompt",
     expand: "展开",
     collapse: "收起",
     copy: "复制",
@@ -464,11 +459,6 @@ export const UI_COPY = {
     budget: "Word budget",
     editAllocation: "Edit sections",
     hideAllocation: "Collapse",
-    workflowEyebrow: "RECONSTRUCTION WORKFLOW",
-    workflowTitle: "Five-step reconstruction workflow",
-    workflowBody:
-      "Five source templates are production prompts. Step 4 reuses the research-figure rules and reconstructs only the Method Overview figure.",
-    placeholder: "Live prompt",
     expand: "Expand",
     collapse: "Collapse",
     copy: "Copy",

@@ -63,11 +63,6 @@ export const SUBMISSION_COPY = {
     zone: "区",
     indexes: "收录索引",
     indexesHint: "可多选；未选择表示 SCIE、SSCI、ESCI 均可。",
-    promptEyebrow: "TARGETING PROMPT",
-    promptTitle: "投稿目标检索 Prompt",
-    promptBody:
-      "筛选条件会直接写入完整 Prompt；当前信息必须联网核验，无法确认的项目不得猜测。",
-    livePrompt: "实时 Prompt",
     switchPromptLanguage: "切换 Prompt 语言",
     copy: "复制",
     copied: "已复制",
@@ -114,11 +109,6 @@ export const SUBMISSION_COPY = {
     zone: "Zone",
     indexes: "Citation index",
     indexesHint: "Select multiple if needed; no selection allows SCIE, SSCI, or ESCI.",
-    promptEyebrow: "TARGETING PROMPT",
-    promptTitle: "Venue-targeting prompt",
-    promptBody:
-      "The complete prompt updates with every filter. Verify current facts online and never guess unresolved fields.",
-    livePrompt: "Live prompt",
     switchPromptLanguage: "Switch prompt language",
     copy: "Copy",
     copied: "Copied",

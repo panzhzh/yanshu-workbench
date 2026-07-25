@@ -528,14 +528,6 @@ export default function SubmissionStrategy() {
         <PromptResizeHandle language={uiLanguage} />
 
         <section className="content-section prompt-rail submission-prompt-section">
-          <div className="section-heading-row workflow-heading">
-            <div>
-              <p className="eyebrow">{copy.promptEyebrow}</p>
-              <h2>{copy.promptTitle}</h2>
-            </div>
-            <p className="section-intro">{copy.promptBody}</p>
-          </div>
-
           {copyError && (
             <p className="copy-error" role="alert">
               {copy.clipboardError}
@@ -543,14 +535,9 @@ export default function SubmissionStrategy() {
           )}
 
           <article className={`prompt-card ${expanded ? "expanded" : ""}`}>
-            <div className="prompt-number" aria-hidden="true">
-              <span>01</span>
-              <i />
-            </div>
             <div className="prompt-card-main">
               <div className="prompt-card-header">
                 <div>
-                  <span className="placeholder-tag">{copy.livePrompt}</span>
                   <h3>
                     {SUBMISSION_PROMPT_TEMPLATE.title[promptLanguage]}
                   </h3>

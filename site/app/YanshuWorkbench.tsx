@@ -957,39 +957,7 @@ export default function YanshuWorkbench() {
           className="workflow-section content-section prompt-rail"
           id="workflow"
         >
-          <div className="section-heading-row workflow-heading">
-            <div>
-              <p className="eyebrow">{copy.workflowEyebrow}</p>
-              <h2>{copy.workflowTitle}</h2>
-            </div>
-            <p className="section-intro">{copy.workflowBody}</p>
-          </div>
-
-          <div className="workflow-actions">
-            <div className="workflow-context">
-              <span>{style.shortLabel[uiLanguage]}</span>
-              {hasWordLimit && (
-                <span>
-                  {unlimitedCoreSections
-                    ? copy.unlimitedMainText
-                    : `${formatNumber(targetWords, uiLanguage)} ${copy.words}`}
-                </span>
-              )}
-              {hasWordLimit && unlimitedCoreSections && (
-                <span>{copy.unlimitedCoreSections}</span>
-              )}
-              <span>{includeAppendix ? copy.appendixOn : copy.appendixOff}</span>
-              <span>
-                {FIGURE_PLACEMENTS[frameworkFigure.placementId].label[
-                  uiLanguage
-                ]}{" "}
-                · {frameworkAspectRatio}
-              </span>
-              <span>
-                ChatGPT ·{" "}
-                {chatReasoningPreference.shortLabel[uiLanguage]}
-              </span>
-            </div>
+          <div className="prompt-rail-toolbar">
             <div>
               <button
                 className="secondary-button"
@@ -1034,18 +1002,9 @@ export default function YanshuWorkbench() {
                   className={`prompt-card ${expanded ? "expanded" : ""}`}
                   key={round.id}
                 >
-                  <div className="prompt-number" aria-hidden="true">
-                    <span>
-                      {String(round.number).padStart(2, "0")}
-                    </span>
-                    <i />
-                  </div>
                   <div className="prompt-card-main">
                     <div className="prompt-card-header">
                       <div>
-                        <span className="placeholder-tag">
-                          {copy.placeholder}
-                        </span>
                         <h3>{round.title[language]}</h3>
                         <p>{round.purpose[language]}</p>
                       </div>

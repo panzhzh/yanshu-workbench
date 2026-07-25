@@ -95,19 +95,7 @@ export default function FigureWorkbench() {
   const promptNextLanguage =
     activePromptLanguage === "zh" ? "English" : "中文";
   const promptContentId = `figure-prompt-${activePromptId}`;
-  const selectedPlacement = FIGURE_PLACEMENTS[preferences.placementId];
-  const selectedAspectRatio =
-    FIGURE_ASPECT_RATIOS[preferences.aspectRatioId];
   const selectedAspectRatioValue = getFigureAspectRatio(preferences);
-  const selectedStyle = FIGURE_STYLES[preferences.styleId];
-  const selectedPalette = FIGURE_COLOR_PALETTES[preferences.paletteId];
-  const selectedFont = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
-  const selectedAccentRange =
-    FIGURE_ACCENT_COLOR_RANGES[preferences.accentColorRangeId];
-  const visualSummary =
-    uiLanguage === "zh"
-      ? `${selectedPalette.label.zh} · ${selectedAccentRange.label} 种强调色 · ${selectedFont.label}`
-      : `${selectedPalette.label.en} · ${selectedAccentRange.label} accents · ${selectedFont.label}`;
 
   useEffect(() => {
     document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
@@ -786,39 +774,6 @@ export default function FigureWorkbench() {
         <PromptResizeHandle language={uiLanguage} />
 
         <section className="content-section prompt-rail figure-prompt-section">
-          <div className="section-heading-row workflow-heading">
-            <div>
-              <p className="eyebrow">{copy.promptEyebrow}</p>
-              <h2>{copy.promptTitle}</h2>
-            </div>
-            <p className="section-intro">{copy.promptBody}</p>
-          </div>
-
-          <div className="figure-prompt-summary">
-            <span>
-              <small>{copy.currentPrompt}</small>
-              <strong>{activePromptSpec.label[uiLanguage]}</strong>
-            </span>
-            <span>
-              <small>{copy.selectedCanvas}</small>
-              <strong>
-                {selectedPlacement.label[uiLanguage]} ·{" "}
-                {selectedAspectRatio.label[uiLanguage]}{" "}
-                {preferences.aspectRatioId === "custom"
-                  ? selectedAspectRatioValue
-                  : ""}
-              </strong>
-            </span>
-            <span>
-              <small>{copy.selectedStyle}</small>
-              <strong>{selectedStyle.label[uiLanguage]}</strong>
-            </span>
-            <span>
-              <small>{copy.visualSummary}</small>
-              <strong>{visualSummary}</strong>
-            </span>
-          </div>
-
           {copyError && (
             <p className="copy-error" role="alert">
               {copy.clipboardError}
@@ -832,18 +787,9 @@ export default function FigureWorkbench() {
               }`}
               key={activePromptId}
             >
-              <div className="prompt-number" aria-hidden="true">
-                <span>{activePromptSpec.number}</span>
-                <i />
-              </div>
               <div className="prompt-card-main">
                 <div className="prompt-card-header">
                   <div>
-                    <span className="placeholder-tag">
-                      {activePromptSpec.tag[uiLanguage]} ·{" "}
-                      {selectedPlacement.label[uiLanguage]} ·{" "}
-                      {selectedAspectRatioValue}
-                    </span>
                     <h3>{activePromptSpec.label[uiLanguage]}</h3>
                     <p>{activePromptSpec.purpose[uiLanguage]}</p>
                   </div>
