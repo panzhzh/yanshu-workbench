@@ -309,7 +309,7 @@ The report must contain the Scientific Positioning Contract, the final title and
 5. 每个核心机制按“设计目的 → 数学或计算构造 → 与其他组件的接口 → 设计直觉 → 训练或推理中的作用 → 适用边界”展开；不得只复述执行流程，也不得把常规 backbone、标准注意力、常见损失或简单拼接包装成独立贡献。
 6. 公式必须先解释后出现，出现后说明作用及与整体目标的关系；关键公式至少被正文引用一次；检查上下标、维度、求和范围、归一化、mask、损失权重和优化目标；只有材料支持时才保留算法或复杂度，训练与推理有差异时必须明确区分。
 7. 语言优先一般现在时、主动语态和无生命主语；全章 we 最多出现三次。
-8. 在方法逻辑稳定后，必须调用图像生成能力制作一张专业、克制、可用于论文的总体框架图，并提供可下载 PNG。图中输入、输出、模块、箭头、训练/推理路径和术语必须与论文完全一致；不得新增材料不支持的组件、连接或 claim，也不得只返回绘图提示词代替 PNG。
+8. 核对现有框架图与机制图的输入、输出、模块、箭头、训练/推理路径和术语是否与重构后的 Method 一致；本步不生成或替换总体框架图，统一交由后续独立步骤处理。
 {{method_word_limits}}
 
 ### Experiments 的固定结构约束
@@ -325,7 +325,7 @@ The report must contain the Scientific Positioning Contract, the final title and
 
 ### 中文报告固定清单
 
-报告必须包含：Method 逻辑图谱、方法小节重构对照、公式与符号审计、框架图对齐与 PNG 生成记录、Experiment Question–Evidence 表、实验顺序设计、数字与统计风险、删除或弱化的机制主张、联网基线与协议核验、修改清单、作者需确认项和下一轮交接摘要。`,
+报告必须包含：Method 逻辑图谱、方法小节重构对照、公式与符号审计、现有图表与正文接口审计、Experiment Question–Evidence 表、实验顺序设计、数字与统计风险、删除或弱化的机制主张、联网基线与协议核验、修改清单、作者需确认项和下一轮交接摘要。`,
       en: `### Fixed Constraints for Method
 
 1. {{method_document_hierarchy}}
@@ -335,7 +335,7 @@ The report must contain the Scientific Positioning Contract, the final title and
 5. Develop each core mechanism in this order: design purpose → mathematical or computational construction → interfaces → intuition → training or inference role → applicable boundary. Do not merely describe execution steps or package a standard backbone, ordinary attention, common loss, or simple concatenation as an independent contribution.
 6. Motivate equations before they appear and explain their role and relation to the overall objective afterward. Cite each key equation at least once. Check indices, dimensions, summation ranges, normalization, masks, loss weights, and optimization objectives. Retain algorithms or complexity only when supported, and distinguish training from inference whenever they differ.
 7. Prefer present tense, active voice, and inanimate subjects. Use "we" no more than three times in the entire section.
-8. Once the Method logic is stable, use image generation to create one restrained, publication-ready framework diagram and provide it as a downloadable PNG. Every input, output, component, arrow, training/inference path, and term must match the manuscript. Do not add unsupported components, connections, or claims, and do not return only an image prompt instead of the PNG.
+8. Audit whether the inputs, outputs, components, arrows, training/inference paths, and terminology of existing framework and mechanism figures still match the reconstructed Method. Do not generate or replace the overall framework figure in this step; the separate later step handles it.
 {{method_word_limits}}
 
 ### Fixed Constraints for Experiments
@@ -351,7 +351,7 @@ The report must contain the Scientific Positioning Contract, the final title and
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, framework-figure alignment and PNG generation record, Experiment Question–Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, author-confirmation items, and next-step handoff.`,
+The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, author-confirmation items, and next-step handoff.`,
     },
     inlineStyleConstraints: [
       {

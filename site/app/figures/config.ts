@@ -51,6 +51,11 @@ export interface FigurePreferences {
   includeLargeTitle: boolean;
 }
 
+export interface FigurePromptBuildOptions {
+  accentColorMode?: "fixed" | "adaptive-2-3";
+  outputFileName?: string;
+}
+
 export const FIGURE_DEFAULT_LAYOUT = {
   introduction: {
     placementId: "single-column",
@@ -88,6 +93,23 @@ export const DEFAULT_FIGURE_PREFERENCES: FigurePreferences = {
   fontSizeLevels: 2,
   includeLargeTitle: false,
 };
+
+export const RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES = {
+  promptId: "method-overview",
+  placementId: "double-column",
+  aspectRatioId: "landscape-16-9",
+  customAspectWidth: 16,
+  customAspectHeight: 9,
+  styleId: "conference-minimal",
+  paletteId: "academic-blue",
+  fontFamilyId: "arial",
+  lineColorMode: "semantic",
+  accentColorCount: 3,
+  allowLightIllustrations: false,
+  useCardFills: false,
+  fontSizeLevels: 2,
+  includeLargeTitle: false,
+} as const satisfies FigurePreferences;
 
 export const FIGURE_PLACEMENTS = {
   "single-column": {
@@ -765,6 +787,7 @@ export function buildFigurePrompt(
   promptId: FigurePromptId,
   preferences: FigurePreferences,
   language: Language,
+  options: FigurePromptBuildOptions = {},
 ) {
   const spec = FIGURE_PROMPTS[promptId];
   const style = FIGURE_STYLES[preferences.styleId];
@@ -773,16 +796,28 @@ export function buildFigurePrompt(
   const selectedAspectRatio = getFigureAspectRatio(preferences);
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
+  const adaptiveAccentColors =
+    options.accentColorMode === "adaptive-2-3";
   const activePalette = palette.colors
-    .slice(0, preferences.accentColorCount)
+    .slice(
+      0,
+      adaptiveAccentColors ? 3 : preferences.accentColorCount,
+    )
     .join(", ");
+  const outputFileRule = options.outputFileName
+    ? language === "zh"
+      ? `，文件名必须为 \`${options.outputFileName}\``
+      : ` named \`${options.outputFileName}\``
+    : "";
 
   if (language === "zh") {
     const lineColorRule =
       preferences.lineColorMode === "semantic"
         ? "只在不同信息流、实体类别或状态确实需要区分时，才让边框、箭头或连接线使用强调色；相同语义必须使用相同颜色，不得为了好看制造彩虹线条。"
         : "所有边框、箭头和连接线统一使用深色中性细线，不用线条颜色区分语义；需要区分时改用形状、线型或直接标签。";
-    const colorRule = `使用“${palette.label.zh}”色系，允许的强调色依次为 ${activePalette}；全图最多使用 ${preferences.accentColorCount} 种有彩色相。这一数量不包括纯白背景、黑色文字和深色中性结构线。不得自行替换或增加颜色；任何关键区别都不能只依赖颜色。`;
+    const colorRule = adaptiveAccentColors
+      ? `使用“${palette.label.zh}”色系，候选强调色依次为 ${activePalette}；根据真实信息流和语义分组自行判断使用 2 种还是 3 种有彩色相，能用 2 种说清时不要使用第 3 种。这一数量不包括纯白背景、黑色文字和深色中性结构线。不得自行替换或增加颜色；任何关键区别都不能只依赖颜色。`
+      : `使用“${palette.label.zh}”色系，允许的强调色依次为 ${activePalette}；全图最多使用 ${preferences.accentColorCount} 种有彩色相。这一数量不包括纯白背景、黑色文字和深色中性结构线。不得自行替换或增加颜色；任何关键区别都不能只依赖颜色。`;
     const illustrationRule = preferences.allowLightIllustrations
       ? "允许克制的轻卡通技术插图、语义 icon 和略带圆润感的无衬线字体，但它们只能表示论文中的真实对象或过程，不得代替核心机制，也不得呈现漫画、吉祥物、手写体、气泡字或营销插画效果。"
       : "不使用轻卡通插图、icon、拟物对象或装饰字体；所有关系只用模块、线条、箭头、简单几何形状和必要文字表达。";
@@ -836,14 +871,16 @@ ${buildList(spec.exclusions.zh)}
 材料足够时直接生成最终图片，不先输出方案、标签清单、配色说明、备选版本，也不征求设计确认。生成时在内部逐项核对术语、拼写、结构、箭头语义和缩小后的可读性；若发现错误，只修正受影响部分，不改变其余设计。
 
 ## 输出
-生成一个画布比例严格为 ${selectedAspectRatio}、可直接下载的高分辨率 PNG。不要生成联系表，不要添加水印、作者信息、论文完整标题或图片 caption。图片之后只附一行核对结果。`;
+生成一个画布比例严格为 ${selectedAspectRatio}、可直接下载的高分辨率 PNG${outputFileRule}。不要生成联系表，不要添加水印、作者信息、论文完整标题或图片 caption。图片之后只附一行核对结果。`;
   }
 
   const lineColorRule =
     preferences.lineColorMode === "semantic"
       ? "Use accent-colored borders, arrows, or connectors only when different information flows, entity types, or states genuinely need distinction. Keep identical semantics in the same color and never add rainbow lines for decoration."
       : "Use one dark neutral color for all borders, arrows, and connectors. Do not distinguish meaning through line color; use shape, line style, or direct labels instead.";
-  const colorRule = `Use the “${palette.label.en}” palette with the allowed accent colors ${activePalette}, in that order. Use at most ${preferences.accentColorCount} chromatic accent color${preferences.accentColorCount === 1 ? "" : "s"} across the entire figure. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Do not substitute or add colors, and never rely on color alone for a critical distinction.`;
+  const colorRule = adaptiveAccentColors
+    ? `Use the “${palette.label.en}” palette with candidate accent colors ${activePalette}, in that order. Decide from the real information flows and semantic groups whether the figure needs two or three chromatic accents; do not use the third when two communicate every distinction clearly. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Do not substitute or add colors, and never rely on color alone for a critical distinction.`
+    : `Use the “${palette.label.en}” palette with the allowed accent colors ${activePalette}, in that order. Use at most ${preferences.accentColorCount} chromatic accent color${preferences.accentColorCount === 1 ? "" : "s"} across the entire figure. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Do not substitute or add colors, and never rely on color alone for a critical distinction.`;
   const illustrationRule = preferences.allowLightIllustrations
     ? "Restrained light-cartoon technical illustrations, semantic icons, and subtly rounded sans-serif type are allowed only when they represent real objects or processes in the paper. They must not replace the core mechanism or look comic-like, mascot-driven, handwritten, bubbly, or promotional."
     : "Do not use light-cartoon illustrations, icons, skeuomorphic objects, or decorative type. Express all relationships with modules, lines, arrows, simple geometry, and necessary text.";
@@ -897,5 +934,20 @@ ${buildList(spec.exclusions.en)}
 When the materials are sufficient, generate the final image immediately. Do not first output a plan, label list, palette explanation, alternative design, or confirmation request. During generation, internally audit terminology, spelling, structure, arrow semantics, and reduced-size legibility. If anything is wrong, correct only the affected part while preserving the rest of the design.
 
 ## Output
-Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas. Do not create a contact sheet or add watermarks, author information, the full paper title, or the figure caption inside the image. After the image, provide only a one-line audit result.`;
+Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas${outputFileRule}. Do not create a contact sheet or add watermarks, author information, the full paper title, or the figure caption inside the image. After the image, provide only a one-line audit result.`;
+}
+
+export function buildFrameworkFigureReconstructionPrompt(
+  language: Language,
+) {
+  return buildFigurePrompt(
+    "method-overview",
+    RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
+    language,
+    {
+      accentColorMode: "adaptive-2-3",
+      outputFileName:
+        "<base_name>_round_4_framework_reconstruction.png",
+    },
+  );
 }

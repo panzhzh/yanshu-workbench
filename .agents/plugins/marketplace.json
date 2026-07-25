@@ -1,0 +1,20 @@
+{
+  "name": "yanshu-workbench",
+  "interface": {
+    "displayName": "YanShu Workbench"
+  },
+  "plugins": [
+    {
+      "name": "yanshu-workbench",
+      "source": {
+        "source": "local",
+        "path": "./plugins/yanshu-workbench"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}

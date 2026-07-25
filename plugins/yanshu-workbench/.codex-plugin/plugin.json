@@ -1,0 +1,37 @@
+{
+  "name": "yanshu-workbench",
+  "version": "0.2.0",
+  "description": "Resumable, Chat-delegated research workflows for CS manuscripts.",
+  "author": {
+    "name": "panzhzh",
+    "url": "https://github.com/panzhzh"
+  },
+  "homepage": "https://github.com/panzhzh/yanshu-workbench",
+  "repository": "https://github.com/panzhzh/yanshu-workbench",
+  "keywords": [
+    "research",
+    "paper",
+    "latex",
+    "chatgpt",
+    "workflow"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "研术台 · YanShu Workbench",
+    "shortDescription": "Run resumable CS-paper workflows with visible Chat delegation.",
+    "longDescription": "Configure a CS manuscript workflow once, delegate manuscript writing to the strongest visible ChatGPT Chat setting available to the user, and let Codex coordinate local files, checkpoints, compilation, and recovery without silently rewriting the paper itself.",
+    "developerName": "panzhzh",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "websiteURL": "https://github.com/panzhzh/yanshu-workbench",
+    "defaultPrompt": [
+      "用研术台重构这个论文目录，并优先使用当前账号可用的最强 Chat 配置。",
+      "检查这个论文目录是否已经具备自动重构所需的 TeX、PDF、BibTeX 和图片材料。",
+      "继续上次中断的研术台论文重构任务。"
+    ],
+    "brandColor": "#24495F"
+  }
+}

@@ -26,14 +26,17 @@
 
 网站本身不读取、不上传，也不保存论文文件。
 
+研术台同时在开发可选的桌面自动模式：让 ChatGPT Chat 负责论文正文，让 Codex 负责本地文件、轮次状态、编译和错误回传。自动模式使用用户可见且已登录的 ChatGPT 会话，不以 Codex 的写作结果替代 Chat。
+
 ## 当前工作台
 
 | 模块 | 适用阶段 | 当前能力 |
 | --- | --- | --- |
 | [论文初稿](https://yanshu-workbench.pages.dev/draft/) | 实验已经完成 | 从证据材料生成完整、可编译的英文 LaTeX 初稿；arXiv 默认样式或当届顶会官方模板 |
-| [论文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、四步双语 Prompt |
+| [论文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
 | [科研绘图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 引言图、方法总览图、关键技术细节图三选一；占栏、画布、色系、字体与可读性约束 |
 | [投稿策略](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/ESCI 动态筛选与官网核验 |
+| 桌面自动模式 | 需要全链路执行 | 创建可恢复的五轮重构目录，保存 Chat 会话与产物状态；当前为开发者预览 |
 
 ## 设计原则
 
@@ -43,6 +46,30 @@
 - **模板可追溯**：顶会模板必须在执行时从当届官网或官方 author kit 核验。
 - **中英文独立**：界面语言与 Prompt 语言分别建模，不依赖运行时机器翻译。
 - **克制可读**：服务长文本阅读、快速配置和复制，不采用营销页或普通 SaaS 后台视觉。
+- **写作与执行分层**：Chat 负责论文写作，Codex 只协调本地材料、状态、编译和错误回传。
+- **随时可恢复**：长任务逐轮保存，不因页面关闭、等待超时或应用重启而重复提交。
+
+## 桌面自动模式
+
+仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是第一版自动化插件。它已经具备：
+
+- 从网站同一份配置源生成五轮重构 Prompt，其中第四轮复用科研绘图的 Method Overview 规则；
+- 自动识别或显式接收 TeX、BibTeX、PDF 与 figures 路径；
+- 新建 `yanshu-reconstruction/<run-id>/`，保存每轮 Prompt、产物、日志与状态；
+- 记录并恢复每轮 Chat 会话地址、模型标签和推理档位；
+- 为每轮生成严格的上传白名单；
+- 在 Chat 桥接缺失时停在可恢复状态，而不是让 Codex 代写论文。
+
+完整自动执行还需要可见的 ChatGPT 会话与兼容的浏览器桥接。研术台插件已经内置并锁定可见 Chat 控制运行时，用户不需要再安装第二个委派插件；它不会绕过登录、验证码或文件权限，也不要求 OpenAI API Key。
+
+当前开发者预览可以从本仓库的插件市场安装：
+
+```bash
+codex plugin marketplace add panzhzh/yanshu-workbench --ref main
+codex plugin add yanshu-workbench@yanshu-workbench
+```
+
+安装后新建一个 Codex 任务，直接说“用研术台重构这个论文目录”即可。正式公开推广前仍会补齐图形化安装入口和首次权限向导。
 
 ## 论文模板策略
 
@@ -80,6 +107,8 @@ npm run build:pages
 ```text
 yanshu-workbench/
 ├── README.md
+├── plugins/
+│   └── yanshu-workbench/      # 桌面自动模式、运行状态与 Chat 委派边界
 └── site/
     ├── app/
     │   ├── draft/              # 论文初稿配置与 Prompt
@@ -99,6 +128,8 @@ yanshu-workbench/
 - [x] 论文重构工作台
 - [x] 独立科研绘图 Prompt
 - [x] 投稿目标筛选与官网核验 Prompt
+- [x] 可恢复的五轮论文重构插件基础
+- [ ] 浏览器桥接的一体化安装与首次使用向导
 - [ ] 审稿意见分析、Rebuttal 与 Response to Reviewers
 - [ ] Camera-ready、匿名与可复现性检查
 - [ ] 更细的会议、期刊和出版商配置

@@ -34,7 +34,7 @@ const HOME_COPY = {
         description:
           "重建标题、科学定位、章节叙事与字数预算，再完成投稿级精修。",
         href: "/reconstruction",
-        meta: "会议 / 期刊 · 四步 Prompt",
+        meta: "会议 / 期刊 · 五步 Prompt",
       },
       {
         index: "03",
@@ -87,7 +87,7 @@ const HOME_COPY = {
         description:
           "Rebuild title, scientific positioning, section narrative, and budgets before final refinement.",
         href: "/reconstruction",
-        meta: "Conference / journal · four prompts",
+        meta: "Conference / journal · five prompts",
       },
       {
         index: "03",

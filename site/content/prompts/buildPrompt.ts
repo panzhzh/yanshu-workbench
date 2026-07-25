@@ -1,4 +1,5 @@
 import { COMMON_PROMPT_BLOCKS } from "./templates";
+import { buildFrameworkFigureReconstructionPrompt } from "../../app/figures/config";
 import {
   PROMPT_DETAILED_CONSTRAINTS,
   PROMPT_STEP_POLICIES,
@@ -431,6 +432,10 @@ export function buildPrompt(
   template: PromptTemplate,
   context: PromptBuildContext,
 ) {
+  if (template.contentKind === "framework-figure") {
+    return buildFrameworkFigureReconstructionPrompt(context.language);
+  }
+
   const language = context.language;
   const labels = LABELS[language];
   const common = COMMON_PROMPT_BLOCKS;

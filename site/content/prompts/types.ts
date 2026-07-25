@@ -16,6 +16,7 @@ export interface PromptTemplate {
   id: string;
   sourceFile: string;
   number: number;
+  contentKind?: "standard" | "framework-figure";
   profile: "manuscript" | "targeting";
   title: LocalizedText;
   purpose: LocalizedText;

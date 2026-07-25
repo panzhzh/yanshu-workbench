@@ -625,6 +625,14 @@ a {
   line-height: 1.65;
 }
 
+.config-heading-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 18px;
+  margin-top: 6px;
+}
+
 .text-button {
   display: inline-flex;
   align-items: center;
@@ -648,7 +656,11 @@ a {
 
 .reset-button {
   flex: 0 0 auto;
-  margin-top: 6px;
+}
+
+.config-export-button {
+  color: var(--green);
+  border-bottom-color: #aab9af;
 }
 
 .config-panel {
@@ -3247,7 +3259,9 @@ body.is-resizing-prompt * {
     line-height: 1.75;
   }
 
-  .reset-button {
+  .config-heading-actions {
+    flex-wrap: wrap;
+    gap: 12px 18px;
     margin-top: 19px;
   }
 

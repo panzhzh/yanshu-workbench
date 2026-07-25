@@ -24,13 +24,13 @@ export const COMMON_PROMPT_BLOCKS = {
     zh: `1. 沿用当前 .tex 的文档类、宏包、参考文献样式、单双栏、作者信息、自定义命令、图像路径和编译体系。
 2. 只有明确编译错误、重复 label、失效引用或语法错误才允许做最小格式修复，并在报告中说明。
 3. 尽量保留现有 label、ref、cite、公式编号和算法标签；移动内容时同步维护交叉引用。
-4. 不得删除 PDF 中真实存在且承担证据作用的图表。除“方法与实验深度重构”明确要求、且完全基于论文事实生成的框架图 PNG 外，不得生成、虚构或替换图像文件。
+4. 不得删除 PDF 中真实存在且承担证据作用的图表。除独立的“重构方法总览框架图”步骤明确要求、且完全基于论文事实生成的 PNG 外，不得生成、虚构或替换图像文件。
 5. 最终输出必须是完整、连续、可继续编辑的英文 .tex，而不是 diff、片段或合并建议。
 6. 中文分析、问题与修改说明只放在中文报告中，不得混入 TeX。`,
     en: `1. Preserve the current .tex document class, packages, bibliography style, column layout, author block, custom commands, image paths, and compilation system.
 2. Make only minimal format repairs for confirmed compilation errors, duplicate labels, broken references, or syntax errors, and document every repair.
 3. Preserve labels, refs, cites, equation numbers, and algorithm identifiers where possible. Maintain cross-references whenever content moves.
-4. Do not remove figures or tables that exist in the PDF and serve an evidentiary role. Except for the framework PNG explicitly required by “Method & Experiments Reconstruction” and generated entirely from manuscript facts, do not generate, invent, or replace image files.
+4. Do not remove figures or tables that exist in the PDF and serve an evidentiary role. Except for the PNG explicitly required by the separate “Reconstruct the Method Overview Figure” step and generated entirely from manuscript facts, do not generate, invent, or replace image files.
 5. The final output must be a complete, continuous, editable English .tex file, not a diff, excerpt, or merge instructions.
 6. Keep Chinese analysis, open questions, and revision notes in the Chinese report, never inside the TeX.`,
   },
@@ -243,12 +243,12 @@ Follow the current paper type's Overview rule before moving through core mechani
       },
       {
         heading: {
-          zh: "B. 审计公式与算法，并生成框架图 PNG",
-          en: "B. Audit Equations and Algorithms, Then Generate the Framework PNG",
+          zh: "B. 审计公式、算法与现有图表接口",
+          en: "B. Audit Equations, Algorithms, and Existing Visual Interfaces",
         },
         body: {
-          zh: "确保符号在使用前定义，公式有前置动机和后续解释，下标、维度、归一化、mask 和损失权重一致，关键公式被正文引用。方法逻辑稳定后必须调用图像生成能力制作专业、克制的总体框架图；逐项核对输入、输出、组件、箭头、训练/推理路径与术语，并提供真实可下载的 PNG，不得只返回绘图提示词。",
-          en: "Define notation before use; motivate equations before they appear and explain their role afterward; verify indices, dimensions, normalization, masks, and loss weights; and cite every key equation in prose. Once the Method logic is stable, use image generation to produce a restrained publication-ready framework diagram. Verify every input, output, component, arrow, training/inference path, and term, and provide an actual downloadable PNG rather than only an image prompt.",
+          zh: "确保符号在使用前定义，公式有前置动机和后续解释，下标、维度、归一化、mask 和损失权重一致，关键公式被正文引用。同步核对现有框架图与机制图的输入、输出、组件、箭头、训练/推理路径和术语，但本步不生成或替换图片；方法逻辑和前后叙事稳定后，由独立的框架图步骤统一重构。",
+          en: "Define notation before use; motivate equations before they appear and explain their role afterward; verify indices, dimensions, normalization, masks, and loss weights; and cite every key equation in prose. Audit the inputs, outputs, components, arrows, training/inference paths, and terminology of existing framework and mechanism figures, but do not generate or replace an image in this step. The separate framework-figure step handles reconstruction after the Method logic and surrounding narrative are stable.",
         },
       },
       {
@@ -285,30 +285,28 @@ Write each result paragraph as question, key observation, interpretation, relati
       },
     ],
     deliverables: {
-      zh: "生成完整英文 .tex、中文报告、建议 BibTeX 和一张可下载的总体框架图 PNG。报告包含 Method 逻辑图谱、旧/新小节对照、公式符号审计、框架图与正文对齐及 PNG 生成记录、Experiment Question–Evidence Matrix、实验顺序说明、数字风险、弱化主张、联网核验、修改清单、作者需确认项和下一轮交接摘要。",
-      en: "Create a complete English .tex, a Chinese report, BibTeX suggestions, and one downloadable overall-framework PNG. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, framework-to-prose alignment and PNG generation record, Experiment Question–Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, revision log, author-confirmation items, and the next-round handoff.",
+      zh: "生成完整英文 .tex、中文报告和建议 BibTeX。报告包含 Method 逻辑图谱、旧/新小节对照、公式符号审计、现有图表与正文接口审计、Experiment Question–Evidence Matrix、实验顺序说明、数字风险、弱化主张、联网核验、修改清单、作者需确认项和下一轮交接摘要。",
+      en: "Create a complete English .tex, a Chinese report, and BibTeX suggestions. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, revision log, author-confirmation items, and the next-round handoff.",
     },
     fileNames: {
       zh: `<base_name>_round_2_method_experiments.tex
 <base_name>_round_2_report_zh.md
-<base_name>_round_2_bib_suggestions.bib
-<base_name>_round_2_framework.png`,
+<base_name>_round_2_bib_suggestions.bib`,
       en: `<base_name>_round_2_method_experiments.tex
 <base_name>_round_2_report_zh.md
-<base_name>_round_2_bib_suggestions.bib
-<base_name>_round_2_framework.png`,
+<base_name>_round_2_bib_suggestions.bib`,
     },
     finalChecks: {
       zh: `- Method 与 Experiments 完成实质重构而非同义词替换。
 - 所有方法、公式、设置和数字均有当前材料依据。
-- 已生成可下载 PNG，且图中结构、信息流和术语与正文一致。
-- 图、表和公式已视觉核对并与正文对齐。
+- 现有图、表和公式已视觉核对并与正文对齐。
+- 本步未提前生成或替换总体框架图。
 - Results 不逐项朗读表格，也不提前承担 Discussion 功能。
 - 其他章节只做必要同步。`,
       en: `- Method and Experiments were substantively reconstructed, not synonym-swapped.
 - Every method, equation, setting, and number is grounded in current materials.
-- A downloadable PNG was generated, and its structure, information flow, and terminology match the manuscript.
-- Figures, tables, and equations were visually checked and aligned with prose.
+- Existing figures, tables, and equations were visually checked and aligned with prose.
+- This step did not prematurely generate or replace the overall framework figure.
 - Results neither narrates tables cell by cell nor absorbs the role of Discussion.
 - Other sections received only necessary synchronization.`,
     },
@@ -436,9 +434,52 @@ Related Work has exactly three subsections and follows the current paper type's 
     },
   },
   {
-    id: "final-refinement",
-    sourceFile: "Round_4_Full_Manuscript_Refinement_and_Audit.md",
+    id: "framework-figure",
+    sourceFile: "Round_4_Framework_Figure_Reconstruction.md",
     number: 4,
+    contentKind: "framework-figure",
+    profile: "manuscript",
+    showStyleDirective: false,
+    showAppendixConfiguration: false,
+    showLengthBudget: false,
+    title: {
+      zh: "重构方法总览框架图",
+      en: "Reconstruct the Method Overview Figure",
+    },
+    purpose: {
+      zh: "在方法与前后叙事稳定后，只重构一张论文 Overview 总体框架图。",
+      en: "Reconstruct only the paper’s overall Method Overview figure after the Method and surrounding narrative are stable.",
+    },
+    role: {
+      zh: "你是一名熟悉 CS 论文方法总览图的信息设计者。",
+      en: "You are an information designer specializing in Method Overview figures for CS papers.",
+    },
+    inputs: {
+      zh: "最新完整 .tex 与其编译 PDF。",
+      en: "The latest complete .tex and its compiled PDF.",
+    },
+    scope: {
+      zh: "只重构论文的总体方法框架图，不生成引言图或局部技术细节图。",
+      en: "Reconstruct only the paper’s overall method framework figure, not an Introduction figure or a local technical-detail figure.",
+    },
+    tasks: [],
+    deliverables: {
+      zh: "生成一张可直接下载的总体框架图 PNG。",
+      en: "Generate one downloadable overall-framework PNG.",
+    },
+    fileNames: {
+      zh: "<base_name>_round_4_framework_reconstruction.png",
+      en: "<base_name>_round_4_framework_reconstruction.png",
+    },
+    finalChecks: {
+      zh: "术语、结构、箭头语义、16:9 画布与缩小后可读性均已核对。",
+      en: "Terminology, structure, arrow semantics, the 16:9 canvas, and reduced-size legibility have all been checked.",
+    },
+  },
+  {
+    id: "final-refinement",
+    sourceFile: "Round_5_Full_Manuscript_Refinement_and_Audit.md",
+    number: 5,
     profile: "manuscript",
     showStyleDirective: false,
     showAppendixConfiguration: false,
@@ -452,18 +493,20 @@ Related Work has exactly three subsections and follows the current paper type's 
       en: "Align language, terminology, numbers, and claim strength, then run a strict reviewer-style final audit.",
     },
     role: {
-      zh: "你是一名严格的 CS 终稿编辑、方法审稿人、实验审计者和 LaTeX 质量检查者。前三步已经稳定科学主线与结构，本步把全文提升到投稿级一致性。",
-      en: "You are a strict CS final editor, method reviewer, experiment auditor, and LaTeX quality checker. The scientific throughline and structure are stable after three steps; this step raises the manuscript to submission-level consistency.",
+      zh: "你是一名严格的 CS 终稿编辑、方法审稿人、实验审计者和 LaTeX 质量检查者。前四步已经稳定科学主线、正文结构与总体框架图，本步把全文提升到投稿级一致性。",
+      en: "You are a strict CS final editor, method reviewer, experiment auditor, and LaTeX quality checker. The scientific throughline, manuscript structure, and overall framework figure are stable after four steps; this step raises the manuscript to submission-level consistency.",
     },
     inputs: {
       zh: `- 最新完整 .tex，优先为第三步输出
 - 与其一致的 PDF
 - 当前完整 .bib
-- 可选：第三步报告和作者确认结果`,
+- 第四步重构的总体框架图 PNG
+- 可选：前三步报告、第四步图片核对结果和作者确认结果`,
       en: `- The newest complete .tex, preferably the Step 3 output
 - Its matching PDF
 - The current complete .bib
-- Optional: the Step 3 report and author confirmations`,
+- The overall-framework PNG reconstructed in Step 4
+- Optional: reports from Steps 1–3, the Step 4 image audit, and author confirmations`,
     },
     scope: {
       zh: "允许句子级和局部段落级精修、合并冗余、调整局部顺序、改善过渡、降低过强 claim 和压缩重复。原则上不再改变科学问题、核心思想、方法结构、实验设计与已确定章节功能；严重科学或数字错误必须修正并标为重大修正。",
@@ -530,12 +573,12 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
       en: "Create a complete English .tex, a Chinese final-audit report, and final BibTeX suggestions. The report must include major revisions, terminology and acronym tables, Cross-Section Redundancy Matrix, Claim–Evidence audit, numeric/statistical audit, citation audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks that prose cannot solve, revision log, and the submission-targeting handoff.",
     },
     fileNames: {
-      zh: `<base_name>_round_4_final_refinement.tex
-<base_name>_round_4_report_zh.md
-<base_name>_round_4_bib_suggestions.bib`,
-      en: `<base_name>_round_4_final_refinement.tex
-<base_name>_round_4_report_zh.md
-<base_name>_round_4_bib_suggestions.bib`,
+      zh: `<base_name>_round_5_final_refinement.tex
+<base_name>_round_5_report_zh.md
+<base_name>_round_5_bib_suggestions.bib`,
+      en: `<base_name>_round_5_final_refinement.tex
+<base_name>_round_5_report_zh.md
+<base_name>_round_5_bib_suggestions.bib`,
     },
     finalChecks: {
       zh: `- 全文完成实质精修而非拼写检查。

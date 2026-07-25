@@ -333,6 +333,44 @@ export default function YanshuWorkbench() {
     setCopied(null);
   }
 
+  function exportAutomationConfig() {
+    try {
+      const primaryPromptLanguage =
+        promptLanguages[RECONSTRUCTION_PROMPTS[0].id] ??
+        PRODUCT_CONFIG.defaultPromptLanguage;
+      const payload = {
+        schemaVersion: 1,
+        source: "yanshu-workbench-web",
+        createdAt: new Date().toISOString(),
+        workflow: {
+          language: primaryPromptLanguage,
+          roundLanguages: promptLanguages,
+          styleId,
+          hasWordLimit,
+          unlimitedCoreSections,
+          targetWords,
+          sectionBudgets: sectionWords,
+          includeAppendix,
+        },
+      };
+      const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = `yanshu-reconstruction-${styleId}.yanshu.json`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+      URL.revokeObjectURL(url);
+      announceCopied("config");
+    } catch {
+      setCopied(null);
+      setCopyError(true);
+    }
+  }
+
   function toggleRound(id: string) {
     setExpandedRounds((current) => {
       const next = new Set(current);
@@ -376,15 +414,28 @@ export default function YanshuWorkbench() {
               <h1>{copy.title}</h1>
               <p>{copy.subtitle}</p>
             </div>
-            <button
-              className="text-button reset-button"
-              type="button"
-              onClick={resetDefaults}
-              title={copy.resetHint}
-            >
-              <span aria-hidden="true">↺</span>
-              {copy.resetDefaults}
-            </button>
+            <div className="config-heading-actions">
+              <button
+                className="text-button config-export-button"
+                type="button"
+                onClick={exportAutomationConfig}
+                title={copy.exportAutomationHint}
+              >
+                <span aria-hidden="true">↓</span>
+                {copied === "config"
+                  ? copy.exportedAutomation
+                  : copy.exportAutomation}
+              </button>
+              <button
+                className="text-button reset-button"
+                type="button"
+                onClick={resetDefaults}
+                title={copy.resetHint}
+              >
+                <span aria-hidden="true">↺</span>
+                {copy.resetDefaults}
+              </button>
+            </div>
           </div>
 
           <div className="config-panel">

@@ -63,10 +63,12 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /正文与章节预算/);
   assert.match(html, /不限制方法和实验的字数/);
   assert.match(html, /每张表格或图片按 200 词计入/);
-  assert.match(html, /四步重构工作流/);
-  assert.equal((html.match(/>English<\/button>/g) ?? []).length, 4);
+  assert.match(html, /导出桌面配置/);
+  assert.match(html, /五步重构工作流/);
+  assert.equal((html.match(/>English<\/button>/g) ?? []).length, 5);
   assert.match(html, /真实 Prompt/);
   assert.match(html, /科学定位与结构重构/);
+  assert.match(html, /重构方法总览框架图/);
   assert.doesNotMatch(html, /投稿目标检索与官网核验/);
   assert.match(html, /Scientific Positioning Contract/);
   assert.match(html, /论文标题与品牌缩写/);
@@ -175,7 +177,7 @@ test("server-renders submission strategy filters and its live prompt", async () 
     /round_6_(?:venue|journal)_(?:targeting|report)/,
   );
   assert.doesNotMatch(html, /原样归档的英文/);
-  assert.doesNotMatch(html, /四步重构工作流/);
+  assert.doesNotMatch(html, /五步重构工作流/);
 });
 
 test("server-renders independent research-figure prompt cards", async () => {
@@ -321,7 +323,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(config, /defaultAppendix:\s*false/);
   assert.match(config, /wordLimitOff:\s*"无特殊规定"/);
   assert.match(config, /appendixOn:\s*"允许附录"/);
-  assert.match(config, /四步重构工作流/);
+  assert.match(config, /五步重构工作流/);
   assert.match(config, /resizePromptRail:\s*"拖动调整 Prompt 栏宽度"/);
   assert.match(config, /resetPromptRail:\s*"双击恢复为 40%"/);
   assert.match(config, /满足当前适用的总量与章节预算时不得使用/);
@@ -340,11 +342,11 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(templates, /export const PROMPT_TEMPLATES/);
   assert.match(templates, /export const RECONSTRUCTION_PROMPTS/);
   assert.match(templates, /export const SUBMISSION_PROMPT_TEMPLATE/);
-  assert.equal((templates.match(/number:\s*[1-4],/g) ?? []).length, 5);
+  assert.equal((templates.match(/number:\s*[1-5],/g) ?? []).length, 6);
   assert.equal(
-    (templates.match(/sourceFile:\s*"Round_[1-4][^"]+\.md"/g) ?? [])
+    (templates.match(/sourceFile:\s*"Round_[1-5][^"]+\.md"/g) ?? [])
       .length,
-    4,
+    5,
   );
   assert.match(
     templates,
@@ -353,17 +355,21 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.doesNotMatch(templates, /evidence-audit|Evidence Baseline/);
   assert.match(templates, /可选：其他附件/);
   assert.match(templates, /Optional: other attachments/);
-  assert.match(templates, /<base_name>_round_2_framework\.png/);
-  assert.match(templates, /真实可下载的 PNG/);
+  assert.doesNotMatch(templates, /<base_name>_round_2_framework\.png/);
+  assert.match(
+    templates,
+    /<base_name>_round_4_framework_reconstruction\.png/,
+  );
+  assert.match(templates, /contentKind:\s*"framework-figure"/);
   assert.match(templates, /showStyleDirective:\s*false/);
   assert.match(templates, /showAppendixConfiguration:\s*false/);
   assert.match(templates, /showLengthBudget:\s*false/);
   const originalPromptFiles = sourceFiles.filter(
     (file) =>
-      /^Round_[1-4].*\.md$/.test(file) ||
+      /^Round_[1-5].*\.md$/.test(file) ||
       file === "Submission_Strategy_and_Verification.md",
   );
-  assert.equal(originalPromptFiles.length, 5);
+  assert.equal(originalPromptFiles.length, 6);
   assert.equal(
     sourceFiles.includes("Round_1_Manuscript_Evidence_Audit.md"),
     false,
@@ -420,7 +426,18 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(originalPrompts, /期刊论文必须单设 `Overview`，恰好两个普通段落且总计不超过 80 词/);
   assert.match(originalPrompts, /后续小节不绑定第三或第四的固定序号/);
   assert.match(originalPrompts, /\\paragraph\{Experimental Configuration\}/);
-  assert.match(originalPrompts, /调用图像生成能力制作一张专业、克制、可用于论文的总体框架图/);
+  assert.doesNotMatch(
+    originalPrompts,
+    /<base_name>_round_2_framework\.png/,
+  );
+  assert.match(originalPrompts, /画布固定为横版 `16:9`/);
+  assert.match(originalPrompts, /自行判断使用 2 种还是 3 种强调色/);
+  assert.match(originalPrompts, /使用极简论文线稿/);
+  assert.match(originalPrompts, /不使用图内大标题/);
+  assert.match(
+    originalPrompts,
+    /<base_name>_round_4_framework_reconstruction\.png/,
+  );
   assert.match(originalPrompts, /三个承担综合解释、适用范围与科学意义的 discussion/);
   assert.match(originalPrompts, /不得引用 Experiments 中的表格或图片/);
   assert.doesNotMatch(originalPrompts, /第四个必须为 `Ablation Studies`/);
@@ -439,7 +456,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   const finalRefinementSource = await readFile(
     new URL(
-      "../content/prompts/source/Round_4_Full_Manuscript_Refinement_and_Audit.md",
+      "../content/prompts/source/Round_5_Full_Manuscript_Refinement_and_Audit.md",
       import.meta.url,
     ),
     "utf8",
@@ -463,6 +480,9 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(component, /allocation-item-unlimited/);
   assert.match(component, /setTargetWords\(nextTotal\)/);
   assert.match(component, /setAllocationMode\("custom"\)/);
+  assert.match(component, /yanshu-workbench-web/);
+  assert.match(component, /roundLanguages:\s*promptLanguages/);
+  assert.match(component, /\.yanshu\.json/);
   assert.match(
     component,
     /allocationExpanded,\s*setAllocationExpanded\]\s*=\s*useState\(true\)/,
@@ -571,7 +591,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     constraints,
     /\{\{narrative_related_work_word_limits\}\}/,
   );
-  assert.match(constraints, /框架图对齐与 PNG 生成记录/);
+  assert.match(constraints, /现有图表与正文接口审计/);
   assert.match(constraints, /不绑定第三或第四的固定序号/);
   assert.match(constraints, /具体结果数字最多保留三个/);
   assert.match(
