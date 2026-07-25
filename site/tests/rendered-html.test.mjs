@@ -142,6 +142,8 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /竖版 3:4/);
   assert.match(html, /横版 16:9/);
   assert.match(html, /竖版 9:16/);
+  assert.match(html, /自定义/);
+  assert.match(html, /输入任意宽高比例/);
   assert.match(html, /4:3/);
   assert.match(html, /3:4/);
   assert.match(html, /16:9/);
@@ -161,6 +163,9 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /当前绘图 Prompt/);
   assert.match(html, /问题与意义/);
   assert.match(html, /整体心智地图/);
+  assert.match(html, /class="prompt-card expanded"/);
+  assert.match(html, /aria-expanded="true"/);
+  assert.match(html, /统一视觉与文字约束/);
   assert.equal((html.match(/class="prompt-card(?:\s|")/g) ?? []).length, 1);
   assert.doesNotMatch(html, /上传文件<\/button>/);
 });
@@ -536,6 +541,12 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /ratio:\s*"3:4"/);
   assert.match(figureConfig, /ratio:\s*"16:9"/);
   assert.match(figureConfig, /ratio:\s*"9:16"/);
+  assert.match(figureConfig, /custom:\s*\{[\s\S]*?ratio:\s*null/);
+  assert.match(figureConfig, /customAspectWidth:\s*5/);
+  assert.match(figureConfig, /customAspectHeight:\s*4/);
+  assert.match(figureConfig, /getFigureAspectRatio/);
+  assert.match(figureConfig, /greatestCommonDivisor/);
+  assert.match(figureConfig, /自定义宽高比/);
   assert.doesNotMatch(figureConfig, /ratio:\s*"2:1"|ratio:\s*"1:2"/);
   assert.match(figureConfig, /双栏论文中的单栏宽度/);
   assert.match(figureConfig, /横跨两栏的通栏宽度/);
@@ -582,6 +593,13 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureComponent, /role="radio"/);
   assert.match(figureComponent, /FIGURE_PLACEMENT_IDS\.map/);
   assert.match(figureComponent, /FIGURE_ASPECT_RATIO_IDS\.map/);
+  assert.match(figureComponent, /getFigureAspectRatio\(preferences\)/);
+  assert.match(figureComponent, /copy\.customRatioWidth/);
+  assert.match(figureComponent, /copy\.customRatioHeight/);
+  assert.match(
+    figureComponent,
+    /DEFAULT_PROMPT_EXPANSION[\s\S]*?introduction:\s*true[\s\S]*?"method-overview":\s*true[\s\S]*?"technical-detail":\s*true/,
+  );
   assert.match(figureComponent, /ACCENT_COLOR_COUNTS\.map/);
   assert.match(figureComponent, /FONT_SIZE_LEVELS\.map/);
   assert.doesNotMatch(figureComponent, /selectedPromptIds\.map/);

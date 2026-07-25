@@ -15,7 +15,8 @@ export type FigureAspectRatioId =
   | "landscape-4-3"
   | "portrait-3-4"
   | "landscape-16-9"
-  | "portrait-9-16";
+  | "portrait-9-16"
+  | "custom";
 
 export type FigureLineColorMode = "neutral" | "semantic";
 export type FigureAccentColorCount = 1 | 2 | 3;
@@ -25,6 +26,8 @@ export interface FigurePreferences {
   promptId: FigurePromptId;
   placementId: FigurePlacementId;
   aspectRatioId: FigureAspectRatioId;
+  customAspectWidth: number;
+  customAspectHeight: number;
   styleId: FigureStyleId;
   lineColorMode: FigureLineColorMode;
   accentColorCount: FigureAccentColorCount;
@@ -59,6 +62,8 @@ export const DEFAULT_FIGURE_PREFERENCES: FigurePreferences = {
   promptId: "introduction",
   placementId: "single-column",
   aspectRatioId: "landscape-4-3",
+  customAspectWidth: 5,
+  customAspectHeight: 4,
   styleId: "conference-minimal",
   lineColorMode: "neutral",
   accentColorCount: 1,
@@ -171,11 +176,26 @@ export const FIGURE_ASPECT_RATIOS = {
       en: "Use a fixed portrait 9:16 canvas only when a deep vertical flow genuinely requires it, and tightly control overall height and label count. Do not rotate text or generate another ratio and crop afterward.",
     },
   },
+  custom: {
+    label: {
+      zh: "自定义",
+      en: "Custom",
+    },
+    ratio: null,
+    shortDescription: {
+      zh: "输入任意宽高比例",
+      en: "Enter any width-to-height ratio",
+    },
+    directive: {
+      zh: "画布固定为当前设置的自定义宽高比，从一开始按该比例组织内容，不得先生成其他比例再裁切。",
+      en: "Use the current custom width-to-height ratio as the fixed canvas. Compose for it from the start; do not generate another ratio and crop afterward.",
+    },
+  },
 } as const satisfies Record<
   FigureAspectRatioId,
   {
     label: Record<Language, string>;
-    ratio: string;
+    ratio: string | null;
     shortDescription: Record<Language, string>;
     directive: Record<Language, string>;
   }
@@ -184,6 +204,27 @@ export const FIGURE_ASPECT_RATIOS = {
 export const FIGURE_ASPECT_RATIO_IDS = Object.keys(
   FIGURE_ASPECT_RATIOS,
 ) as FigureAspectRatioId[];
+
+function greatestCommonDivisor(left: number, right: number) {
+  let a = Math.max(1, Math.round(Math.abs(left)));
+  let b = Math.max(1, Math.round(Math.abs(right)));
+
+  while (b !== 0) {
+    [a, b] = [b, a % b];
+  }
+
+  return a;
+}
+
+export function getFigureAspectRatio(preferences: FigurePreferences) {
+  const presetRatio = FIGURE_ASPECT_RATIOS[preferences.aspectRatioId].ratio;
+  if (presetRatio) return presetRatio;
+
+  const width = Math.max(1, Math.round(preferences.customAspectWidth));
+  const height = Math.max(1, Math.round(preferences.customAspectHeight));
+  const divisor = greatestCommonDivisor(width, height);
+  return `${width / divisor}:${height / divisor}`;
+}
 
 export const FIGURE_STYLES = {
   "conference-minimal": {
@@ -459,8 +500,12 @@ export const FIGURE_COPY = {
     canvas: "论文占栏与画布",
     paperPlacement: "论文占栏",
     aspectRatio: "画布比例",
+    customRatioWidth: "比例宽度",
+    customRatioHeight: "比例高度",
+    customRatioCurrent: "当前比例",
+    customRatioHint: "填写比例数值而非像素；系统会自动约分并写入 Prompt。",
     canvasHint:
-      "占栏决定图在双栏论文中的宽度；画布提供横版 4:3、竖版 3:4、横版 16:9 和竖版 9:16。最终仍以目标 venue 模板为准。",
+      "占栏决定图在双栏论文中的宽度；可选择常用画布或自定义宽高比。最终仍以目标 venue 模板为准。",
     recommended: "推荐",
     visualStyle: "视觉风格",
     visualStyleHint:
@@ -534,8 +579,13 @@ export const FIGURE_COPY = {
     canvas: "Paper placement & canvas",
     paperPlacement: "Paper placement",
     aspectRatio: "Canvas ratio",
+    customRatioWidth: "Ratio width",
+    customRatioHeight: "Ratio height",
+    customRatioCurrent: "Current ratio",
+    customRatioHint:
+      "Enter ratio values, not pixels. The ratio is reduced automatically and written into the prompt.",
     canvasHint:
-      "Placement controls paper width. Choose landscape 4:3, portrait 3:4, landscape 16:9, or portrait 9:16 for the canvas. Follow the target venue template when it differs.",
+      "Placement controls paper width. Choose a common canvas or enter a custom width-to-height ratio. Follow the target venue template when it differs.",
     recommended: "Recommended",
     visualStyle: "Visual style",
     visualStyleHint:
@@ -613,6 +663,7 @@ export function buildFigurePrompt(
   const style = FIGURE_STYLES[preferences.styleId];
   const placement = FIGURE_PLACEMENTS[preferences.placementId];
   const aspectRatio = FIGURE_ASPECT_RATIOS[preferences.aspectRatioId];
+  const selectedAspectRatio = getFigureAspectRatio(preferences);
 
   if (language === "zh") {
     const lineColorRule =
@@ -656,7 +707,7 @@ ${buildList(spec.exclusions.zh)}
 - 不得发明论文中不存在的模块、数据流、公式、指标、实验结果或因果关系。证据不足的内容先询问，不要补全。
 - 论文占栏：${placement.directive.zh}
 - 画布比例：${aspectRatio.directive.zh}
-- 生成前先把图像工具的比例选择器设为 ${aspectRatio.ratio}；若当前界面没有比例选择器，也必须在生成指令中严格执行该比例。画布比例描述的是导出图片本身，不得在图中绘制论文栏线。
+- 生成前先把图像工具的比例选择器设为 ${selectedAspectRatio}；若当前界面没有该预设或比例选择器，也必须在生成指令中严格执行 ${selectedAspectRatio}（宽:高）。画布比例描述的是导出图片本身，不得在图中绘制论文栏线。
 - 若目标 venue 的正式模板另有尺寸要求，以正式模板为准，但必须重新排版以保持当前占栏意图，不得直接压缩文字或线条。
 - 视觉风格：${style.directive.zh}
 - 线条颜色：${lineColorRule}
@@ -674,7 +725,7 @@ ${buildList(spec.exclusions.zh)}
 3. 生成后逐项核对图片中的术语、拼写、结构、箭头语义和缩小后的可读性；如有错误，只修正受影响部分，不改变已确认的其余设计。
 
 ## 输出
-生成一个画布比例严格为 ${aspectRatio.ratio}、可直接下载的高分辨率 PNG。不要生成联系表，不要添加水印、作者信息、论文完整标题或图片 caption。图片之后只附一行核对结果。`;
+生成一个画布比例严格为 ${selectedAspectRatio}、可直接下载的高分辨率 PNG。不要生成联系表，不要添加水印、作者信息、论文完整标题或图片 caption。图片之后只附一行核对结果。`;
   }
 
   const lineColorRule =
@@ -718,7 +769,7 @@ ${buildList(spec.exclusions.en)}
 - Do not invent modules, data flows, equations, metrics, experimental results, or causal relationships that are absent from the paper. Ask before visualizing anything unsupported.
 - Paper placement: ${placement.directive.en}
 - Canvas ratio: ${aspectRatio.directive.en}
-- Before generation, set the image tool’s aspect-ratio picker to ${aspectRatio.ratio}. If the current interface has no ratio picker, enforce that ratio directly in the generation instruction. The ratio describes the exported image canvas; do not draw paper column guides inside the figure.
+- Before generation, set the image tool’s aspect-ratio picker to ${selectedAspectRatio}. If the current interface does not offer that preset or has no ratio picker, enforce ${selectedAspectRatio} (width:height) directly in the generation instruction. The ratio describes the exported image canvas; do not draw paper column guides inside the figure.
 - If the target venue’s official template specifies a different size, follow it and reflow the design while preserving the selected placement intent. Never solve the mismatch by compressing text or lines.
 - Visual style: ${style.directive.en}
 - Line colors: ${lineColorRule}
@@ -736,5 +787,5 @@ ${buildList(spec.exclusions.en)}
 3. Audit terminology, spelling, structure, arrow semantics, and legibility at reduced size. If anything is wrong, correct only the affected part while preserving the rest of the approved design.
 
 ## Output
-Generate one downloadable high-resolution PNG with an exact ${aspectRatio.ratio} canvas. Do not create a contact sheet or add watermarks, author information, the full paper title, or the figure caption inside the image. After the image, provide only a one-line audit result.`;
+Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas. Do not create a contact sheet or add watermarks, author information, the full paper title, or the figure caption inside the image. After the image, provide only a one-line audit result.`;
 }

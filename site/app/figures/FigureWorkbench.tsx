@@ -17,6 +17,7 @@ import {
   FIGURE_STYLE_DEFAULTS,
   FIGURE_STYLE_IDS,
   FIGURE_STYLES,
+  getFigureAspectRatio,
   type FigurePreferences,
   type FigurePromptId,
 } from "./config";
@@ -31,9 +32,9 @@ const DEFAULT_PROMPT_LANGUAGES: PromptLanguages = {
 };
 
 const DEFAULT_PROMPT_EXPANSION: PromptExpansion = {
-  introduction: false,
-  "method-overview": false,
-  "technical-detail": false,
+  introduction: true,
+  "method-overview": true,
+  "technical-detail": true,
 };
 
 const ACCENT_COLOR_COUNTS = [1, 2, 3] as const;
@@ -91,6 +92,7 @@ export default function FigureWorkbench() {
   const selectedPlacement = FIGURE_PLACEMENTS[preferences.placementId];
   const selectedAspectRatio =
     FIGURE_ASPECT_RATIOS[preferences.aspectRatioId];
+  const selectedAspectRatioValue = getFigureAspectRatio(preferences);
   const selectedStyle = FIGURE_STYLES[preferences.styleId];
   const visualSummary =
     uiLanguage === "zh"
@@ -357,7 +359,9 @@ export default function FigureWorkbench() {
                             aria-hidden="true"
                           >
                             <i />
-                            <b>{aspectRatio.ratio}</b>
+                            <b>
+                              {aspectRatio.ratio ?? selectedAspectRatioValue}
+                            </b>
                           </span>
                           <span>
                             <span className="figure-option-heading">
@@ -374,6 +378,65 @@ export default function FigureWorkbench() {
                       );
                     })}
                   </div>
+                  {preferences.aspectRatioId === "custom" && (
+                    <div className="figure-custom-ratio">
+                      <label>
+                        <span>{copy.customRatioWidth}</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="100"
+                          step="1"
+                          inputMode="numeric"
+                          value={preferences.customAspectWidth}
+                          onChange={(event) =>
+                            updatePreferences((current) => ({
+                              ...current,
+                              aspectRatioId: "custom",
+                              customAspectWidth: Math.max(
+                                1,
+                                Math.min(
+                                  100,
+                                  Number.parseInt(event.target.value, 10) || 1,
+                                ),
+                              ),
+                            }))
+                          }
+                        />
+                      </label>
+                      <span aria-hidden="true">:</span>
+                      <label>
+                        <span>{copy.customRatioHeight}</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="100"
+                          step="1"
+                          inputMode="numeric"
+                          value={preferences.customAspectHeight}
+                          onChange={(event) =>
+                            updatePreferences((current) => ({
+                              ...current,
+                              aspectRatioId: "custom",
+                              customAspectHeight: Math.max(
+                                1,
+                                Math.min(
+                                  100,
+                                  Number.parseInt(event.target.value, 10) || 1,
+                                ),
+                              ),
+                            }))
+                          }
+                        />
+                      </label>
+                      <p>
+                        <strong>
+                          {copy.customRatioCurrent} {selectedAspectRatioValue}
+                        </strong>
+                        <small>{copy.customRatioHint}</small>
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
               <small>{copy.canvasHint}</small>
@@ -669,7 +732,10 @@ export default function FigureWorkbench() {
               <small>{copy.selectedCanvas}</small>
               <strong>
                 {selectedPlacement.label[uiLanguage]} ·{" "}
-                {selectedAspectRatio.label[uiLanguage]}
+                {selectedAspectRatio.label[uiLanguage]}{" "}
+                {preferences.aspectRatioId === "custom"
+                  ? selectedAspectRatioValue
+                  : ""}
               </strong>
             </span>
             <span>
@@ -705,7 +771,7 @@ export default function FigureWorkbench() {
                     <span className="placeholder-tag">
                       {activePromptSpec.tag[uiLanguage]} ·{" "}
                       {selectedPlacement.label[uiLanguage]} ·{" "}
-                      {selectedAspectRatio.ratio}
+                      {selectedAspectRatioValue}
                     </span>
                     <h3>{activePromptSpec.label[uiLanguage]}</h3>
                     <p>{activePromptSpec.purpose[uiLanguage]}</p>
