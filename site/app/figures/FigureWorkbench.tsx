@@ -6,12 +6,14 @@ import { PRODUCT_CONFIG, type Language } from "../config";
 import {
   buildFigurePrompt,
   DEFAULT_FIGURE_PREFERENCES,
+  FIGURE_CANVAS_PRESET_IDS,
+  FIGURE_CANVAS_PRESETS,
   FIGURE_COPY,
+  FIGURE_DEFAULT_CANVAS,
   FIGURE_PROMPT_ORDER,
   FIGURE_PROMPTS,
   FIGURE_STYLE_IDS,
   FIGURE_STYLES,
-  isFigurePromptSelected,
   type FigurePreferences,
   type FigurePromptId,
 } from "./config";
@@ -48,28 +50,6 @@ async function writeClipboard(text: string) {
   if (!copied) throw new Error("Clipboard unavailable");
 }
 
-function togglePromptPreference(
-  promptId: FigurePromptId,
-  current: FigurePreferences,
-): FigurePreferences {
-  if (promptId === "introduction") {
-    return {
-      ...current,
-      includeIntroductionFigure: !current.includeIntroductionFigure,
-    };
-  }
-  if (promptId === "method-overview") {
-    return {
-      ...current,
-      includeMethodOverview: !current.includeMethodOverview,
-    };
-  }
-  return {
-    ...current,
-    includeTechnicalDetailFigure: !current.includeTechnicalDetailFigure,
-  };
-}
-
 export default function FigureWorkbench() {
   const [uiLanguage, setUiLanguage] = useState<Language>(
     PRODUCT_CONFIG.defaultLanguage,
@@ -89,9 +69,20 @@ export default function FigureWorkbench() {
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const copy = FIGURE_COPY[uiLanguage];
-  const selectedPromptIds = FIGURE_PROMPT_ORDER.filter((promptId) =>
-    isFigurePromptSelected(promptId, preferences),
+  const activePromptId = preferences.promptId;
+  const activePromptSpec = FIGURE_PROMPTS[activePromptId];
+  const activePromptLanguage = promptLanguages[activePromptId];
+  const activePrompt = buildFigurePrompt(
+    activePromptId,
+    preferences,
+    activePromptLanguage,
   );
+  const activePromptExpanded = expandedPrompts[activePromptId];
+  const activePromptCopied = copiedPrompt === activePromptId;
+  const promptNextLanguage =
+    activePromptLanguage === "zh" ? "English" : "中文";
+  const promptContentId = `figure-prompt-${activePromptId}`;
+  const selectedCanvas = FIGURE_CANVAS_PRESETS[preferences.canvasPresetId];
   const selectedStyle = FIGURE_STYLES[preferences.styleId];
 
   useEffect(() => {
@@ -114,16 +105,14 @@ export default function FigureWorkbench() {
     setCopyError(false);
   }
 
-  function toggleFigurePrompt(promptId: FigurePromptId) {
+  function selectFigurePrompt(promptId: FigurePromptId) {
     updatePreferences((current) => {
-      const selectedCount = FIGURE_PROMPT_ORDER.filter((id) =>
-        isFigurePromptSelected(id, current),
-      ).length;
-
-      if (isFigurePromptSelected(promptId, current) && selectedCount === 1) {
-        return current;
-      }
-      return togglePromptPreference(promptId, current);
+      if (current.promptId === promptId) return current;
+      return {
+        ...current,
+        promptId,
+        canvasPresetId: FIGURE_DEFAULT_CANVAS[promptId],
+      };
     });
   }
 
@@ -223,22 +212,26 @@ export default function FigureWorkbench() {
                 <span className="control-index">02</span>
                 {copy.figureTasks}
               </legend>
-              <div className="figure-task-list">
+              <div
+                className="figure-task-list"
+                role="radiogroup"
+                aria-label={copy.figureTasks}
+              >
                 {FIGURE_PROMPT_ORDER.map((promptId) => {
                   const promptSpec = FIGURE_PROMPTS[promptId];
-                  const active = isFigurePromptSelected(promptId, preferences);
+                  const active = preferences.promptId === promptId;
 
                   return (
                     <button
                       type="button"
-                      role="switch"
+                      role="radio"
                       aria-checked={active}
                       className={active ? "active" : ""}
                       key={promptId}
-                      onClick={() => toggleFigurePrompt(promptId)}
+                      onClick={() => selectFigurePrompt(promptId)}
                     >
                       <span className="figure-task-marker" aria-hidden="true">
-                        {active ? "✓" : ""}
+                        <i />
                       </span>
                       <span>
                         <strong>{promptSpec.label[uiLanguage]}</strong>
@@ -251,9 +244,65 @@ export default function FigureWorkbench() {
               <small>{copy.figureTasksHint}</small>
             </fieldset>
 
-            <fieldset className="figure-control-card figure-style-control">
+            <fieldset className="figure-control-card figure-canvas-control">
               <legend>
                 <span className="control-index">03</span>
+                {copy.canvas}
+              </legend>
+              <div
+                className="figure-canvas-options"
+                role="radiogroup"
+                aria-label={copy.canvas}
+              >
+                {FIGURE_CANVAS_PRESET_IDS.map((canvasPresetId) => {
+                  const canvas = FIGURE_CANVAS_PRESETS[canvasPresetId];
+                  const active =
+                    preferences.canvasPresetId === canvasPresetId;
+                  const recommended =
+                    FIGURE_DEFAULT_CANVAS[preferences.promptId] ===
+                    canvasPresetId;
+
+                  return (
+                    <button
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      className={active ? "active" : ""}
+                      key={canvasPresetId}
+                      onClick={() =>
+                        updatePreferences((current) => ({
+                          ...current,
+                          canvasPresetId,
+                        }))
+                      }
+                    >
+                      <span
+                        className={`figure-canvas-sample ${canvasPresetId}`}
+                        aria-hidden="true"
+                      >
+                        <i />
+                        <b>{canvas.ratio}</b>
+                      </span>
+                      <span>
+                        <span className="figure-option-heading">
+                          <strong>{canvas.label[uiLanguage]}</strong>
+                          {recommended && <em>{copy.recommended}</em>}
+                        </span>
+                        <small>
+                          {canvas.placement[uiLanguage]} ·{" "}
+                          {canvas.shortDescription[uiLanguage]}
+                        </small>
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+              <small>{copy.canvasHint}</small>
+            </fieldset>
+
+            <fieldset className="figure-control-card figure-style-control">
+              <legend>
+                <span className="control-index">04</span>
                 {copy.visualStyle}
               </legend>
               <div className="figure-style-options">
@@ -297,7 +346,7 @@ export default function FigureWorkbench() {
 
             <div className="figure-control-card figure-policy-control">
               <div className="figure-control-title">
-                <span className="control-index">04</span>
+                <span className="control-index">05</span>
                 <strong>{copy.semanticIcons}</strong>
               </div>
               <button
@@ -332,7 +381,7 @@ export default function FigureWorkbench() {
 
             <div className="figure-control-card figure-policy-control">
               <div className="figure-control-title">
-                <span className="control-index">05</span>
+                <span className="control-index">06</span>
                 <strong>{copy.largeTitle}</strong>
               </div>
               <button
@@ -378,9 +427,13 @@ export default function FigureWorkbench() {
 
           <div className="figure-prompt-summary">
             <span>
-              <small>{copy.selectedPrompts}</small>
+              <small>{copy.currentPrompt}</small>
+              <strong>{activePromptSpec.label[uiLanguage]}</strong>
+            </span>
+            <span>
+              <small>{copy.selectedCanvas}</small>
               <strong>
-                {selectedPromptIds.length} {copy.promptUnit}
+                {selectedCanvas.label[uiLanguage]} · {selectedCanvas.ratio}
               </strong>
             </span>
             <span>
@@ -400,83 +453,74 @@ export default function FigureWorkbench() {
           )}
 
           <div className="figure-prompt-list">
-            {selectedPromptIds.map((promptId) => {
-              const promptSpec = FIGURE_PROMPTS[promptId];
-              const promptLanguage = promptLanguages[promptId];
-              const prompt = buildFigurePrompt(
-                promptId,
-                preferences,
-                promptLanguage,
-              );
-              const expanded = expandedPrompts[promptId];
-              const copied = copiedPrompt === promptId;
-              const promptNextLanguage =
-                promptLanguage === "zh" ? "English" : "中文";
-              const promptContentId = `figure-prompt-${promptId}`;
-
-              return (
-                <article
-                  className={`prompt-card ${expanded ? "expanded" : ""}`}
-                  key={promptId}
-                >
-                  <div className="prompt-number" aria-hidden="true">
-                    <span>{promptSpec.number}</span>
-                    <i />
+            <article
+              className={`prompt-card ${
+                activePromptExpanded ? "expanded" : ""
+              }`}
+              key={activePromptId}
+            >
+              <div className="prompt-number" aria-hidden="true">
+                <span>{activePromptSpec.number}</span>
+                <i />
+              </div>
+              <div className="prompt-card-main">
+                <div className="prompt-card-header">
+                  <div>
+                    <span className="placeholder-tag">
+                      {activePromptSpec.tag[uiLanguage]} ·{" "}
+                      {selectedCanvas.label[uiLanguage]}{" "}
+                      {selectedCanvas.ratio}
+                    </span>
+                    <h3>{activePromptSpec.label[uiLanguage]}</h3>
+                    <p>{activePromptSpec.purpose[uiLanguage]}</p>
                   </div>
-                  <div className="prompt-card-main">
-                    <div className="prompt-card-header">
-                      <div>
-                        <span className="placeholder-tag">
-                          {promptSpec.tag[uiLanguage]} · {copy.independentPrompt}
-                        </span>
-                        <h3>{promptSpec.label[uiLanguage]}</h3>
-                        <p>{promptSpec.purpose[uiLanguage]}</p>
-                      </div>
-                      <div className="prompt-card-actions">
-                        <button
-                          className="prompt-language-button"
-                          type="button"
-                          aria-label={`${copy.switchPromptLanguage}：${promptNextLanguage}`}
-                          onClick={() => togglePromptLanguage(promptId)}
-                        >
-                          {promptNextLanguage}
-                        </button>
-                        <button
-                          className={`copy-button ${copied ? "copied" : ""}`}
-                          type="button"
-                          onClick={() => copyPrompt(promptId)}
-                        >
-                          <span aria-hidden="true">{copied ? "✓" : "⧉"}</span>
-                          {copied ? copy.copied : copy.copy}
-                        </button>
-                        <button
-                          className="expand-button"
-                          type="button"
-                          aria-expanded={expanded}
-                          aria-controls={promptContentId}
-                          onClick={() =>
-                            setExpandedPrompts((current) => ({
-                              ...current,
-                              [promptId]: !current[promptId],
-                            }))
-                          }
-                        >
-                          {expanded ? copy.collapse : copy.expand}
-                          <span aria-hidden="true">
-                            {expanded ? "−" : "+"}
-                          </span>
-                        </button>
-                      </div>
-                    </div>
-                    {expanded && (
-                      <pre className="prompt-content" id={promptContentId}>
-                        {prompt}
-                      </pre>
-                    )}
+                  <div className="prompt-card-actions">
+                    <button
+                      className="prompt-language-button"
+                      type="button"
+                      aria-label={`${copy.switchPromptLanguage}：${promptNextLanguage}`}
+                      onClick={() => togglePromptLanguage(activePromptId)}
+                    >
+                      {promptNextLanguage}
+                    </button>
+                    <button
+                      className={`copy-button ${
+                        activePromptCopied ? "copied" : ""
+                      }`}
+                      type="button"
+                      onClick={() => copyPrompt(activePromptId)}
+                    >
+                      <span aria-hidden="true">
+                        {activePromptCopied ? "✓" : "⧉"}
+                      </span>
+                      {activePromptCopied ? copy.copied : copy.copy}
+                    </button>
+                    <button
+                      className="expand-button"
+                      type="button"
+                      aria-expanded={activePromptExpanded}
+                      aria-controls={promptContentId}
+                      onClick={() =>
+                        setExpandedPrompts((current) => ({
+                          ...current,
+                          [activePromptId]: !current[activePromptId],
+                        }))
+                      }
+                    >
+                      {activePromptExpanded ? copy.collapse : copy.expand}
+                      <span aria-hidden="true">
+                        {activePromptExpanded ? "−" : "+"}
+                      </span>
+                    </button>
                   </div>
-                </article>
-              );
-            })}
+                </div>
+                {activePromptExpanded && (
+                  <pre className="prompt-content" id={promptContentId}>
+                    {activePrompt}
+                  </pre>
+                )}
+              </div>
+            </article>
           </div>
 
           <span className="sr-only" role="status" aria-live="polite">

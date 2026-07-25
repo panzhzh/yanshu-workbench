@@ -10,23 +10,105 @@ export type FigurePromptId =
   | "method-overview"
   | "technical-detail";
 
+export type FigureCanvasPresetId =
+  | "single-column-compact"
+  | "single-column-landscape"
+  | "double-column-wide";
+
 export interface FigurePreferences {
-  includeIntroductionFigure: boolean;
-  includeMethodOverview: boolean;
-  includeTechnicalDetailFigure: boolean;
+  promptId: FigurePromptId;
+  canvasPresetId: FigureCanvasPresetId;
   styleId: FigureStyleId;
   allowSemanticIcons: boolean;
   includeLargeTitle: boolean;
 }
 
+export const FIGURE_DEFAULT_CANVAS = {
+  introduction: "single-column-compact",
+  "method-overview": "double-column-wide",
+  "technical-detail": "single-column-landscape",
+} as const satisfies Record<FigurePromptId, FigureCanvasPresetId>;
+
 export const DEFAULT_FIGURE_PREFERENCES: FigurePreferences = {
-  includeIntroductionFigure: true,
-  includeMethodOverview: true,
-  includeTechnicalDetailFigure: true,
+  promptId: "introduction",
+  canvasPresetId: "single-column-compact",
   styleId: "conference-minimal",
   allowSemanticIcons: true,
   includeLargeTitle: false,
 };
+
+export const FIGURE_CANVAS_PRESETS = {
+  "single-column-compact": {
+    label: {
+      zh: "单栏紧凑",
+      en: "Single-column compact",
+    },
+    ratio: "4:3",
+    placement: {
+      zh: "双栏论文 · 单栏宽",
+      en: "Two-column paper · one column",
+    },
+    shortDescription: {
+      zh: "适合引言图与紧凑的问题叙事",
+      en: "Best for introductions and compact problem narratives",
+    },
+    directive: {
+      zh: "以双栏论文中的单栏宽度为最终展示尺寸，画布宽高比固定为 4:3。采用紧凑构图，主要视觉区域不超过三个，避免依赖很长的横向流水线；缩放到最终单栏宽度后，所有标签仍须清楚可读。",
+      en: "Target the width of one column in a two-column paper and use a fixed 4:3 canvas aspect ratio. Keep the composition compact with no more than three major visual regions, avoid a long horizontal pipeline, and ensure every label remains legible at final single-column size.",
+    },
+  },
+  "single-column-landscape": {
+    label: {
+      zh: "单栏横向",
+      en: "Single-column landscape",
+    },
+    ratio: "3:2",
+    placement: {
+      zh: "双栏论文 · 单栏宽",
+      en: "Two-column paper · one column",
+    },
+    shortDescription: {
+      zh: "适合一项局部机制或短流程",
+      en: "Best for one local mechanism or a short flow",
+    },
+    directive: {
+      zh: "以双栏论文中的单栏宽度为最终展示尺寸，画布宽高比固定为 3:2。围绕一项局部机制组织紧凑的横向阅读路径，不扩展为完整系统总览；缩放到最终单栏宽度后，所有标签仍须清楚可读。",
+      en: "Target the width of one column in a two-column paper and use a fixed 3:2 canvas aspect ratio. Build a compact landscape reading path around one local mechanism without expanding it into a full-system overview, and ensure every label remains legible at final single-column size.",
+    },
+  },
+  "double-column-wide": {
+    label: {
+      zh: "双栏横向",
+      en: "Double-column wide",
+    },
+    ratio: "2:1",
+    placement: {
+      zh: "双栏论文 · 跨双栏宽",
+      en: "Two-column paper · span both columns",
+    },
+    shortDescription: {
+      zh: "适合方法总览与完整主流程",
+      en: "Best for method overviews and complete main flows",
+    },
+    directive: {
+      zh: "以双栏论文中横跨两栏的通栏宽度为最终展示尺寸，画布宽高比固定为 2:1。优先使用清楚的横向主路径，减少纵向堆叠和过深层级；缩放到最终通栏宽度后，所有标签仍须清楚可读。",
+      en: "Target a full-width figure spanning both columns of a two-column paper and use a fixed 2:1 canvas aspect ratio. Prefer a clear horizontal main path, minimize vertical stacking and deep hierarchy, and ensure every label remains legible at final double-column size.",
+    },
+  },
+} as const satisfies Record<
+  FigureCanvasPresetId,
+  {
+    label: Record<Language, string>;
+    ratio: string;
+    placement: Record<Language, string>;
+    shortDescription: Record<Language, string>;
+    directive: Record<Language, string>;
+  }
+>;
+
+export const FIGURE_CANVAS_PRESET_IDS = Object.keys(
+  FIGURE_CANVAS_PRESETS,
+) as FigureCanvasPresetId[];
 
 export const FIGURE_STYLES = {
   "conference-minimal": {
@@ -277,14 +359,20 @@ export const FIGURE_COPY = {
     subtitle: "选择什么，就得到什么独立 Prompt；一次只让 GPT 生成一张图。",
     preset: "论文取证 → 单图方案 → 确认后生成",
     reset: "恢复默认配置",
-    resetHint: "恢复默认图型、风格、语义图标和标题设置；保留当前语言。",
+    resetHint:
+      "恢复默认图型、推荐画布、风格、语义图标和标题设置；保留当前语言。",
     inputTitle: "论文材料",
     inputSource: "论文源文件",
     inputPdf: "最新编译稿",
     inputHint:
       "复制任一 Prompt 后，在同一个 GPT 对话中上传 .tex 与 .pdf；本站不读取或保存论文。",
     figureTasks: "选择绘图 Prompt",
-    figureTasksHint: "选择什么，就显示什么 Prompt；至少保留一种。",
+    figureTasksHint:
+      "三选一；切换图型时会载入该图型的推荐画布，之后仍可手动修改。",
+    canvas: "版面与画布",
+    canvasHint:
+      "占栏方式决定图在双栏论文中的宽度，比例决定导出图片的形状；均为通用预设，最终以目标 venue 模板为准。",
+    recommended: "推荐",
     visualStyle: "视觉风格",
     visualStyleHint: "三种风格均以论文可读性为先，不使用花哨 AI 视觉。",
     semanticIcons: "语义图标",
@@ -299,10 +387,10 @@ export const FIGURE_COPY = {
     largeTitleOnHint: "仅允许一个来自论文术语的简短标题。",
     largeTitleOffHint: "推荐设置；只保留必要的 panel 标题或步骤标签。",
     promptEyebrow: "INDEPENDENT FIGURE PROMPTS",
-    promptTitle: "独立绘图 Prompt",
-    promptBody: "每张卡片都是一项完整的单图任务。建议逐个复制，每次只生成一张。",
-    selectedPrompts: "已选 Prompt",
-    promptUnit: "份",
+    promptTitle: "当前绘图 Prompt",
+    promptBody: "当前只显示一项完整的单图任务；切换上方图型即可替换。",
+    currentPrompt: "当前图型",
+    selectedCanvas: "版面与画布",
     selectedStyle: "当前风格",
     generationMode: "生成方式",
     onePromptOneFigure: "1 Prompt · 1 张图",
@@ -322,15 +410,19 @@ export const FIGURE_COPY = {
     preset: "Read evidence → plan one figure → generate after approval",
     reset: "Restore defaults",
     resetHint:
-      "Restores the default figure set, style, semantic-icon, and title settings while keeping the current language.",
+      "Restores the default figure type, recommended canvas, style, semantic-icon, and title settings while keeping the current language.",
     inputTitle: "Paper materials",
     inputSource: "Paper source",
     inputPdf: "Latest compiled paper",
     inputHint:
       "After copying any prompt, upload the .tex and .pdf in the same GPT conversation. This site never reads or stores the paper.",
-    figureTasks: "Select figure prompts",
+    figureTasks: "Select a figure prompt",
     figureTasksHint:
-      "Only selected prompts appear below. Keep at least one selected.",
+      "Choose one of three. Changing the figure type loads its recommended canvas, which you can then override.",
+    canvas: "Placement & canvas",
+    canvasHint:
+      "Placement controls paper width; aspect ratio controls the exported canvas shape. These are general presets—follow the target venue template when it differs.",
+    recommended: "Recommended",
     visualStyle: "Visual style",
     visualStyleHint:
       "All three styles prioritize paper readability and avoid flashy AI aesthetics.",
@@ -349,11 +441,11 @@ export const FIGURE_COPY = {
     largeTitleOffHint:
       "Recommended; retain only necessary panel headings or step labels.",
     promptEyebrow: "INDEPENDENT FIGURE PROMPTS",
-    promptTitle: "Independent figure prompts",
+    promptTitle: "Current figure prompt",
     promptBody:
-      "Each card is a complete single-figure task. Copy them separately and generate one image at a time.",
-    selectedPrompts: "Selected prompts",
-    promptUnit: "prompt(s)",
+      "Only one complete single-figure task is shown. Change the figure type above to replace it.",
+    currentPrompt: "Current figure",
+    selectedCanvas: "Placement & canvas",
     selectedStyle: "Current style",
     generationMode: "Generation mode",
     onePromptOneFigure: "1 prompt · 1 figure",
@@ -368,19 +460,6 @@ export const FIGURE_COPY = {
   },
 } as const;
 
-export function isFigurePromptSelected(
-  promptId: FigurePromptId,
-  preferences: FigurePreferences,
-) {
-  if (promptId === "introduction") {
-    return preferences.includeIntroductionFigure;
-  }
-  if (promptId === "method-overview") {
-    return preferences.includeMethodOverview;
-  }
-  return preferences.includeTechnicalDetailFigure;
-}
-
 function buildList(items: readonly string[]) {
   return items.map((item) => `- ${item}`).join("\n");
 }
@@ -392,6 +471,7 @@ export function buildFigurePrompt(
 ) {
   const spec = FIGURE_PROMPTS[promptId];
   const style = FIGURE_STYLES[preferences.styleId];
+  const canvas = FIGURE_CANVAS_PRESETS[preferences.canvasPresetId];
 
   if (language === "zh") {
     const iconRule = preferences.allowSemanticIcons
@@ -421,14 +501,16 @@ ${buildList(spec.exclusions.zh)}
 - 图中所有文字——包括标题、模块名、箭头标签、图例、缩写和变量符号——必须与论文中的术语完全一致，保留原有大小写、连字符和符号。不得翻译、改写或自造近义词；只能使用论文已经定义的缩写。
 - 规划时把拟出现在图中的每个标签逐项放在引号中；冷门方法名或自造词须逐字符核对，但最终图片中显示正常写法。若文字放不下，调整版式，不得擅自缩写。
 - 不得发明论文中不存在的模块、数据流、公式、指标、实验结果或因果关系。证据不足的内容先询问，不要补全。
+- 论文版面与画布：${canvas.directive.zh}
+- 画布比例描述的是导出图片本身，不是在图中绘制论文栏线。若目标 venue 的正式模板另有尺寸要求，以正式模板为准，但应保持当前占栏意图并在接近所选比例下重新排版。
 - 视觉风格：${style.directive.zh}
 - 语义图标：${iconRule}
 - 大标题：${titleRule}
-- 面向论文最终单双栏尺寸设计；文字短而清晰，不写段落。颜色必须有明确语义，重要区分不能只依赖颜色，还应结合形状、线型或直接标签。
-- 根据内容和目标栏宽选择横向或纵向布局，保持一条清楚的阅读路径；避免垂直文字、交叉箭头和无意义留白。
+- 文字短而清晰，不写段落。颜色必须有明确语义，重要区分不能只依赖颜色，还应结合形状、线型或直接标签。
+- 严格服从所选画布与目标栏宽，保持一条清楚的阅读路径；避免垂直文字、交叉箭头和无意义留白。
 
 ## 工作顺序
-1. 先输出不超过 6 行的单图方案：唯一主旨、构图与阅读顺序、拟使用的全部精确标签，以及任何证据不足之处。此时不要生成图片。
+1. 先输出不超过 6 行的单图方案：唯一主旨、占栏方式与画布比例、构图与阅读顺序、拟使用的全部精确标签，以及任何证据不足之处。此时不要生成图片。
 2. 等我确认方案后，只生成这一张图，不提供备选版本或第二张图。
 3. 生成后逐项核对图片中的术语、拼写、结构、箭头语义和缩小后的可读性；如有错误，只修正受影响部分，不改变已确认的其余设计。
 
@@ -463,14 +545,16 @@ ${buildList(spec.exclusions.en)}
 - Every piece of in-figure text—including titles, module names, arrow labels, legends, abbreviations, and variable symbols—must exactly match the paper’s terminology, capitalization, hyphenation, and notation. Do not translate, paraphrase, or invent synonyms. Use only abbreviations already defined in the paper.
 - In the plan, place every proposed in-figure label in quotation marks. Check uncommon method names and coined terms character by character, while displaying their normal spelling in the final image. If a label does not fit, revise the layout rather than shortening it.
 - Do not invent modules, data flows, equations, metrics, experimental results, or causal relationships that are absent from the paper. Ask before visualizing anything unsupported.
+- Paper placement and canvas: ${canvas.directive.en}
+- The aspect ratio describes the exported image canvas; do not draw paper column guides inside the figure. If the target venue’s official template specifies a different size, follow that template while preserving the selected placement intent and reflowing the design near the chosen ratio.
 - Visual style: ${style.directive.en}
 - Semantic icons: ${iconRule}
 - Large title: ${titleRule}
-- Design for the paper’s final one- or two-column size. Keep text short and avoid paragraphs. Color must encode meaning, and important distinctions must also use shape, line style, or direct labels rather than color alone.
-- Choose landscape or portrait orientation from the content and target column width. Maintain one clear reading path and avoid vertical text, crossing arrows, and meaningless whitespace.
+- Keep text short and avoid paragraphs. Color must encode meaning, and important distinctions must also use shape, line style, or direct labels rather than color alone.
+- Follow the selected canvas and target column width exactly. Maintain one clear reading path and avoid vertical text, crossing arrows, and meaningless whitespace.
 
 ## Workflow
-1. First provide a single-figure plan in no more than six lines: the one take-home message, composition and reading order, every exact label to be used, and any evidence gap. Do not generate an image yet.
+1. First provide a single-figure plan in no more than six lines: the one take-home message, paper placement and canvas ratio, composition and reading order, every exact label to be used, and any evidence gap. Do not generate an image yet.
 2. After I approve the plan, generate exactly this one image—no alternative design and no second image.
 3. Audit terminology, spelling, structure, arrow semantics, and legibility at reduced size. If anything is wrong, correct only the affected part while preserving the rest of the approved design.
 

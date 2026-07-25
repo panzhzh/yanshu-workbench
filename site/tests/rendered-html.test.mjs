@@ -135,13 +135,23 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /顶会极简线稿/);
   assert.match(html, /结构化技术图/);
   assert.match(html, /轻量学术插画/);
+  assert.match(html, /三选一/);
+  assert.match(html, /版面与画布/);
+  assert.match(html, /单栏紧凑/);
+  assert.match(html, /单栏横向/);
+  assert.match(html, /双栏横向/);
+  assert.match(html, /双栏论文 · 单栏宽/);
+  assert.match(html, /双栏论文 · 跨双栏宽/);
+  assert.match(html, /4:3/);
+  assert.match(html, /3:2/);
+  assert.match(html, /2:1/);
   assert.match(html, /克制使用/);
   assert.match(html, /不使用/);
-  assert.match(html, /独立绘图 Prompt/);
+  assert.match(html, /当前绘图 Prompt/);
   assert.match(html, /1 Prompt · 1 张图/);
   assert.match(html, /问题与意义/);
   assert.match(html, /整体心智地图/);
-  assert.match(html, /唯一关键机制/);
+  assert.equal((html.match(/class="prompt-card(?:\s|")/g) ?? []).length, 1);
   assert.doesNotMatch(html, /上传文件<\/button>/);
 });
 
@@ -496,10 +506,27 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
       readFile(new URL("../app/SiteNavigation.tsx", import.meta.url), "utf8"),
     ]);
 
-  assert.match(figureConfig, /includeIntroductionFigure:\s*true/);
-  assert.match(figureConfig, /includeMethodOverview:\s*true/);
-  assert.match(figureConfig, /includeTechnicalDetailFigure:\s*true/);
+  assert.match(figureConfig, /promptId:\s*"introduction"/);
+  assert.match(figureConfig, /canvasPresetId:\s*"single-column-compact"/);
+  assert.doesNotMatch(
+    figureConfig,
+    /includeIntroductionFigure|includeMethodOverview|includeTechnicalDetailFigure/,
+  );
   assert.doesNotMatch(figureConfig, /technicalFigureCount|TechnicalFigureCount/);
+  assert.match(
+    figureConfig,
+    /introduction:\s*"single-column-compact"/,
+  );
+  assert.match(figureConfig, /"method-overview":\s*"double-column-wide"/);
+  assert.match(
+    figureConfig,
+    /"technical-detail":\s*"single-column-landscape"/,
+  );
+  assert.match(figureConfig, /ratio:\s*"4:3"/);
+  assert.match(figureConfig, /ratio:\s*"3:2"/);
+  assert.match(figureConfig, /ratio:\s*"2:1"/);
+  assert.match(figureConfig, /双栏论文中的单栏宽度/);
+  assert.match(figureConfig, /横跨两栏的通栏宽度/);
   assert.match(figureConfig, /styleId:\s*"conference-minimal"/);
   assert.match(figureConfig, /allowSemanticIcons:\s*true/);
   assert.match(figureConfig, /includeLargeTitle:\s*false/);
@@ -513,11 +540,22 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /整个方法如何组织并运转/);
   assert.match(figureConfig, /最需要视觉解释的一项核心机制/);
   assert.match(figureConfig, /只生成这一张图/);
+  assert.match(figureConfig, /论文版面与画布/);
+  assert.match(figureConfig, /画布比例描述的是导出图片本身/);
+  assert.match(figureConfig, /目标 venue 的正式模板/);
   assert.match(figureConfig, /After I approve the plan, generate exactly this one image/);
-  assert.match(figureComponent, /buildFigurePrompt\(\s*promptId/);
+  assert.match(figureComponent, /buildFigurePrompt\(\s*activePromptId/);
   assert.match(figureComponent, /setPromptLanguages/);
-  assert.match(figureComponent, /selectedPromptIds\.map/);
-  assert.match(figureComponent, /copiedPrompt === promptId/);
+  assert.match(figureComponent, /selectFigurePrompt/);
+  assert.match(
+    figureComponent,
+    /canvasPresetId:\s*FIGURE_DEFAULT_CANVAS\[promptId\]/,
+  );
+  assert.match(figureComponent, /role="radiogroup"/);
+  assert.match(figureComponent, /role="radio"/);
+  assert.match(figureComponent, /FIGURE_CANVAS_PRESET_IDS\.map/);
+  assert.doesNotMatch(figureComponent, /selectedPromptIds\.map/);
+  assert.match(figureComponent, /copiedPrompt === activePromptId/);
   assert.doesNotMatch(figureComponent, /setTechnicalFigureCount/);
   assert.match(figureComponent, /navigator\.clipboard/);
   assert.match(figureComponent, /activePage="figures"/);
