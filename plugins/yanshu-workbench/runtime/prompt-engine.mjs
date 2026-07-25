@@ -2863,6 +2863,55 @@ function buildPrompt(template, context) {
 
 // content/prompts/pluginExport.ts
 var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.4";
+function getReconstructionConfigurationModel() {
+  return {
+    schemaVersion: 1,
+    defaultPaperStyle: PRODUCT_CONFIG.defaultPaperStyle,
+    defaultPromptLanguage: PRODUCT_CONFIG.defaultPromptLanguage,
+    wordCount: PRODUCT_CONFIG.wordCount,
+    paperStyles: Object.fromEntries(
+      Object.entries(PRODUCT_CONFIG.paperStyles).map(([id, style]) => [
+        id,
+        {
+          id: style.id,
+          label: style.label,
+          shortLabel: style.shortLabel,
+          description: style.description,
+          plannerSummary: style.plannerSummary,
+          defaultTargetWords: style.defaultTargetWords,
+          defaultAppendix: style.defaultAppendix,
+          sections: style.sections.map((section) => ({
+            id: section.id,
+            label: section.label,
+            shortLabel: section.shortLabel,
+            description: section.description,
+            ratio: section.ratio
+          }))
+        }
+      ])
+    ),
+    frameworkFigure: {
+      default: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
+      placements: FIGURE_PLACEMENT_IDS.map((id) => ({
+        id,
+        label: FIGURE_PLACEMENTS[id].label,
+        description: FIGURE_PLACEMENTS[id].shortDescription
+      })),
+      aspectRatios: FIGURE_ASPECT_RATIO_IDS.map((id) => ({
+        id,
+        label: FIGURE_ASPECT_RATIOS[id].label,
+        ratio: FIGURE_ASPECT_RATIOS[id].ratio,
+        description: FIGURE_ASPECT_RATIOS[id].shortDescription
+      }))
+    },
+    chatExecution: {
+      default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
+      reasoningPreferences: CHAT_REASONING_PREFERENCE_IDS.map(
+        (id) => CHAT_REASONING_PREFERENCES[id]
+      )
+    }
+  };
+}
 function allocateWords(target, sections) {
   const raw = sections.map((section) => target * section.ratio);
   const allocated = raw.map((value) => Math.floor(value));
@@ -3059,5 +3108,6 @@ function buildReconstructionWorkflow(input = {}) {
 }
 export {
   RECONSTRUCTION_WORKFLOW_VERSION,
-  buildReconstructionWorkflow
+  buildReconstructionWorkflow,
+  getReconstructionConfigurationModel
 };

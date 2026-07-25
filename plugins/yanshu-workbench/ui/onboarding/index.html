@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>YanShu · Paper Reconstruction</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="#main">
+        <span class="brand-mark">研</span>
+        <span>
+          <strong>YanShu</strong>
+          <small>Paper Reconstruction</small>
+        </span>
+      </a>
+      <div class="language-switch" aria-label="Interface language">
+        <button type="button" data-ui-language="zh">中文</button>
+        <button type="button" data-ui-language="en">English</button>
+      </div>
+    </header>
+
+    <main id="main">
+      <section class="page-heading">
+        <p class="eyebrow" data-copy="eyebrow"></p>
+        <h1 data-copy="title"></h1>
+        <p data-copy="subtitle"></p>
+      </section>
+
+      <section class="paper-strip" aria-labelledby="paper-title">
+        <div>
+          <small data-copy="selectedPaper"></small>
+          <strong id="paper-title"></strong>
+          <span id="paper-path"></span>
+        </div>
+        <ul id="input-list"></ul>
+      </section>
+
+      <div class="loading-state" id="loading-state" role="status">
+        <span class="spinner" aria-hidden="true"></span>
+        <span data-copy="loading"></span>
+      </div>
+
+      <form id="configuration-form" hidden>
+        <div class="configuration-layout">
+          <div class="configuration-main">
+            <section class="config-card">
+              <div class="section-title">
+                <span>01</span>
+                <div>
+                  <h2 data-copy="paperType"></h2>
+                  <p data-copy="paperTypeHint"></p>
+                </div>
+              </div>
+              <div class="choice-grid two-columns" id="style-options"></div>
+            </section>
+
+            <section class="config-card">
+              <div class="section-title">
+                <span>02</span>
+                <div>
+                  <h2 data-copy="lengthTitle"></h2>
+                  <p data-copy="lengthHint"></p>
+                </div>
+              </div>
+
+              <label class="switch-row">
+                <span>
+                  <strong data-copy="useWordLimit"></strong>
+                  <small data-copy="useWordLimitHint"></small>
+                </span>
+                <input id="word-limit-toggle" type="checkbox" />
+                <i aria-hidden="true"></i>
+              </label>
+
+              <div id="word-limit-panel">
+                <label class="field-row" for="target-words">
+                  <span>
+                    <strong data-copy="targetWords"></strong>
+                    <small data-copy="targetWordsHint"></small>
+                  </span>
+                  <span class="number-input">
+                    <input
+                      id="target-words"
+                      type="number"
+                      inputmode="numeric"
+                    />
+                    <small data-copy="words"></small>
+                  </span>
+                </label>
+
+                <label class="switch-row compact">
+                  <span>
+                    <strong data-copy="unlimitedCore"></strong>
+                    <small data-copy="unlimitedCoreHint"></small>
+                  </span>
+                  <input id="unlimited-core-toggle" type="checkbox" />
+                  <i aria-hidden="true"></i>
+                </label>
+
+                <div class="budget-heading">
+                  <div>
+                    <strong data-copy="sectionBudgets"></strong>
+                    <small data-copy="sectionBudgetsHint"></small>
+                  </div>
+                  <span id="budget-total"></span>
+                </div>
+                <div class="budget-grid" id="budget-grid"></div>
+                <p class="validation-message" id="budget-error"></p>
+              </div>
+            </section>
+
+            <section class="config-card">
+              <div class="section-title">
+                <span>03</span>
+                <div>
+                  <h2 data-copy="appendixTitle"></h2>
+                  <p data-copy="appendixHint"></p>
+                </div>
+              </div>
+              <label class="switch-row">
+                <span>
+                  <strong data-copy="allowAppendix"></strong>
+                  <small data-copy="allowAppendixHint"></small>
+                </span>
+                <input id="appendix-toggle" type="checkbox" />
+                <i aria-hidden="true"></i>
+              </label>
+            </section>
+
+            <section class="config-card">
+              <div class="section-title">
+                <span>04</span>
+                <div>
+                  <h2 data-copy="figureTitle"></h2>
+                  <p data-copy="figureHint"></p>
+                </div>
+              </div>
+              <div class="field-label" data-copy="placement"></div>
+              <div
+                class="choice-grid two-columns compact-options"
+                id="placement-options"
+              ></div>
+              <div class="field-label" data-copy="aspectRatio"></div>
+              <div
+                class="choice-grid ratio-options compact-options"
+                id="ratio-options"
+              ></div>
+              <div class="custom-ratio" id="custom-ratio" hidden>
+                <label>
+                  <span data-copy="ratioWidth"></span>
+                  <input id="ratio-width" type="number" min="1" step="1" />
+                </label>
+                <span>:</span>
+                <label>
+                  <span data-copy="ratioHeight"></span>
+                  <input id="ratio-height" type="number" min="1" step="1" />
+                </label>
+              </div>
+            </section>
+
+            <section class="config-card">
+              <div class="section-title">
+                <span>05</span>
+                <div>
+                  <h2 data-copy="executionTitle"></h2>
+                  <p data-copy="executionHint"></p>
+                </div>
+              </div>
+              <div class="split-fields">
+                <div>
+                  <div class="field-label" data-copy="promptLanguage"></div>
+                  <div class="segmented-control" id="prompt-language-options">
+                    <button type="button" data-prompt-language="zh">
+                      中文
+                    </button>
+                    <button type="button" data-prompt-language="en">
+                      English
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label class="field-label" for="reasoning-select">
+                    <span data-copy="reasoning"></span>
+                  </label>
+                  <select id="reasoning-select"></select>
+                  <small class="field-help" id="reasoning-description"></small>
+                </div>
+              </div>
+            </section>
+          </div>
+
+          <aside class="confirmation-panel">
+            <p class="eyebrow" data-copy="summaryEyebrow"></p>
+            <h2 data-copy="summaryTitle"></h2>
+            <dl id="configuration-summary"></dl>
+            <div class="privacy-note">
+              <strong data-copy="localOnly"></strong>
+              <p data-copy="localOnlyHint"></p>
+            </div>
+            <p class="submit-error" id="submit-error" role="alert"></p>
+            <button class="primary-button" id="confirm-button" type="submit">
+              <span data-copy="confirm"></span>
+              <b aria-hidden="true">→</b>
+            </button>
+            <p class="confirm-hint" data-copy="confirmHint"></p>
+          </aside>
+        </div>
+      </form>
+
+      <section class="completion-state" id="completion-state" hidden>
+        <span class="completion-mark" aria-hidden="true">✓</span>
+        <p class="eyebrow" data-copy="confirmedEyebrow"></p>
+        <h2 data-copy="confirmedTitle"></h2>
+        <p data-copy="confirmedBody"></p>
+      </section>
+
+      <section class="completion-state error-state" id="fatal-error" hidden>
+        <span class="completion-mark" aria-hidden="true">!</span>
+        <h2 data-copy="errorTitle"></h2>
+        <p id="fatal-error-message"></p>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

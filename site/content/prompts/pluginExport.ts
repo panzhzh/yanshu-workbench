@@ -2,12 +2,15 @@ import { PRODUCT_CONFIG } from "../../app/config";
 import {
   CHAT_FALLBACK_POLICY,
   CHAT_MODEL_POLICY,
+  CHAT_REASONING_PREFERENCES,
   CHAT_REASONING_PREFERENCE_IDS,
   DEFAULT_CHAT_EXECUTION_PREFERENCES,
   type ChatExecutionPreferences,
 } from "./chatExecution";
 import {
+  FIGURE_ASPECT_RATIO_IDS,
   FIGURE_ASPECT_RATIOS,
+  FIGURE_PLACEMENT_IDS,
   FIGURE_PLACEMENTS,
   RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
   type FrameworkFigureLayoutPreferences,
@@ -33,6 +36,56 @@ export interface ReconstructionWorkflowInput {
   includeAppendix?: boolean;
   frameworkFigure?: FrameworkFigureLayoutPreferences;
   chatExecution?: Partial<ChatExecutionPreferences>;
+}
+
+export function getReconstructionConfigurationModel() {
+  return {
+    schemaVersion: 1,
+    defaultPaperStyle: PRODUCT_CONFIG.defaultPaperStyle,
+    defaultPromptLanguage: PRODUCT_CONFIG.defaultPromptLanguage,
+    wordCount: PRODUCT_CONFIG.wordCount,
+    paperStyles: Object.fromEntries(
+      Object.entries(PRODUCT_CONFIG.paperStyles).map(([id, style]) => [
+        id,
+        {
+          id: style.id,
+          label: style.label,
+          shortLabel: style.shortLabel,
+          description: style.description,
+          plannerSummary: style.plannerSummary,
+          defaultTargetWords: style.defaultTargetWords,
+          defaultAppendix: style.defaultAppendix,
+          sections: style.sections.map((section) => ({
+            id: section.id,
+            label: section.label,
+            shortLabel: section.shortLabel,
+            description: section.description,
+            ratio: section.ratio,
+          })),
+        },
+      ]),
+    ),
+    frameworkFigure: {
+      default: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
+      placements: FIGURE_PLACEMENT_IDS.map((id) => ({
+        id,
+        label: FIGURE_PLACEMENTS[id].label,
+        description: FIGURE_PLACEMENTS[id].shortDescription,
+      })),
+      aspectRatios: FIGURE_ASPECT_RATIO_IDS.map((id) => ({
+        id,
+        label: FIGURE_ASPECT_RATIOS[id].label,
+        ratio: FIGURE_ASPECT_RATIOS[id].ratio,
+        description: FIGURE_ASPECT_RATIOS[id].shortDescription,
+      })),
+    },
+    chatExecution: {
+      default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
+      reasoningPreferences: CHAT_REASONING_PREFERENCE_IDS.map(
+        (id) => CHAT_REASONING_PREFERENCES[id],
+      ),
+    },
+  };
 }
 
 function allocateWords(

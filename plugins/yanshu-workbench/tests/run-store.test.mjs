@@ -13,6 +13,10 @@ import { buildReconstructionWorkflow } from "../runtime/prompt-engine.mjs";
 import { importChatGPTControl } from "../vendor/chatgpt-control/import-chatgpt-control.mjs";
 import { resolveChatPreference } from "../scripts/lib/chat-preferences.mjs";
 import {
+  onboardingStatus,
+  startOnboardingSession,
+} from "../scripts/lib/onboarding-store.mjs";
+import {
   createRun,
   markRound,
   nextRound,
@@ -113,7 +117,7 @@ test("framework figure placement and canvas are configuration-driven", () => {
   assert.match(workflow.rounds[3].prompt, /exact 3:4 canvas/);
 });
 
-test("skill requires explicit onboarding confirmation before initialization", async () => {
+test("skill moves full-automation choices into one local confirmation page", async () => {
   const skill = await readFile(
     new URL("../skills/paper-reconstruction/SKILL.md", import.meta.url),
     "utf8",
@@ -123,12 +127,116 @@ test("skill requires explicit onboarding confirmation before initialization", as
   assert.match(skill, /# Paper Reconstruction/);
   assert.match(skill, /Ask for the paper directory first/);
   assert.match(skill, /never select a paper at random/);
-  assert.match(skill, /Display one concise confirmation summary/);
-  assert.match(skill, /Wait for an explicit start confirmation/);
+  assert.match(skill, /Full-automation local page/);
+  assert.match(skill, /configure-start/);
+  assert.match(skill, /configure-status/);
+  assert.match(skill, /sole start authorization/);
+  assert.match(skill, /do not ask the user to type “start”/);
+  assert.match(skill, /Immediately run the visible Chat bridge preflight/);
+  assert.match(skill, /do not display another confirmation summary/);
   assert.match(skill, /do not run `init`/);
   assert.match(skill, /--reasoning strongest\|medium\|high\|extra-high\|pro/);
   assert.match(skill, /chat-plan/);
   assert.match(skill, /Never pin a GPT model name/);
+});
+
+test("local onboarding page confirms a complete automation config", async () => {
+  const temporaryRoot = await mkdtemp(
+    path.join(tmpdir(), "yanshu-onboarding-test-"),
+  );
+  try {
+    const paperRoot = path.join(temporaryRoot, "paper");
+    const figures = path.join(paperRoot, "figures");
+    await mkdir(figures, { recursive: true });
+    await writeFile(
+      path.join(paperRoot, "main.tex"),
+      "\\documentclass{article}\\begin{document}Test\\end{document}\n",
+      "utf8",
+    );
+    await writeFile(path.join(paperRoot, "references.bib"), "", "utf8");
+    await writeFile(path.join(paperRoot, "main.pdf"), "pdf fixture", "utf8");
+    await writeFile(path.join(figures, "overview.png"), "png fixture", "utf8");
+
+    const inputs = await resolvePaperInputs(paperRoot);
+    const pluginRoot = path.resolve(
+      new URL("..", import.meta.url).pathname,
+    );
+    const started = await startOnboardingSession({
+      pluginRoot,
+      projectRoot: paperRoot,
+      inputs,
+      uiLanguage: "zh",
+      openBrowser: false,
+      sessionRoot: path.join(temporaryRoot, "sessions"),
+      ttlMs: 30_000,
+    });
+
+    assert.equal(started.status, "ready");
+    assert.match(started.url, /^http:\/\/127\.0\.0\.1:\d+\//);
+    const pageUrl = new URL(started.url);
+    const token = pageUrl.searchParams.get("token");
+    const endpoint = (pathname) => {
+      const url = new URL(pathname, pageUrl.origin);
+      url.searchParams.set("token", token);
+      return url;
+    };
+
+    const bootstrapResponse = await fetch(endpoint("/api/bootstrap"));
+    const bootstrap = await bootstrapResponse.json();
+    assert.equal(bootstrap.ok, true);
+    assert.equal(bootstrap.model.paperStyles.conference.defaultTargetWords, 4500);
+    assert.equal(bootstrap.model.paperStyles.journal.defaultTargetWords, 5000);
+    assert.equal(bootstrap.initialWorkflow.styleId, "conference");
+
+    const confirmedResponse = await fetch(endpoint("/api/confirm"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        workflow: {
+          ...bootstrap.initialWorkflow,
+          language: "en",
+          styleId: "journal",
+          hasWordLimit: false,
+          unlimitedCoreSections: true,
+          includeAppendix: true,
+          frameworkFigure: {
+            placementId: "single-column",
+            aspectRatioId: "portrait-3-4",
+            customAspectWidth: 3,
+            customAspectHeight: 4,
+          },
+          chatExecution: {
+            ...bootstrap.initialWorkflow.chatExecution,
+            reasoningPreference: "high",
+          },
+        },
+      }),
+    });
+    const confirmed = await confirmedResponse.json();
+    assert.equal(confirmed.ok, true);
+    assert.equal(confirmed.status, "confirmed");
+
+    const status = await onboardingStatus(started.sessionPath);
+    assert.equal(status.status, "confirmed");
+    assert.ok(status.configPath);
+    const config = JSON.parse(await readFile(status.configPath, "utf8"));
+    assert.equal(config.execution.startAuthorized, true);
+    assert.equal(config.projectRoot, paperRoot);
+    assert.equal(config.workflow.styleId, "journal");
+    assert.equal(config.workflow.hasWordLimit, false);
+    assert.equal(config.workflow.unlimitedCoreSections, false);
+    assert.equal(config.workflow.frameworkFigure.placementId, "single-column");
+    assert.equal(config.workflow.chatExecution.reasoningPreference, "high");
+
+    const ui = await readFile(
+      path.join(pluginRoot, "ui", "onboarding", "index.html"),
+      "utf8",
+    );
+    assert.match(ui, /configuration-form/);
+    assert.match(ui, /confirm-button/);
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
 });
 
 test("reasoning preferences fall back against visible Chat options", () => {

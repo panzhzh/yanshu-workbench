@@ -19,6 +19,8 @@ Follow the user's conversation language during onboarding and status updates. Pr
 - Upload only paths returned by the YanShu `next` command. Never upload `.env` files, credentials, private keys, unrelated folders, or unapproved files.
 - Never resubmit an original round after a timeout. Preserve the Chat thread URL and poll, wait, read, or continue that same thread.
 - Store every downloaded artifact and status change inside the current YanShu run directory.
+- After the user selects full automation, do not continue collecting workflow options in chat. Open the bundled local configuration page and treat its confirmation as the sole start authorization.
+- After local-page confirmation, do not ask for another summary confirmation or repeat any configured question. Pause only for a real login, CAPTCHA, permission, missing-file, or scientific decision blocker that cannot be resolved safely.
 
 ## Local runtime
 
@@ -32,33 +34,69 @@ Do not ask the user to type commands that Codex can run safely itself.
 
 ## Mandatory onboarding gate
 
-This gate is required for every new Paper Reconstruction run. A paper directory does not imply consent to use defaults.
+This gate is required for every new Paper Reconstruction run. A paper directory does not imply consent to choose a manuscript or start automation.
 
 1. Ask for the paper directory first. If it contains multiple papers or multiple plausible manuscript roots, show a compact inventory and ask the user to choose one; never select a paper at random.
-2. Run `doctor --project <paper-root>` as a read-only check. Show the detected TeX, BibTeX, compiled PDF, and figures paths. Ask the user to resolve any ambiguity that could change the run.
-3. Collect explicit choices for:
-   - execution surface: visible ChatGPT Chat through the automated bridge, or prompt-only manual handoff for an unsupported chat surface;
-   - paper type: conference or journal;
-   - main-text word limit: disabled, or enabled with an exact target;
-   - whether Method and Experiments are exempt from word limits;
-   - appendix: allowed or not allowed;
-   - Prompt language;
-   - overall framework figure: single-column or double-column, plus canvas ratio (`4:3`, `3:4`, `16:9`, `9:16`, or a custom width:height ratio);
-   - ChatGPT reasoning preference: `strongest`, `medium`, `high`, `extra-high`, or `pro`.
-4. Describe `strongest` as the default. Explain that this is a stable capability preference, not a fixed GPT model name.
-5. Ask these questions in a short, readable sequence instead of presenting a command or silently filling gaps.
-6. Display one concise confirmation summary with the exact paper paths and every selected option.
-7. Wait for an explicit start confirmation such as “开始”, “确认开始”, or “start”.
+2. Run `doctor --project <paper-root>` as a read-only check. Show the detected TeX, BibTeX, compiled PDF, and figures paths. Ask the user to resolve only ambiguity that could change the selected inputs.
+3. Ask for the execution surface only:
+   - visible ChatGPT Chat through the full-automation bridge; or
+   - prompt-only manual handoff for an unsupported chat surface.
+4. If the user selects full automation, stop asking configuration questions in chat and follow **Full-automation local page** below.
+5. If the user selects manual handoff, collect the workflow choices conversationally, show one compact summary, and wait for an explicit start confirmation.
 
-Before that confirmation, do not run `init`, create a reconstruction directory, upload a file, open a live writing round, or submit a Prompt. A website-exported configuration may prefill the choices, but the user must still see and confirm the summary.
+Before the applicable confirmation, do not run `init`, create a reconstruction directory, upload a file, open a live writing round, or submit a Prompt.
+
+## Full-automation local page
+
+After the paper inputs are confirmed and the user selects full automation:
+
+1. Run the local page with the exact confirmed paths:
+
+```text
+node <plugin-root>/scripts/yanshu.mjs configure-start \
+  --project <paper-root> \
+  --tex <confirmed-tex> \
+  --bib <confirmed-bib> \
+  --pdf <confirmed-pdf> \
+  --figures <confirmed-figures> \
+  --ui-language zh|en
+```
+
+Omit an unavailable optional input instead of inventing one. Add `--config <website-exported.yanshu.json>` when the user supplied a website configuration; the page uses it only as a prefill.
+
+2. The command starts a loopback-only page on `127.0.0.1`, opens it in the user's browser, and returns a `sessionPath`. Tell the user only that the one-page setup is open. Do not restate or ask any option in chat.
+3. The page must collect every remaining workflow choice in one place:
+   - conference or journal;
+   - no main-text limit, or an exact target with editable section budgets;
+   - whether Method and Experiments are exempt when limits are active;
+   - appendix allowed or not allowed;
+   - Prompt language;
+   - framework-figure placement and canvas ratio, including custom width:height;
+   - ChatGPT reasoning preference: `strongest`, `medium`, `high`, `extra-high`, or `pro`.
+4. Poll without prompting:
+
+```text
+node <plugin-root>/scripts/yanshu.mjs configure-status \
+  --session <sessionPath>
+```
+
+Use bounded waits and concise progress updates. Do not ask the user to report that they clicked the button.
+5. The page's **Confirm and start automation** action is the explicit start authorization. When status becomes `confirmed`, use the returned `configPath`; do not display another confirmation summary and do not ask the user to type “start”.
+6. Immediately run the visible Chat bridge preflight from `references/chat-bridge.md`. This is the first point at which upload, download, login, clipboard, and browser permissions are checked.
+7. If preflight succeeds, run `init --config <configPath>` and proceed directly to Round 1. If preflight returns a real blocker, report only the exact required action. After the user resolves it, repeat preflight and continue with the same confirmed configuration without reopening the page or asking workflow questions.
+
+The page is local infrastructure, not a hosted paper service. Do not replace its loopback URL with a public callback, do not place paper paths in a remote URL, and never expose its one-time token in user-facing summaries or logs.
+
+For `strongest`, explain in the page copy that it is the strongest reasoning level actually visible to the signed-in account, not a fixed GPT model name.
 
 ## Start a new run
 
-Only continue here after the onboarding gate is confirmed.
+Only continue here after the local page reports `confirmed`, or after the manual-handoff summary is explicitly confirmed.
 
 Run `init` with:
 
-- `--config <path-to-exported.yanshu.json>` when the user supplied a website configuration
+- `--config <confirmed.yanshu.json>` for full automation; this already contains the exact paper paths and every workflow choice
+- `--config <path-to-exported.yanshu.json>` for a manually confirmed website configuration
 - `--project <paper-root>`
 - `--tex`, `--bib`, `--pdf`, and `--figures` when available
 - `--style conference|journal`

@@ -35,6 +35,13 @@ codex plugin marketplace add panzhzh/yanshu-workbench --ref main
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
+For an existing preview installation, refresh and reinstall it:
+
+```bash
+codex plugin marketplace upgrade yanshu-workbench
+codex plugin add yanshu-workbench@yanshu-workbench
+```
+
 Then start a **new Codex task** so the installed skill is loaded. Ask:
 
 ```text
@@ -51,11 +58,13 @@ Chinese is equally valid:
 使用 YanShu 的 Paper Reconstruction 重构这个论文目录。
 ```
 
-YanShu asks for the paper directory first, checks the detected TeX, BibTeX, PDF,
-and figures, collects the paper, length, appendix, Prompt-language, framework
-figure, and ChatGPT reasoning choices, then shows one confirmation summary. It
-cannot initialize a run or upload a file until the user explicitly confirms the
-start.
+YanShu asks for the paper directory first and confirms the detected TeX,
+BibTeX, PDF, and figures. After the user selects full automation, YanShu opens a
+loopback-only setup page on `127.0.0.1`. Paper type, length and section budgets,
+appendix, Prompt language, framework figure, and ChatGPT reasoning are selected
+once on that page. **Confirm and start automation** is the sole start
+authorization: YanShu then checks the visible ChatGPT/Chrome permissions and
+continues without repeating configuration questions in chat.
 
 Once YanShu is accepted into the public directory, installation can use the
 normal **Plugins → search “YanShu” → + → new task** flow described in the

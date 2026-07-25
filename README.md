@@ -89,6 +89,13 @@ codex plugin marketplace add panzhzh/yanshu-workbench --ref main
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
+已经安装预览版时，更新并重新载入最新版本：
+
+```bash
+codex plugin marketplace upgrade yanshu-workbench
+codex plugin add yanshu-workbench@yanshu-workbench
+```
+
 当前预览版从 **Codex 任务**启动；普通 Chat 对话本身不会直接加载本地插件。启动后，YanShu 再通过可见桥接把论文写作交给 ChatGPT Chat，这正是“Codex 管文件、Chat 写论文”的分层。
 
 安装后必须**新建一个任务**，这样 Codex 才会载入新 Skill。然后直接说：
@@ -103,7 +110,7 @@ Use YanShu → Paper Reconstruction.
 使用 YanShu 的 Paper Reconstruction 重构这个论文目录。
 ```
 
-YanShu 会先询问论文目录，再确认 TeX、BibTeX、PDF、figures、论文类型、字数、附录、框架图、Prompt 语言与推理偏好；只有展示完整摘要并得到明确确认后才开始。
+YanShu 会先确认论文目录以及 TeX、BibTeX、PDF、figures。选择“全自动”后，它会自动打开一个仅运行在 `127.0.0.1` 的本地配置页；论文类型、字数、章节预算、附录、框架图、Prompt 语言与推理偏好都在同一页完成。点击“确认并开始全自动”就是唯一启动确认，随后 YanShu 检查 ChatGPT/Chrome 权限并直接执行，不再逐项追问。
 
 当前 GitHub 技术安装 ID 仍为 `yanshu-workbench`，用户看到的插件名称是 **YanShu**。未来进入 OpenAI 公共插件目录后，安装路径将简化为 **Plugins → 搜索 YanShu → 安装 → 新建任务**。插件的官方安装与使用方式可参考 [OpenAI Plugins 文档](https://learn.chatgpt.com/docs/plugins)。
 

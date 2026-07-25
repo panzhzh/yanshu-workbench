@@ -20,6 +20,10 @@ import {
   resolveChatPreference,
 } from "./lib/chat-preferences.mjs";
 import {
+  onboardingStatus,
+  startOnboardingSession,
+} from "./lib/onboarding-store.mjs";
+import {
   bridgeHints,
   createRun,
   loadRun,
@@ -42,6 +46,10 @@ function help() {
     commands: {
       doctor:
         "Check the local runtime and paper inputs without changing manuscript files.",
+      "configure-start":
+        "Open the local one-page configuration UI for a confirmed full-automation paper.",
+      "configure-status":
+        "Read whether the local configuration page is waiting, confirmed, cancelled, or expired.",
       init: "Create a resumable five-round reconstruction run.",
       status: "Read compact progress for an existing run.",
       next: "Return the next round, prompt, and approved attachments.",
@@ -128,6 +136,40 @@ async function doctor(flags) {
       chatBridge: bridgeHints(),
     },
   };
+}
+
+async function configureStart(flags) {
+  const fileConfig = await loadConfig(flags);
+  const projectRoot = path.resolve(
+    stringFlag(flags, "project", fileConfig.projectRoot ?? process.cwd()),
+  );
+  if (!(await pathExists(projectRoot))) {
+    throw new CliError(`Project directory does not exist: ${projectRoot}`);
+  }
+  const inputs = await resolvePaperInputs(projectRoot, {
+    tex: stringFlag(flags, "tex", fileConfig.inputs?.tex),
+    bib: stringFlag(flags, "bib", fileConfig.inputs?.bib),
+    pdf: stringFlag(flags, "pdf", fileConfig.inputs?.pdf),
+    figures: stringFlag(flags, "figures", fileConfig.inputs?.figures),
+  });
+  const uiLanguage = enumFlag(
+    flags,
+    "ui-language",
+    ["zh", "en"],
+    fileConfig.workflow?.language ?? "zh",
+  );
+  return startOnboardingSession({
+    pluginRoot,
+    projectRoot,
+    inputs,
+    uiLanguage,
+    prefillWorkflow: fileConfig.workflow ?? {},
+    openBrowser: booleanFlag(flags, "open", true),
+  });
+}
+
+async function configureStatus(flags) {
+  return onboardingStatus(requiredFlag(flags, "session"));
 }
 
 async function init(flags) {
@@ -371,6 +413,12 @@ async function main() {
       break;
     case "doctor":
       result = await doctor(flags);
+      break;
+    case "configure-start":
+      result = await configureStart(flags);
+      break;
+    case "configure-status":
+      result = await configureStatus(flags);
       break;
     case "init":
       result = await init(flags);
