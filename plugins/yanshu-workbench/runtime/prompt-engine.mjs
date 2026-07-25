@@ -1,3 +1,96 @@
+// content/prompts/chatExecution.ts
+var CHAT_MODEL_POLICY = "latest-visible-reasoning";
+var CHAT_FALLBACK_POLICY = "closest-lower-then-strongest";
+var CHAT_REASONING_PREFERENCE_IDS = [
+  "strongest",
+  "medium",
+  "high",
+  "extra-high",
+  "pro"
+];
+var CHAT_REASONING_PREFERENCES = {
+  strongest: {
+    id: "strongest",
+    label: {
+      zh: "\u81EA\u52A8\u6700\u5F3A",
+      en: "Auto strongest"
+    },
+    shortLabel: {
+      zh: "\u6700\u5F3A\u53EF\u7528",
+      en: "Strongest available"
+    },
+    description: {
+      zh: "\u9ED8\u8BA4\u4F7F\u7528\u5F53\u524D\u8D26\u53F7\u53EF\u89C1\u7684\u6700\u5F3A\u63A8\u7406\u6863\u4F4D\u3002",
+      en: "Use the strongest reasoning level currently visible for this account."
+    }
+  },
+  medium: {
+    id: "medium",
+    label: {
+      zh: "Medium",
+      en: "Medium"
+    },
+    shortLabel: {
+      zh: "Medium",
+      en: "Medium"
+    },
+    description: {
+      zh: "\u4F18\u5148\u5339\u914D Medium \u6216\u542B\u4E49\u6700\u63A5\u8FD1\u7684\u5E38\u89C4\u63A8\u7406\u6863\u4F4D\u3002",
+      en: "Prefer Medium or the closest equivalent standard-reasoning level."
+    }
+  },
+  high: {
+    id: "high",
+    label: {
+      zh: "High",
+      en: "High"
+    },
+    shortLabel: {
+      zh: "High",
+      en: "High"
+    },
+    description: {
+      zh: "\u4F18\u5148\u5339\u914D High\uFF1B\u4E0D\u53EF\u7528\u65F6\u56DE\u9000\u5230 Medium\u3002",
+      en: "Prefer High and fall back to Medium when High is unavailable."
+    }
+  },
+  "extra-high": {
+    id: "extra-high",
+    label: {
+      zh: "Extra High",
+      en: "Extra High"
+    },
+    shortLabel: {
+      zh: "Extra High",
+      en: "Extra High"
+    },
+    description: {
+      zh: "\u4F18\u5148\u5339\u914D Extra High\uFF08xhigh\uFF09\uFF1B\u4E0D\u53EF\u7528\u65F6\u4F9D\u6B21\u56DE\u9000\u5230 High\u3001Medium\u3002",
+      en: "Prefer Extra High (xhigh), then fall back to High and Medium."
+    }
+  },
+  pro: {
+    id: "pro",
+    label: {
+      zh: "Pro",
+      en: "Pro"
+    },
+    shortLabel: {
+      zh: "Pro",
+      en: "Pro"
+    },
+    description: {
+      zh: "\u4F18\u5148\u4F7F\u7528\u6700\u5F3A Pro \u6863\u4F4D\uFF1B\u4E0D\u53EF\u7528\u65F6\u4F9D\u6B21\u56DE\u9000\u5230 Extra High\u3001High\u3001Medium\u3002",
+      en: "Prefer the strongest Pro level, then fall back to Extra High, High, and Medium."
+    }
+  }
+};
+var DEFAULT_CHAT_EXECUTION_PREFERENCES = {
+  modelPolicy: CHAT_MODEL_POLICY,
+  reasoningPreference: "strongest",
+  fallbackPolicy: CHAT_FALLBACK_POLICY
+};
+
 // content/prompts/wordCountPolicy.ts
 var WORD_COUNT_POLICY = {
   unlimitedCoreSectionIds: ["method", "experiments-results"],
@@ -7,7 +100,7 @@ var WORD_COUNT_POLICY = {
 // app/config.ts
 var PRODUCT_CONFIG = {
   productName: "\u7814\u672F\u53F0",
-  productNameEn: "YanShu Workbench",
+  productNameEn: "YanShu",
   defaultLanguage: "zh",
   defaultPromptLanguage: "zh",
   defaultPaperStyle: "conference",
@@ -19,6 +112,10 @@ var PRODUCT_CONFIG = {
     min: 2e3,
     max: 2e4,
     step: 100
+  },
+  chatExecution: {
+    default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
+    reasoningPreferences: CHAT_REASONING_PREFERENCES
   },
   paperStyles: {
     conference: {
@@ -280,10 +377,10 @@ var UI_COPY = {
     english: "English",
     paperStyle: "\u8BBA\u6587\u98CE\u683C",
     targetWords: "\u6B63\u6587\u5B57\u6570\u9650\u5236",
-    targetWordsHint: "\u5F00\u542F\u540E\u663E\u793A 05\uFF1B\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\uFF0C\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 200 \u8BCD\u8BA1\u5165\u3002",
+    targetWordsHint: "\u5F00\u542F\u540E\u663E\u793A 06\uFF1B\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\uFF0C\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 200 \u8BCD\u8BA1\u5165\u3002",
     wordLimitOn: "\u9650\u5236\u6B63\u6587\u5B57\u6570",
     wordLimitOff: "\u65E0\u7279\u6B8A\u89C4\u5B9A",
-    noWordLimitHint: "\u5173\u95ED\u540E\u4E0D\u663E\u793A 05\uFF0C\u4E94\u6B65 Prompt \u4E5F\u4E0D\u5305\u542B\u6B63\u6587\u603B\u6570\u6216\u7AE0\u8282\u9884\u7B97\u3002",
+    noWordLimitHint: "\u5173\u95ED\u540E\u4E0D\u663E\u793A 06\uFF0C\u4E94\u6B65 Prompt \u4E5F\u4E0D\u5305\u542B\u6B63\u6587\u603B\u6570\u6216\u7AE0\u8282\u9884\u7B97\u3002",
     words: "\u8BCD",
     appendix: "\u9644\u5F55\u8BBE\u7F6E",
     appendixOn: "\u5141\u8BB8\u9644\u5F55",
@@ -294,11 +391,16 @@ var UI_COPY = {
     frameworkCustomWidth: "\u5BBD",
     frameworkCustomHeight: "\u9AD8",
     frameworkFixedRules: "\u5176\u4F59\u89C4\u5219\u56FA\u5B9A\uFF1A\u6781\u7B80\u8BBA\u6587\u7EBF\u7A3F\uFF1BTol \u9C9C\u660E\u8272\u7CFB\uFF0C\u7531 GPT \u6309\u8BED\u4E49\u9009\u62E9 2\u20134 \u4E2A\u5F3A\u8C03\u8272\uFF1BCalibri\uFF1B\u7EAF\u767D\u753B\u5E03\u4E0E\u7EAF\u767D\u6A21\u5757\u5361\u7247\uFF1B\u4E24\u7EA7\u5B57\u53F7\uFF1B\u65E0\u5927\u6807\u9898\uFF1B\u6DF1\u8272\u4E2D\u6027\u7EBF\u4E3A\u9ED8\u8BA4\uFF0C\u5FC5\u8981\u65F6\u6309\u8BED\u4E49\u7740\u8272\uFF1B\u8F7B\u63D2\u56FE\u4E0E\u56FE\u6807\u6309\u9700\u4F7F\u7528\u3002",
+    chatExecution: "ChatGPT \u6267\u884C",
+    chatModelPolicy: "\u6A21\u578B\u7B56\u7565",
+    chatLatestVisibleModel: "\u6700\u65B0\u53EF\u7528\u63A8\u7406\u6A21\u578B",
+    chatReasoningPreference: "\u63A8\u7406\u7B49\u7EA7",
+    chatRuntimePolicy: "\u4E0D\u9501\u5B9A GPT \u578B\u53F7\u540D\u79F0\uFF1B\u63D2\u4EF6\u6BCF\u8F6E\u8BFB\u53D6 ChatGPT \u5F53\u524D\u53EF\u89C1\u9009\u9879\u3002\u53D1\u751F\u56DE\u9000\u65F6\u5148\u660E\u786E\u63D0\u793A\uFF0C\u540D\u79F0\u65E0\u6CD5\u5224\u65AD\u65F6\u9009\u62E9\u6700\u5F3A\u53EF\u7528\u6863\u4F4D\u3002",
     exportAutomation: "\u5BFC\u51FA\u684C\u9762\u914D\u7F6E",
     exportedAutomation: "\u914D\u7F6E\u5DF2\u4E0B\u8F7D",
-    exportAutomationHint: "\u4E0B\u8F7D\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u3001\u5B57\u6570\u3001\u7AE0\u8282\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u548C Prompt \u8BED\u8A00\u8BBE\u7F6E\uFF0C\u4F9B\u7814\u672F\u53F0\u63D2\u4EF6\u76F4\u63A5\u8BFB\u53D6\u3002",
+    exportAutomationHint: "\u4E0B\u8F7D\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u3001\u5B57\u6570\u3001\u7AE0\u8282\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C Prompt \u8BED\u8A00\u8BBE\u7F6E\uFF0C\u4F9B YanShu \u63D2\u4EF6\u76F4\u63A5\u8BFB\u53D6\u3002",
     resetDefaults: "\u6062\u590D\u9ED8\u8BA4\u914D\u7F6E",
-    resetHint: "\u91CD\u7F6E\u8BBA\u6587\u7C7B\u578B\u3001\u6B63\u6587\u5B57\u6570\u6A21\u5F0F\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u548C\u7AE0\u8282\u9884\u7B97\uFF1B\u4FDD\u7559\u5F53\u524D\u8BED\u8A00\u3002",
+    resetHint: "\u91CD\u7F6E\u8BBA\u6587\u7C7B\u578B\u3001\u6B63\u6587\u5B57\u6570\u6A21\u5F0F\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C\u7AE0\u8282\u9884\u7B97\uFF1B\u4FDD\u7559\u5F53\u524D\u8BED\u8A00\u3002",
     plannerTitle: "\u6B63\u6587\u4E0E\u7AE0\u8282\u9884\u7B97",
     plannerBody: "\u8BBE\u7F6E\u6B63\u6587\u4E0E\u7AE0\u8282\u9884\u7B97\uFF1B\u53EF\u5355\u72EC\u53D6\u6D88\u65B9\u6CD5\u548C\u5B9E\u9A8C\u7684\u5B57\u6570\u9650\u5236\u3002",
     targetTotal: "\u6B63\u6587\u603B\u5B57\u6570",
@@ -363,10 +465,10 @@ var UI_COPY = {
     english: "English",
     paperStyle: "Paper style",
     targetWords: "Main-text word limit",
-    targetWordsHint: "When enabled, section 05 appears. The appendix is excluded; each table or figure counts as 200 words.",
+    targetWordsHint: "When enabled, section 06 appears. The appendix is excluded; each table or figure counts as 200 words.",
     wordLimitOn: "Apply a word limit",
     wordLimitOff: "No special limit",
-    noWordLimitHint: "When disabled, section 05 is hidden and all five prompts omit the main-text total and section budgets.",
+    noWordLimitHint: "When disabled, section 06 is hidden and all five prompts omit the main-text total and section budgets.",
     words: "words",
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
@@ -377,11 +479,16 @@ var UI_COPY = {
     frameworkCustomWidth: "Width",
     frameworkCustomHeight: "Height",
     frameworkFixedRules: "All other rules are fixed: minimal paper linework; Tol Vibrant palette with 2\u20134 accents selected by GPT by semantics; Calibri; pure-white canvas and module cards; two type-size levels; no large title; dark-neutral lines by default with semantic color only when needed; light illustrations and icons when useful.",
+    chatExecution: "ChatGPT execution",
+    chatModelPolicy: "Model policy",
+    chatLatestVisibleModel: "Latest available reasoning model",
+    chatReasoningPreference: "Reasoning level",
+    chatRuntimePolicy: "GPT model names are never pinned. The plugin inspects the options currently visible in ChatGPT for every round, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
     exportAutomation: "Export desktop config",
     exportedAutomation: "Config downloaded",
-    exportAutomationHint: "Download the current paper type, length, section, appendix, framework-figure, and prompt-language settings for the YanShu plugin.",
+    exportAutomationHint: "Download the current paper type, length, section, appendix, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
     resetDefaults: "Restore defaults",
-    resetHint: "Resets paper type, length mode, appendix, framework figure, and section budgets while keeping the current language.",
+    resetHint: "Resets paper type, length mode, appendix, framework figure, ChatGPT reasoning preference, and section budgets while keeping the current language.",
     plannerTitle: "Main-text and section budgets",
     plannerBody: "Set main-text and section budgets, with an independent unlimited mode for Method and Experiments.",
     targetTotal: "Main-text total",
@@ -2855,7 +2962,7 @@ function buildPrompt(template, context) {
 }
 
 // content/prompts/pluginExport.ts
-var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.3";
+var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.4";
 function allocateWords(target, sections) {
   const raw = sections.map((section) => target * section.ratio);
   const allocated = raw.map((value) => Math.floor(value));
@@ -2938,6 +3045,31 @@ function normalizeInput(input = {}) {
       "Framework figure custom ratio values must be positive finite numbers."
     );
   }
+  const modelPolicy = input.chatExecution?.modelPolicy ?? DEFAULT_CHAT_EXECUTION_PREFERENCES.modelPolicy;
+  if (modelPolicy !== CHAT_MODEL_POLICY) {
+    throw new Error(
+      `Unsupported ChatGPT model policy: ${String(modelPolicy)}.`
+    );
+  }
+  const reasoningPreference = input.chatExecution?.reasoningPreference ?? DEFAULT_CHAT_EXECUTION_PREFERENCES.reasoningPreference;
+  if (!CHAT_REASONING_PREFERENCE_IDS.includes(
+    reasoningPreference
+  )) {
+    throw new Error(
+      `Unsupported ChatGPT reasoning preference: ${String(reasoningPreference)}.`
+    );
+  }
+  const fallbackPolicy = input.chatExecution?.fallbackPolicy ?? DEFAULT_CHAT_EXECUTION_PREFERENCES.fallbackPolicy;
+  if (fallbackPolicy !== CHAT_FALLBACK_POLICY) {
+    throw new Error(
+      `Unsupported ChatGPT fallback policy: ${String(fallbackPolicy)}.`
+    );
+  }
+  const chatExecution = {
+    modelPolicy,
+    reasoningPreference,
+    fallbackPolicy
+  };
   return {
     language,
     roundLanguages: Object.fromEntries(
@@ -2958,7 +3090,8 @@ function normalizeInput(input = {}) {
     targetWords,
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
-    frameworkFigure
+    frameworkFigure,
+    chatExecution
   };
 }
 function buildReconstructionWorkflow(input = {}) {
@@ -2973,7 +3106,8 @@ function buildReconstructionWorkflow(input = {}) {
     targetWords,
     sectionBudgets,
     includeAppendix,
-    frameworkFigure
+    frameworkFigure,
+    chatExecution
   } = normalized;
   const contextForLanguage = (promptLanguage) => ({
     language: promptLanguage,
@@ -3006,7 +3140,8 @@ function buildReconstructionWorkflow(input = {}) {
       targetWords,
       sectionBudgets,
       includeAppendix,
-      frameworkFigure
+      frameworkFigure,
+      chatExecution
     },
     rounds: RECONSTRUCTION_PROMPTS.map((round) => {
       const roundLanguage = roundLanguages[round.id];

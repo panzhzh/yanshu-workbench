@@ -1,7 +1,7 @@
 {
   "name": "yanshu-workbench",
-  "version": "0.2.0+codex.20260725165746",
-  "description": "Resumable, Chat-delegated research workflows for CS manuscripts.",
+  "version": "0.2.0+codex.20260725180132",
+  "description": "Extensible research workflows coordinated across local files and visible ChatGPT sessions.",
   "author": {
     "name": "panzhzh",
     "url": "https://github.com/panzhzh"
@@ -10,6 +10,7 @@
   "repository": "https://github.com/panzhzh/yanshu-workbench",
   "keywords": [
     "research",
+    "yanshu",
     "paper",
     "latex",
     "chatgpt",
@@ -17,9 +18,9 @@
   ],
   "skills": "./skills/",
   "interface": {
-    "displayName": "\u7814\u672f\u53f0 \u00b7 YanShu Workbench",
-    "shortDescription": "Run resumable CS-paper workflows with visible Chat delegation.",
-    "longDescription": "Configure a CS manuscript workflow once, delegate manuscript writing to the strongest visible ChatGPT Chat setting available to the user, and let Codex coordinate local files, checkpoints, compilation, and recovery without silently rewriting the paper itself.",
+    "displayName": "YanShu",
+    "shortDescription": "Installable research workflows for writing, figures, and publication.",
+    "longDescription": "YanShu is an extensible research-workflow plugin. Its first workflow, Paper Reconstruction, delegates manuscript writing and figure generation to the user's visible ChatGPT Chat session while Codex coordinates approved local files, checkpoints, compilation, fallbacks, and recovery.",
     "developerName": "panzhzh",
     "category": "Productivity",
     "capabilities": [
@@ -28,9 +29,9 @@
     ],
     "websiteURL": "https://github.com/panzhzh/yanshu-workbench",
     "defaultPrompt": [
-      "\u7528\u7814\u672f\u53f0\u91cd\u6784\u8fd9\u4e2a\u8bba\u6587\u76ee\u5f55\uff0c\u5e76\u4f18\u5148\u4f7f\u7528\u5f53\u524d\u8d26\u53f7\u53ef\u7528\u7684\u6700\u5f3a Chat \u914d\u7f6e\u3002",
-      "\u68c0\u67e5\u8fd9\u4e2a\u8bba\u6587\u76ee\u5f55\u662f\u5426\u5df2\u7ecf\u5177\u5907\u81ea\u52a8\u91cd\u6784\u6240\u9700\u7684 TeX\u3001PDF\u3001BibTeX \u548c\u56fe\u7247\u6750\u6599\u3002",
-      "\u7ee7\u7eed\u4e0a\u6b21\u4e2d\u65ad\u7684\u7814\u672f\u53f0\u8bba\u6587\u91cd\u6784\u4efb\u52a1\u3002"
+      "Use YanShu to start the Paper Reconstruction workflow for this manuscript directory.",
+      "Use YanShu to inspect whether this paper directory has the TeX, PDF, BibTeX, and figure inputs required by Paper Reconstruction.",
+      "Use YanShu to resume the interrupted Paper Reconstruction run in this paper directory."
     ],
     "brandColor": "#24495F"
   }

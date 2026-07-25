@@ -7,7 +7,7 @@ const siteDescription =
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
-  title: "研术台 · YanShu Workbench",
+  title: "研术台 · YanShu",
   description: siteDescription,
   applicationName: "研术台",
   keywords: [
@@ -26,20 +26,20 @@ export const metadata: Metadata = {
   },
   openGraph: {
     type: "website",
-    title: "研术台 · YanShu Workbench",
+    title: "研术台 · YanShu",
     description: siteDescription,
     images: [
       {
         url: "/og.png",
         width: 1731,
         height: 909,
-        alt: "研术台 · YanShu Workbench",
+        alt: "研术台 · YanShu",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "研术台 · YanShu Workbench",
+    title: "研术台 · YanShu",
     description: siteDescription,
     images: ["/og.png"],
   },

@@ -53,18 +53,37 @@ var yanshuChatCapabilities = await yanshuChatGPT.configuration.inspect({
 });
 ```
 
-Inspect the returned visible candidates. Select the strongest intelligence/reasoning value that actually appears for this account, unless the user requested a lower value. Apply it strictly and verify the postcondition:
+Keep the exact intelligence/reasoning candidates in their visible order. Resolve
+the saved YanShu preference before applying anything:
+
+```text
+node <plugin-root>/scripts/yanshu.mjs chat-plan \
+  --run <run-path> \
+  --visible "Medium|High|Extra High|Pro"
+```
+
+The example labels are illustrative only. Pass exactly the labels returned by
+the live inspection. The resolver never assumes a plan or a fixed model name.
+If it reports a fallback, tell the user which visible level will be used before
+submitting the round.
+
+Apply the returned `selectedLabel` strictly and verify the postcondition:
 
 ```js
 var yanshuAppliedConfiguration =
   await yanshuChatGPT.configuration.apply({
     experience: "chat",
-    desired: { intelligence: "<strongest visible label>" },
+    desired: { intelligence: "<selectedLabel from chat-plan>" },
     strict: true
   });
 ```
 
-Do not infer a subscription plan or underlying model identifier from a visible label. Record the visible label and verification result only.
+Use the latest visible reasoning-capable model family. When a separate model or
+model-version axis is visible, choose its newest reasoning-capable entry only
+when the visible ordering or version is unambiguous. Otherwise keep Chat's
+latest/default reasoning family. Do not infer a subscription plan or hidden
+model identifier from a visible label. Record the visible labels and
+verification result only.
 
 ## Submit one round exactly once
 

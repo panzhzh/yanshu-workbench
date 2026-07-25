@@ -243,7 +243,7 @@ function buildRunReadme(state) {
         `- [ ] Round ${round.number}: ${round.title} (\`${round.directory}\`)`,
     )
     .join("\n");
-  return `# YanShu paper reconstruction
+  return `# YanShu · Paper Reconstruction
 
 Run: \`${state.runId}\`
 

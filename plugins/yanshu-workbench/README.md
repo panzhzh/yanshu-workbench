@@ -1,57 +1,114 @@
-# 研术台 · YanShu Workbench plugin
+# YanShu
 
-This plugin is the local coordinator for YanShu's CS-paper workflows. It keeps a recoverable run directory, generates the same configuration-driven reconstruction prompts as the website, delegates manuscript writing to the user's visible ChatGPT Chat session, and reserves Codex for file operations, checkpoints, compilation, and error handoff.
+YanShu is an extensible research-workflow plugin. It is the installable layer
+behind the [YanShu website](https://yanshu-workbench.pages.dev/): the website
+configures a workflow, while the plugin coordinates local materials, visible
+ChatGPT sessions, checkpoints, artifacts, compilation, and recovery.
 
-## Current scope
+The technical package ID remains `yanshu-workbench` for repository and install
+compatibility. The product shown to users is **YanShu**.
 
-- Five-round paper reconstruction, including a dedicated Method Overview figure round
-- Conference and journal structures
-- Optional main-text and section budgets
-- Optional unlimited Method and Experiments mode
-- Appendix policy
-- Configurable single- or double-column Method Overview canvas
-- Chinese or English prompts
-- Resumable round and Chat-thread state
-- Explicit attachment allowlist
-- Mandatory pre-run configuration summary and explicit user confirmation
+## Workflows
 
-## Trust boundary
+| Workflow | Skill ID | Status |
+| --- | --- | --- |
+| **Paper Reconstruction** | `paper-reconstruction` | Developer preview |
 
-The plugin never receives hidden ChatGPT access and does not use an API key. It includes a pinned copy of the unofficial `codex-chatgpt-control` visible-session runtime, with its source revision, checksum, and MIT notice recorded in [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md). Full automation still requires a signed-in visible ChatGPT session and a compatible Codex/Chrome browser bridge.
+Paper Reconstruction runs five resumable rounds, including a dedicated Method
+Overview figure round. More YanShu workflows can be added later without turning
+each workflow into a separate plugin.
 
-The bridge adapter remains replaceable so YanShu can adopt an official handoff mechanism later without changing its workflow or run format.
+## Language
 
-The original manuscript remains in place. Generated prompts, downloaded artifacts, logs, and status are stored under:
+The plugin manifest, workflow name, skill instructions, and internal identifiers
+are written in English for public distribution. YanShu follows the user's
+conversation language during onboarding, and Paper Reconstruction supports
+independent Chinese or English Prompt output.
 
-```text
-<paper-root>/yanshu-reconstruction/<run-id>/
-```
+## Install the GitHub preview
 
-## Developer-preview install
-
-After this plugin version is published to the repository:
+YanShu is not yet listed in the universal public Plugins Directory. Install the
+repository marketplace once:
 
 ```bash
 codex plugin marketplace add panzhzh/yanshu-workbench --ref main
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
-Start a new Codex task after installation, then ask:
+Then start a **new Codex task** so the installed skill is loaded. Ask:
 
 ```text
-用研术台重构这个论文目录，并优先使用当前账号可用的最强 Chat 配置。
+Use YanShu → Paper Reconstruction.
 ```
 
-YanShu first asks for the paper directory, confirms the detected TeX, BibTeX, PDF, and figures, collects the paper, length, appendix, Prompt-language, and framework-figure choices, then shows one summary. It cannot initialize a run or upload a file until the user explicitly confirms the start.
+The current preview starts from Codex; an ordinary Chat conversation does not
+load this local plugin directly. Once started, YanShu delegates manuscript
+writing to a visible ChatGPT Chat session through its bridge.
 
-The first real upload may still require the user to enable the Chrome file-URL permission and the Codex Chrome upload permission.
+Chinese is equally valid:
+
+```text
+使用 YanShu 的 Paper Reconstruction 重构这个论文目录。
+```
+
+YanShu asks for the paper directory first, checks the detected TeX, BibTeX, PDF,
+and figures, collects the paper, length, appendix, Prompt-language, framework
+figure, and ChatGPT reasoning choices, then shows one confirmation summary. It
+cannot initialize a run or upload a file until the user explicitly confirms the
+start.
+
+Once YanShu is accepted into the public directory, installation can use the
+normal **Plugins → search “YanShu” → + → new task** flow described in the
+[OpenAI plugin guide](https://learn.chatgpt.com/docs/plugins).
+
+## ChatGPT execution policy
+
+YanShu stores capability intent rather than a brittle GPT model string:
+
+- **Model policy:** latest visible reasoning-capable model
+- **Default reasoning:** strongest visible level
+- **Selectable preferences:** Medium, High, Extra High, and Pro
+- **Fallback:** closest lower supported level, then strongest visible when
+  labels cannot be interpreted
+
+For example, if Extra High or Pro is requested but the signed-in account exposes
+only Medium and High, YanShu announces the fallback and selects High. It inspects
+the live picker every round and records the actual visible labels in `run.json`.
+This keeps the workflow stable when OpenAI changes model or reasoning-level
+names.
+
+The website's Paper Reconstruction page can export these settings in a
+`.yanshu.json` file. Without an exported configuration, the plugin asks during
+onboarding. Runtime inspection is always the source of truth.
+
+## Trust boundary
+
+YanShu never receives hidden ChatGPT access and does not use an API key. It
+includes a pinned copy of the unofficial `codex-chatgpt-control` visible-session
+runtime, with its source revision, checksum, and MIT notice recorded in
+[`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md). Full automation still
+requires a signed-in visible ChatGPT session and a compatible Codex/Chrome
+browser bridge.
+
+The original manuscript remains in place. Generated prompts, downloaded
+artifacts, logs, and status are stored under:
+
+```text
+<paper-root>/yanshu-reconstruction/<run-id>/
+```
+
+The first real upload may require the user to enable Chrome file-URL access and
+the Codex Chrome upload permission. YanShu never bypasses login, CAPTCHA,
+permissions, or confirmation.
 
 ## Developer commands
 
-From `site/`, rebuild the committed prompt runtime after changing prompt templates:
+From `site/`, rebuild the committed Prompt runtime after changing templates or
+shared workflow configuration:
 
 ```bash
 npm run plugin:bundle
 ```
 
-Validate the plugin with the OpenAI plugin creator validator before distribution.
+Validate the skill and plugin with the OpenAI plugin and skill validators before
+distribution.

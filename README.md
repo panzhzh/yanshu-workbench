@@ -1,6 +1,6 @@
 <div align="center">
 
-# 研术台 · YanShu Workbench
+# 研术台 · YanShu
 
 **面向 CS 研究者的科研方法文档站与交互式工作台**
 
@@ -20,13 +20,25 @@
 
 </div>
 
-## 为什么做研术台
+## 为什么做 YanShu
 
 科研写作真正困难的部分，往往不是生成一句英文，而是控制证据边界、叙事结构、篇幅、术语、图表和投稿规则之间的关系。研术台把这些决策显式化：研究者先配置任务，右侧 Prompt 随设置实时更新，再把 Prompt 与论文材料放入自己选择的模型对话中执行。
 
 网站本身不读取、不上传，也不保存论文文件。
 
-研术台同时在开发可选的桌面自动模式：让 ChatGPT Chat 负责论文正文，让 Codex 负责本地文件、轮次状态、编译和错误回传。自动模式使用用户可见且已登录的 ChatGPT 会话，不以 Codex 的写作结果替代 Chat。
+YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正文，让 Codex 负责本地文件、轮次状态、编译和错误回传。它使用用户可见且已登录的 ChatGPT 会话，不以 Codex 的写作结果替代 Chat。
+
+## 一个 YanShu，多项科研工作流
+
+`YanShu` 是总品牌和总插件，不等同于某一个具体任务。网站可以持续增加工作台，插件则可以在同一个入口下持续增加独立 Workflow：
+
+| 层级 | 当前名称 | 作用 |
+| --- | --- | --- |
+| 总入口 | **YanShu** | 安装、发现和协调科研工作流 |
+| 首个插件工作流 | **Paper Reconstruction** | 五轮论文重构、框架图重构、产物恢复与编译检查 |
+| 后续工作流 | 规划中 | 论文初稿、科研绘图、投稿与审稿相关流程 |
+
+插件清单、Skill 文件和内部标识统一使用英文，便于公开分发；与用户的问答语言以及 Prompt 输出语言仍可选择中文或英文。
 
 ## 当前工作台
 
@@ -36,7 +48,7 @@
 | [论文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
 | [科研绘图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 引言图、方法总览图、关键技术细节图三选一；占栏、画布、色系、字体与可读性约束 |
 | [投稿策略](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/ESCI 动态筛选与官网核验 |
-| 桌面自动模式 | 需要全链路执行 | 创建可恢复的五轮重构目录，保存 Chat 会话与产物状态；当前为开发者预览 |
+| YanShu 插件 | 需要全链路执行 | 通过 **Paper Reconstruction** 创建可恢复的五轮目录，保存 Chat 会话与产物状态；当前为开发者预览 |
 
 ## 设计原则
 
@@ -49,27 +61,61 @@
 - **写作与执行分层**：Chat 负责论文写作，Codex 只协调本地材料、状态、编译和错误回传。
 - **随时可恢复**：长任务逐轮保存，不因页面关闭、等待超时或应用重启而重复提交。
 
-## 桌面自动模式
+## 安装 YanShu 插件
 
-仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是第一版自动化插件。它已经具备：
+仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件的开发者预览版。当前包含一个正式命名的工作流：**Paper Reconstruction**。
 
-- 从网站同一份配置源生成五轮重构 Prompt，其中第四轮复用科研绘图的 Method Overview 规则；
+- 从网站同一份配置源生成五轮 Paper Reconstruction Prompt，其中第四轮复用科研绘图的 Method Overview 规则；
 - 自动识别或显式接收 TeX、BibTeX、PDF 与 figures 路径；
 - 新建 `yanshu-reconstruction/<run-id>/`，保存每轮 Prompt、产物、日志与状态；
-- 记录并恢复每轮 Chat 会话地址、模型标签和推理档位；
+- 记录并恢复每轮 Chat 会话地址、实际模型标签和推理档位；
+- 默认使用 ChatGPT 当前可见的最新推理模型与最强档位，也可选择 Medium、High、Extra High 或 Pro；
+- 所选档位不可用时，先提示用户，再回退到最接近的较低档位；名称无法判断时选择最强可用档位；
 - 为每轮生成严格的上传白名单；
 - 在 Chat 桥接缺失时停在可恢复状态，而不是让 Codex 代写论文。
 
-完整自动执行还需要可见的 ChatGPT 会话与兼容的浏览器桥接。研术台插件已经内置并锁定可见 Chat 控制运行时，用户不需要再安装第二个委派插件；它不会绕过登录、验证码或文件权限，也不要求 OpenAI API Key。
+完整自动执行还需要可见的 ChatGPT 会话与兼容的浏览器桥接。YanShu 已内置并锁定可见 Chat 控制运行时，用户不需要再安装第二个委派插件；它不会绕过登录、验证码或文件权限，也不要求 OpenAI API Key。
 
-当前开发者预览可以从本仓库的插件市场安装：
+### 当前 GitHub 预览版
+
+在 ChatGPT 桌面应用的 Codex 环境或 Codex CLI 中执行一次：
 
 ```bash
 codex plugin marketplace add panzhzh/yanshu-workbench --ref main
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
-安装后新建一个 Codex 任务，直接说“用研术台重构这个论文目录”即可。正式公开推广前仍会补齐图形化安装入口和首次权限向导。
+当前预览版从 **Codex 任务**启动；普通 Chat 对话本身不会直接加载本地插件。启动后，YanShu 再通过可见桥接把论文写作交给 ChatGPT Chat，这正是“Codex 管文件、Chat 写论文”的分层。
+
+安装后必须**新建一个任务**，这样 Codex 才会载入新 Skill。然后直接说：
+
+```text
+Use YanShu → Paper Reconstruction.
+```
+
+也可以用中文：
+
+```text
+使用 YanShu 的 Paper Reconstruction 重构这个论文目录。
+```
+
+YanShu 会先询问论文目录，再确认 TeX、BibTeX、PDF、figures、论文类型、字数、附录、框架图、Prompt 语言与推理偏好；只有展示完整摘要并得到明确确认后才开始。
+
+当前 GitHub 技术安装 ID 仍为 `yanshu-workbench`，用户看到的插件名称是 **YanShu**。未来进入 OpenAI 公共插件目录后，安装路径将简化为 **Plugins → 搜索 YanShu → 安装 → 新建任务**。插件的官方安装与使用方式可参考 [OpenAI Plugins 文档](https://learn.chatgpt.com/docs/plugins)。
+
+### 模型与推理档位为什么不写死
+
+模型名称会持续更新，因此网站和 `.yanshu.json` 只保存稳定意图：
+
+```json
+{
+  "modelPolicy": "latest-visible-reasoning",
+  "reasoningPreference": "strongest",
+  "fallbackPolicy": "closest-lower-then-strongest"
+}
+```
+
+运行时以 ChatGPT 真实可见的选择器为准，而不是根据 Plus、Pro 等套餐名称猜测。比如用户选择 Extra High 或 Pro，但页面只显示 Medium 与 High，YanShu 会明确说明并使用 High；若新名称无法可靠分类，则使用选择器中最强的可用档位。
 
 ## 论文模板策略
 
@@ -108,7 +154,7 @@ npm run build:pages
 yanshu-workbench/
 ├── README.md
 ├── plugins/
-│   └── yanshu-workbench/      # 桌面自动模式、运行状态与 Chat 委派边界
+│   └── yanshu-workbench/      # YanShu 插件、Paper Reconstruction 与 Chat 委派边界
 └── site/
     ├── app/
     │   ├── draft/              # 论文初稿配置与 Prompt
@@ -144,5 +190,5 @@ yanshu-workbench/
 ---
 
 <div align="center">
-  <sub>YanShu Workbench · Research methods and interactive tools for CS researchers.</sub>
+  <sub>YanShu · Research methods and interactive tools for CS researchers.</sub>
 </div>

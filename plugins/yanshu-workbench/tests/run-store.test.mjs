@@ -11,6 +11,7 @@ import path from "node:path";
 import test from "node:test";
 import { buildReconstructionWorkflow } from "../runtime/prompt-engine.mjs";
 import { importChatGPTControl } from "../vendor/chatgpt-control/import-chatgpt-control.mjs";
+import { resolveChatPreference } from "../scripts/lib/chat-preferences.mjs";
 import {
   createRun,
   markRound,
@@ -69,6 +70,11 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     /<base_name>_round_4_framework_reconstruction\.png/,
   );
   assert.equal(workflow.rounds[4].id, "final-refinement");
+  assert.deepEqual(workflow.config.chatExecution, {
+    modelPolicy: "latest-visible-reasoning",
+    reasoningPreference: "strongest",
+    fallbackPolicy: "closest-lower-then-strongest",
+  });
 });
 
 test("framework figure placement and canvas are configuration-driven", () => {
@@ -104,11 +110,71 @@ test("skill requires explicit onboarding confirmation before initialization", as
   );
 
   assert.match(skill, /Mandatory onboarding gate/);
+  assert.match(skill, /# Paper Reconstruction/);
   assert.match(skill, /Ask for the paper directory first/);
   assert.match(skill, /never select a paper at random/);
   assert.match(skill, /Display one concise confirmation summary/);
   assert.match(skill, /Wait for an explicit start confirmation/);
   assert.match(skill, /do not run `init`/);
+  assert.match(skill, /--reasoning strongest\|medium\|high\|extra-high\|pro/);
+  assert.match(skill, /chat-plan/);
+  assert.match(skill, /Never pin a GPT model name/);
+});
+
+test("reasoning preferences fall back against visible Chat options", () => {
+  const plusPro = resolveChatPreference({
+    requested: "pro",
+    visibleOptions: ["Medium", "High"],
+  });
+  assert.equal(plusPro.selectedLabel, "High");
+  assert.equal(plusPro.fallbackApplied, true);
+  assert.match(plusPro.notice, /Requested Pro; selected High/);
+
+  const plusExtraHigh = resolveChatPreference({
+    requested: "extra-high",
+    visibleOptions: ["Medium", "High"],
+  });
+  assert.equal(plusExtraHigh.selectedLabel, "High");
+  assert.equal(plusExtraHigh.fallbackApplied, true);
+
+  const strongest = resolveChatPreference({
+    requested: "strongest",
+    visibleOptions: ["Medium", "High", "Extra High", "Pro Standard", "Pro Extended"],
+  });
+  assert.equal(strongest.selectedLabel, "Pro Extended");
+  assert.equal(strongest.fallbackApplied, false);
+
+  const renamed = resolveChatPreference({
+    requested: "pro",
+    visibleOptions: ["Balanced", "Deep"],
+  });
+  assert.equal(renamed.selectedLabel, "Deep");
+  assert.equal(renamed.fallbackApplied, true);
+  assert.match(renamed.source, /visible-order/);
+
+  const newerAliases = resolveChatPreference({
+    requested: "pro",
+    visibleOptions: ["Standard", "Extended", "Max", "Ultra"],
+  });
+  assert.equal(newerAliases.selectedLabel, "Ultra");
+  assert.equal(newerAliases.fallbackApplied, false);
+});
+
+test("workflow preserves an explicit reasoning preference", () => {
+  const workflow = buildReconstructionWorkflow({
+    chatExecution: {
+      reasoningPreference: "extra-high",
+    },
+  });
+
+  assert.equal(
+    workflow.config.chatExecution.reasoningPreference,
+    "extra-high",
+  );
+  assert.equal(
+    workflow.config.chatExecution.modelPolicy,
+    "latest-visible-reasoning",
+  );
 });
 
 test("no-limit and unlimited-core modes alter generated prompts", () => {

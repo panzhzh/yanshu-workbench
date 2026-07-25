@@ -31,7 +31,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, /<title>研术台 · YanShu Workbench<\/title>/i);
+  assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
   assert.match(html, /选择当前最需要完成的一步/);
   assert.match(html, /论文初稿/);
@@ -67,6 +67,12 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /2–4 个强调色/);
   assert.match(html, /Calibri/);
   assert.match(html, /轻插图与图标按需使用/);
+  assert.match(html, /ChatGPT 执行/);
+  assert.match(html, /最新可用推理模型/);
+  assert.match(html, /自动最强/);
+  assert.match(html, /Extra High/);
+  assert.match(html, /不锁定 GPT 型号名称/);
+  assert.match(html, /发生回退时先明确提示/);
   assert.match(html, /正文与章节预算/);
   assert.match(html, /不限制方法和实验的字数/);
   assert.match(html, /每张表格或图片按 200 词计入/);
@@ -275,6 +281,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     page,
     layout,
     packageJson,
+    chatExecutionConfig,
     sourceFiles,
   ] = await Promise.all([
     readFile(new URL("../app/config.ts", import.meta.url), "utf8"),
@@ -313,6 +320,10 @@ test("keeps presets and production prompts configuration-driven", async () => {
     readFile(new URL("../app/page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
     readFile(new URL("../package.json", import.meta.url), "utf8"),
+    readFile(
+      new URL("../content/prompts/chatExecution.ts", import.meta.url),
+      "utf8",
+    ),
     readdir(new URL("../content/prompts/source/", import.meta.url)),
   ]);
 
@@ -336,6 +347,20 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(config, /resetPromptRail:\s*"双击恢复为 40%"/);
   assert.match(config, /满足当前适用的总量与章节预算时不得使用/);
   assert.match(config, /defaultUnlimitedCoreSections:\s*false/);
+  assert.match(config, /chatExecution:\s*\{/);
+  assert.match(config, /chatLatestVisibleModel:\s*"最新可用推理模型"/);
+  assert.match(
+    chatExecutionConfig,
+    /CHAT_MODEL_POLICY\s*=\s*"latest-visible-reasoning"/,
+  );
+  assert.match(
+    chatExecutionConfig,
+    /CHAT_FALLBACK_POLICY[\s\S]*"closest-lower-then-strongest"/,
+  );
+  assert.match(
+    chatExecutionConfig,
+    /"strongest"[\s\S]*"medium"[\s\S]*"high"[\s\S]*"extra-high"[\s\S]*"pro"/,
+  );
   assert.match(
     config,
     /unlimitedSectionIds:\s*WORD_COUNT_POLICY\.unlimitedCoreSectionIds/,
@@ -495,6 +520,9 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(component, /setAllocationMode\("custom"\)/);
   assert.match(component, /yanshu-workbench-web/);
   assert.match(component, /roundLanguages:\s*promptLanguages/);
+  assert.match(component, /chatExecution/);
+  assert.match(component, /reasoningPreference:\s*preferenceId/);
+  assert.match(component, /chatRuntimePolicy/);
   assert.match(component, /\.yanshu\.json/);
   assert.match(
     component,
@@ -648,7 +676,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(promptReadme, /unlimitedCoreSections/);
   assert.match(promptReadme, /counted as 200 words/);
   assert.match(page, /<HomePage \/>/);
-  assert.match(layout, /研术台 · YanShu Workbench/);
+  assert.match(layout, /研术台 · YanShu/);
   assert.match(layout, /\/og\.png/);
   assert.match(packageJson, /"name": "yanshu-workbench-site"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);

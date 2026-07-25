@@ -1,5 +1,12 @@
 import { PRODUCT_CONFIG } from "../../app/config";
 import {
+  CHAT_FALLBACK_POLICY,
+  CHAT_MODEL_POLICY,
+  CHAT_REASONING_PREFERENCE_IDS,
+  DEFAULT_CHAT_EXECUTION_PREFERENCES,
+  type ChatExecutionPreferences,
+} from "./chatExecution";
+import {
   FIGURE_ASPECT_RATIOS,
   FIGURE_PLACEMENTS,
   RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
@@ -13,7 +20,7 @@ import type {
   PromptBuildContext,
 } from "./types";
 
-export const RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.3";
+export const RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.4";
 
 export interface ReconstructionWorkflowInput {
   language?: Language;
@@ -25,6 +32,7 @@ export interface ReconstructionWorkflowInput {
   sectionBudgets?: Record<string, number>;
   includeAppendix?: boolean;
   frameworkFigure?: FrameworkFigureLayoutPreferences;
+  chatExecution?: Partial<ChatExecutionPreferences>;
 }
 
 function allocateWords(
@@ -139,6 +147,40 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     );
   }
 
+  const modelPolicy =
+    input.chatExecution?.modelPolicy ??
+    DEFAULT_CHAT_EXECUTION_PREFERENCES.modelPolicy;
+  if (modelPolicy !== CHAT_MODEL_POLICY) {
+    throw new Error(
+      `Unsupported ChatGPT model policy: ${String(modelPolicy)}.`,
+    );
+  }
+  const reasoningPreference =
+    input.chatExecution?.reasoningPreference ??
+    DEFAULT_CHAT_EXECUTION_PREFERENCES.reasoningPreference;
+  if (
+    !CHAT_REASONING_PREFERENCE_IDS.includes(
+      reasoningPreference as (typeof CHAT_REASONING_PREFERENCE_IDS)[number],
+    )
+  ) {
+    throw new Error(
+      `Unsupported ChatGPT reasoning preference: ${String(reasoningPreference)}.`,
+    );
+  }
+  const fallbackPolicy =
+    input.chatExecution?.fallbackPolicy ??
+    DEFAULT_CHAT_EXECUTION_PREFERENCES.fallbackPolicy;
+  if (fallbackPolicy !== CHAT_FALLBACK_POLICY) {
+    throw new Error(
+      `Unsupported ChatGPT fallback policy: ${String(fallbackPolicy)}.`,
+    );
+  }
+  const chatExecution: ChatExecutionPreferences = {
+    modelPolicy,
+    reasoningPreference,
+    fallbackPolicy,
+  };
+
   return {
     language,
     roundLanguages: Object.fromEntries(
@@ -160,6 +202,7 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
     frameworkFigure,
+    chatExecution,
   };
 }
 
@@ -178,6 +221,7 @@ export function buildReconstructionWorkflow(
     sectionBudgets,
     includeAppendix,
     frameworkFigure,
+    chatExecution,
   } = normalized;
   const contextForLanguage = (
     promptLanguage: Language,
@@ -223,6 +267,7 @@ export function buildReconstructionWorkflow(
       sectionBudgets,
       includeAppendix,
       frameworkFigure,
+      chatExecution,
     },
     rounds: RECONSTRUCTION_PROMPTS.map((round) => {
       const roundLanguage = roundLanguages[round.id];

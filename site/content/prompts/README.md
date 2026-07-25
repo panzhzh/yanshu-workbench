@@ -18,6 +18,8 @@ by the website.
   temporary ceiling and protected sections, are defined here as data.
 - `buildPrompt.ts` compiles a selected template with the current planner state.
 - `types.ts` defines the template and runtime-variable contract.
+- `chatExecution.ts` defines stable ChatGPT model-policy, reasoning-preference,
+  and fallback identifiers without pinning a changing GPT model name.
 
 Runtime variables:
 
@@ -33,6 +35,10 @@ Runtime variables:
 - `sectionBudgets`: current per-section allocation, including Abstract.
 - `includeAppendix`, `appendixLabel`, `appendixDirective`: appendix state and
   its main-text-counting rule.
+- `chatExecution`: plugin-only execution metadata. It stores
+  `latest-visible-reasoning`, a stable reasoning preference, and
+  `closest-lower-then-strongest`; it is exported to `.yanshu.json` but is not
+  inserted into manuscript-writing prompts.
 - `submissionPreferences`: OA, APC and IF ranges, review-article acceptance,
   JCR quartile, CAS zone, SCIE/SSCI/ESCI filters, and fixed publisher
   exclusions used only by the submission-strategy prompt.

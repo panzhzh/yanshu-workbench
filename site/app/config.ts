@@ -3,6 +3,10 @@ import type {
   LocalizedText,
   PaperStyleId,
 } from "../content/prompts/types";
+import {
+  CHAT_REASONING_PREFERENCES,
+  DEFAULT_CHAT_EXECUTION_PREFERENCES,
+} from "../content/prompts/chatExecution";
 import { WORD_COUNT_POLICY } from "../content/prompts/wordCountPolicy";
 
 export type { Language, LocalizedText, PaperStyleId };
@@ -35,7 +39,7 @@ export interface PaperStylePreset {
 
 export const PRODUCT_CONFIG = {
   productName: "研术台",
-  productNameEn: "YanShu Workbench",
+  productNameEn: "YanShu",
   defaultLanguage: "zh" as Language,
   defaultPromptLanguage: "zh" as Language,
   defaultPaperStyle: "conference" as PaperStyleId,
@@ -47,6 +51,10 @@ export const PRODUCT_CONFIG = {
     min: 2000,
     max: 20000,
     step: 100,
+  },
+  chatExecution: {
+    default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
+    reasoningPreferences: CHAT_REASONING_PREFERENCES,
   },
   paperStyles: {
     conference: {
@@ -310,11 +318,11 @@ export const UI_COPY = {
     paperStyle: "论文风格",
     targetWords: "正文字数限制",
     targetWordsHint:
-      "开启后显示 05；附录不计入正文，每张表格或图片按 200 词计入。",
+      "开启后显示 06；附录不计入正文，每张表格或图片按 200 词计入。",
     wordLimitOn: "限制正文字数",
     wordLimitOff: "无特殊规定",
     noWordLimitHint:
-      "关闭后不显示 05，五步 Prompt 也不包含正文总数或章节预算。",
+      "关闭后不显示 06，五步 Prompt 也不包含正文总数或章节预算。",
     words: "词",
     appendix: "附录设置",
     appendixOn: "允许附录",
@@ -326,13 +334,19 @@ export const UI_COPY = {
     frameworkCustomHeight: "高",
     frameworkFixedRules:
       "其余规则固定：极简论文线稿；Tol 鲜明色系，由 GPT 按语义选择 2–4 个强调色；Calibri；纯白画布与纯白模块卡片；两级字号；无大标题；深色中性线为默认，必要时按语义着色；轻插图与图标按需使用。",
+    chatExecution: "ChatGPT 执行",
+    chatModelPolicy: "模型策略",
+    chatLatestVisibleModel: "最新可用推理模型",
+    chatReasoningPreference: "推理等级",
+    chatRuntimePolicy:
+      "不锁定 GPT 型号名称；插件每轮读取 ChatGPT 当前可见选项。发生回退时先明确提示，名称无法判断时选择最强可用档位。",
     exportAutomation: "导出桌面配置",
     exportedAutomation: "配置已下载",
     exportAutomationHint:
-      "下载当前论文类型、字数、章节、附录、框架图和 Prompt 语言设置，供研术台插件直接读取。",
+      "下载当前论文类型、字数、章节、附录、框架图、ChatGPT 推理偏好和 Prompt 语言设置，供 YanShu 插件直接读取。",
     resetDefaults: "恢复默认配置",
     resetHint:
-      "重置论文类型、正文字数模式、附录、框架图和章节预算；保留当前语言。",
+      "重置论文类型、正文字数模式、附录、框架图、ChatGPT 推理偏好和章节预算；保留当前语言。",
     plannerTitle: "正文与章节预算",
     plannerBody:
       "设置正文与章节预算；可单独取消方法和实验的字数限制。",
@@ -403,11 +417,11 @@ export const UI_COPY = {
     paperStyle: "Paper style",
     targetWords: "Main-text word limit",
     targetWordsHint:
-      "When enabled, section 05 appears. The appendix is excluded; each table or figure counts as 200 words.",
+      "When enabled, section 06 appears. The appendix is excluded; each table or figure counts as 200 words.",
     wordLimitOn: "Apply a word limit",
     wordLimitOff: "No special limit",
     noWordLimitHint:
-      "When disabled, section 05 is hidden and all five prompts omit the main-text total and section budgets.",
+      "When disabled, section 06 is hidden and all five prompts omit the main-text total and section budgets.",
     words: "words",
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
@@ -419,13 +433,19 @@ export const UI_COPY = {
     frameworkCustomHeight: "Height",
     frameworkFixedRules:
       "All other rules are fixed: minimal paper linework; Tol Vibrant palette with 2–4 accents selected by GPT by semantics; Calibri; pure-white canvas and module cards; two type-size levels; no large title; dark-neutral lines by default with semantic color only when needed; light illustrations and icons when useful.",
+    chatExecution: "ChatGPT execution",
+    chatModelPolicy: "Model policy",
+    chatLatestVisibleModel: "Latest available reasoning model",
+    chatReasoningPreference: "Reasoning level",
+    chatRuntimePolicy:
+      "GPT model names are never pinned. The plugin inspects the options currently visible in ChatGPT for every round, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
     exportAutomation: "Export desktop config",
     exportedAutomation: "Config downloaded",
     exportAutomationHint:
-      "Download the current paper type, length, section, appendix, framework-figure, and prompt-language settings for the YanShu plugin.",
+      "Download the current paper type, length, section, appendix, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
     resetDefaults: "Restore defaults",
     resetHint:
-      "Resets paper type, length mode, appendix, framework figure, and section budgets while keeping the current language.",
+      "Resets paper type, length mode, appendix, framework figure, ChatGPT reasoning preference, and section budgets while keeping the current language.",
     plannerTitle: "Main-text and section budgets",
     plannerBody:
       "Set main-text and section budgets, with an independent unlimited mode for Method and Experiments.",

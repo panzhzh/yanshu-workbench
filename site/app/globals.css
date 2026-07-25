@@ -796,6 +796,89 @@ a {
   padding-top: 8px;
 }
 
+.chat-execution-control {
+  min-width: 0;
+  min-height: 0;
+  grid-column: span 12;
+  margin: 0;
+  padding-block: 13px 12px;
+}
+
+.chat-execution-control legend {
+  width: 100%;
+  margin: 0 0 9px;
+  padding: 0;
+}
+
+.chat-execution-row {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.65fr) minmax(0, 1.9fr);
+  gap: 9px;
+  align-items: end;
+}
+
+.chat-model-policy,
+.chat-reasoning-field {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 680;
+}
+
+.chat-model-policy strong {
+  display: flex;
+  min-height: 36px;
+  align-items: center;
+  padding: 7px 10px;
+  color: var(--accent-strong);
+  background: var(--surface-accent);
+  border: 1px solid #a9bebd;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1.35;
+}
+
+.chat-reasoning-options {
+  display: grid;
+  grid-template-columns: 1.25fr repeat(4, minmax(70px, 1fr));
+  gap: 6px;
+}
+
+.chat-reasoning-options button {
+  min-height: 36px;
+  padding: 7px 8px;
+  color: var(--ink-soft);
+  background: #fafbf9;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 720;
+  line-height: 1.25;
+}
+
+.chat-reasoning-options button:hover,
+.chat-reasoning-options button.active {
+  color: var(--accent-strong);
+  border-color: #8eaaa9;
+}
+
+.chat-reasoning-options button.active {
+  background: var(--surface-accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.chat-execution-control > small {
+  padding-top: 8px;
+}
+
+.chat-execution-control > small strong {
+  color: var(--ink-soft);
+}
+
 .control-label-row {
   display: flex;
   align-items: center;
@@ -3549,12 +3632,21 @@ body.is-resizing-prompt * {
   .target-control,
   .style-control,
   .appendix-control,
-  .framework-figure-control {
+  .framework-figure-control,
+  .chat-execution-control {
     grid-column: 1;
   }
 
   .framework-figure-row {
     grid-template-columns: 1fr;
+  }
+
+  .chat-execution-row {
+    grid-template-columns: 1fr;
+  }
+
+  .chat-reasoning-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .framework-custom-ratio {

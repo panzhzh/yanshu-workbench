@@ -15,6 +15,11 @@ import {
   stringFlag,
 } from "./lib/cli.mjs";
 import {
+  CHAT_REASONING_PREFERENCES,
+  parseVisibleChatOptions,
+  resolveChatPreference,
+} from "./lib/chat-preferences.mjs";
+import {
   bridgeHints,
   createRun,
   loadRun,
@@ -40,6 +45,8 @@ function help() {
       init: "Create a resumable five-round reconstruction run.",
       status: "Read compact progress for an existing run.",
       next: "Return the next round, prompt, and approved attachments.",
+      "chat-plan":
+        "Resolve a saved reasoning preference against ChatGPT options currently visible to the user.",
       mark: "Record round status and visible Chat thread metadata.",
       artifact: "Copy one downloaded artifact into a round output directory.",
     },
@@ -206,6 +213,15 @@ async function init(flags) {
       fileConfig.workflow?.frameworkFigure?.customAspectHeight ?? 9,
     ),
   };
+  const chatExecution = {
+    ...fileConfig.workflow?.chatExecution,
+    reasoningPreference: enumFlag(
+      flags,
+      "reasoning",
+      CHAT_REASONING_PREFERENCES,
+      fileConfig.workflow?.chatExecution?.reasoningPreference ?? "strongest",
+    ),
+  };
 
   const engine = await loadPromptEngine();
   const workflow = engine.buildReconstructionWorkflow({
@@ -218,6 +234,7 @@ async function init(flags) {
     sectionBudgets: fileConfig.workflow?.sectionBudgets,
     includeAppendix,
     frameworkFigure,
+    chatExecution,
   });
   const state = await createRun({
     projectRoot,
@@ -268,8 +285,30 @@ async function next(flags) {
       chat: round.chat,
     },
     approvedAttachments: await roundAttachments(state, round.id),
+    chatExecution: state.config.chatExecution,
     instruction:
-      "Use a visible ChatGPT Chat thread. Submit exactly once, preserve the thread URL, and poll/read the same thread after timeouts.",
+      "Inspect the visible ChatGPT reasoning options, resolve them with `chat-plan`, announce any fallback, submit exactly once, preserve the thread URL, and poll/read the same thread after timeouts.",
+  };
+}
+
+async function chatPlan(flags) {
+  const state = await loadRun(requiredFlag(flags, "run"));
+  const requested = enumFlag(
+    flags,
+    "requested",
+    CHAT_REASONING_PREFERENCES,
+    state.config.chatExecution?.reasoningPreference ?? "strongest",
+  );
+  const visibleOptions = parseVisibleChatOptions(
+    requiredFlag(flags, "visible"),
+  );
+  return {
+    ok: true,
+    ...resolveChatPreference({ requested, visibleOptions }),
+    visibleOptions,
+    fallbackPolicy:
+      state.config.chatExecution?.fallbackPolicy ??
+      "closest-lower-then-strongest",
   };
 }
 
@@ -341,6 +380,9 @@ async function main() {
       break;
     case "next":
       result = await next(flags);
+      break;
+    case "chat-plan":
+      result = await chatPlan(flags);
       break;
     case "mark":
       result = await mark(flags);

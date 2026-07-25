@@ -19,6 +19,10 @@ import {
   type FrameworkFigureLayoutPreferences,
 } from "./figures/config";
 import { buildPrompt } from "../content/prompts/buildPrompt";
+import type {
+  ChatExecutionPreferences,
+  ChatReasoningPreferenceId,
+} from "../content/prompts/chatExecution";
 import { RECONSTRUCTION_PROMPTS } from "../content/prompts/templates";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -141,6 +145,10 @@ export default function YanshuWorkbench() {
       customAspectHeight:
         RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
     }));
+  const [chatExecution, setChatExecution] =
+    useState<ChatExecutionPreferences>(() => ({
+      ...PRODUCT_CONFIG.chatExecution.default,
+    }));
   const [sectionWords, setSectionWords] = useState<SectionWords>(() =>
     allocateWords(defaultStyle.defaultTargetWords, defaultStyle.sections),
   );
@@ -180,6 +188,10 @@ export default function YanshuWorkbench() {
     ...RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
     ...frameworkFigure,
   });
+  const chatReasoningPreference =
+    PRODUCT_CONFIG.chatExecution.reasoningPreferences[
+      chatExecution.reasoningPreference
+    ];
 
   const prompts = useMemo(
     () =>
@@ -361,6 +373,7 @@ export default function YanshuWorkbench() {
       customAspectHeight:
         RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
     });
+    setChatExecution({ ...PRODUCT_CONFIG.chatExecution.default });
     setSectionWords(
       allocateWords(nextStyle.defaultTargetWords, nextStyle.sections),
     );
@@ -388,6 +401,7 @@ export default function YanshuWorkbench() {
           sectionBudgets: sectionWords,
           includeAppendix,
           frameworkFigure,
+          chatExecution,
         },
       };
       const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], {
@@ -669,6 +683,64 @@ export default function YanshuWorkbench() {
               </div>
               <small>{copy.frameworkFixedRules}</small>
             </fieldset>
+
+            <fieldset className="config-control chat-execution-control">
+              <legend className="control-label-row">
+                <span className="control-index">05</span>
+                <span>{copy.chatExecution}</span>
+              </legend>
+              <div className="chat-execution-row">
+                <div className="chat-model-policy">
+                  <span>{copy.chatModelPolicy}</span>
+                  <strong>{copy.chatLatestVisibleModel}</strong>
+                </div>
+                <div className="chat-reasoning-field">
+                  <span>{copy.chatReasoningPreference}</span>
+                  <div
+                    className="chat-reasoning-options"
+                    role="radiogroup"
+                    aria-label={copy.chatReasoningPreference}
+                  >
+                    {(
+                      Object.keys(
+                        PRODUCT_CONFIG.chatExecution.reasoningPreferences,
+                      ) as ChatReasoningPreferenceId[]
+                    ).map((preferenceId) => {
+                      const preference =
+                        PRODUCT_CONFIG.chatExecution.reasoningPreferences[
+                          preferenceId
+                        ];
+                      const active =
+                        chatExecution.reasoningPreference === preferenceId;
+                      return (
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          className={active ? "active" : ""}
+                          key={preferenceId}
+                          onClick={() => {
+                            setChatExecution((current) => ({
+                              ...current,
+                              reasoningPreference: preferenceId,
+                            }));
+                            setCopied(null);
+                          }}
+                        >
+                          {preference.label[uiLanguage]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+              <small>
+                <strong>
+                  {chatReasoningPreference.description[uiLanguage]}
+                </strong>{" "}
+                {copy.chatRuntimePolicy}
+              </small>
+            </fieldset>
           </div>
 
           {hasWordLimit && (
@@ -678,7 +750,7 @@ export default function YanshuWorkbench() {
             >
             <div className="allocation-control-header">
               <div className="allocation-title">
-                <span className="control-index">05</span>
+                <span className="control-index">06</span>
                 <div>
                   <strong>{copy.plannerTitle}</strong>
                   <span>{copy.plannerBody}</span>
@@ -912,6 +984,10 @@ export default function YanshuWorkbench() {
                   uiLanguage
                 ]}{" "}
                 · {frameworkAspectRatio}
+              </span>
+              <span>
+                ChatGPT ·{" "}
+                {chatReasoningPreference.shortLabel[uiLanguage]}
               </span>
             </div>
             <div>
