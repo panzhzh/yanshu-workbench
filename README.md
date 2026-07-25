@@ -128,6 +128,8 @@ YanShu 会先确认论文目录；若目录中有多篇论文，只需选择目�
 
 运行时以 ChatGPT 真实可见的选择器为准，而不是根据 Plus、Pro 等套餐名称猜测。比如用户选择 Extra High 或 Pro，但页面只显示 Medium 与 High，YanShu 会明确说明并使用 High；若新名称无法可靠分类，则使用选择器中最强的可用档位。
 
+每一轮都会先显式新建独立的空白 Chat，再在该会话中选择推理档位并上传文件，不会修改用户原本打开的聊天。如果 ChatGPT 已接受准确的档位点击、但新版界面暂时无法回读当前标签，YanShu 会将其记录为 `click-acknowledged` 并继续；只有选项未找到、点击失败、新会话未建立或回读明确冲突时才暂停。
+
 ## 论文模板策略
 
 论文初稿默认使用 [`kourgeorge/arxiv-style`](https://github.com/kourgeorge/arxiv-style) 作为 arXiv 预印本排版基础。该仓库使用 MIT License，但它是第三方预印本样式，并非 arXiv 官方格式要求。

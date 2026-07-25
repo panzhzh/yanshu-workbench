@@ -11,6 +11,12 @@ import path from "node:path";
 import test from "node:test";
 import { buildReconstructionWorkflow } from "../runtime/prompt-engine.mjs";
 import { importChatGPTControl } from "../vendor/chatgpt-control/import-chatgpt-control.mjs";
+import {
+  applyChatReasoningSelection,
+  inspectFreshChatConfiguration,
+  openFreshChatRound,
+  submitPreparedChatRound,
+} from "../scripts/lib/chat-round-protocol.mjs";
 import { resolveChatPreference } from "../scripts/lib/chat-preferences.mjs";
 import {
   onboardingStatus,
@@ -122,6 +128,13 @@ test("skill opens one local launch page without an execution-mode question", asy
     new URL("../skills/paper-reconstruction/SKILL.md", import.meta.url),
     "utf8",
   );
+  const bridgeReference = await readFile(
+    new URL(
+      "../skills/paper-reconstruction/references/chat-bridge.md",
+      import.meta.url,
+    ),
+    "utf8",
+  );
 
   assert.match(skill, /Mandatory onboarding gate/);
   assert.match(skill, /# Paper Reconstruction/);
@@ -147,6 +160,17 @@ test("skill opens one local launch page without an execution-mode question", asy
   assert.match(skill, /--reasoning strongest\|medium\|high\|extra-high\|pro/);
   assert.match(skill, /chat-plan/);
   assert.match(skill, /Never pin a GPT model name/);
+  assert.match(
+    skill,
+    /Never apply a round's Chat configuration inside an unrelated conversation/,
+  );
+  assert.match(skill, /openFreshChatRound/);
+  assert.match(skill, /click-acknowledged/);
+  assert.match(skill, /submitPreparedChatRound/);
+  assert.match(bridgeReference, /openYanShuFreshChatRound/);
+  assert.match(bridgeReference, /applyYanShuChatReasoningSelection/);
+  assert.match(bridgeReference, /submitYanShuPreparedChatRound/);
+  assert.match(bridgeReference, /thread: \{ type: "current" \}/);
 });
 
 test("local onboarding page confirms a complete automation config", async () => {
@@ -369,6 +393,186 @@ test("reasoning preferences fall back against visible Chat options", () => {
   assert.equal(newerAliases.fallbackApplied, false);
 });
 
+test("chat round protocol prepares a fresh thread before configuration and upload", async () => {
+  const calls = [];
+  const chatgpt = {
+    experience: {
+      open: async (args) => {
+        calls.push(["experience.open", args]);
+        return {
+          ok: true,
+          status: "success",
+          context: { url: "https://chatgpt.com/c/existing-thread" },
+        };
+      },
+    },
+    threads: {
+      new: async () => {
+        calls.push(["threads.new"]);
+        return {
+          ok: true,
+          status: "success",
+          data: { url: "https://chatgpt.com/" },
+          context: { url: "https://chatgpt.com/" },
+        };
+      },
+    },
+    configuration: {
+      inspect: async (args) => {
+        calls.push(["configuration.inspect", args]);
+        return {
+          ok: true,
+          status: "success",
+          data: {
+            experience: "chat",
+            options: {
+              intelligence: [
+                { label: "Medium" },
+                { label: "High" },
+                { label: "Extra High" },
+              ],
+            },
+          },
+        };
+      },
+      apply: async (args) => {
+        calls.push(["configuration.apply", args]);
+        return {
+          ok: true,
+          status: "success",
+          data: {
+            verified: false,
+            selected: [
+              {
+                axis: "intelligence",
+                requested: "Extra High",
+                selected: "Extra High",
+              },
+            ],
+            after: { active: {} },
+          },
+          warnings: ["Visible postcondition is unavailable."],
+        };
+      },
+    },
+    modes: {
+      get: async () => {
+        calls.push(["modes.get"]);
+        return {
+          ok: true,
+          status: "success",
+          data: { modes: [] },
+          warnings: ["No active mode label is exposed."],
+        };
+      },
+    },
+    askWithFiles: async (args) => {
+      calls.push(["askWithFiles", args]);
+      return {
+        ok: true,
+        status: "running",
+        context: { url: "https://chatgpt.com/c/new-round-thread" },
+      };
+    },
+  };
+
+  const opened = await openFreshChatRound(chatgpt);
+  assert.equal(opened.ok, true);
+  assert.equal(opened.data.currentUrl, "https://chatgpt.com/");
+
+  const inspected = await inspectFreshChatConfiguration(chatgpt);
+  assert.equal(inspected.ok, true);
+
+  const applied = await applyChatReasoningSelection(chatgpt, {
+    selectedLabel: "Extra High",
+    visibleOptions: ["Medium", "High", "Extra High"],
+  });
+  assert.equal(applied.ok, true);
+  assert.equal(applied.data.verification, "click-acknowledged");
+  assert.match(applied.warnings.at(-1), /will continue/);
+
+  const submitted = await submitPreparedChatRound(chatgpt, {
+    files: ["/paper/main.tex", "/paper/main.pdf"],
+    prompt: "Reconstruct this paper.",
+  });
+  assert.equal(submitted.ok, true);
+  assert.deepEqual(
+    calls.map(([name]) => name),
+    [
+      "experience.open",
+      "threads.new",
+      "configuration.inspect",
+      "configuration.apply",
+      "modes.get",
+      "askWithFiles",
+    ],
+  );
+  const applyArgs = calls.find(
+    ([name]) => name === "configuration.apply",
+  )[1];
+  assert.equal(applyArgs.strict, false);
+  const submitArgs = calls.find(([name]) => name === "askWithFiles")[1];
+  assert.deepEqual(submitArgs.thread, { type: "current" });
+  assert.equal(submitArgs.existingTab, true);
+  assert.equal(submitArgs.configuration, undefined);
+});
+
+test("chat round protocol blocks a stale thread or contradictory reasoning readback", async () => {
+  const staleThread = await openFreshChatRound({
+    experience: {
+      open: async () => ({
+        ok: true,
+        context: { url: "https://chatgpt.com/c/same-thread" },
+      }),
+    },
+    threads: {
+      new: async () => ({
+        ok: true,
+        data: { url: "https://chatgpt.com/c/same-thread" },
+      }),
+    },
+  });
+  assert.equal(staleThread.ok, false);
+  assert.equal(staleThread.blocker.code, "thread_creation_unverified");
+
+  const conflicting = await applyChatReasoningSelection(
+    {
+      configuration: {
+        apply: async () => ({
+          ok: true,
+          data: {
+            verified: false,
+            selected: [
+              {
+                axis: "intelligence",
+                requested: "Extra High",
+                selected: "Extra High",
+              },
+            ],
+          },
+          warnings: [],
+        }),
+      },
+      modes: {
+        get: async () => ({
+          ok: true,
+          data: { modes: ["High"] },
+          warnings: [],
+        }),
+      },
+    },
+    {
+      selectedLabel: "Extra High",
+      visibleOptions: ["Medium", "High", "Extra High"],
+    },
+  );
+  assert.equal(conflicting.ok, false);
+  assert.equal(
+    conflicting.blocker.code,
+    "configuration_readback_conflict",
+  );
+});
+
 test("workflow preserves an explicit reasoning preference", () => {
   const workflow = buildReconstructionWorkflow({
     chatExecution: {
@@ -500,7 +704,12 @@ test("run state is recoverable and attachment-scoped", async () => {
       experience: "chat",
       model: "strongest-visible",
       effort: "strongest-visible",
+      configurationVerification: "click-acknowledged",
     });
+    assert.equal(
+      state.rounds[0].chat.configurationVerification,
+      "click-acknowledged",
+    );
     const downloaded = path.join(temporaryRoot, "round-1-output.tex");
     await writeFile(downloaded, "round output", "utf8");
     await registerArtifact(state, "1", downloaded);

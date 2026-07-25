@@ -19,6 +19,16 @@ var yanshuChatGPT = createYanShuChatGPT({
   agent: globalThis.agent,
   reporting: { enabled: true, includeContent: false }
 });
+var yanshuProtocolUrl = new URL(
+  "../../scripts/lib/chat-round-protocol.mjs",
+  "file:///absolute/path/to/plugins/yanshu-workbench/skills/paper-reconstruction/SKILL.md"
+);
+var {
+  openFreshChatRound: openYanShuFreshChatRound,
+  inspectFreshChatConfiguration: inspectYanShuFreshChatConfiguration,
+  applyChatReasoningSelection: applyYanShuChatReasoningSelection,
+  submitPreparedChatRound: submitYanShuPreparedChatRound
+} = await import(`${yanshuProtocolUrl.href}?t=${Date.now()}`);
 ```
 
 If `globalThis.agent` is absent, do not run this import from an ordinary shell and do not invent a hidden browser session. Load the supported Chrome-control runtime when available; otherwise return `browser_bridge_unavailable`.
@@ -40,18 +50,39 @@ Stop on a failed check. File uploads require:
 
 Do not repeatedly retry the same missing permission.
 
-## Open Chat and select capability
+## Prepare the round thread
 
-YanShu paper prose always uses Chat:
+YanShu paper prose always uses Chat. For a round without a recorded thread URL,
+prepare a blank thread before inspecting or changing configuration:
 
 ```js
-var yanshuOpenedChat = await yanshuChatGPT.experience.open({
-  experience: "chat"
-});
-var yanshuChatCapabilities = await yanshuChatGPT.configuration.inspect({
-  experience: "chat"
+var yanshuPreparedChat =
+  await openYanShuFreshChatRound(yanshuChatGPT);
+```
+
+This helper calls `experience.open({ experience: "chat" })` and then
+`threads.new()`. A successful `experience.open` by itself is not a new
+conversation and must never authorize configuration changes in the user's
+previously selected chat. Stop before configuration or upload if
+`yanshuPreparedChat.ok` is false.
+
+For a round that already records a stable conversation URL, reopen that exact
+thread instead:
+
+```js
+var yanshuPreparedChat = await yanshuChatGPT.threads.open({
+  url: recordedThreadUrl
 });
 ```
+
+After the target thread is prepared, inspect its visible configuration:
+
+```js
+var yanshuChatCapabilities =
+  await inspectYanShuFreshChatConfiguration(yanshuChatGPT);
+```
+
+## Resolve and apply capability
 
 Keep the exact intelligence/reasoning candidates in their visible order. Resolve
 the saved YanShu preference before applying anything:
@@ -67,15 +98,45 @@ the live inspection. The resolver never assumes a plan or a fixed model name.
 If it reports a fallback, tell the user which visible level will be used before
 submitting the round.
 
-Apply the returned `selectedLabel` strictly and verify the postcondition:
+Apply the returned `selectedLabel` with the YanShu protocol:
 
 ```js
+var yanshuVisibleReasoningOptions = (
+  yanshuChatCapabilities.data.options.intelligence ??
+  yanshuChatCapabilities.data.options.effort ??
+  []
+).map((option) => option.label);
 var yanshuAppliedConfiguration =
-  await yanshuChatGPT.configuration.apply({
-    experience: "chat",
-    desired: { intelligence: "<selectedLabel from chat-plan>" },
-    strict: true
+  await applyYanShuChatReasoningSelection(yanshuChatGPT, {
+    selectedLabel: "<selectedLabel from chat-plan>",
+    visibleOptions: yanshuVisibleReasoningOptions
   });
+```
+
+The helper deliberately calls the upstream selector with `strict: false`, then
+classifies the available evidence:
+
+- `verified`: a visible active-value readback matches the selected label;
+- `click-acknowledged`: the exact option was found and clicked, but ChatGPT's
+  current composer exposes no reliable active-value readback. Continue and
+  record this verification level;
+- a blocker: the option could not be found or clicked, the visible readback
+  explicitly reports a different option, or a fresh thread was not established.
+
+Do not turn `click-acknowledged` into `selector_drift`. Tell the user once that
+the visible option was accepted but the UI cannot expose a reliable readback,
+then continue. Do stop on explicit contradictory readback.
+
+Before upload, record the prepared round and the returned verification level:
+
+```text
+node <plugin-root>/scripts/yanshu.mjs mark \
+  --run <run-path> \
+  --round <round-number> \
+  --status running \
+  --experience chat \
+  --effort "<selectedLabel from chat-plan>" \
+  --configuration-verification verified|click-acknowledged
 ```
 
 Use the latest visible reasoning-capable model family. When a separate model or
@@ -83,22 +144,26 @@ model-version axis is visible, choose its newest reasoning-capable entry only
 when the visible ordering or version is unambiguous. Otherwise keep Chat's
 latest/default reasoning family. Do not infer a subscription plan or hidden
 model identifier from a visible label. Record the visible labels and
-verification result only.
+`yanshuAppliedConfiguration.data.verification` only.
 
 ## Submit one round exactly once
 
 Read the generated prompt file locally and pass its full text with only the approved attachment paths returned by `yanshu next`:
 
 ```js
-var yanshuSubmittedRound = await yanshuChatGPT.askWithFiles({
-  thread: { type: "new" },
-  files: approvedAbsolutePaths,
-  prompt: completeGeneratedPrompt,
-  wait: false,
-  read: false,
-  report: { enabled: true, includeContent: false }
-});
+var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
+  yanshuChatGPT,
+  {
+    files: approvedAbsolutePaths,
+    prompt: completeGeneratedPrompt
+  }
+);
 ```
+
+The helper uses `thread: { type: "current" }` with `existingTab: true`. This is
+intentional: the round already owns the blank configured thread. Do not pass
+`thread: { type: "new" }` here, because that would create a second thread after
+configuration.
 
 Immediately preserve the returned thread or conversation URL in `run.json` through the `yanshu mark` command. If submission returns a partial result, timeout, or active-generation state, assume the prompt may already be running.
 
@@ -162,3 +227,7 @@ Preserve and report the runtime's real status for:
 - `selector_drift`
 
 Never convert one of these into a successful round or bypass it with another model surface.
+An absent active-value label after an acknowledged exact configuration click is
+not, by itself, `selector_drift`; the YanShu protocol reports it as
+`click-acknowledged`. Missing options, failed clicks, stale-thread evidence, and
+contradictory readback remain real blockers.

@@ -329,7 +329,7 @@ async function next(flags) {
     approvedAttachments: await roundAttachments(state, round.id),
     chatExecution: state.config.chatExecution,
     instruction:
-      "Inspect the visible ChatGPT reasoning options, resolve them with `chat-plan`, announce any fallback, submit exactly once, preserve the thread URL, and poll/read the same thread after timeouts.",
+      "Prepare a fresh visible Chat thread before configuration, inspect and resolve reasoning with `chat-plan`, apply it with the YanShu Chat-round protocol, submit to that same prepared thread exactly once, preserve the returned thread URL, and poll/read the same thread after timeouts.",
   };
 }
 
@@ -370,6 +370,10 @@ async function mark(flags) {
       experience: stringFlag(flags, "experience"),
       model: stringFlag(flags, "model"),
       effort: stringFlag(flags, "effort"),
+      configurationVerification: stringFlag(
+        flags,
+        "configuration-verification",
+      ),
       note: stringFlag(flags, "note"),
     },
     booleanFlag(flags, "force", false),

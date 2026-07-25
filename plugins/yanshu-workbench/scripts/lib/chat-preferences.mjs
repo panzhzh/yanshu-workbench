@@ -24,7 +24,7 @@ const FALLBACK_ORDER = {
   pro: ["pro", "extra-high", "high", "medium"],
 };
 
-function normalizeLabel(value) {
+export function normalizeVisibleChatLabel(value) {
   return value
     .normalize("NFKC")
     .toLowerCase()
@@ -34,8 +34,8 @@ function normalizeLabel(value) {
     .trim();
 }
 
-function classifyVisibleLabel(label) {
-  const normalized = normalizeLabel(label);
+export function classifyVisibleChatLabel(label) {
+  const normalized = normalizeVisibleChatLabel(label);
   if (
     normalized.includes("pro extended") ||
     normalized.includes("extended pro") ||
@@ -157,7 +157,7 @@ export function resolveChatPreference({
   const options = visibleOptions.map((label, index) => ({
     label: String(label).trim(),
     index,
-    ...classifyVisibleLabel(String(label)),
+    ...classifyVisibleChatLabel(String(label)),
   }));
   if (options.some((option) => option.label.length === 0)) {
     throw new CliError("Visible ChatGPT reasoning labels cannot be empty.");

@@ -22,6 +22,10 @@ export const ROUND_STATUSES = [
   "failed",
   "blocked",
 ];
+export const CHAT_CONFIGURATION_VERIFICATIONS = [
+  "verified",
+  "click-acknowledged",
+];
 
 const FIGURE_EXTENSIONS = new Set([
   ".png",
@@ -307,6 +311,16 @@ export async function markRound(state, selector, update, force = false) {
   if (!ROUND_STATUSES.includes(update.status)) {
     throw new CliError(`Unknown round status: ${update.status}.`);
   }
+  if (
+    update.configurationVerification !== undefined &&
+    !CHAT_CONFIGURATION_VERIFICATIONS.includes(
+      update.configurationVerification,
+    )
+  ) {
+    throw new CliError(
+      `Unknown Chat configuration verification: ${update.configurationVerification}.`,
+    );
+  }
   if (round.status === "completed" && update.status !== "completed" && !force) {
     throw new CliError(
       `Round ${round.number} is completed. Pass --force to reopen it.`,
@@ -326,7 +340,8 @@ export async function markRound(state, selector, update, force = false) {
     update.threadUrl ||
     update.experience ||
     update.model ||
-    update.effort
+    update.effort ||
+    update.configurationVerification
   ) {
     round.chat = {
       ...(round.chat ?? {}),
@@ -334,6 +349,10 @@ export async function markRound(state, selector, update, force = false) {
       experience: update.experience ?? round.chat?.experience ?? "chat",
       model: update.model ?? round.chat?.model ?? null,
       effort: update.effort ?? round.chat?.effort ?? null,
+      configurationVerification:
+        update.configurationVerification ??
+        round.chat?.configurationVerification ??
+        null,
     };
   }
 

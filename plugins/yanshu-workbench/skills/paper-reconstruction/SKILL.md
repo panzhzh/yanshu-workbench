@@ -19,6 +19,7 @@ Follow the user's conversation language during onboarding and status updates. Pr
 - Upload only paths returned by the YanShu `next` command. Never upload `.env` files, credentials, private keys, unrelated folders, or unapproved files.
 - Never resubmit an original round after a timeout. Preserve the Chat thread URL and poll, wait, read, or continue that same thread.
 - Store every downloaded artifact and status change inside the current YanShu run directory.
+- Never apply a round's Chat configuration inside an unrelated conversation. Prepare a fresh blank Chat thread before inspecting or changing reasoning; `experience.open` alone does not create a new thread.
 - After the manuscript root is unambiguous, do not ask whether the user wants automation or Prompt-only handoff. Open the bundled local page immediately; it supports both live Prompt access and full-automation launch.
 - After local-page confirmation, do not ask for another summary confirmation or repeat any configured question. Pause only for a real login, CAPTCHA, permission, missing-file, or scientific decision blocker that cannot be resolved safely.
 
@@ -119,10 +120,13 @@ Read `references/chat-bridge.md` before the first live Chat operation. YanShu in
 
 For every round:
 
-1. Open the Chat experience and run `configuration.inspect` with visible options included.
-2. Keep the model policy `latest-visible-reasoning`. If Chat exposes a model or model-version axis and its ordering is unambiguous, select the newest visible reasoning-capable family. Otherwise keep Chat's current latest/default reasoning family; never guess a hidden identifier.
-3. Preserve the exact visible intelligence/reasoning labels in their displayed order.
-4. Run:
+1. Prepare the target thread before touching configuration:
+   - if the round already records a thread URL, reopen that exact URL;
+   - otherwise call the YanShu `openFreshChatRound` helper from `references/chat-bridge.md`, which opens Chat and then explicitly calls `threads.new`.
+   - never treat `experience.open` as proof that a new conversation exists, and never configure whatever conversation happened to be selected previously.
+2. Run `configuration.inspect` with visible options included on that prepared thread.
+3. Keep the model policy `latest-visible-reasoning`. If Chat exposes a model or model-version axis and its ordering is unambiguous, select the newest visible reasoning-capable family. Otherwise keep Chat's current latest/default reasoning family; never guess a hidden identifier.
+4. Preserve the exact visible intelligence/reasoning labels in their displayed order and run:
 
 ```text
 node <plugin-root>/scripts/yanshu.mjs chat-plan \
@@ -130,9 +134,12 @@ node <plugin-root>/scripts/yanshu.mjs chat-plan \
   --visible "<first label>|<second label>|<third label>"
 ```
 
-5. Apply the returned `selectedLabel` strictly through `configuration.apply`.
+5. Apply the returned `selectedLabel` through the YanShu `applyChatReasoningSelection` helper. It requests a non-strict upstream apply and then classifies the evidence:
+   - `verified`: the active value is visibly readable and matches;
+   - `click-acknowledged`: ChatGPT accepted the exact visible option, but its current UI exposes no reliable active-value readback. Continue with one concise warning; this alone is not a blocker;
+   - block only when the option was not found or clicked, the new thread was not established, or visible readback explicitly contradicts the requested value.
 6. If `fallbackApplied` is true, tell the user before submission in one sentence. For example: “Extra High is not available for this account, so YanShu will use High for this round.”
-7. Record the actual visible model and reasoning labels, not assumed backend identifiers.
+7. Record the actual visible model and reasoning labels plus `--configuration-verification verified|click-acknowledged`, not assumed backend identifiers.
 
 The resolver uses these stable semantics:
 
@@ -159,15 +166,16 @@ For every round:
 
 1. Run `next --run <run-path>`.
 2. Read only the returned prompt and approved attachment list.
-3. Open a new visible Chat conversation for that round unless the run already records a thread URL.
+3. Prepare a fresh blank Chat thread before configuration unless the round already records a thread URL. A successful `experience.open` without `threads.new` is insufficient.
 4. Resolve and apply the saved ChatGPT configuration as described above.
-5. Mark the round `running`, recording the visible thread URL, experience, model label, and reasoning label.
-6. Upload only the approved attachments and submit the generated prompt exactly once.
-7. For long responses, keep the same thread and use bounded waits or status checks. Give the user a concise progress update at least once per minute while actively monitoring.
-8. Download every generated `.tex`, `.bib`, `.md`, PDF, PNG, or other explicit artifact into the round output directory. Register files with the `artifact` command.
-9. If Chat returns essential result text without a downloadable file, ask Chat in the same thread to provide the required artifact instead of copying paper prose through Codex.
-10. Mark the round `completed` only after required artifacts are present and readable.
-11. Move to the next round. Later rounds may receive registered outputs from completed rounds in addition to the original approved inputs.
+5. Mark the round `running`, recording the experience, model label, reasoning label, and configuration-verification level. A fresh blank thread may not receive its stable `/c/...` URL until the first message is submitted.
+6. Upload and submit through `submitPreparedChatRound` from `references/chat-bridge.md`. It targets `thread: { type: "current" }` so the configured blank thread is reused; do not request another new thread at submission time.
+7. Immediately record the returned `/c/...` thread URL. If submission returns no stable URL, preserve its partial result and stop instead of guessing a thread.
+8. For long responses, keep the same thread and use bounded waits or status checks. Give the user a concise progress update at least once per minute while actively monitoring.
+9. Download every generated `.tex`, `.bib`, `.md`, PDF, PNG, or other explicit artifact into the round output directory. Register files with the `artifact` command.
+10. If Chat returns essential result text without a downloadable file, ask Chat in the same thread to provide the required artifact instead of copying paper prose through Codex.
+11. Mark the round `completed` only after required artifacts are present and readable.
+12. Move to the next round. Later rounds may receive registered outputs from completed rounds in addition to the original approved inputs.
 
 ## Compilation and correction
 

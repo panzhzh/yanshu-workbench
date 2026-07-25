@@ -89,6 +89,13 @@ the live picker every round and records the actual visible labels in `run.json`.
 This keeps the workflow stable when OpenAI changes model or reasoning-level
 names.
 
+Each round explicitly creates a blank Chat thread before changing reasoning or
+uploading files, so YanShu never reconfigures the conversation the user happened
+to have open. A matching visible readback is recorded as `verified`. If ChatGPT
+accepts the exact visible option but its current UI exposes no reliable active
+label, YanShu records `click-acknowledged` and continues; missing clicks, stale
+threads, and explicit contradictory readback remain blockers.
+
 The website's Paper Reconstruction page can export these settings in a
 `.yanshu.json` file and use them to prefill the same local launch page. Without
 an export, every setting remains available on the local page; YanShu does not
