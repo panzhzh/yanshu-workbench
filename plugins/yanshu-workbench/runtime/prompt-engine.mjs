@@ -1013,11 +1013,37 @@ ${buildList(spec.exclusions.zh)}
 - \u5927\u6807\u9898\uFF1A${titleRule2}
 - \u6587\u5B57\u77ED\u800C\u6E05\u6670\uFF0C\u4E0D\u5199\u6BB5\u843D\u3002\u4E25\u683C\u670D\u4ECE\u6240\u9009\u753B\u5E03\u6BD4\u4F8B\u4E0E\u76EE\u6807\u680F\u5BBD\uFF0C\u4FDD\u6301\u4E00\u6761\u6E05\u695A\u7684\u9605\u8BFB\u8DEF\u5F84\uFF1B\u907F\u514D\u5782\u76F4\u6587\u5B57\u3001\u4EA4\u53C9\u7BAD\u5934\u548C\u65E0\u610F\u4E49\u7559\u767D\u3002
 
-## \u76F4\u63A5\u751F\u6210
-\u6750\u6599\u8DB3\u591F\u65F6\u76F4\u63A5\u751F\u6210\u6700\u7EC8\u56FE\u7247\uFF0C\u4E0D\u5148\u8F93\u51FA\u65B9\u6848\u3001\u6807\u7B7E\u6E05\u5355\u3001\u914D\u8272\u8BF4\u660E\u3001\u5907\u9009\u7248\u672C\uFF0C\u4E5F\u4E0D\u5F81\u6C42\u8BBE\u8BA1\u786E\u8BA4\u3002\u751F\u6210\u65F6\u5728\u5185\u90E8\u9010\u9879\u6838\u5BF9\u672F\u8BED\u3001\u62FC\u5199\u3001\u7ED3\u6784\u3001\u7BAD\u5934\u8BED\u4E49\u548C\u7F29\u5C0F\u540E\u7684\u53EF\u8BFB\u6027\uFF1B\u82E5\u53D1\u73B0\u9519\u8BEF\uFF0C\u53EA\u4FEE\u6B63\u53D7\u5F71\u54CD\u90E8\u5206\uFF0C\u4E0D\u6539\u53D8\u5176\u4F59\u8BBE\u8BA1\u3002
+## \u4E24\u6B65\u6267\u884C\u534F\u8BAE
 
-## \u8F93\u51FA
-\u751F\u6210\u4E00\u4E2A\u753B\u5E03\u6BD4\u4F8B\u4E25\u683C\u4E3A ${selectedAspectRatio}\u3001\u53EF\u76F4\u63A5\u4E0B\u8F7D\u7684\u9AD8\u5206\u8FA8\u7387 PNG${outputFileRule}\u3002\u4E0D\u8981\u751F\u6210\u8054\u7CFB\u8868\uFF0C\u4E0D\u8981\u6DFB\u52A0\u6C34\u5370\u3001\u4F5C\u8005\u4FE1\u606F\u3001\u8BBA\u6587\u5B8C\u6574\u6807\u9898\u6216\u56FE\u7247 caption\u3002\u56FE\u7247\u4E4B\u540E\u53EA\u9644\u4E00\u884C\u6838\u5BF9\u7ED3\u679C\u3002`;
+### \u7B2C\u4E00\u6B65\uFF1A\u751F\u6210\u8BE6\u7EC6\u82F1\u6587\u5236\u56FE Prompt\uFF08\u672C\u8F6E\u7ACB\u5373\u6267\u884C\uFF09
+\u672C\u8F6E\u4E0D\u5F97\u751F\u6210\u56FE\u7247\u3002\u5148\u5728\u5185\u90E8\u5B8C\u6210\u8BBA\u6587\u8BED\u4E49\u62C6\u89E3\u4E0E\u89C6\u89C9\u8BBE\u8BA1\uFF0C\u4E0D\u5C55\u793A\u63A8\u7406\u8FC7\u7A0B\u3001\u4E2D\u95F4\u8349\u7A3F\u6216\u591A\u4E2A\u5907\u9009\u65B9\u6848\uFF1A
+
+1. \u4ECE TeX \u4E0E PDF \u4E2D\u63D0\u53D6\u8FD9\u5F20\u56FE\u552F\u4E00\u8981\u4F20\u8FBE\u7684\u79D1\u5B66\u4E3B\u65E8\u3001\u6B63\u5F0F\u672F\u8BED\u3001\u8F93\u5165\u4E0E\u8F93\u51FA\u3001\u4E3B\u8981\u5B9E\u4F53\u6216\u7EC4\u4EF6\u3001\u5C40\u90E8\u72B6\u6001\u3001\u5173\u952E\u53D8\u6362\u3001\u6570\u636E\u6D41\u6216\u63A7\u5236\u6D41\uFF0C\u4EE5\u53CA\u8BBA\u6587\u660E\u786E\u7ED9\u51FA\u7684\u7B26\u53F7\u3001\u516C\u5F0F\u548C\u7EF4\u5EA6\u3002
+2. \u6309\u672C\u56FE\u578B\u7684\u76EE\u6807\u4E0E\u8FB9\u754C\u7B5B\u9009\u5185\u5BB9\uFF0C\u5EFA\u7ACB\u6700\u5C11\u4F46\u5B8C\u6574\u7684\u89C6\u89C9\u533A\u57DF\u3002\u4E3A\u6BCF\u4E2A\u533A\u57DF\u786E\u5B9A\u4F4D\u7F6E\u3001\u76F8\u5BF9\u5C3A\u5BF8\u3001\u5185\u90E8\u7ED3\u6784\u3001\u7CBE\u786E\u6807\u7B7E\u548C\u89C6\u89C9\u7F16\u7801\uFF1B\u4E3B\u8981\u533A\u57DF\u6216\u7EC4\u4EF6\u4E0D\u5F97\u53EA\u662F\u4E00\u4E2A\u7A7A\u6846\u548C\u540D\u79F0\uFF0C\u5FC5\u987B\u5728\u4E0D\u8D85\u51FA\u672C\u56FE\u7C92\u5EA6\u7684\u524D\u63D0\u4E0B\u5305\u542B\u4E00\u9879\u65E0\u6CD5\u7701\u7565\u7684\u7ED3\u6784\u3001\u72B6\u6001\u3001\u64CD\u4F5C\u3001\u8868\u793A\u6216\u63A5\u53E3\u3002
+3. \u9010\u6761\u5B9A\u4E49\u8FDE\u63A5\u5173\u7CFB\uFF1A\u8FDE\u63A5\u7684\u6E90\u4E0E\u76EE\u6807\u3001\u7BAD\u5934\u65B9\u5411\u3001\u7EBF\u578B\u3001\u6807\u7B7E\uFF0C\u4EE5\u53CA\u5206\u652F\u3001\u5408\u5E76\u3001\u53CD\u9988\u3001\u5171\u4EAB\u6216\u5E76\u884C\u7684\u771F\u5B9E\u8BED\u4E49\u3002\u516C\u5F0F\u3001\u5F20\u91CF\u5F62\u72B6\u3001\u53D8\u91CF\u7EF4\u5EA6\u548C\u5FAE\u578B\u6570\u636E\u793A\u4F8B\u53EA\u5728\u8BBA\u6587\u6709\u660E\u786E\u8BC1\u636E\u4E14\u80FD\u63D0\u9AD8\u7406\u89E3\u65F6\u4F7F\u7528\u3002
+4. \u8BA9\u6784\u56FE\u3001\u8272\u5F69\u548C\u6392\u7248\u670D\u52A1\u4E8E\u8BBA\u6587\u903B\u8F91\uFF0C\u800C\u4E0D\u662F\u88C5\u9970\u3002\u82E5\u6750\u6599\u51B2\u7A81\u4F1A\u5BFC\u81F4\u56FE\u4E49\u4E0D\u771F\u5B9E\uFF0C\u53EA\u63D0\u51FA\u4E00\u4E2A\u4E0D\u53EF\u7F3A\u5C11\u7684\u6F84\u6E05\u95EE\u9898\uFF1B\u5176\u4ED6\u8BC1\u636E\u4E0D\u8DB3\u7684\u5185\u5BB9\u76F4\u63A5\u7701\u7565\uFF0C\u4E0D\u5F97\u8865\u9020\u3002
+
+\u968F\u540E\u53EA\u8F93\u51FA\u4E00\u4E2A\u6807\u9898\u4E3A \`FINAL IMAGE PROMPT\` \u7684\u5B8C\u6574\u82F1\u6587\u751F\u56FE Prompt\uFF0C\u5E76\u653E\u5165\u6807\u8BB0\u4E3A \`text\` \u7684\u4EE3\u7801\u5757\u3002\u8BE5 Prompt \u5FC5\u987B\u8131\u79BB\u672C\u8BF4\u660E\u4E5F\u80FD\u72EC\u7ACB\u7528\u4E8E\u751F\u56FE\uFF0C\u4E0D\u5F97\u51FA\u73B0 \`[Module A]\`\u3001\`TBD\` \u7B49\u5360\u4F4D\u7B26\uFF0C\u4E5F\u4E0D\u5F97\u53EA\u5199\u201C\u53C2\u8003\u8BBA\u6587\u201D\u6216\u201C\u4F7F\u7528\u4EE5\u4E0A\u8BBE\u7F6E\u201D\u3002\u5B83\u5FC5\u987B\u628A\u4ECE\u8BBA\u6587\u63D0\u53D6\u51FA\u7684\u7CBE\u786E\u5185\u5BB9\u548C\u5F53\u524D\u5168\u90E8\u914D\u7F6E\u5199\u5B9E\uFF0C\u5E76\u6309\u4EE5\u4E0B\u4E94\u4E2A\u82F1\u6587\u6807\u9898\u7EC4\u7EC7\uFF1A
+
+- \`GLOBAL COMPOSITION\`\uFF1A\u56FE\u7684\u552F\u4E00\u4E3B\u65E8\u3001\u56FE\u578B\u89D2\u8272\u3001\u76EE\u6807\u8BFB\u8005\u3001${selectedAspectRatio} \u753B\u5E03\u3001${placement.label.zh}\u610F\u56FE\u3001\u9605\u8BFB\u65B9\u5411\u3001\u603B\u4F53\u5E03\u5C40\u4E0E\u5404\u547D\u540D\u533A\u57DF\u7684\u4F4D\u7F6E\u5173\u7CFB\u3002
+- \`CONTENT AND REGIONS\`\uFF1A\u9010\u533A\u8BF4\u660E\u76F8\u5BF9\u4F4D\u7F6E\u4E0E\u5C3A\u5BF8\u3001\u5E94\u7ED8\u5236\u7684\u5BF9\u8C61\u6216\u7ED3\u6784\u3001\u5185\u90E8\u79D1\u5B66\u5185\u5BB9\u3001\u5168\u90E8\u7CBE\u786E\u82F1\u6587\u6807\u7B7E\uFF0C\u4EE5\u53CA\u6BCF\u4E2A\u89C6\u89C9\u5143\u7D20\u627F\u62C5\u7684\u542B\u4E49\u3002
+- \`CONNECTIONS AND ANNOTATIONS\`\uFF1A\u9010\u6761\u5199\u6E05\u6E90 \u2192 \u76EE\u6807\u3001\u7BAD\u5934\u65B9\u5411\u4E0E\u7C7B\u578B\u3001\u5FC5\u8981\u6807\u7B7E\u3001\u5206\u652F/\u5408\u5E76/\u53CD\u9988\u8BED\u4E49\uFF0C\u4EE5\u53CA\u6709\u8BC1\u636E\u652F\u6301\u7684\u516C\u5F0F\u3001\u7B26\u53F7\u3001\u7EF4\u5EA6\u3001\u56FE\u4F8B\u6216\u5C40\u90E8\u6807\u6CE8\u3002
+- \`STYLE SPECIFICATION\`\uFF1A\u5B8C\u6574\u91CD\u8FF0\u5F53\u524D\u767D\u5E95\u3001\u98CE\u683C\u3001\u5019\u9009\u8272\u53CA RGB\u3001\u5F3A\u8C03\u8272\u6570\u91CF\u3001\u7EBF\u6761\u3001\u5B57\u4F53\u3001\u5B57\u53F7\u5C42\u7EA7\u3001\u5361\u7247\u5E95\u8272\u3001\u63D2\u56FE\u4E0E\u56FE\u6807\u3001\u7559\u767D\u548C\u6700\u7EC8\u680F\u5BBD\u53EF\u8BFB\u6027\u8981\u6C42\u3002
+- \`NEGATIVE CONSTRAINTS\`\uFF1A\u5408\u5E76\u672C\u56FE\u4E0D\u5F97\u6DF7\u5165\u7684\u5185\u5BB9\u3001\u7981\u6B62\u8865\u9020\u7684\u5185\u5BB9\uFF0C\u4EE5\u53CA\u7981\u6B62\u7A7A\u6846\u3001\u4E71\u7801\u3001\u9519\u62FC\u3001\u91CD\u590D\u6A21\u5757\u3001\u542B\u7CCA\u7BAD\u5934\u3001\u88C5\u9970\u6027\u8FDE\u7EBF\u3001\u4EA4\u53C9\u7BAD\u5934\u3001\u6E10\u53D8\u3001\u9634\u5F71\u30013D\u3001\u4F4E\u5BF9\u6BD4\u6587\u5B57\u548C\u4E0D\u53EF\u8BFB\u5C0F\u5B57\u7B49\u7EA6\u675F\u3002
+
+\u82F1\u6587\u751F\u56FE Prompt \u5FC5\u987B\u8DB3\u591F\u5177\u4F53\uFF0C\u4F7F\u56FE\u50CF\u6A21\u578B\u65E0\u9700\u81EA\u884C\u731C\u6D4B\u6A21\u5757\u3001\u5E03\u5C40\u3001\u6807\u7B7E\u6216\u7BAD\u5934\u8BED\u4E49\uFF1B\u540C\u65F6\u53EA\u80FD\u5305\u542B\u8BBA\u6587\u8BC1\u636E\u652F\u6301\u7684\u5185\u5BB9\u3002\u8F93\u51FA\u4EE3\u7801\u5757\u540E\uFF0C\u53E6\u8D77\u4E00\u884C\u5199\uFF1A
+
+\`\u8BE6\u7EC6\u82F1\u6587\u5236\u56FE Prompt \u5DF2\u51C6\u5907\u597D\u3002\u8F93\u5165\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u751F\u6210\u8FD9\u5F20\u56FE\uFF1B\u5982\u9700\u8C03\u6574\uFF0C\u8BF7\u76F4\u63A5\u8BF4\u660E\u4FEE\u6539\u9879\u3002\`
+
+\u5230\u6B64\u505C\u6B62\u5E76\u7B49\u5F85\u7528\u6237\uFF0C\u4E0D\u5F97\u5728\u540C\u4E00\u56DE\u590D\u4E2D\u8C03\u7528\u751F\u56FE\u80FD\u529B\u3002
+
+### \u7B2C\u4E8C\u6B65\uFF1A\u786E\u8BA4\u540E\u751F\u6210
+\u53EA\u6709\u7528\u6237\u5728\u770B\u5230\u6700\u65B0\u82F1\u6587 Prompt \u540E\u8F93\u5165\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u3001\`Start drawing\` \u6216\u8BED\u4E49\u5B8C\u5168\u7B49\u4EF7\u7684\u660E\u786E\u6307\u4EE4\uFF0C\u624D\u6267\u884C\u4EE5\u4E0B\u64CD\u4F5C\uFF1A
+
+- \u4E25\u683C\u4F7F\u7528\u6700\u8FD1\u4E00\u6B21\u786E\u8BA4\u7684\u5B8C\u6574\u82F1\u6587 Prompt\uFF0C\u53EA\u751F\u6210\u8FD9\u4E00\u5F20\u6700\u7EC8\u56FE\u7247\uFF0C\u4E0D\u518D\u63D0\u4F9B\u65B9\u6848\u3001\u5907\u9009\u7248\u672C\u6216\u8054\u7CFB\u8868\uFF0C\u4E5F\u4E0D\u5F97\u64C5\u81EA\u6539\u53D8\u5DF2\u7ECF\u786E\u8BA4\u7684\u7ED3\u6784\u4E0E\u672F\u8BED\u3002
+- \u751F\u6210\u4E00\u4E2A\u753B\u5E03\u6BD4\u4F8B\u4E25\u683C\u4E3A ${selectedAspectRatio}\u3001\u53EF\u76F4\u63A5\u4E0B\u8F7D\u7684\u9AD8\u5206\u8FA8\u7387 PNG${outputFileRule}\u3002\u4E0D\u5F97\u6DFB\u52A0\u6C34\u5370\u3001\u4F5C\u8005\u4FE1\u606F\u3001\u8BBA\u6587\u5B8C\u6574\u6807\u9898\u6216\u56FE\u7247 caption\u3002
+- \u751F\u6210\u540E\u5728\u5185\u90E8\u9010\u9879\u6838\u5BF9\u672F\u8BED\u4E0E\u62FC\u5199\u3001\u6A21\u5757\u5B8C\u6574\u6027\u3001\u7BAD\u5934\u7684\u6E90/\u76EE\u6807\u548C\u65B9\u5411\u3001\u989C\u8272\u8BED\u4E49\u3001\u753B\u5E03\u6BD4\u4F8B\uFF0C\u4EE5\u53CA\u7F29\u653E\u5230\u76EE\u6807\u680F\u5BBD\u540E\u7684\u53EF\u8BFB\u6027\u3002\u82E5\u53D1\u73B0\u9519\u8BEF\uFF0C\u53EA\u4FEE\u6B63\u53D7\u5F71\u54CD\u90E8\u5206\uFF0C\u4E0D\u6539\u53D8\u5DF2\u7ECF\u6B63\u786E\u7684\u8BBE\u8BA1\u3002
+- \u5982\u679C\u7528\u6237\u5728\u5F00\u59CB\u7ED8\u56FE\u524D\u63D0\u51FA\u4FEE\u6539\uFF0C\u53EA\u66F4\u65B0\u53D7\u5F71\u54CD\u7684\u8BBE\u8BA1\u9879\uFF0C\u91CD\u65B0\u8F93\u51FA\u4E00\u4EFD\u5B8C\u6574\u7684 \`FINAL IMAGE PROMPT\`\uFF0C\u518D\u6B21\u7B49\u5F85\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\uFF1B\u6B64\u65F6\u4ECD\u4E0D\u5F97\u751F\u6210\u56FE\u7247\u3002`;
   }
   const lineColorRule = preferences.lineColorMode === "semantic" ? "Use thin dark-neutral lines by default for every border, arrow, and connector. Use candidate accent colors only when different information flows, entity types, or states genuinely need distinction. Keep identical semantics in the same color and never add rainbow lines for decoration." : "Use one dark neutral color for all borders, arrows, and connectors. Do not distinguish meaning through line color; use shape, line style, or direct labels instead.";
   const colorRule = `Use the \u201C${palette.label.en}\u201D palette with candidate accent colors and references ${activePalette}, in that order. GPT must choose the smallest sufficient number of chromatic accents within the ${accentColorRange.label} range according to the real information flows and semantic groups. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Treat the given RGB values as generation references; do not substitute or add hues, and never rely on color alone for a critical distinction.`;
@@ -1060,11 +1086,37 @@ ${buildList(spec.exclusions.en)}
 - Large title: ${titleRule}
 - Keep text short and avoid paragraphs. Follow the selected canvas ratio and target column width exactly. Maintain one clear reading path and avoid vertical text, crossing arrows, and meaningless whitespace.
 
-## Generate directly
-When the materials are sufficient, generate the final image immediately. Do not first output a plan, label list, palette explanation, alternative design, or confirmation request. During generation, internally audit terminology, spelling, structure, arrow semantics, and reduced-size legibility. If anything is wrong, correct only the affected part while preserving the rest of the design.
+## Two-step execution protocol
 
-## Output
-Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas${outputFileRule}. Do not create a contact sheet or add watermarks, author information, the full paper title, or the figure caption inside the image. After the image, provide only a one-line audit result.`;
+### Step 1 \u2014 Produce the detailed English image prompt now
+Do not generate an image in this response. First perform the paper analysis and visual design internally; do not expose private reasoning, intermediate drafts, or multiple design alternatives:
+
+1. Extract the figure\u2019s single scientific take-home message, canonical terminology, inputs and outputs, main entities or components, local states, key transformations, data or control flows, and every source-supported symbol, equation, or dimension needed for this figure.
+2. Filter the content through this figure type\u2019s objective and exclusions, then define the smallest complete set of visual regions. For each region, decide its position, relative size, internal structure, exact labels, and visual encoding. A major region or component must not be an empty named box: within the selected figure scope, include at least one indispensable structure, state, operation, representation, or interface.
+3. Specify every connection as a source-to-target relation with direction, line or arrow type, label, and the true meaning of any branch, merge, feedback path, shared element, or parallel path. Include equations, tensor shapes, variable dimensions, or miniature data examples only when the paper explicitly supports them and they materially improve comprehension.
+4. Make composition, color, and typography serve the scientific logic rather than decoration. If a source conflict would make the figure untruthful, ask one indispensable clarification question; otherwise omit unsupported content instead of inventing it.
+
+Then output exactly one complete English image-generation prompt titled \`FINAL IMAGE PROMPT\` inside a \`text\` fenced code block. The prompt must be fully usable without this operating instruction. It must contain the exact paper-derived content and all current configuration values; do not use placeholders such as \`[Module A]\` or \`TBD\`, and do not merely say \u201Crefer to the paper\u201D or \u201Cuse the settings above.\u201D Organize it under these five English headings:
+
+- \`GLOBAL COMPOSITION\`: the single visual thesis, figure role, intended reader, ${selectedAspectRatio} canvas, ${placement.label.en} intent, reading direction, overall arrangement, and positional relationships among named regions.
+- \`CONTENT AND REGIONS\`: for every region, specify relative position and size, objects or structures to render, internal scientific content, every exact English label, and the meaning carried by each visual element.
+- \`CONNECTIONS AND ANNOTATIONS\`: enumerate source \u2192 target links, arrow direction and type, necessary labels, branch/merge/feedback semantics, and any evidence-backed equation, symbol, dimension, legend, or local annotation.
+- \`STYLE SPECIFICATION\`: restate the complete white-background style, candidate colors with RGB references, accent-count range, line rules, typeface, type-size hierarchy, module fills, illustration/icon policy, spacing, and target-column legibility requirements.
+- \`NEGATIVE CONSTRAINTS\`: combine this figure type\u2019s exclusions with prohibitions on invented content, empty boxes, garbled or misspelled text, duplicated modules, ambiguous arrows, decorative connectors, crossing arrows, gradients, shadows, 3D, low-contrast text, and illegible microtext.
+
+The English image prompt must be detailed enough that an image model does not need to guess the modules, layout, labels, or arrow semantics, while remaining strictly grounded in the paper. After the code block, write exactly:
+
+\`The detailed English image prompt is ready. Type "Start drawing" to generate this figure, or describe any changes you want.\`
+
+Stop there and wait. Do not invoke image generation in the same response.
+
+### Step 2 \u2014 Generate only after confirmation
+Only after the user has seen the latest English prompt and types \`Start drawing\`, \u201C\u5F00\u59CB\u7ED8\u56FE,\u201D or an unambiguous equivalent:
+
+- Use the most recently confirmed English prompt exactly and generate this one final image only. Do not provide another plan, alternatives, or a contact sheet, and do not silently change the confirmed structure or terminology.
+- Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas${outputFileRule}. Do not add watermarks, author information, the full paper title, or the figure caption inside the image.
+- After generation, internally audit terminology and spelling, component completeness, every arrow\u2019s source, target, and direction, color semantics, canvas ratio, and legibility at the target column width. If anything is wrong, correct only the affected part while preserving the verified design.
+- If the user requests a change before generation, revise only the affected design items, output the complete updated \`FINAL IMAGE PROMPT\`, and wait again for \`Start drawing\`; do not generate an image yet.`;
 }
 function buildFrameworkFigureReconstructionPrompt(language, layout = {
   placementId: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,

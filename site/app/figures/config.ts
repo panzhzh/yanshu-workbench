@@ -82,11 +82,11 @@ export const FIGURE_DEFAULT_LAYOUT = {
 >;
 
 export const DEFAULT_FIGURE_PREFERENCES: FigurePreferences = {
-  promptId: "introduction",
-  placementId: "single-column",
-  aspectRatioId: "landscape-4-3",
-  customAspectWidth: 5,
-  customAspectHeight: 4,
+  promptId: "method-overview",
+  placementId: "double-column",
+  aspectRatioId: "landscape-16-9",
+  customAspectWidth: 16,
+  customAspectHeight: 9,
   styleId: "conference-minimal",
   paletteId: "tol-vibrant",
   fontFamilyId: "calibri",
@@ -628,8 +628,9 @@ export const FIGURE_COPY = {
   zh: {
     eyebrow: "RESEARCH FIGURES",
     title: "科研绘图",
-    subtitle: "选择什么，就得到什么独立 Prompt；一次只让 GPT 生成一张图。",
-    preset: "论文取证 → 直接生成最终单图",
+    subtitle:
+      "先生成一份基于论文证据的详细英文制图 Prompt；确认后再生成一张图。",
+    preset: "论文取证 → 英文制图 Prompt → 确认生成",
     reset: "恢复默认配置",
     resetHint:
       "恢复默认图型、占栏、画布比例和视觉规范；保留当前语言。",
@@ -637,10 +638,10 @@ export const FIGURE_COPY = {
     inputSource: "论文源文件",
     inputPdf: "最新编译稿",
     inputHint:
-      "复制任一 Prompt 后，在同一个 GPT 对话中上传 .tex 与 .pdf；本站不读取或保存论文。",
+      "复制当前 Prompt 后，在同一个 GPT 对话中上传 .tex 与 .pdf；本站不读取或保存论文。",
     figureTasks: "选择绘图 Prompt",
     figureTasksHint:
-      "三选一；切换图型时会载入推荐占栏和画布比例，之后仍可手动修改。",
+      "三选一，默认方法总览图；切换图型会载入推荐占栏和画布比例，之后仍可手动修改。",
     canvas: "论文占栏与画布",
     paperPlacement: "论文占栏",
     aspectRatio: "画布比例",
@@ -694,15 +695,16 @@ export const FIGURE_COPY = {
     largeTitleOff: "不使用",
     largeTitleOnHint: "仅允许一个来自论文术语的简短标题。",
     largeTitleOffHint: "推荐设置；只保留必要的 panel 标题或步骤标签。",
-    promptEyebrow: "INDEPENDENT FIGURE PROMPTS",
-    promptTitle: "当前绘图 Prompt",
-    promptBody: "当前只显示一项完整的单图任务；切换上方图型即可替换。",
+    promptEyebrow: "TWO-STEP FIGURE PROMPT",
+    promptTitle: "两步制图 Prompt",
+    promptBody:
+      "第一步只产出详细英文生图 Prompt；输入“开始绘图”后才生成最终图片。语言按钮只切换操作说明，生图 Prompt 始终为英文。",
     currentPrompt: "当前图型",
     selectedCanvas: "占栏与画布",
     selectedStyle: "当前风格",
     visualSummary: "视觉约束",
-    independentPrompt: "独立 Prompt",
-    switchPromptLanguage: "切换 Prompt 语言",
+    independentPrompt: "两步 Prompt",
+    switchPromptLanguage: "切换说明语言",
     copy: "复制",
     copied: "已复制",
     expand: "展开",
@@ -713,8 +715,8 @@ export const FIGURE_COPY = {
     eyebrow: "RESEARCH FIGURES",
     title: "Research figures",
     subtitle:
-      "Select a figure type to get its independent prompt. GPT generates one image at a time.",
-    preset: "Read evidence → generate the final figure",
+      "First derive a detailed English image prompt from the paper; generate one figure only after confirmation.",
+    preset: "Read evidence → English image prompt → confirm & generate",
     reset: "Restore defaults",
     resetHint:
       "Restores the default figure type, placement, canvas ratio, and visual specification while keeping the current language.",
@@ -722,10 +724,10 @@ export const FIGURE_COPY = {
     inputSource: "Paper source",
     inputPdf: "Latest compiled paper",
     inputHint:
-      "After copying any prompt, upload the .tex and .pdf in the same GPT conversation. This site never reads or stores the paper.",
+      "After copying the current prompt, upload the .tex and .pdf in the same GPT conversation. This site never reads or stores the paper.",
     figureTasks: "Select a figure prompt",
     figureTasksHint:
-      "Choose one of three. Changing the figure type loads its recommended placement and canvas ratio, which you can then override.",
+      "Choose one of three; Method Overview is the default. Changing the figure type loads its recommended placement and canvas ratio, which you can then override.",
     canvas: "Paper placement & canvas",
     paperPlacement: "Paper placement",
     aspectRatio: "Canvas ratio",
@@ -787,16 +789,16 @@ export const FIGURE_COPY = {
       "Allow one short title composed only of terminology from the paper.",
     largeTitleOffHint:
       "Recommended; retain only necessary panel headings or step labels.",
-    promptEyebrow: "INDEPENDENT FIGURE PROMPTS",
-    promptTitle: "Current figure prompt",
+    promptEyebrow: "TWO-STEP FIGURE PROMPT",
+    promptTitle: "Two-step figure prompt",
     promptBody:
-      "Only one complete single-figure task is shown. Change the figure type above to replace it.",
+      'Step 1 returns a detailed English image prompt only. The image is generated after you type "Start drawing." The language button changes the operating instructions; the image prompt remains English.',
     currentPrompt: "Current figure",
     selectedCanvas: "Placement & canvas",
     selectedStyle: "Current style",
     visualSummary: "Visual controls",
-    independentPrompt: "Independent prompt",
-    switchPromptLanguage: "Switch prompt language",
+    independentPrompt: "Two-step prompt",
+    switchPromptLanguage: "Switch instruction language",
     copy: "Copy",
     copied: "Copied",
     expand: "Expand",
@@ -818,6 +820,10 @@ function formatPaletteColor(hex: string) {
   return `${hex} / RGB(${red}, ${green}, ${blue})`;
 }
 
+// The two-step semantic-analysis → image-prompt workflow is informed by
+// LigphiDonk/academic-figure-generator (MIT) and independently rewritten for
+// YanShu's configuration-driven figure controls:
+// https://github.com/LigphiDonk/academic-figure-generator
 export function buildFigurePrompt(
   promptId: FigurePromptId,
   preferences: FigurePreferences,
@@ -898,11 +904,37 @@ ${buildList(spec.exclusions.zh)}
 - 大标题：${titleRule}
 - 文字短而清晰，不写段落。严格服从所选画布比例与目标栏宽，保持一条清楚的阅读路径；避免垂直文字、交叉箭头和无意义留白。
 
-## 直接生成
-材料足够时直接生成最终图片，不先输出方案、标签清单、配色说明、备选版本，也不征求设计确认。生成时在内部逐项核对术语、拼写、结构、箭头语义和缩小后的可读性；若发现错误，只修正受影响部分，不改变其余设计。
+## 两步执行协议
 
-## 输出
-生成一个画布比例严格为 ${selectedAspectRatio}、可直接下载的高分辨率 PNG${outputFileRule}。不要生成联系表，不要添加水印、作者信息、论文完整标题或图片 caption。图片之后只附一行核对结果。`;
+### 第一步：生成详细英文制图 Prompt（本轮立即执行）
+本轮不得生成图片。先在内部完成论文语义拆解与视觉设计，不展示推理过程、中间草稿或多个备选方案：
+
+1. 从 TeX 与 PDF 中提取这张图唯一要传达的科学主旨、正式术语、输入与输出、主要实体或组件、局部状态、关键变换、数据流或控制流，以及论文明确给出的符号、公式和维度。
+2. 按本图型的目标与边界筛选内容，建立最少但完整的视觉区域。为每个区域确定位置、相对尺寸、内部结构、精确标签和视觉编码；主要区域或组件不得只是一个空框和名称，必须在不超出本图粒度的前提下包含一项无法省略的结构、状态、操作、表示或接口。
+3. 逐条定义连接关系：连接的源与目标、箭头方向、线型、标签，以及分支、合并、反馈、共享或并行的真实语义。公式、张量形状、变量维度和微型数据示例只在论文有明确证据且能提高理解时使用。
+4. 让构图、色彩和排版服务于论文逻辑，而不是装饰。若材料冲突会导致图义不真实，只提出一个不可缺少的澄清问题；其他证据不足的内容直接省略，不得补造。
+
+随后只输出一个标题为 \`FINAL IMAGE PROMPT\` 的完整英文生图 Prompt，并放入标记为 \`text\` 的代码块。该 Prompt 必须脱离本说明也能独立用于生图，不得出现 \`[Module A]\`、\`TBD\` 等占位符，也不得只写“参考论文”或“使用以上设置”。它必须把从论文提取出的精确内容和当前全部配置写实，并按以下五个英文标题组织：
+
+- \`GLOBAL COMPOSITION\`：图的唯一主旨、图型角色、目标读者、${selectedAspectRatio} 画布、${placement.label.zh}意图、阅读方向、总体布局与各命名区域的位置关系。
+- \`CONTENT AND REGIONS\`：逐区说明相对位置与尺寸、应绘制的对象或结构、内部科学内容、全部精确英文标签，以及每个视觉元素承担的含义。
+- \`CONNECTIONS AND ANNOTATIONS\`：逐条写清源 → 目标、箭头方向与类型、必要标签、分支/合并/反馈语义，以及有证据支持的公式、符号、维度、图例或局部标注。
+- \`STYLE SPECIFICATION\`：完整重述当前白底、风格、候选色及 RGB、强调色数量、线条、字体、字号层级、卡片底色、插图与图标、留白和最终栏宽可读性要求。
+- \`NEGATIVE CONSTRAINTS\`：合并本图不得混入的内容、禁止补造的内容，以及禁止空框、乱码、错拼、重复模块、含糊箭头、装饰性连线、交叉箭头、渐变、阴影、3D、低对比文字和不可读小字等约束。
+
+英文生图 Prompt 必须足够具体，使图像模型无需自行猜测模块、布局、标签或箭头语义；同时只能包含论文证据支持的内容。输出代码块后，另起一行写：
+
+\`详细英文制图 Prompt 已准备好。输入“开始绘图”生成这张图；如需调整，请直接说明修改项。\`
+
+到此停止并等待用户，不得在同一回复中调用生图能力。
+
+### 第二步：确认后生成
+只有用户在看到最新英文 Prompt 后输入“开始绘图”、\`Start drawing\` 或语义完全等价的明确指令，才执行以下操作：
+
+- 严格使用最近一次确认的完整英文 Prompt，只生成这一张最终图片，不再提供方案、备选版本或联系表，也不得擅自改变已经确认的结构与术语。
+- 生成一个画布比例严格为 ${selectedAspectRatio}、可直接下载的高分辨率 PNG${outputFileRule}。不得添加水印、作者信息、论文完整标题或图片 caption。
+- 生成后在内部逐项核对术语与拼写、模块完整性、箭头的源/目标和方向、颜色语义、画布比例，以及缩放到目标栏宽后的可读性。若发现错误，只修正受影响部分，不改变已经正确的设计。
+- 如果用户在开始绘图前提出修改，只更新受影响的设计项，重新输出一份完整的 \`FINAL IMAGE PROMPT\`，再次等待“开始绘图”；此时仍不得生成图片。`;
   }
 
   const lineColorRule =
@@ -959,11 +991,37 @@ ${buildList(spec.exclusions.en)}
 - Large title: ${titleRule}
 - Keep text short and avoid paragraphs. Follow the selected canvas ratio and target column width exactly. Maintain one clear reading path and avoid vertical text, crossing arrows, and meaningless whitespace.
 
-## Generate directly
-When the materials are sufficient, generate the final image immediately. Do not first output a plan, label list, palette explanation, alternative design, or confirmation request. During generation, internally audit terminology, spelling, structure, arrow semantics, and reduced-size legibility. If anything is wrong, correct only the affected part while preserving the rest of the design.
+## Two-step execution protocol
 
-## Output
-Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas${outputFileRule}. Do not create a contact sheet or add watermarks, author information, the full paper title, or the figure caption inside the image. After the image, provide only a one-line audit result.`;
+### Step 1 — Produce the detailed English image prompt now
+Do not generate an image in this response. First perform the paper analysis and visual design internally; do not expose private reasoning, intermediate drafts, or multiple design alternatives:
+
+1. Extract the figure’s single scientific take-home message, canonical terminology, inputs and outputs, main entities or components, local states, key transformations, data or control flows, and every source-supported symbol, equation, or dimension needed for this figure.
+2. Filter the content through this figure type’s objective and exclusions, then define the smallest complete set of visual regions. For each region, decide its position, relative size, internal structure, exact labels, and visual encoding. A major region or component must not be an empty named box: within the selected figure scope, include at least one indispensable structure, state, operation, representation, or interface.
+3. Specify every connection as a source-to-target relation with direction, line or arrow type, label, and the true meaning of any branch, merge, feedback path, shared element, or parallel path. Include equations, tensor shapes, variable dimensions, or miniature data examples only when the paper explicitly supports them and they materially improve comprehension.
+4. Make composition, color, and typography serve the scientific logic rather than decoration. If a source conflict would make the figure untruthful, ask one indispensable clarification question; otherwise omit unsupported content instead of inventing it.
+
+Then output exactly one complete English image-generation prompt titled \`FINAL IMAGE PROMPT\` inside a \`text\` fenced code block. The prompt must be fully usable without this operating instruction. It must contain the exact paper-derived content and all current configuration values; do not use placeholders such as \`[Module A]\` or \`TBD\`, and do not merely say “refer to the paper” or “use the settings above.” Organize it under these five English headings:
+
+- \`GLOBAL COMPOSITION\`: the single visual thesis, figure role, intended reader, ${selectedAspectRatio} canvas, ${placement.label.en} intent, reading direction, overall arrangement, and positional relationships among named regions.
+- \`CONTENT AND REGIONS\`: for every region, specify relative position and size, objects or structures to render, internal scientific content, every exact English label, and the meaning carried by each visual element.
+- \`CONNECTIONS AND ANNOTATIONS\`: enumerate source → target links, arrow direction and type, necessary labels, branch/merge/feedback semantics, and any evidence-backed equation, symbol, dimension, legend, or local annotation.
+- \`STYLE SPECIFICATION\`: restate the complete white-background style, candidate colors with RGB references, accent-count range, line rules, typeface, type-size hierarchy, module fills, illustration/icon policy, spacing, and target-column legibility requirements.
+- \`NEGATIVE CONSTRAINTS\`: combine this figure type’s exclusions with prohibitions on invented content, empty boxes, garbled or misspelled text, duplicated modules, ambiguous arrows, decorative connectors, crossing arrows, gradients, shadows, 3D, low-contrast text, and illegible microtext.
+
+The English image prompt must be detailed enough that an image model does not need to guess the modules, layout, labels, or arrow semantics, while remaining strictly grounded in the paper. After the code block, write exactly:
+
+\`The detailed English image prompt is ready. Type "Start drawing" to generate this figure, or describe any changes you want.\`
+
+Stop there and wait. Do not invoke image generation in the same response.
+
+### Step 2 — Generate only after confirmation
+Only after the user has seen the latest English prompt and types \`Start drawing\`, “开始绘图,” or an unambiguous equivalent:
+
+- Use the most recently confirmed English prompt exactly and generate this one final image only. Do not provide another plan, alternatives, or a contact sheet, and do not silently change the confirmed structure or terminology.
+- Generate one downloadable high-resolution PNG with an exact ${selectedAspectRatio} canvas${outputFileRule}. Do not add watermarks, author information, the full paper title, or the figure caption inside the image.
+- After generation, internally audit terminology and spelling, component completeness, every arrow’s source, target, and direction, color semantics, canvas ratio, and legibility at the target column width. If anything is wrong, correct only the affected part while preserving the verified design.
+- If the user requests a change before generation, revise only the affected design items, output the complete updated \`FINAL IMAGE PROMPT\`, and wait again for \`Start drawing\`; do not generate an image yet.`;
 }
 
 export function buildFrameworkFigureReconstructionPrompt(

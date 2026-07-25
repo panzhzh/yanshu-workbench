@@ -249,16 +249,24 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /3 级字号/);
   assert.match(html, /不得使用浅灰/);
   assert.match(html, /不使用/);
-  assert.match(html, /当前绘图 Prompt/);
-  assert.match(html, /问题与意义/);
+  assert.match(html, /两步制图 Prompt/);
+  assert.match(html, /方法总览图/);
   assert.match(html, /整体心智地图/);
   assert.match(html, /class="prompt-card expanded"/);
   assert.match(html, /aria-expanded="true"/);
   assert.match(html, /统一视觉与文字约束/);
-  assert.match(html, /## 直接生成/);
-  assert.match(html, /直接生成最终图片/);
-  assert.doesNotMatch(html, /## 工作顺序|## Workflow/);
-  assert.doesNotMatch(html, /先输出不超过 6 行|After I approve/);
+  assert.match(html, /## 两步执行协议/);
+  assert.match(html, /第一步：生成详细英文制图 Prompt/);
+  assert.match(html, /本轮不得生成图片/);
+  assert.match(html, /FINAL IMAGE PROMPT/);
+  assert.match(html, /GLOBAL COMPOSITION/);
+  assert.match(html, /CONTENT AND REGIONS/);
+  assert.match(html, /CONNECTIONS AND ANNOTATIONS/);
+  assert.match(html, /STYLE SPECIFICATION/);
+  assert.match(html, /NEGATIVE CONSTRAINTS/);
+  assert.match(html, /输入“开始绘图”生成这张图/);
+  assert.match(html, /第二步：确认后生成/);
+  assert.doesNotMatch(html, /## 直接生成|直接生成最终图片/);
   assert.doesNotMatch(html, /保持 Overview 粒度|Stay at overview granularity/);
   assert.equal((html.match(/class="prompt-card(?:\s|")/g) ?? []).length, 1);
   assert.doesNotMatch(html, /上传文件<\/button>/);
@@ -698,9 +706,9 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
       readFile(new URL("../app/SiteNavigation.tsx", import.meta.url), "utf8"),
     ]);
 
-  assert.match(figureConfig, /promptId:\s*"introduction"/);
-  assert.match(figureConfig, /placementId:\s*"single-column"/);
-  assert.match(figureConfig, /aspectRatioId:\s*"landscape-4-3"/);
+  assert.match(figureConfig, /promptId:\s*"method-overview"/);
+  assert.match(figureConfig, /placementId:\s*"double-column"/);
+  assert.match(figureConfig, /aspectRatioId:\s*"landscape-16-9"/);
   assert.doesNotMatch(
     figureConfig,
     /canvasPresetId|includeIntroductionFigure|includeMethodOverview|includeTechnicalDetailFigure/,
@@ -719,8 +727,10 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /ratio:\s*"16:9"/);
   assert.match(figureConfig, /ratio:\s*"9:16"/);
   assert.match(figureConfig, /custom:\s*\{[\s\S]*?ratio:\s*null/);
-  assert.match(figureConfig, /customAspectWidth:\s*5/);
-  assert.match(figureConfig, /customAspectHeight:\s*4/);
+  assert.match(
+    figureConfig,
+    /DEFAULT_FIGURE_PREFERENCES[\s\S]*?promptId:\s*"method-overview"[\s\S]*?placementId:\s*"double-column"[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?customAspectWidth:\s*16[\s\S]*?customAspectHeight:\s*9/,
+  );
   assert.match(figureConfig, /getFigureAspectRatio/);
   assert.match(figureConfig, /greatestCommonDivisor/);
   assert.match(figureConfig, /自定义宽高比/);
@@ -770,9 +780,20 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /FIGURE_FONT_FAMILIES/);
   assert.match(figureConfig, /Times New Roman/);
   assert.match(figureConfig, /Comic Sans MS/);
-  assert.match(figureConfig, /材料足够时直接生成最终图片/);
-  assert.doesNotMatch(figureConfig, /## 工作顺序|## Workflow/);
-  assert.doesNotMatch(figureConfig, /After I approve the plan/);
+  assert.match(figureConfig, /## 两步执行协议/);
+  assert.match(figureConfig, /本轮不得生成图片/);
+  assert.match(figureConfig, /FINAL IMAGE PROMPT/);
+  assert.match(figureConfig, /GLOBAL COMPOSITION/);
+  assert.match(figureConfig, /CONTENT AND REGIONS/);
+  assert.match(figureConfig, /CONNECTIONS AND ANNOTATIONS/);
+  assert.match(figureConfig, /STYLE SPECIFICATION/);
+  assert.match(figureConfig, /NEGATIVE CONSTRAINTS/);
+  assert.match(figureConfig, /输入“开始绘图”生成这张图/);
+  assert.match(figureConfig, /Stop there and wait/);
+  assert.doesNotMatch(
+    figureConfig,
+    /材料足够时直接生成最终图片|## 直接生成|## Generate directly/,
+  );
   assert.doesNotMatch(
     figureConfig,
     /保持 Overview 粒度|Stay at overview granularity/,

@@ -69,6 +69,16 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     workflow.rounds[3].prompt,
     /<base_name>_round_4_framework_reconstruction\.png/,
   );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /## Two-step execution protocol/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /Do not generate an image in this response/,
+  );
+  assert.match(workflow.rounds[3].prompt, /FINAL IMAGE PROMPT/);
+  assert.match(workflow.rounds[3].prompt, /Start drawing/);
   assert.equal(workflow.rounds[4].id, "final-refinement");
   assert.deepEqual(workflow.config.chatExecution, {
     modelPolicy: "latest-visible-reasoning",

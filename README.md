@@ -46,7 +46,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | --- | --- | --- |
 | [论文初稿](https://yanshu-workbench.pages.dev/draft/) | 实验已经完成 | 从证据材料生成完整、可编译的英文 LaTeX 初稿；arXiv 默认样式或当届顶会官方模板 |
 | [论文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
-| [科研绘图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 引言图、方法总览图、关键技术细节图三选一；占栏、画布、色系、字体与可读性约束 |
+| [科研绘图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，引言图与关键技术细节图可选；先生成结构化英文生图 Prompt，确认后再绘制单图 |
 | [投稿策略](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/ESCI 动态筛选与官网核验 |
 | YanShu 插件 | 需要全链路执行 | 通过 **Paper Reconstruction** 创建可恢复的五轮目录，保存 Chat 会话与产物状态；当前为开发者预览 |
 
@@ -60,6 +60,10 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 - **克制可读**：服务长文本阅读、快速配置和复制，不采用营销页或普通 SaaS 后台视觉。
 - **写作与执行分层**：Chat 负责论文写作，Codex 只协调本地材料、状态、编译和错误回传。
 - **随时可恢复**：长任务逐轮保存，不因页面关闭、等待超时或应用重启而重复提交。
+
+## 方法参考
+
+科研绘图的“论文语义拆解 → 结构化英文生图 Prompt → 用户确认后绘制”工作流受 [LigphiDonk/academic-figure-generator](https://github.com/LigphiDonk/academic-figure-generator) 启发。参考项目采用 [MIT License](https://github.com/LigphiDonk/academic-figure-generator/blob/main/LICENSE)；YanShu 没有复制其完整模板或品牌视觉，而是将方法重新组织为适配本站图型、画布、配色、字体和可读性选项的两步配置流程。
 
 ## 安装 YanShu 插件
 
