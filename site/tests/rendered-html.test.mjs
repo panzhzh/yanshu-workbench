@@ -60,6 +60,13 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /期刊/);
   assert.match(html, /限制正文字数/);
   assert.match(html, /附录不计入正文，每张表格或图片按 200 词计入/);
+  assert.match(html, /总体框架图/);
+  assert.match(html, /论文占栏/);
+  assert.match(html, /画布比例/);
+  assert.match(html, /Tol 鲜明色系/);
+  assert.match(html, /2–4 个强调色/);
+  assert.match(html, /Calibri/);
+  assert.match(html, /轻插图与图标按需使用/);
   assert.match(html, /正文与章节预算/);
   assert.match(html, /不限制方法和实验的字数/);
   assert.match(html, /每张表格或图片按 200 词计入/);
@@ -219,10 +226,11 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /线条颜色/);
   assert.match(html, /统一深色/);
   assert.match(html, /按语义区分/);
-  assert.match(html, /强调色数量/);
+  assert.match(html, /强调色范围/);
   assert.match(html, /色系/);
-  assert.match(html, /学术蓝/);
-  assert.match(html, /蓝橙对照/);
+  assert.match(html, /Tol 鲜明 · 蓝橙/);
+  assert.match(html, /Tol 明亮 · 蓝红绿黄/);
+  assert.match(html, /Tol 柔和 · 靛玫瑰青沙/);
   assert.match(html, /全图字体/);
   assert.match(html, /Times New Roman/);
   assert.match(html, /Arial/);
@@ -233,7 +241,7 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /字号层级/);
   assert.match(html, /2 级字号/);
   assert.match(html, /3 级字号/);
-  assert.match(html, /禁止浅灰文字/);
+  assert.match(html, /不得使用浅灰/);
   assert.match(html, /不使用/);
   assert.match(html, /当前绘图 Prompt/);
   assert.match(html, /问题与意义/);
@@ -430,8 +438,13 @@ test("keeps presets and production prompts configuration-driven", async () => {
     originalPrompts,
     /<base_name>_round_2_framework\.png/,
   );
-  assert.match(originalPrompts, /画布固定为横版 `16:9`/);
-  assert.match(originalPrompts, /自行判断使用 2 种还是 3 种强调色/);
+  assert.match(
+    originalPrompts,
+    /必须注入用户确认的论文占栏（单栏或跨双栏）与画布比例/,
+  );
+  assert.match(originalPrompts, /在 2–4 种有彩色相中选择最少够用的数量/);
+  assert.match(originalPrompts, /#0077BB \/ RGB\(0, 119, 187\)/);
+  assert.match(originalPrompts, /全图统一使用 Calibri/);
   assert.match(originalPrompts, /使用极简论文线稿/);
   assert.match(originalPrompts, /不使用图内大标题/);
   assert.match(
@@ -688,19 +701,19 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /横跨两栏的通栏宽度/);
   assert.match(figureConfig, /styleId:\s*"conference-minimal"/);
   assert.match(figureConfig, /lineColorMode:\s*"neutral"/);
-  assert.match(figureConfig, /accentColorCount:\s*1/);
+  assert.match(figureConfig, /accentColorRangeId:\s*"2-4"/);
   assert.match(figureConfig, /allowLightIllustrations:\s*false/);
   assert.match(figureConfig, /useCardFills:\s*false/);
   assert.match(figureConfig, /fontSizeLevels:\s*2/);
   assert.match(figureConfig, /includeLargeTitle:\s*false/);
-  assert.match(figureConfig, /paletteId:\s*"academic-blue"/);
-  assert.match(figureConfig, /fontFamilyId:\s*"arial"/);
+  assert.match(figureConfig, /paletteId:\s*"tol-vibrant"/);
+  assert.match(figureConfig, /fontFamilyId:\s*"calibri"/);
   assert.match(figureConfig, /"conference-minimal"/);
   assert.match(figureConfig, /"illustrated-technical"/);
   assert.doesNotMatch(figureConfig, /"structured-technical"|"light-academic"/);
   assert.match(
     figureConfig,
-    /"illustrated-technical":\s*\{[\s\S]*?lineColorMode:\s*"semantic"[\s\S]*?accentColorCount:\s*2[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?useCardFills:\s*true[\s\S]*?fontSizeLevels:\s*3/,
+    /"illustrated-technical":\s*\{[\s\S]*?lineColorMode:\s*"semantic"[\s\S]*?accentColorRangeId:\s*"2-4"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?useCardFills:\s*true[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(figureConfig, /FIGURE_PROMPT_ORDER/);
   assert.match(figureConfig, /buildFigurePrompt/);
@@ -718,8 +731,14 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /禁止浅灰色、低透明度或低对比度文字/);
   assert.match(figureConfig, /纯白背景、黑色文字和深色中性结构线/);
   assert.match(figureConfig, /FIGURE_COLOR_PALETTES/);
-  assert.match(figureConfig, /"blue-orange"/);
-  assert.match(figureConfig, /"teal-purple"/);
+  assert.match(figureConfig, /"tol-vibrant"/);
+  assert.match(figureConfig, /"tol-bright"/);
+  assert.match(figureConfig, /"tol-muted"/);
+  assert.match(figureConfig, /RGB\(/);
+  assert.doesNotMatch(
+    figureConfig,
+    /"academic-blue"|"blue-orange"|"teal-purple"|"warm-earth"|"cool-monochrome"/,
+  );
   assert.match(figureConfig, /FIGURE_FONT_FAMILIES/);
   assert.match(figureConfig, /Times New Roman/);
   assert.match(figureConfig, /Comic Sans MS/);
@@ -750,7 +769,10 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     figureComponent,
     /DEFAULT_PROMPT_EXPANSION[\s\S]*?introduction:\s*true[\s\S]*?"method-overview":\s*true[\s\S]*?"technical-detail":\s*true/,
   );
-  assert.match(figureComponent, /ACCENT_COLOR_COUNTS\.map/);
+  assert.match(
+    figureComponent,
+    /FIGURE_ACCENT_COLOR_RANGE_IDS\.map/,
+  );
   assert.match(figureComponent, /FONT_SIZE_LEVELS\.map/);
   assert.match(figureComponent, /FIGURE_COLOR_PALETTE_IDS\.map/);
   assert.match(figureComponent, /FIGURE_FONT_FAMILY_IDS\.map/);

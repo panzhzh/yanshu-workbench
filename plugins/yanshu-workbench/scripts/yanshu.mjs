@@ -175,6 +175,37 @@ async function init(flags) {
     "unlimited-core",
     fileConfig.workflow?.unlimitedCoreSections ?? false,
   );
+  const frameworkFigure = {
+    placementId: enumFlag(
+      flags,
+      "figure-placement",
+      ["single-column", "double-column"],
+      fileConfig.workflow?.frameworkFigure?.placementId ?? "double-column",
+    ),
+    aspectRatioId: enumFlag(
+      flags,
+      "figure-ratio",
+      [
+        "landscape-4-3",
+        "portrait-3-4",
+        "landscape-16-9",
+        "portrait-9-16",
+        "custom",
+      ],
+      fileConfig.workflow?.frameworkFigure?.aspectRatioId ??
+        "landscape-16-9",
+    ),
+    customAspectWidth: numberFlag(
+      flags,
+      "figure-ratio-width",
+      fileConfig.workflow?.frameworkFigure?.customAspectWidth ?? 16,
+    ),
+    customAspectHeight: numberFlag(
+      flags,
+      "figure-ratio-height",
+      fileConfig.workflow?.frameworkFigure?.customAspectHeight ?? 9,
+    ),
+  };
 
   const engine = await loadPromptEngine();
   const workflow = engine.buildReconstructionWorkflow({
@@ -186,6 +217,7 @@ async function init(flags) {
     targetWords,
     sectionBudgets: fileConfig.workflow?.sectionBudgets,
     includeAppendix,
+    frameworkFigure,
   });
   const state = await createRun({
     projectRoot,

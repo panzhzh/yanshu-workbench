@@ -19,14 +19,12 @@ export type FigureAspectRatioId =
   | "custom";
 
 export type FigureLineColorMode = "neutral" | "semantic";
-export type FigureAccentColorCount = 1 | 2 | 3;
+export type FigureAccentColorRangeId = "2-3" | "2-4" | "3-4";
 export type FigureFontSizeLevels = 2 | 3;
 export type FigurePaletteId =
-  | "academic-blue"
-  | "blue-orange"
-  | "teal-purple"
-  | "warm-earth"
-  | "cool-monochrome";
+  | "tol-vibrant"
+  | "tol-bright"
+  | "tol-muted";
 export type FigureFontFamilyId =
   | "times-new-roman"
   | "arial"
@@ -44,7 +42,7 @@ export interface FigurePreferences {
   paletteId: FigurePaletteId;
   fontFamilyId: FigureFontFamilyId;
   lineColorMode: FigureLineColorMode;
-  accentColorCount: FigureAccentColorCount;
+  accentColorRangeId: FigureAccentColorRangeId;
   allowLightIllustrations: boolean;
   useCardFills: boolean;
   fontSizeLevels: FigureFontSizeLevels;
@@ -52,8 +50,14 @@ export interface FigurePreferences {
 }
 
 export interface FigurePromptBuildOptions {
-  accentColorMode?: "fixed" | "adaptive-2-3";
   outputFileName?: string;
+}
+
+export interface FrameworkFigureLayoutPreferences {
+  placementId: FigurePlacementId;
+  aspectRatioId: FigureAspectRatioId;
+  customAspectWidth: number;
+  customAspectHeight: number;
 }
 
 export const FIGURE_DEFAULT_LAYOUT = {
@@ -84,10 +88,10 @@ export const DEFAULT_FIGURE_PREFERENCES: FigurePreferences = {
   customAspectWidth: 5,
   customAspectHeight: 4,
   styleId: "conference-minimal",
-  paletteId: "academic-blue",
-  fontFamilyId: "arial",
+  paletteId: "tol-vibrant",
+  fontFamilyId: "calibri",
   lineColorMode: "neutral",
-  accentColorCount: 1,
+  accentColorRangeId: "2-4",
   allowLightIllustrations: false,
   useCardFills: false,
   fontSizeLevels: 2,
@@ -101,11 +105,11 @@ export const RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES = {
   customAspectWidth: 16,
   customAspectHeight: 9,
   styleId: "conference-minimal",
-  paletteId: "academic-blue",
-  fontFamilyId: "arial",
+  paletteId: "tol-vibrant",
+  fontFamilyId: "calibri",
   lineColorMode: "semantic",
-  accentColorCount: 3,
-  allowLightIllustrations: false,
+  accentColorRangeId: "2-4",
+  allowLightIllustrations: true,
   useCardFills: false,
   fontSizeLevels: 2,
   includeLargeTitle: false,
@@ -309,14 +313,14 @@ export const FIGURE_STYLE_IDS = Object.keys(
 export const FIGURE_STYLE_DEFAULTS = {
   "conference-minimal": {
     lineColorMode: "neutral",
-    accentColorCount: 1,
+    accentColorRangeId: "2-4",
     allowLightIllustrations: false,
     useCardFills: false,
     fontSizeLevels: 2,
   },
   "illustrated-technical": {
     lineColorMode: "semantic",
-    accentColorCount: 2,
+    accentColorRangeId: "2-4",
     allowLightIllustrations: true,
     useCardFills: true,
     fontSizeLevels: 3,
@@ -325,39 +329,62 @@ export const FIGURE_STYLE_DEFAULTS = {
   FigureStyleId,
   {
     lineColorMode: FigureLineColorMode;
-    accentColorCount: FigureAccentColorCount;
+    accentColorRangeId: FigureAccentColorRangeId;
     allowLightIllustrations: boolean;
     useCardFills: boolean;
     fontSizeLevels: FigureFontSizeLevels;
   }
 >;
 
+export const FIGURE_ACCENT_COLOR_RANGES = {
+  "2-3": {
+    min: 2,
+    max: 3,
+    label: "2–3",
+  },
+  "2-4": {
+    min: 2,
+    max: 4,
+    label: "2–4",
+  },
+  "3-4": {
+    min: 3,
+    max: 4,
+    label: "3–4",
+  },
+} as const satisfies Record<
+  FigureAccentColorRangeId,
+  {
+    min: number;
+    max: number;
+    label: string;
+  }
+>;
+
+export const FIGURE_ACCENT_COLOR_RANGE_IDS = Object.keys(
+  FIGURE_ACCENT_COLOR_RANGES,
+) as FigureAccentColorRangeId[];
+
+// Paul Tol color schemes via Descanonge/tol_colors (BSD-3-Clause):
+// https://github.com/Descanonge/tol_colors
 export const FIGURE_COLOR_PALETTES = {
-  "academic-blue": {
-    label: { zh: "学术蓝", en: "Academic blue" },
-    colors: ["#24495F", "#4F7D86", "#9A7444"],
+  "tol-vibrant": {
+    label: { zh: "Tol 鲜明 · 蓝橙", en: "Tol Vibrant · blue–orange" },
+    colors: ["#0077BB", "#EE7733", "#009988", "#CC3311"],
   },
-  "blue-orange": {
-    label: { zh: "蓝橙对照", en: "Blue–orange" },
-    colors: ["#2F5D8A", "#D27A35", "#6F8C73"],
+  "tol-bright": {
+    label: { zh: "Tol 明亮 · 蓝红绿黄", en: "Tol Bright · blue–red–green–yellow" },
+    colors: ["#4477AA", "#EE6677", "#228833", "#CCBB44"],
   },
-  "teal-purple": {
-    label: { zh: "青紫结构", en: "Teal–purple" },
-    colors: ["#2F7775", "#7467A2", "#AA7E42"],
-  },
-  "warm-earth": {
-    label: { zh: "暖色大地", en: "Warm earth" },
-    colors: ["#7A5541", "#B07D3C", "#456D78"],
-  },
-  "cool-monochrome": {
-    label: { zh: "冷调单色", en: "Cool monochrome" },
-    colors: ["#294B5A", "#607D88", "#91A6AE"],
+  "tol-muted": {
+    label: { zh: "Tol 柔和 · 靛玫瑰青沙", en: "Tol Muted · indigo–rose–teal–sand" },
+    colors: ["#332288", "#CC6677", "#44AA99", "#DDCC77"],
   },
 } as const satisfies Record<
   FigurePaletteId,
   {
     label: Record<Language, string>;
-    colors: readonly [string, string, string];
+    colors: readonly [string, string, string, string];
   }
 >;
 
@@ -629,17 +656,17 @@ export const FIGURE_COPY = {
       "两种风格都使用纯白画布、细线和黑色文字；选择风格会载入一组推荐视觉约束，之后可以逐项修改。",
     visualRules: "视觉约束",
     visualRulesHint:
-      "颜色数只计算有彩色相，不计白底、黑字和深色中性线；全图禁止浅灰文字。",
+      "强调色由 GPT 在所选区间内按语义取最少够用的数量；白底、黑字和深色中性线不计入。",
     lineColors: "线条颜色",
     lineColorsNeutral: "统一深色",
     lineColorsSemantic: "按语义区分",
     lineColorsNeutralHint: "边框、箭头与连接线统一使用深色中性线。",
     lineColorsSemanticHint:
-      "仅在信息流或实体类别确需区分时使用强调色线条。",
-    accentColors: "强调色数量",
+      "深色中性线仍是默认；仅在信息流或实体类别确需区分时使用强调色线条。",
+    accentColors: "强调色范围",
     colorPalette: "色系",
     colorPaletteHint:
-      "下拉选择全图强调色系；实际只使用前述数量的颜色，所有正文仍为黑色。",
+      "三组均来自 Paul Tol 科研配色；Prompt 会写入每个候选色的 HEX 与 RGB，所有正文仍为黑色。",
     fontFamily: "全图字体",
     fontFamilyHint:
       "全图只使用一种字体；Comic Sans MS 仅适合轻量科研漫画或示意图。",
@@ -715,18 +742,18 @@ export const FIGURE_COPY = {
       "Both styles use a pure-white canvas, thin lines, and black text. Selecting a style loads recommended visual controls that remain editable.",
     visualRules: "Visual controls",
     visualRulesHint:
-      "The color count includes chromatic accents only—not the white canvas, black text, or dark neutral lines. Never use light-gray text.",
+      "GPT uses the smallest sufficient number of accents within the selected range. White, black, and dark neutral lines do not count.",
     lineColors: "Line colors",
     lineColorsNeutral: "One dark color",
     lineColorsSemantic: "Semantic colors",
     lineColorsNeutralHint:
       "Use one dark neutral color for borders, arrows, and connectors.",
     lineColorsSemanticHint:
-      "Use accent-colored lines only when flows or entity types genuinely need distinction.",
-    accentColors: "Accent colors",
+      "Dark neutral remains the default; use accent-colored lines only when flows or entity types genuinely need distinction.",
+    accentColors: "Accent range",
     colorPalette: "Color palette",
     colorPaletteHint:
-      "Choose the accent palette. Use only the selected number of colors; all body text remains black.",
+      "All three are Paul Tol research palettes. The prompt includes HEX and RGB references for every candidate color; all body text remains black.",
     fontFamily: "Global typeface",
     fontFamilyHint:
       "Use one typeface throughout. Comic Sans MS is reserved for restrained scientific cartoons or schematics.",
@@ -783,6 +810,14 @@ function buildList(items: readonly string[]) {
   return items.map((item) => `- ${item}`).join("\n");
 }
 
+function formatPaletteColor(hex: string) {
+  const value = hex.replace("#", "");
+  const red = Number.parseInt(value.slice(0, 2), 16);
+  const green = Number.parseInt(value.slice(2, 4), 16);
+  const blue = Number.parseInt(value.slice(4, 6), 16);
+  return `${hex} / RGB(${red}, ${green}, ${blue})`;
+}
+
 export function buildFigurePrompt(
   promptId: FigurePromptId,
   preferences: FigurePreferences,
@@ -796,13 +831,11 @@ export function buildFigurePrompt(
   const selectedAspectRatio = getFigureAspectRatio(preferences);
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
-  const adaptiveAccentColors =
-    options.accentColorMode === "adaptive-2-3";
+  const accentColorRange =
+    FIGURE_ACCENT_COLOR_RANGES[preferences.accentColorRangeId];
   const activePalette = palette.colors
-    .slice(
-      0,
-      adaptiveAccentColors ? 3 : preferences.accentColorCount,
-    )
+    .slice(0, accentColorRange.max)
+    .map(formatPaletteColor)
     .join(", ");
   const outputFileRule = options.outputFileName
     ? language === "zh"
@@ -813,11 +846,9 @@ export function buildFigurePrompt(
   if (language === "zh") {
     const lineColorRule =
       preferences.lineColorMode === "semantic"
-        ? "只在不同信息流、实体类别或状态确实需要区分时，才让边框、箭头或连接线使用强调色；相同语义必须使用相同颜色，不得为了好看制造彩虹线条。"
+        ? "深色中性细线是所有边框、箭头和连接线的默认颜色。只在不同信息流、实体类别或状态确实需要区分时，才使用候选强调色；相同语义必须同色，不得为了装饰制造彩虹线条。"
         : "所有边框、箭头和连接线统一使用深色中性细线，不用线条颜色区分语义；需要区分时改用形状、线型或直接标签。";
-    const colorRule = adaptiveAccentColors
-      ? `使用“${palette.label.zh}”色系，候选强调色依次为 ${activePalette}；根据真实信息流和语义分组自行判断使用 2 种还是 3 种有彩色相，能用 2 种说清时不要使用第 3 种。这一数量不包括纯白背景、黑色文字和深色中性结构线。不得自行替换或增加颜色；任何关键区别都不能只依赖颜色。`
-      : `使用“${palette.label.zh}”色系，允许的强调色依次为 ${activePalette}；全图最多使用 ${preferences.accentColorCount} 种有彩色相。这一数量不包括纯白背景、黑色文字和深色中性结构线。不得自行替换或增加颜色；任何关键区别都不能只依赖颜色。`;
+    const colorRule = `使用“${palette.label.zh}”色系，候选强调色及参考值依次为 ${activePalette}。GPT 必须根据真实信息流和语义分组，在 ${accentColorRange.label} 种有彩色相中选择最少够用的数量；能用较少颜色说清时不得增加。这一数量不包括纯白背景、黑色文字和深色中性结构线。颜色应以给定 RGB 为生成参考，不得自行替换或增加色相；任何关键区别都不能只依赖颜色。`;
     const illustrationRule = preferences.allowLightIllustrations
       ? "允许克制的轻卡通技术插图、语义 icon 和略带圆润感的无衬线字体，但它们只能表示论文中的真实对象或过程，不得代替核心机制，也不得呈现漫画、吉祥物、手写体、气泡字或营销插画效果。"
       : "不使用轻卡通插图、icon、拟物对象或装饰字体；所有关系只用模块、线条、箭头、简单几何形状和必要文字表达。";
@@ -876,11 +907,9 @@ ${buildList(spec.exclusions.zh)}
 
   const lineColorRule =
     preferences.lineColorMode === "semantic"
-      ? "Use accent-colored borders, arrows, or connectors only when different information flows, entity types, or states genuinely need distinction. Keep identical semantics in the same color and never add rainbow lines for decoration."
+      ? "Use thin dark-neutral lines by default for every border, arrow, and connector. Use candidate accent colors only when different information flows, entity types, or states genuinely need distinction. Keep identical semantics in the same color and never add rainbow lines for decoration."
       : "Use one dark neutral color for all borders, arrows, and connectors. Do not distinguish meaning through line color; use shape, line style, or direct labels instead.";
-  const colorRule = adaptiveAccentColors
-    ? `Use the “${palette.label.en}” palette with candidate accent colors ${activePalette}, in that order. Decide from the real information flows and semantic groups whether the figure needs two or three chromatic accents; do not use the third when two communicate every distinction clearly. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Do not substitute or add colors, and never rely on color alone for a critical distinction.`
-    : `Use the “${palette.label.en}” palette with the allowed accent colors ${activePalette}, in that order. Use at most ${preferences.accentColorCount} chromatic accent color${preferences.accentColorCount === 1 ? "" : "s"} across the entire figure. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Do not substitute or add colors, and never rely on color alone for a critical distinction.`;
+  const colorRule = `Use the “${palette.label.en}” palette with candidate accent colors and references ${activePalette}, in that order. GPT must choose the smallest sufficient number of chromatic accents within the ${accentColorRange.label} range according to the real information flows and semantic groups. This count excludes the pure-white canvas, black text, and dark neutral structural lines. Treat the given RGB values as generation references; do not substitute or add hues, and never rely on color alone for a critical distinction.`;
   const illustrationRule = preferences.allowLightIllustrations
     ? "Restrained light-cartoon technical illustrations, semantic icons, and subtly rounded sans-serif type are allowed only when they represent real objects or processes in the paper. They must not replace the core mechanism or look comic-like, mascot-driven, handwritten, bubbly, or promotional."
     : "Do not use light-cartoon illustrations, icons, skeuomorphic objects, or decorative type. Express all relationships with modules, lines, arrows, simple geometry, and necessary text.";
@@ -939,13 +968,25 @@ Generate one downloadable high-resolution PNG with an exact ${selectedAspectRati
 
 export function buildFrameworkFigureReconstructionPrompt(
   language: Language,
+  layout: FrameworkFigureLayoutPreferences = {
+    placementId:
+      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
+    aspectRatioId:
+      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
+    customAspectWidth:
+      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
+    customAspectHeight:
+      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
+  },
 ) {
   return buildFigurePrompt(
     "method-overview",
-    RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
+    {
+      ...RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
+      ...layout,
+    },
     language,
     {
-      accentColorMode: "adaptive-2-3",
       outputFileName:
         "<base_name>_round_4_framework_reconstruction.png",
     },

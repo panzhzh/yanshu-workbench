@@ -9,9 +9,11 @@ This plugin is the local coordinator for YanShu's CS-paper workflows. It keeps a
 - Optional main-text and section budgets
 - Optional unlimited Method and Experiments mode
 - Appendix policy
+- Configurable single- or double-column Method Overview canvas
 - Chinese or English prompts
 - Resumable round and Chat-thread state
 - Explicit attachment allowlist
+- Mandatory pre-run configuration summary and explicit user confirmation
 
 ## Trust boundary
 
@@ -40,7 +42,9 @@ Start a new Codex task after installation, then ask:
 用研术台重构这个论文目录，并优先使用当前账号可用的最强 Chat 配置。
 ```
 
-YanShu performs a read-only preflight before creating a run or uploading a file. The first real upload may still require the user to enable the Chrome file-URL permission and the Codex Chrome upload permission.
+YanShu first asks for the paper directory, confirms the detected TeX, BibTeX, PDF, and figures, collects the paper, length, appendix, Prompt-language, and framework-figure choices, then shows one summary. It cannot initialize a run or upload a file until the user explicitly confirms the start.
+
+The first real upload may still require the user to enable the Chrome file-URL permission and the Codex Chrome upload permission.
 
 ## Developer commands
 

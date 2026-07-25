@@ -48,14 +48,67 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   );
   assert.equal(workflow.rounds[3].id, "framework-figure");
   assert.match(workflow.rounds[3].prompt, /exact 16:9 canvas/);
-  assert.match(workflow.rounds[3].prompt, /whether the figure needs two or three chromatic accents/);
+  assert.match(workflow.rounds[3].prompt, /within the 2–4 range/);
+  assert.match(
+    workflow.rounds[3].prompt,
+    /#0077BB \/ RGB\(0, 119, 187\)/,
+  );
   assert.match(workflow.rounds[3].prompt, /pure-white canvas, thin but print-safe structural lines/);
+  assert.match(workflow.rounds[3].prompt, /Use Calibri throughout/);
+  assert.match(
+    workflow.rounds[3].prompt,
+    /Restrained light-cartoon technical illustrations/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /Use thin dark-neutral lines by default/,
+  );
   assert.match(workflow.rounds[3].prompt, /Do not use a large in-figure title/);
   assert.match(
     workflow.rounds[3].prompt,
     /<base_name>_round_4_framework_reconstruction\.png/,
   );
   assert.equal(workflow.rounds[4].id, "final-refinement");
+});
+
+test("framework figure placement and canvas are configuration-driven", () => {
+  const workflow = buildReconstructionWorkflow({
+    language: "en",
+    frameworkFigure: {
+      placementId: "single-column",
+      aspectRatioId: "portrait-3-4",
+      customAspectWidth: 3,
+      customAspectHeight: 4,
+    },
+  });
+
+  assert.equal(
+    workflow.config.frameworkFigure.placementId,
+    "single-column",
+  );
+  assert.equal(
+    workflow.config.frameworkFigure.aspectRatioId,
+    "portrait-3-4",
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /width of one column in a two-column paper/,
+  );
+  assert.match(workflow.rounds[3].prompt, /exact 3:4 canvas/);
+});
+
+test("skill requires explicit onboarding confirmation before initialization", async () => {
+  const skill = await readFile(
+    new URL("../skills/paper-reconstruction/SKILL.md", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(skill, /Mandatory onboarding gate/);
+  assert.match(skill, /Ask for the paper directory first/);
+  assert.match(skill, /never select a paper at random/);
+  assert.match(skill, /Display one concise confirmation summary/);
+  assert.match(skill, /Wait for an explicit start confirmation/);
+  assert.match(skill, /do not run `init`/);
 });
 
 test("no-limit and unlimited-core modes alter generated prompts", () => {

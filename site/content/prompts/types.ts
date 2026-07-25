@@ -67,5 +67,7 @@ export interface PromptBuildContext {
   includeAppendix: boolean;
   appendixLabel: string;
   appendixDirective: string;
+  frameworkFigure?: FrameworkFigureLayoutPreferences;
   submissionPreferences?: SubmissionPreferences;
 }
+import type { FrameworkFigureLayoutPreferences } from "../../app/figures/config";

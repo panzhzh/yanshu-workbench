@@ -27,11 +27,45 @@ node <plugin-root>/scripts/yanshu.mjs
 
 Do not ask the user to type commands that Codex can run safely itself.
 
+## Mandatory onboarding gate
+
+This gate is required for every new reconstruction run. Do not infer that the
+user wants defaults merely because a paper directory is available.
+
+1. Ask for the paper directory first. If the supplied directory contains
+   multiple papers or multiple plausible manuscript roots, show a compact
+   inventory and ask the user to choose one; never select a paper at random.
+2. Run `doctor --project <paper-root>` as a read-only check. Show the detected
+   TeX, BibTeX, compiled PDF, and figures paths, and ask the user to resolve any
+   ambiguity that could change the run.
+3. Collect explicit choices for:
+   - execution surface: visible ChatGPT Chat for the automated bridge, or a
+     prompt-only manual handoff for another unsupported chat surface;
+   - paper type: conference or journal;
+   - main-text word limit: disabled, or enabled with an exact target;
+   - whether Method and Experiments are exempt from word limits;
+   - appendix: allowed or not allowed;
+   - Prompt language;
+   - overall framework figure: single-column or double-column, plus canvas
+     ratio (`4:3`, `3:4`, `16:9`, `9:16`, or a custom width:height ratio);
+   - visible Chat model and reasoning effort when the user wants to override
+     the strongest available setting.
+4. Ask these questions in a short, readable sequence instead of presenting a
+   command or silently filling gaps.
+5. Display one concise confirmation summary with the exact paper paths and
+   every selected option.
+6. Wait for an explicit start confirmation such as “开始” or “确认开始”.
+
+Before that confirmation, do not run `init`, create a reconstruction directory,
+upload a file, open a live writing round, or submit a Prompt. A website-exported
+configuration may prefill the choices, but the user must still see and confirm
+the summary.
+
 ## Start a new run
 
-1. Run `doctor --project <paper-root>` with any TeX, BibTeX, PDF, or figures paths the user already provided.
-2. Resolve missing paths using read-only inspection. Prefer `main.tex`, `main.pdf`, `references.bib`, and `figures/` only when unambiguous. Ask the user only when multiple plausible files would materially change the run.
-3. Run `init` with:
+Only continue here after the mandatory onboarding gate is confirmed.
+
+1. Run `init` with:
    - `--project <paper-root>`
    - `--tex`, `--bib`, `--pdf`, and `--figures` when available
    - `--style conference|journal`
@@ -39,9 +73,19 @@ Do not ask the user to type commands that Codex can run safely itself.
    - `--unlimited-core true|false`
    - `--appendix true|false`
    - `--language zh|en`
-4. Report the created run directory before uploading anything.
+   - `--figure-placement single-column|double-column`
+   - `--figure-ratio landscape-4-3|portrait-3-4|landscape-16-9|portrait-9-16|custom`
+   - `--figure-ratio-width <number>` and `--figure-ratio-height <number>` for
+     a custom ratio
+2. Report the created run directory before uploading anything.
 
-The initializer creates a visible `yanshu-reconstruction/<run-id>/` directory with five round folders, generated prompts, outputs, logs, and `run.json`. It does not modify or copy the original manuscript. Round 4 reconstructs only the Method Overview figure with the shared YanShu figure prompt: landscape 16:9, adaptive two-to-three accent colors, minimal paper linework, and no large in-figure title.
+The initializer creates a visible `yanshu-reconstruction/<run-id>/` directory with five round folders, generated prompts, outputs, logs, and `run.json`. It does not modify or copy the original manuscript. Round 4 reconstructs only the Method Overview figure with the shared YanShu figure prompt. The figure placement and ratio follow the confirmed choices. All other Round 4
+visual rules are fixed: minimal paper linework; the Tol Vibrant palette with
+explicit HEX/RGB references and two-to-four accents selected by Chat according
+to semantics; Calibri; a pure-white canvas and pure-white module cards; exactly
+two type-size levels; no large in-figure title; dark-neutral lines by default,
+with semantic line colors only when needed; and restrained light illustrations
+or icons only when useful.
 
 ## Chat bridge selection
 

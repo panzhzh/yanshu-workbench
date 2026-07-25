@@ -310,21 +310,29 @@ export const UI_COPY = {
     paperStyle: "论文风格",
     targetWords: "正文字数限制",
     targetWordsHint:
-      "开启后显示 04；附录不计入正文，每张表格或图片按 200 词计入。",
+      "开启后显示 05；附录不计入正文，每张表格或图片按 200 词计入。",
     wordLimitOn: "限制正文字数",
     wordLimitOff: "无特殊规定",
     noWordLimitHint:
-      "关闭后不显示 04，五步 Prompt 也不包含正文总数或章节预算。",
+      "关闭后不显示 05，五步 Prompt 也不包含正文总数或章节预算。",
     words: "词",
     appendix: "附录设置",
     appendixOn: "允许附录",
     appendixOff: "不含附录",
+    frameworkFigure: "总体框架图",
+    frameworkPlacement: "论文占栏",
+    frameworkRatio: "画布比例",
+    frameworkCustomWidth: "宽",
+    frameworkCustomHeight: "高",
+    frameworkFixedRules:
+      "其余规则固定：极简论文线稿；Tol 鲜明色系，由 GPT 按语义选择 2–4 个强调色；Calibri；纯白画布与纯白模块卡片；两级字号；无大标题；深色中性线为默认，必要时按语义着色；轻插图与图标按需使用。",
     exportAutomation: "导出桌面配置",
     exportedAutomation: "配置已下载",
     exportAutomationHint:
-      "下载当前论文类型、字数、章节、附录和 Prompt 语言设置，供研术台插件直接读取。",
+      "下载当前论文类型、字数、章节、附录、框架图和 Prompt 语言设置，供研术台插件直接读取。",
     resetDefaults: "恢复默认配置",
-    resetHint: "重置论文类型、正文字数模式、附录和章节预算；保留当前语言。",
+    resetHint:
+      "重置论文类型、正文字数模式、附录、框架图和章节预算；保留当前语言。",
     plannerTitle: "正文与章节预算",
     plannerBody:
       "设置正文与章节预算；可单独取消方法和实验的字数限制。",
@@ -387,7 +395,7 @@ export const UI_COPY = {
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "Paper reconstruction",
     subtitle:
-      "Choose the paper type, main-text limit, and appendix rule, then reconstruct the manuscript with four production prompts.",
+      "Choose the paper type, main-text limit, appendix rule, and overview layout, then reconstruct the manuscript with five production prompts.",
     generalPreset: "General product preset · not an official venue rule",
     language: "Site language",
     chinese: "中文",
@@ -395,21 +403,29 @@ export const UI_COPY = {
     paperStyle: "Paper style",
     targetWords: "Main-text word limit",
     targetWordsHint:
-      "When enabled, section 04 appears. The appendix is excluded; each table or figure counts as 200 words.",
+      "When enabled, section 05 appears. The appendix is excluded; each table or figure counts as 200 words.",
     wordLimitOn: "Apply a word limit",
     wordLimitOff: "No special limit",
     noWordLimitHint:
-      "When disabled, section 04 is hidden and all five prompts omit the main-text total and section budgets.",
+      "When disabled, section 05 is hidden and all five prompts omit the main-text total and section budgets.",
     words: "words",
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
     appendixOff: "No appendix",
+    frameworkFigure: "Overall framework figure",
+    frameworkPlacement: "Paper placement",
+    frameworkRatio: "Canvas ratio",
+    frameworkCustomWidth: "Width",
+    frameworkCustomHeight: "Height",
+    frameworkFixedRules:
+      "All other rules are fixed: minimal paper linework; Tol Vibrant palette with 2–4 accents selected by GPT by semantics; Calibri; pure-white canvas and module cards; two type-size levels; no large title; dark-neutral lines by default with semantic color only when needed; light illustrations and icons when useful.",
     exportAutomation: "Export desktop config",
     exportedAutomation: "Config downloaded",
     exportAutomationHint:
-      "Download the current paper type, length, section, appendix, and prompt-language settings for the YanShu plugin.",
+      "Download the current paper type, length, section, appendix, framework-figure, and prompt-language settings for the YanShu plugin.",
     resetDefaults: "Restore defaults",
-    resetHint: "Resets paper type, length mode, appendix, and section budgets while keeping the current language.",
+    resetHint:
+      "Resets paper type, length mode, appendix, framework figure, and section budgets while keeping the current language.",
     plannerTitle: "Main-text and section budgets",
     plannerBody:
       "Set main-text and section budgets, with an independent unlimited mode for Method and Experiments.",

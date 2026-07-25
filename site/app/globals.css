@@ -693,6 +693,109 @@ a {
   grid-column: span 4;
 }
 
+.framework-figure-control {
+  min-width: 0;
+  min-height: 0;
+  grid-column: span 12;
+  margin: 0;
+  padding-block: 13px 12px;
+}
+
+.framework-figure-control legend {
+  width: 100%;
+  margin: 0 0 9px;
+  padding: 0;
+}
+
+.framework-figure-row {
+  display: grid;
+  grid-template-columns: minmax(230px, 0.9fr) minmax(210px, 0.75fr) auto;
+  gap: 9px;
+  align-items: end;
+}
+
+.framework-figure-field {
+  display: grid;
+  min-width: 0;
+  gap: 5px;
+  color: var(--ink-muted);
+  font-size: 10px;
+  font-weight: 680;
+}
+
+.framework-placement-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.framework-placement-options button,
+.framework-figure-field select {
+  min-height: 36px;
+  padding: 7px 9px;
+  color: var(--ink-soft);
+  background: #fafbf9;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 720;
+}
+
+.framework-placement-options button {
+  cursor: pointer;
+}
+
+.framework-placement-options button:hover,
+.framework-placement-options button.active,
+.framework-figure-field select:focus {
+  color: var(--accent-strong);
+  border-color: #8eaaa9;
+}
+
+.framework-placement-options button.active {
+  background: var(--surface-accent);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.framework-custom-ratio {
+  display: flex;
+  align-items: end;
+  gap: 6px;
+}
+
+.framework-custom-ratio label {
+  display: grid;
+  gap: 3px;
+  color: var(--ink-muted);
+  font-size: 9px;
+  font-weight: 680;
+}
+
+.framework-custom-ratio input {
+  width: 58px;
+  min-height: 36px;
+  padding: 6px;
+  color: var(--ink);
+  background: #fafbf9;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 720;
+  text-align: center;
+}
+
+.framework-custom-ratio > strong {
+  padding-bottom: 9px;
+  color: var(--accent-strong);
+  font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  font-size: 10px;
+}
+
+.framework-figure-control > small {
+  padding-top: 8px;
+}
+
 .control-label-row {
   display: flex;
   align-items: center;
@@ -3445,8 +3548,17 @@ body.is-resizing-prompt * {
 
   .target-control,
   .style-control,
-  .appendix-control {
+  .appendix-control,
+  .framework-figure-control {
     grid-column: 1;
+  }
+
+  .framework-figure-row {
+    grid-template-columns: 1fr;
+  }
+
+  .framework-custom-ratio {
+    flex-wrap: wrap;
   }
 
   .config-control {

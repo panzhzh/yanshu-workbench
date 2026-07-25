@@ -9,6 +9,15 @@ import {
 } from "./config";
 import SiteNavigation from "./SiteNavigation";
 import PromptResizeHandle from "./PromptResizeHandle";
+import {
+  FIGURE_ASPECT_RATIO_IDS,
+  FIGURE_ASPECT_RATIOS,
+  FIGURE_PLACEMENT_IDS,
+  FIGURE_PLACEMENTS,
+  RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
+  getFigureAspectRatio,
+  type FrameworkFigureLayoutPreferences,
+} from "./figures/config";
 import { buildPrompt } from "../content/prompts/buildPrompt";
 import { RECONSTRUCTION_PROMPTS } from "../content/prompts/templates";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -121,6 +130,17 @@ export default function YanshuWorkbench() {
   const [includeAppendix, setIncludeAppendix] = useState<boolean>(
     defaultStyle.defaultAppendix,
   );
+  const [frameworkFigure, setFrameworkFigure] =
+    useState<FrameworkFigureLayoutPreferences>(() => ({
+      placementId:
+        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
+      aspectRatioId:
+        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
+      customAspectWidth:
+        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
+      customAspectHeight:
+        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
+    }));
   const [sectionWords, setSectionWords] = useState<SectionWords>(() =>
     allocateWords(defaultStyle.defaultTargetWords, defaultStyle.sections),
   );
@@ -156,6 +176,10 @@ export default function YanshuWorkbench() {
     unlimitedCoreSections ? 1 : targetWords,
     1,
   );
+  const frameworkAspectRatio = getFigureAspectRatio({
+    ...RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
+    ...frameworkFigure,
+  });
 
   const prompts = useMemo(
     () =>
@@ -186,6 +210,7 @@ export default function YanshuWorkbench() {
             appendixDirective: includeAppendix
               ? style.appendixRule.enabled[language]
               : style.appendixRule.disabled[language],
+            frameworkFigure,
           }),
         };
       }),
@@ -198,6 +223,7 @@ export default function YanshuWorkbench() {
       includeAppendix,
       sectionWords,
       style,
+      frameworkFigure,
     ],
   );
 
@@ -325,6 +351,16 @@ export default function YanshuWorkbench() {
       PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections,
     );
     setIncludeAppendix(nextStyle.defaultAppendix);
+    setFrameworkFigure({
+      placementId:
+        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
+      aspectRatioId:
+        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
+      customAspectWidth:
+        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
+      customAspectHeight:
+        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
+    });
     setSectionWords(
       allocateWords(nextStyle.defaultTargetWords, nextStyle.sections),
     );
@@ -351,6 +387,7 @@ export default function YanshuWorkbench() {
           targetWords,
           sectionBudgets: sectionWords,
           includeAppendix,
+          frameworkFigure,
         },
       };
       const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], {
@@ -524,6 +561,114 @@ export default function YanshuWorkbench() {
                   : style.appendixRule.disabled[uiLanguage]}
               </small>
             </div>
+
+            <fieldset className="config-control framework-figure-control">
+              <legend className="control-label-row">
+                <span className="control-index">04</span>
+                <span>{copy.frameworkFigure}</span>
+              </legend>
+              <div className="framework-figure-row">
+                <div className="framework-figure-field">
+                  <span>{copy.frameworkPlacement}</span>
+                  <div
+                    className="framework-placement-options"
+                    role="radiogroup"
+                    aria-label={copy.frameworkPlacement}
+                  >
+                    {FIGURE_PLACEMENT_IDS.map((placementId) => {
+                      const active =
+                        frameworkFigure.placementId === placementId;
+                      return (
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          className={active ? "active" : ""}
+                          key={placementId}
+                          onClick={() => {
+                            setFrameworkFigure((current) => ({
+                              ...current,
+                              placementId,
+                            }));
+                            setCopied(null);
+                          }}
+                        >
+                          {FIGURE_PLACEMENTS[placementId].label[uiLanguage]}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <label className="framework-figure-field">
+                  <span>{copy.frameworkRatio}</span>
+                  <select
+                    value={frameworkFigure.aspectRatioId}
+                    onChange={(event) => {
+                      setFrameworkFigure((current) => ({
+                        ...current,
+                        aspectRatioId:
+                          event.target
+                            .value as FrameworkFigureLayoutPreferences["aspectRatioId"],
+                      }));
+                      setCopied(null);
+                    }}
+                  >
+                    {FIGURE_ASPECT_RATIO_IDS.map((aspectRatioId) => (
+                      <option value={aspectRatioId} key={aspectRatioId}>
+                        {FIGURE_ASPECT_RATIOS[aspectRatioId].label[uiLanguage]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+
+                {frameworkFigure.aspectRatioId === "custom" && (
+                  <div className="framework-custom-ratio">
+                    <label>
+                      <span>{copy.frameworkCustomWidth}</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={frameworkFigure.customAspectWidth}
+                        onChange={(event) => {
+                          setFrameworkFigure((current) => ({
+                            ...current,
+                            customAspectWidth: Math.max(
+                              1,
+                              Math.min(100, event.target.valueAsNumber || 1),
+                            ),
+                          }));
+                          setCopied(null);
+                        }}
+                      />
+                    </label>
+                    <span aria-hidden="true">:</span>
+                    <label>
+                      <span>{copy.frameworkCustomHeight}</span>
+                      <input
+                        type="number"
+                        min="1"
+                        max="100"
+                        value={frameworkFigure.customAspectHeight}
+                        onChange={(event) => {
+                          setFrameworkFigure((current) => ({
+                            ...current,
+                            customAspectHeight: Math.max(
+                              1,
+                              Math.min(100, event.target.valueAsNumber || 1),
+                            ),
+                          }));
+                          setCopied(null);
+                        }}
+                      />
+                    </label>
+                    <strong>{frameworkAspectRatio}</strong>
+                  </div>
+                )}
+              </div>
+              <small>{copy.frameworkFixedRules}</small>
+            </fieldset>
           </div>
 
           {hasWordLimit && (
@@ -533,7 +678,7 @@ export default function YanshuWorkbench() {
             >
             <div className="allocation-control-header">
               <div className="allocation-title">
-                <span className="control-index">04</span>
+                <span className="control-index">05</span>
                 <div>
                   <strong>{copy.plannerTitle}</strong>
                   <span>{copy.plannerBody}</span>
@@ -762,6 +907,12 @@ export default function YanshuWorkbench() {
                 <span>{copy.unlimitedCoreSections}</span>
               )}
               <span>{includeAppendix ? copy.appendixOn : copy.appendixOff}</span>
+              <span>
+                {FIGURE_PLACEMENTS[frameworkFigure.placementId].label[
+                  uiLanguage
+                ]}{" "}
+                · {frameworkAspectRatio}
+              </span>
             </div>
             <div>
               <button

@@ -433,7 +433,10 @@ export function buildPrompt(
   context: PromptBuildContext,
 ) {
   if (template.contentKind === "framework-figure") {
-    return buildFrameworkFigureReconstructionPrompt(context.language);
+    return buildFrameworkFigureReconstructionPrompt(
+      context.language,
+      context.frameworkFigure,
+    );
   }
 
   const language = context.language;

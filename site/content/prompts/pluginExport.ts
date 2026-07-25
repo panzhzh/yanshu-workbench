@@ -1,4 +1,10 @@
 import { PRODUCT_CONFIG } from "../../app/config";
+import {
+  FIGURE_ASPECT_RATIOS,
+  FIGURE_PLACEMENTS,
+  RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
+  type FrameworkFigureLayoutPreferences,
+} from "../../app/figures/config";
 import { buildPrompt } from "./buildPrompt";
 import { RECONSTRUCTION_PROMPTS } from "./templates";
 import type {
@@ -7,7 +13,7 @@ import type {
   PromptBuildContext,
 } from "./types";
 
-export const RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.2";
+export const RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.3";
 
 export interface ReconstructionWorkflowInput {
   language?: Language;
@@ -18,6 +24,7 @@ export interface ReconstructionWorkflowInput {
   targetWords?: number;
   sectionBudgets?: Record<string, number>;
   includeAppendix?: boolean;
+  frameworkFigure?: FrameworkFigureLayoutPreferences;
 }
 
 function allocateWords(
@@ -96,6 +103,42 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     }
   }
 
+  const frameworkFigure = {
+    placementId:
+      input.frameworkFigure?.placementId ??
+      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
+    aspectRatioId:
+      input.frameworkFigure?.aspectRatioId ??
+      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
+    customAspectWidth:
+      input.frameworkFigure?.customAspectWidth ??
+      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
+    customAspectHeight:
+      input.frameworkFigure?.customAspectHeight ??
+      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
+  };
+
+  if (!(frameworkFigure.placementId in FIGURE_PLACEMENTS)) {
+    throw new Error(
+      `Unsupported framework figure placement: ${String(frameworkFigure.placementId)}.`,
+    );
+  }
+  if (!(frameworkFigure.aspectRatioId in FIGURE_ASPECT_RATIOS)) {
+    throw new Error(
+      `Unsupported framework figure ratio: ${String(frameworkFigure.aspectRatioId)}.`,
+    );
+  }
+  if (
+    !Number.isFinite(frameworkFigure.customAspectWidth) ||
+    frameworkFigure.customAspectWidth <= 0 ||
+    !Number.isFinite(frameworkFigure.customAspectHeight) ||
+    frameworkFigure.customAspectHeight <= 0
+  ) {
+    throw new Error(
+      "Framework figure custom ratio values must be positive finite numbers.",
+    );
+  }
+
   return {
     language,
     roundLanguages: Object.fromEntries(
@@ -116,6 +159,7 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     targetWords,
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
+    frameworkFigure,
   };
 }
 
@@ -133,6 +177,7 @@ export function buildReconstructionWorkflow(
     targetWords,
     sectionBudgets,
     includeAppendix,
+    frameworkFigure,
   } = normalized;
   const contextForLanguage = (
     promptLanguage: Language,
@@ -161,6 +206,7 @@ export function buildReconstructionWorkflow(
     appendixDirective: includeAppendix
       ? style.appendixRule.enabled[promptLanguage]
       : style.appendixRule.disabled[promptLanguage],
+    frameworkFigure,
   });
 
   return {
@@ -176,6 +222,7 @@ export function buildReconstructionWorkflow(
       targetWords,
       sectionBudgets,
       includeAppendix,
+      frameworkFigure,
     },
     rounds: RECONSTRUCTION_PROMPTS.map((round) => {
       const roundLanguage = roundLanguages[round.id];

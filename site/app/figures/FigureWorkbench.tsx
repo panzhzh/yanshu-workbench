@@ -7,6 +7,8 @@ import { PRODUCT_CONFIG, type Language } from "../config";
 import {
   buildFigurePrompt,
   DEFAULT_FIGURE_PREFERENCES,
+  FIGURE_ACCENT_COLOR_RANGE_IDS,
+  FIGURE_ACCENT_COLOR_RANGES,
   FIGURE_ASPECT_RATIO_IDS,
   FIGURE_ASPECT_RATIOS,
   FIGURE_COLOR_PALETTE_IDS,
@@ -42,7 +44,6 @@ const DEFAULT_PROMPT_EXPANSION: PromptExpansion = {
   "technical-detail": true,
 };
 
-const ACCENT_COLOR_COUNTS = [1, 2, 3] as const;
 const FONT_SIZE_LEVELS = [2, 3] as const;
 
 async function writeClipboard(text: string) {
@@ -101,14 +102,12 @@ export default function FigureWorkbench() {
   const selectedStyle = FIGURE_STYLES[preferences.styleId];
   const selectedPalette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const selectedFont = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
+  const selectedAccentRange =
+    FIGURE_ACCENT_COLOR_RANGES[preferences.accentColorRangeId];
   const visualSummary =
     uiLanguage === "zh"
-      ? `${selectedPalette.label.zh} · ${selectedFont.label} · ${preferences.fontSizeLevels} 级字号`
-      : `${selectedPalette.label.en} · ${selectedFont.label} · ${
-          preferences.accentColorCount
-        } accent color${
-          preferences.accentColorCount === 1 ? "" : "s"
-        }`;
+      ? `${selectedPalette.label.zh} · ${selectedAccentRange.label} 种强调色 · ${selectedFont.label}`
+      : `${selectedPalette.label.en} · ${selectedAccentRange.label} accents · ${selectedFont.label}`;
 
   useEffect(() => {
     document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
@@ -607,37 +606,43 @@ export default function FigureWorkbench() {
                     role="radiogroup"
                     aria-label={copy.accentColors}
                   >
-                    {ACCENT_COLOR_COUNTS.map((accentColorCount) => (
-                      <button
-                        type="button"
-                        role="radio"
-                        aria-checked={
-                          preferences.accentColorCount === accentColorCount
-                        }
-                        className={
-                          preferences.accentColorCount === accentColorCount
-                            ? "active"
-                            : ""
-                        }
-                        key={accentColorCount}
-                        onClick={() =>
-                          updatePreferences((current) => ({
-                            ...current,
-                            accentColorCount,
-                          }))
-                        }
-                      >
-                        <span className="figure-color-dots" aria-hidden="true">
-                          {Array.from(
-                            { length: accentColorCount },
-                            (_, index) => (
-                              <i key={index} />
-                            ),
-                          )}
-                        </span>
-                        {accentColorCount}
-                      </button>
-                    ))}
+                    {FIGURE_ACCENT_COLOR_RANGE_IDS.map(
+                      (accentColorRangeId) => {
+                        const range =
+                          FIGURE_ACCENT_COLOR_RANGES[accentColorRangeId];
+                        const active =
+                          preferences.accentColorRangeId ===
+                          accentColorRangeId;
+                        return (
+                          <button
+                            type="button"
+                            role="radio"
+                            aria-checked={active}
+                            className={active ? "active" : ""}
+                            key={accentColorRangeId}
+                            onClick={() =>
+                              updatePreferences((current) => ({
+                                ...current,
+                                accentColorRangeId,
+                              }))
+                            }
+                          >
+                            <span
+                              className="figure-color-dots"
+                              aria-hidden="true"
+                            >
+                              {Array.from(
+                                { length: range.max },
+                                (_, index) => (
+                                  <i key={index} />
+                                ),
+                              )}
+                            </span>
+                            {range.label}
+                          </button>
+                        );
+                      },
+                    )}
                   </div>
                   <small>{copy.visualRulesHint}</small>
                 </div>
