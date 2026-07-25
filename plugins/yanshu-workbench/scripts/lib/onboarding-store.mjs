@@ -78,7 +78,9 @@ function summarizeOnboardingState(state, opened = undefined) {
     instruction:
       state.status === "confirmed"
         ? "The local page confirmation is the start authorization. Run the Chat bridge preflight, then initialize from configPath without asking configuration questions again."
-        : "Keep this session path and poll configure-status. The user completes all remaining workflow choices in the local page.",
+        : state.status === "cancelled"
+          ? "The user exited the local page. Stop without initializing, uploading files, or asking replacement workflow questions."
+          : "Keep this session path and poll configure-status. The user completes all remaining workflow choices and can inspect every Prompt in the local page.",
   };
 }
 

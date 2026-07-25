@@ -117,7 +117,7 @@ test("framework figure placement and canvas are configuration-driven", () => {
   assert.match(workflow.rounds[3].prompt, /exact 3:4 canvas/);
 });
 
-test("skill moves full-automation choices into one local confirmation page", async () => {
+test("skill opens one local launch page without an execution-mode question", async () => {
   const skill = await readFile(
     new URL("../skills/paper-reconstruction/SKILL.md", import.meta.url),
     "utf8",
@@ -127,10 +127,19 @@ test("skill moves full-automation choices into one local confirmation page", asy
   assert.match(skill, /# Paper Reconstruction/);
   assert.match(skill, /Ask for the paper directory first/);
   assert.match(skill, /never select a paper at random/);
-  assert.match(skill, /Full-automation local page/);
+  assert.match(skill, /Local configuration and launch page/);
   assert.match(skill, /configure-start/);
   assert.match(skill, /configure-status/);
-  assert.match(skill, /sole start authorization/);
+  assert.match(
+    skill,
+    /do not ask whether the user wants automation or Prompt-only handoff/,
+  );
+  assert.match(
+    skill,
+    /Every configuration change must refresh the five generated Prompts/,
+  );
+  assert.match(skill, /\*\*Start full automation\*\*/);
+  assert.match(skill, /\*\*Exit\*\*/);
   assert.match(skill, /do not ask the user to type “start”/);
   assert.match(skill, /Immediately run the visible Chat bridge preflight/);
   assert.match(skill, /do not display another confirmation summary/);
@@ -188,6 +197,33 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.equal(bootstrap.model.paperStyles.journal.defaultTargetWords, 5000);
     assert.equal(bootstrap.initialWorkflow.styleId, "conference");
 
+    const previewResponse = await fetch(endpoint("/api/preview"), {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        workflow: {
+          ...bootstrap.initialWorkflow,
+          language: "zh",
+          roundLanguages: {
+            ...bootstrap.initialWorkflow.roundLanguages,
+            "scientific-positioning": "en",
+            "method-experiments": "zh",
+          },
+          styleId: "journal",
+          hasWordLimit: false,
+          includeAppendix: true,
+        },
+      }),
+    });
+    const preview = await previewResponse.json();
+    assert.equal(preview.ok, true);
+    assert.equal(preview.rounds.length, 5);
+    assert.equal(preview.rounds[0].id, "scientific-positioning");
+    assert.equal(preview.rounds[0].language, "en");
+    assert.match(preview.rounds[0].prompt, /## Your Role/);
+    assert.equal(preview.rounds[1].language, "zh");
+    assert.match(preview.rounds[1].prompt, /## 你的角色/);
+
     const confirmedResponse = await fetch(endpoint("/api/confirm"), {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -234,6 +270,61 @@ test("local onboarding page confirms a complete automation config", async () => 
     );
     assert.match(ui, /configuration-form/);
     assert.match(ui, /confirm-button/);
+    assert.match(ui, /exit-button/);
+    assert.match(ui, /copy-all-button/);
+    assert.match(ui, /prompt-preview-list/);
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
+test("exiting local onboarding cancels without creating a run config", async () => {
+  const temporaryRoot = await mkdtemp(
+    path.join(tmpdir(), "yanshu-onboarding-cancel-test-"),
+  );
+  try {
+    const paperRoot = path.join(temporaryRoot, "paper");
+    await mkdir(path.join(paperRoot, "figures"), { recursive: true });
+    await writeFile(
+      path.join(paperRoot, "main.tex"),
+      "\\documentclass{article}\\begin{document}Test\\end{document}\n",
+      "utf8",
+    );
+    await writeFile(path.join(paperRoot, "references.bib"), "", "utf8");
+    await writeFile(path.join(paperRoot, "main.pdf"), "pdf fixture", "utf8");
+
+    const inputs = await resolvePaperInputs(paperRoot);
+    const pluginRoot = path.resolve(
+      new URL("..", import.meta.url).pathname,
+    );
+    const started = await startOnboardingSession({
+      pluginRoot,
+      projectRoot: paperRoot,
+      inputs,
+      uiLanguage: "zh",
+      openBrowser: false,
+      sessionRoot: path.join(temporaryRoot, "sessions"),
+      ttlMs: 30_000,
+    });
+    const pageUrl = new URL(started.url);
+    const cancelUrl = new URL("/api/cancel", pageUrl.origin);
+    cancelUrl.searchParams.set("token", pageUrl.searchParams.get("token"));
+    const response = await fetch(cancelUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: "{}",
+    });
+    const cancelled = await response.json();
+    assert.equal(cancelled.ok, true);
+    assert.equal(cancelled.status, "cancelled");
+
+    const status = await onboardingStatus(started.sessionPath);
+    assert.equal(status.status, "cancelled");
+    assert.equal(status.configPath, null);
+    await assert.rejects(
+      readFile(path.join(started.sessionPath, "confirmed.yanshu.json")),
+      /ENOENT/,
+    );
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });
   }

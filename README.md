@@ -110,7 +110,7 @@ Use YanShu → Paper Reconstruction.
 使用 YanShu 的 Paper Reconstruction 重构这个论文目录。
 ```
 
-YanShu 会先确认论文目录以及 TeX、BibTeX、PDF、figures。选择“全自动”后，它会自动打开一个仅运行在 `127.0.0.1` 的本地配置页；论文类型、字数、章节预算、附录、框架图、Prompt 语言与推理偏好都在同一页完成。点击“确认并开始全自动”就是唯一启动确认，随后 YanShu 检查 ChatGPT/Chrome 权限并直接执行，不再逐项追问。
+YanShu 会先确认论文目录；若目录中有多篇论文，只需选择目标论文一次。TeX、BibTeX、PDF 与 figures 唯一后，它会立即打开一个仅运行在 `127.0.0.1` 的本地配置页，不再询问“全自动还是只输出 Prompt”。论文类型、字数、章节预算、附录、框架图、Prompt 语言与推理偏好都在同一页完成，右侧实时展示可切换语言、展开和复制的五轮 Prompt。点击“全自动开始”后，YanShu 检查 ChatGPT/Chrome 权限并直接执行；若只想手动使用 Prompt，复制后点击“退出”即可，且不会创建重构目录或上传文件。
 
 当前 GitHub 技术安装 ID 仍为 `yanshu-workbench`，用户看到的插件名称是 **YanShu**。未来进入 OpenAI 公共插件目录后，安装路径将简化为 **Plugins → 搜索 YanShu → 安装 → 新建任务**。插件的官方安装与使用方式可参考 [OpenAI Plugins 文档](https://learn.chatgpt.com/docs/plugins)。
 

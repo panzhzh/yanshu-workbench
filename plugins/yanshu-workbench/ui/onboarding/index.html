@@ -194,20 +194,55 @@
             </section>
           </div>
 
-          <aside class="confirmation-panel">
-            <p class="eyebrow" data-copy="summaryEyebrow"></p>
-            <h2 data-copy="summaryTitle"></h2>
-            <dl id="configuration-summary"></dl>
-            <div class="privacy-note">
-              <strong data-copy="localOnly"></strong>
-              <p data-copy="localOnlyHint"></p>
-            </div>
-            <p class="submit-error" id="submit-error" role="alert"></p>
-            <button class="primary-button" id="confirm-button" type="submit">
-              <span data-copy="confirm"></span>
-              <b aria-hidden="true">→</b>
-            </button>
-            <p class="confirm-hint" data-copy="confirmHint"></p>
+          <aside class="right-rail">
+            <section class="confirmation-panel">
+              <p class="eyebrow" data-copy="summaryEyebrow"></p>
+              <h2 data-copy="summaryTitle"></h2>
+              <dl id="configuration-summary"></dl>
+              <div class="privacy-note">
+                <strong data-copy="localOnly"></strong>
+                <p data-copy="localOnlyHint"></p>
+              </div>
+              <p class="submit-error" id="submit-error" role="alert"></p>
+              <div class="launch-actions">
+                <button
+                  class="primary-button"
+                  id="confirm-button"
+                  type="submit"
+                >
+                  <span data-copy="startAutomation"></span>
+                  <b aria-hidden="true">→</b>
+                </button>
+                <button
+                  class="secondary-button"
+                  id="exit-button"
+                  type="button"
+                  data-copy="exit"
+                ></button>
+              </div>
+              <p class="confirm-hint" data-copy="confirmHint"></p>
+            </section>
+
+            <section class="prompt-preview-panel">
+              <div class="prompt-preview-heading">
+                <div>
+                  <p class="eyebrow" data-copy="promptEyebrow"></p>
+                  <h2 data-copy="promptTitle"></h2>
+                </div>
+                <button
+                  class="text-button"
+                  id="copy-all-button"
+                  type="button"
+                  data-copy="copyAll"
+                ></button>
+              </div>
+              <p class="prompt-preview-intro" data-copy="promptHint"></p>
+              <div class="prompt-preview-status" id="prompt-preview-status">
+                <span class="spinner" aria-hidden="true"></span>
+                <span data-copy="buildingPrompts"></span>
+              </div>
+              <div class="prompt-preview-list" id="prompt-preview-list"></div>
+            </section>
           </aside>
         </div>
       </form>
@@ -217,6 +252,13 @@
         <p class="eyebrow" data-copy="confirmedEyebrow"></p>
         <h2 data-copy="confirmedTitle"></h2>
         <p data-copy="confirmedBody"></p>
+      </section>
+
+      <section class="completion-state" id="cancelled-state" hidden>
+        <span class="completion-mark neutral" aria-hidden="true">×</span>
+        <p class="eyebrow" data-copy="cancelledEyebrow"></p>
+        <h2 data-copy="cancelledTitle"></h2>
+        <p data-copy="cancelledBody"></p>
       </section>
 
       <section class="completion-state error-state" id="fatal-error" hidden>

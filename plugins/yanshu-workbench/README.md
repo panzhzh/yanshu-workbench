@@ -58,13 +58,16 @@ Chinese is equally valid:
 使用 YanShu 的 Paper Reconstruction 重构这个论文目录。
 ```
 
-YanShu asks for the paper directory first and confirms the detected TeX,
-BibTeX, PDF, and figures. After the user selects full automation, YanShu opens a
-loopback-only setup page on `127.0.0.1`. Paper type, length and section budgets,
-appendix, Prompt language, framework figure, and ChatGPT reasoning are selected
-once on that page. **Confirm and start automation** is the sole start
-authorization: YanShu then checks the visible ChatGPT/Chrome permissions and
-continues without repeating configuration questions in chat.
+YanShu asks for the paper directory first and asks the user to choose only when
+the directory contains multiple plausible papers or inputs. As soon as TeX,
+BibTeX, PDF, and figures are unambiguous, YanShu opens a loopback-only setup page
+on `127.0.0.1`; it does not ask whether the user wants automation or Prompt-only
+handoff. Paper type, length and section budgets, appendix, Prompt language,
+framework figure, and ChatGPT reasoning are selected once on that page. The
+right rail rebuilds and displays all five Prompts live, with per-round language,
+expand, and copy controls. **Start full automation** is the sole launch
+authorization. **Exit** closes the setup without creating a reconstruction
+directory or uploading files, so manual users can simply copy the Prompts first.
 
 Once YanShu is accepted into the public directory, installation can use the
 normal **Plugins → search “YanShu” → + → new task** flow described in the
@@ -87,8 +90,10 @@ This keeps the workflow stable when OpenAI changes model or reasoning-level
 names.
 
 The website's Paper Reconstruction page can export these settings in a
-`.yanshu.json` file. Without an exported configuration, the plugin asks during
-onboarding. Runtime inspection is always the source of truth.
+`.yanshu.json` file and use them to prefill the same local launch page. Without
+an export, every setting remains available on the local page; YanShu does not
+collect those choices one by one in chat. Runtime inspection is always the
+source of truth.
 
 ## Trust boundary
 

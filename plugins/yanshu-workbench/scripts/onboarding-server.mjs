@@ -103,6 +103,17 @@ function localizedSelection(config, model) {
   };
 }
 
+function normalizedRequestedWorkflow(body, engine) {
+  const requestedWorkflow = {
+    ...(body.workflow ?? {}),
+    unlimitedCoreSections:
+      body.workflow?.hasWordLimit === false
+        ? false
+        : body.workflow?.unlimitedCoreSections,
+  };
+  return engine.buildReconstructionWorkflow(requestedWorkflow);
+}
+
 async function main() {
   const sessionPath = sessionPathFromArgs(process.argv.slice(2));
   let state = await loadOnboardingState(sessionPath);
@@ -196,6 +207,35 @@ async function main() {
       }
       if (
         request.method === "POST" &&
+        requestUrl.pathname === "/api/preview"
+      ) {
+        if (state.status !== "ready") {
+          sendJson(response, 409, {
+            ok: false,
+            error: `Onboarding session is ${state.status}.`,
+          });
+          return;
+        }
+        const workflow = normalizedRequestedWorkflow(
+          await readJsonBody(request),
+          engine,
+        );
+        sendJson(response, 200, {
+          ok: true,
+          config: workflow.config,
+          rounds: workflow.rounds.map((round) => ({
+            id: round.id,
+            number: round.number,
+            language: round.language,
+            title: round.title,
+            purpose: round.purpose,
+            prompt: round.prompt,
+          })),
+        });
+        return;
+      }
+      if (
+        request.method === "POST" &&
         requestUrl.pathname === "/api/confirm"
       ) {
         if (state.status === "confirmed") {
@@ -214,16 +254,7 @@ async function main() {
           return;
         }
         const body = await readJsonBody(request);
-        const requestedWorkflow = {
-          ...(body.workflow ?? {}),
-          unlimitedCoreSections:
-            body.workflow?.hasWordLimit === false
-              ? false
-              : body.workflow?.unlimitedCoreSections,
-        };
-        const workflow = engine.buildReconstructionWorkflow(
-          requestedWorkflow,
-        );
+        const workflow = normalizedRequestedWorkflow(body, engine);
         const configPath = path.join(
           sessionPath,
           "confirmed.yanshu.json",
@@ -270,6 +301,17 @@ async function main() {
         request.method === "POST" &&
         requestUrl.pathname === "/api/cancel"
       ) {
+        if (state.status === "cancelled") {
+          sendJson(response, 200, { ok: true, status: state.status });
+          return;
+        }
+        if (state.status !== "ready") {
+          sendJson(response, 409, {
+            ok: false,
+            error: `Onboarding session is ${state.status}.`,
+          });
+          return;
+        }
         state.status = "cancelled";
         state.updatedAt = new Date().toISOString();
         await writeOnboardingState(sessionPath, state);

@@ -252,7 +252,7 @@ main {
 .configuration-layout {
   display: grid;
   align-items: start;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.36fr);
+  grid-template-columns: minmax(0, 3fr) minmax(380px, 2fr);
   gap: 24px;
 }
 
@@ -263,6 +263,7 @@ main {
 
 .config-card,
 .confirmation-panel,
+.prompt-preview-panel,
 .completion-state {
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -609,9 +610,17 @@ select:focus {
   display: block;
 }
 
-.confirmation-panel {
+.right-rail {
   position: sticky;
   top: 88px;
+  display: grid;
+  height: calc(100vh - 110px);
+  min-height: 560px;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 14px;
+}
+
+.confirmation-panel {
   padding: 22px;
   box-shadow: var(--shadow);
 }
@@ -682,11 +691,49 @@ select:focus {
   font-weight: 700;
 }
 
+.secondary-button,
+.text-button {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.secondary-button {
+  min-height: 43px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.secondary-button:hover,
+.text-button:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.text-button {
+  min-height: 30px;
+  padding: 5px 9px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.launch-actions {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
 .primary-button:hover {
   background: #1b3d51;
 }
 
-.primary-button:disabled {
+.primary-button:disabled,
+.secondary-button:disabled,
+.text-button:disabled {
   cursor: wait;
   opacity: 0.65;
 }
@@ -697,6 +744,134 @@ select:focus {
   font-size: 9px;
   line-height: 1.5;
   text-align: center;
+}
+
+.prompt-preview-panel {
+  display: flex;
+  min-height: 0;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.prompt-preview-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 17px 17px 10px;
+}
+
+.prompt-preview-heading .eyebrow {
+  margin-bottom: 4px;
+}
+
+.prompt-preview-heading h2 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", "Songti SC", serif;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.prompt-preview-intro {
+  margin: 0;
+  padding: 0 17px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.prompt-preview-status {
+  display: flex;
+  min-height: 110px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.prompt-preview-status .spinner {
+  width: 14px;
+  height: 14px;
+}
+
+.prompt-preview-list {
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  scrollbar-gutter: stable;
+}
+
+.prompt-preview-card + .prompt-preview-card {
+  border-top: 1px solid var(--line);
+}
+
+.prompt-preview-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 13px 15px;
+  background: #fff;
+}
+
+.prompt-preview-card-header h3 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", "Songti SC", serif;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.prompt-preview-card-header p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.prompt-preview-card-actions {
+  display: inline-flex;
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.prompt-action {
+  min-height: 27px;
+  padding: 4px 7px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.prompt-action:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+
+.prompt-preview-body {
+  margin: 0;
+  padding: 15px;
+  border-top: 1px solid var(--line);
+  background: #f7f9f8;
+  color: #24332e;
+  font-family: "Cascadia Code", Consolas, monospace;
+  font-size: 10px;
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.prompt-preview-error {
+  margin: 0;
+  padding: 14px 16px;
+  color: var(--danger);
+  font-size: 10px;
+  line-height: 1.5;
 }
 
 .completion-state {
@@ -739,6 +914,11 @@ select:focus {
   color: var(--danger);
 }
 
+.completion-mark.neutral {
+  background: var(--surface-soft);
+  color: var(--muted);
+}
+
 [hidden] {
   display: none !important;
 }
@@ -748,8 +928,14 @@ select:focus {
     grid-template-columns: 1fr;
   }
 
-  .confirmation-panel {
+  .right-rail {
     position: static;
+    height: auto;
+    min-height: 0;
+  }
+
+  .prompt-preview-list {
+    max-height: 72vh;
   }
 }
 
@@ -789,6 +975,19 @@ select:focus {
   .config-card,
   .confirmation-panel {
     padding: 16px;
+  }
+
+  .prompt-preview-card-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .prompt-preview-card-actions {
+    width: 100%;
+  }
+
+  .prompt-action {
+    flex: 1;
   }
 
   .switch-row,
