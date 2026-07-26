@@ -64,9 +64,9 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /论文占栏/);
   assert.match(html, /画布比例/);
   assert.match(html, /Tol 鲜明色系/);
-  assert.match(html, /2–4 个强调色/);
+  assert.match(html, /2–3 个强调色为上限/);
   assert.match(html, /Calibri/);
-  assert.match(html, /轻插图与图标按需使用/);
+  assert.match(html, /不使用装饰图标，保留必要科学表示/);
   assert.match(html, /ChatGPT 执行/);
   assert.match(html, /最新可用推理模型/);
   assert.match(html, /自动最强/);
@@ -219,28 +219,32 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /本站不读取或保存论文/);
   assert.match(html, /引言图/);
   assert.match(html, /方法总览图/);
-  assert.match(html, /关键技术细节图/);
+  assert.match(html, /核心机制细节图/);
   assert.match(html, /极简论文线稿/);
   assert.match(html, /轻插图技术图/);
-  assert.match(html, /三选一/);
+  assert.match(html, /三种图型分别保存自己的设置/);
   assert.match(html, /论文占栏与画布/);
   assert.match(html, /单栏/);
   assert.match(html, /跨双栏/);
   assert.match(html, /横版 4:3/);
+  assert.match(html, /横版 3:2/);
   assert.match(html, /竖版 3:4/);
   assert.match(html, /横版 16:9/);
+  assert.match(html, /超宽 2:1/);
   assert.match(html, /竖版 9:16/);
   assert.match(html, /自定义/);
   assert.match(html, /输入任意宽高比例/);
   assert.match(html, /4:3/);
+  assert.match(html, /3:2/);
   assert.match(html, /3:4/);
   assert.match(html, /16:9/);
+  assert.match(html, /2:1/);
   assert.match(html, /9:16/);
-  assert.doesNotMatch(html, />2:1</);
   assert.match(html, /线条颜色/);
   assert.match(html, /统一深色/);
   assert.match(html, /按语义区分/);
   assert.match(html, /强调色范围/);
+  assert.match(html, /1–2/);
   assert.match(html, /色系/);
   assert.match(html, /Tol 鲜明 · 蓝橙/);
   assert.match(html, /Tol 明亮 · 蓝红绿黄/);
@@ -250,30 +254,36 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /Arial/);
   assert.match(html, /Calibri/);
   assert.match(html, /Comic Sans MS/);
-  assert.match(html, /轻插图与图标/);
-  assert.match(html, /模块卡片底色/);
+  assert.match(html, /技术图形与图标/);
+  assert.match(html, /容器卡片底色/);
+  assert.match(html, /全部纯白/);
+  assert.match(html, /关键区域浅底/);
+  assert.match(html, /按语义区域浅底/);
   assert.match(html, /字号层级/);
   assert.match(html, /2 级字号/);
   assert.match(html, /3 级字号/);
-  assert.match(html, /不得使用浅灰/);
+  assert.match(html, /不得缩成微型文字/);
   assert.match(html, /不使用/);
   assert.match(html, /方法总览图/);
   assert.match(html, /整体心智地图/);
   assert.match(html, /class="prompt-card expanded"/);
   assert.match(html, /aria-expanded="true"/);
-  assert.match(html, /擅长从 CS 论文中提炼科学逻辑、信息流与视觉层级/);
-  assert.match(html, /## 视觉要求/);
-  assert.match(html, /## 两步执行/);
-  assert.match(html, /先生成英文生图 Prompt/);
+  assert.match(html, /Yanshu Scientific Figure Director — Common Base/);
+  assert.match(html, /Figure-Type Adapter — Method Overview Figure/);
+  assert.match(html, /User-Selected Visual Configuration/);
+  assert.match(html, /Output and Two-Step Execution Protocol/);
   assert.match(html, /本轮不要生成图片/);
   assert.match(html, /FINAL IMAGE PROMPT/);
-  assert.match(html, /GLOBAL COMPOSITION/);
-  assert.match(html, /CONTENT AND REGIONS/);
-  assert.match(html, /CONNECTIONS AND ANNOTATIONS/);
+  assert.match(html, /VISUAL THESIS/);
+  assert.match(html, /COMPOSITION/);
+  assert.match(html, /SCIENTIFIC VISUAL OBJECTS/);
+  assert.match(html, /FLOW AND RELATIONSHIPS/);
   assert.match(html, /STYLE SPECIFICATION/);
+  assert.match(html, /EXACT TEXT AND MATH/);
   assert.match(html, /NEGATIVE CONSTRAINTS/);
   assert.match(html, /输入“开始绘图”生成这张图/);
-  assert.match(html, /确认后生成/);
+  assert.match(html, /Generate after confirmation/);
+  assert.doesNotMatch(html, /RGB\(/);
   assert.doesNotMatch(html, /TWO-STEP FIGURE PROMPT|两步制图 Prompt/);
   assert.doesNotMatch(html, /class="figure-prompt-summary"|class="prompt-number"/);
   assert.doesNotMatch(
@@ -491,13 +501,14 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(
     originalPrompts,
-    /必须注入用户确认的占栏与画布比例/,
+    /COMMON_BASE[\s\S]*?FIGURE_TYPE_ADAPTERS\["method-overview"\][\s\S]*?COMPILED_VISUAL_CONFIGURATION[\s\S]*?OUTPUT_PROTOCOL/,
   );
-  assert.match(originalPrompts, /按真实语义在 2–4 种内选择最少够用的颜色/);
-  assert.match(originalPrompts, /#0077BB \/ RGB\(0, 119, 187\)/);
-  assert.match(originalPrompts, /全图统一使用 Calibri/);
-  assert.match(originalPrompts, /使用极简论文线稿/);
-  assert.match(originalPrompts, /不使用图内大标题/);
+  assert.match(originalPrompts, /double-column, ultra-wide `2:1`/);
+  assert.match(originalPrompts, /`2–3`[\s\S]*?accent budget/);
+  assert.doesNotMatch(originalPrompts, /RGB\(/);
+  assert.match(originalPrompts, /Calibri prose labels/);
+  assert.match(originalPrompts, /minimal paper linework/);
+  assert.match(originalPrompts, /no large[\s\S]*?in-figure title/);
   assert.match(
     originalPrompts,
     /<base_name>_round_4_framework_reconstruction\.png/,
@@ -694,7 +705,10 @@ test("keeps presets and production prompts configuration-driven", async () => {
     submissionConfig,
     /excludedPublishers:\s*\["MDPI", "Hindawi", "Frontiers"\]/,
   );
-  assert.match(promptReadme, /source\/.*five active Markdown prompts/s);
+  assert.match(
+    promptReadme,
+    /source\/.*five active rounds.*Round 4.*pointer/s,
+  );
   assert.match(
     promptReadme,
     /four reconstruction cards and the separate submission-strategy/,
@@ -713,9 +727,19 @@ test("keeps presets and production prompts configuration-driven", async () => {
 });
 
 test("keeps research-figure choices and prompt rules configuration-driven", async () => {
-  const [figureConfig, figureComponent, figurePage, navigation] =
+  const [
+    figureConfig,
+    figureArchitecture,
+    figureComponent,
+    figurePage,
+    navigation,
+  ] =
     await Promise.all([
       readFile(new URL("../app/figures/config.ts", import.meta.url), "utf8"),
+      readFile(
+        new URL("../app/figures/promptArchitecture.ts", import.meta.url),
+        "utf8",
+      ),
       readFile(
         new URL("../app/figures/FigureWorkbench.tsx", import.meta.url),
         "utf8",
@@ -726,7 +750,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
 
   assert.match(figureConfig, /promptId:\s*"method-overview"/);
   assert.match(figureConfig, /placementId:\s*"double-column"/);
-  assert.match(figureConfig, /aspectRatioId:\s*"landscape-16-9"/);
+  assert.match(figureConfig, /aspectRatioId:\s*"landscape-2-1"/);
   assert.doesNotMatch(
     figureConfig,
     /canvasPresetId|includeIntroductionFigure|includeMethodOverview|includeTechnicalDetailFigure/,
@@ -734,63 +758,63 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.doesNotMatch(figureConfig, /technicalFigureCount|TechnicalFigureCount/);
   assert.match(
     figureConfig,
-    /introduction:\s*\{[\s\S]*?placementId:\s*"single-column"[\s\S]*?aspectRatioId:\s*"landscape-4-3"/,
+    /introduction:\s*\{[\s\S]*?placementId:\s*"double-column"[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?styleId:\s*"illustrated-technical"[\s\S]*?accentColorRangeId:\s*"2-3"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"semantic-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
-    /"method-overview":\s*\{[\s\S]*?placementId:\s*"double-column"[\s\S]*?aspectRatioId:\s*"landscape-16-9"/,
+    /"method-overview":\s*\{[\s\S]*?placementId:\s*"double-column"[\s\S]*?aspectRatioId:\s*"landscape-2-1"[\s\S]*?styleId:\s*"conference-minimal"[\s\S]*?accentColorRangeId:\s*"2-3"[\s\S]*?allowLightIllustrations:\s*false[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
+  );
+  assert.match(
+    figureConfig,
+    /"technical-detail":\s*\{[\s\S]*?placementId:\s*"single-column"[\s\S]*?aspectRatioId:\s*"landscape-4-3"[\s\S]*?accentColorRangeId:\s*"1-2"[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(figureConfig, /ratio:\s*"4:3"/);
+  assert.match(figureConfig, /ratio:\s*"3:2"/);
   assert.match(figureConfig, /ratio:\s*"3:4"/);
   assert.match(figureConfig, /ratio:\s*"16:9"/);
+  assert.match(figureConfig, /ratio:\s*"2:1"/);
   assert.match(figureConfig, /ratio:\s*"9:16"/);
   assert.match(figureConfig, /custom:\s*\{[\s\S]*?ratio:\s*null/);
   assert.match(
     figureConfig,
-    /DEFAULT_FIGURE_PREFERENCES[\s\S]*?promptId:\s*"method-overview"[\s\S]*?placementId:\s*"double-column"[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?customAspectWidth:\s*16[\s\S]*?customAspectHeight:\s*9/,
+    /DEFAULT_FIGURE_PREFERENCES[\s\S]*?\.\.\.FIGURE_TYPE_RECOMMENDATIONS\["method-overview"\]/,
   );
   assert.match(figureConfig, /getFigureAspectRatio/);
   assert.match(figureConfig, /greatestCommonDivisor/);
-  assert.match(figureConfig, /自定义宽高比/);
-  assert.doesNotMatch(figureConfig, /ratio:\s*"2:1"|ratio:\s*"1:2"/);
-  assert.match(figureConfig, /双栏论文中的单栏宽度/);
-  assert.match(figureConfig, /横跨两栏的通栏宽度/);
+  assert.match(figureConfig, /输入任意宽高比例/);
+  assert.match(figureConfig, /双栏论文中的一栏/);
+  assert.match(figureConfig, /横跨双栏的通栏图/);
   assert.match(figureConfig, /styleId:\s*"conference-minimal"/);
   assert.match(figureConfig, /lineColorMode:\s*"neutral"/);
-  assert.match(figureConfig, /accentColorRangeId:\s*"2-4"/);
+  assert.match(figureConfig, /accentColorRangeId:\s*"1-2"/);
+  assert.match(figureConfig, /accentColorRangeId:\s*"2-3"/);
   assert.match(figureConfig, /allowLightIllustrations:\s*false/);
-  assert.match(figureConfig, /useCardFills:\s*false/);
-  assert.match(figureConfig, /fontSizeLevels:\s*2/);
+  assert.match(figureConfig, /cardFillPolicyId:\s*"key-regions"/);
+  assert.match(figureConfig, /cardFillPolicyId:\s*"semantic-regions"/);
+  assert.match(figureConfig, /fontSizeLevels:\s*3/);
   assert.match(figureConfig, /includeLargeTitle:\s*false/);
   assert.match(figureConfig, /paletteId:\s*"tol-vibrant"/);
   assert.match(figureConfig, /fontFamilyId:\s*"calibri"/);
   assert.match(figureConfig, /"conference-minimal"/);
   assert.match(figureConfig, /"illustrated-technical"/);
   assert.doesNotMatch(figureConfig, /"structured-technical"|"light-academic"/);
-  assert.match(
-    figureConfig,
-    /"illustrated-technical":\s*\{[\s\S]*?lineColorMode:\s*"semantic"[\s\S]*?accentColorRangeId:\s*"2-4"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?useCardFills:\s*true[\s\S]*?fontSizeLevels:\s*3/,
-  );
   assert.match(figureConfig, /FIGURE_PROMPT_ORDER/);
   assert.match(figureConfig, /buildFigurePrompt/);
-  assert.match(figureConfig, /逐字匹配论文/);
-  assert.match(figureConfig, /今天仍存在的关键障碍/);
-  assert.match(figureConfig, /整体心智地图阅读 Method/);
-  assert.match(figureConfig, /最需要视觉解释的一项核心机制/);
-  assert.match(figureConfig, /只生成这一张图/);
-  assert.match(figureConfig, /论文占栏/);
-  assert.match(figureConfig, /从一开始适配该比例/);
-  assert.match(figureConfig, /官方模板另有尺寸/);
-  assert.match(figureConfig, /只使用正文\/标签与标题两级字号/);
-  assert.match(figureConfig, /最大不超过最小的 1\.25 倍/);
-  assert.match(figureConfig, /最大不超过最小的 1\.35 倍/);
-  assert.match(figureConfig, /不使用浅灰、低透明度或不可读小字/);
-  assert.match(figureConfig, /白底、黑字和深色结构线不计入/);
+  assert.match(
+    figureConfig,
+    /COMMON_BASE\[language\][\s\S]*?FIGURE_TYPE_ADAPTERS\[promptId\]\[language\][\s\S]*?buildVisualConfiguration\(preferences\)[\s\S]*?OUTPUT_PROTOCOL\[language\]/,
+  );
+  assert.match(figureConfig, /User-Selected Visual Configuration/);
+  assert.match(figureConfig, /maximum semantic budget, not a target/);
+  assert.match(figureConfig, /1\.00 : 1\.22 : 1\.50/);
+  assert.match(figureConfig, /No decorative or pictorial icons/);
+  assert.match(figureConfig, /Pure-white cards/);
+  assert.match(figureConfig, /Remove or reflow secondary content/);
   assert.match(figureConfig, /FIGURE_COLOR_PALETTES/);
   assert.match(figureConfig, /"tol-vibrant"/);
   assert.match(figureConfig, /"tol-bright"/);
   assert.match(figureConfig, /"tol-muted"/);
-  assert.match(figureConfig, /RGB\(/);
+  assert.doesNotMatch(figureConfig, /RGB\(/);
   assert.doesNotMatch(
     figureConfig,
     /"academic-blue"|"blue-orange"|"teal-purple"|"warm-earth"|"cool-monochrome"/,
@@ -798,37 +822,42 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /FIGURE_FONT_FAMILIES/);
   assert.match(figureConfig, /Times New Roman/);
   assert.match(figureConfig, /Comic Sans MS/);
-  assert.match(figureConfig, /## 两步执行/);
-  assert.match(figureConfig, /本轮不要生成图片/);
-  assert.match(figureConfig, /FINAL IMAGE PROMPT/);
-  assert.match(figureConfig, /GLOBAL COMPOSITION/);
-  assert.match(figureConfig, /CONTENT AND REGIONS/);
-  assert.match(figureConfig, /CONNECTIONS AND ANNOTATIONS/);
-  assert.match(figureConfig, /STYLE SPECIFICATION/);
-  assert.match(figureConfig, /NEGATIVE CONSTRAINTS/);
-  assert.match(figureConfig, /输入“开始绘图”生成这张图/);
-  assert.match(figureConfig, /Then stop/);
+  assert.match(figureArchitecture, /export const COMMON_BASE/);
+  assert.match(figureArchitecture, /export const FIGURE_TYPE_ADAPTERS/);
+  assert.match(figureArchitecture, /export const OUTPUT_PROTOCOL/);
+  assert.match(figureArchitecture, /逐字符一致/);
+  assert.match(figureArchitecture, /主要视觉对象中/);
+  assert.match(figureArchitecture, /conventional assumption → hidden failure/);
+  assert.match(figureArchitecture, /evaluation protocol/);
+  assert.match(figureArchitecture, /exploded operator anatomy/);
+  assert.match(figureArchitecture, /2–4 个主要区域/);
+  assert.match(figureArchitecture, /3–5 个主要区域/);
+  assert.match(figureArchitecture, /1–3 个核心公式/);
+  assert.match(figureArchitecture, /FINAL IMAGE PROMPT/);
+  assert.match(figureArchitecture, /VISUAL THESIS/);
+  assert.match(figureArchitecture, /COMPOSITION/);
+  assert.match(figureArchitecture, /SCIENTIFIC VISUAL OBJECTS/);
+  assert.match(figureArchitecture, /FLOW AND RELATIONSHIPS/);
+  assert.match(figureArchitecture, /STYLE SPECIFICATION/);
+  assert.match(figureArchitecture, /EXACT TEXT AND MATH/);
+  assert.match(figureArchitecture, /NEGATIVE CONSTRAINTS/);
+  assert.match(figureArchitecture, /输入“开始绘图”生成这张图/);
+  assert.match(figureArchitecture, /Then stop/);
+  assert.doesNotMatch(figureArchitecture, /RGB\(/);
   assert.doesNotMatch(
-    figureConfig,
+    figureArchitecture,
     /材料足够时直接生成最终图片|## 直接生成|## Generate directly/,
-  );
-  assert.doesNotMatch(
-    figureConfig,
-    /## 目标|Success criterion:|## 输入与取证|## Shared visual and text constraints|论文占栏：|视觉风格：/,
-  );
-  assert.doesNotMatch(
-    figureConfig,
-    /保持 Overview 粒度|Stay at overview granularity/,
   );
   assert.match(figureComponent, /buildFigurePrompt\(\s*activePromptId/);
   assert.match(figureComponent, /setPromptLanguages/);
   assert.match(figureComponent, /selectFigurePrompt/);
-  assert.match(
-    figureComponent,
-    /\.\.\.FIGURE_DEFAULT_LAYOUT\[promptId\]/,
-  );
+  assert.match(figureComponent, /preferencesByPrompt/);
+  assert.match(figureComponent, /createRecommendedPreferences/);
+  assert.match(figureComponent, /setActivePromptId\(promptId\)/);
+  assert.match(figureComponent, /FIGURE_TYPE_RECOMMENDATIONS\[activePromptId\]/);
+  assert.doesNotMatch(figureComponent, /\.\.\.FIGURE_DEFAULT_LAYOUT\[promptId\]/);
   assert.match(figureComponent, /selectFigureStyle/);
-  assert.match(figureComponent, /\.\.\.FIGURE_STYLE_DEFAULTS\[styleId\]/);
+  assert.doesNotMatch(figureComponent, /FIGURE_STYLE_DEFAULTS/);
   assert.match(figureComponent, /role="radiogroup"/);
   assert.match(figureComponent, /role="radio"/);
   assert.match(figureComponent, /FIGURE_PLACEMENT_IDS\.map/);
@@ -848,6 +877,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     figureComponent,
     /FIGURE_ACCENT_COLOR_RANGE_IDS\.map/,
   );
+  assert.match(figureComponent, /FIGURE_CARD_FILL_POLICY_IDS\.map/);
   assert.match(figureComponent, /FONT_SIZE_LEVELS\.map/);
   assert.match(figureComponent, /FIGURE_COLOR_PALETTE_IDS\.map/);
   assert.match(figureComponent, /FIGURE_FONT_FAMILY_IDS\.map/);

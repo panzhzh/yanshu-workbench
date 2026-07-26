@@ -3,8 +3,10 @@
 This directory separates the original research workflow from the templates used
 by the website.
 
-- `source/` preserves the five active Markdown prompts as the canonical
-  constraint source. The retired evidence-audit step has been removed.
+- `source/` preserves reviewed references for the five active rounds. Round 4
+  is a pointer rather than a duplicated standalone prompt: its canonical
+  figure blocks live in `app/figures/promptArchitecture.ts` and
+  `app/figures/config.ts`. The retired evidence-audit step has been removed.
 - `templates.ts` contains the reviewed, normalized Chinese and English content
   used by four reconstruction cards and the separate submission-strategy
   card. Every template has an explicit `sourceFile` link to its corresponding

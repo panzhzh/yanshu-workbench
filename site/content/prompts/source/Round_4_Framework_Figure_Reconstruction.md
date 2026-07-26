@@ -1,41 +1,32 @@
-你是一名擅长从 CS 论文中提炼科学逻辑、信息流与视觉层级的学术配图专家。本轮提供第三轮输出的最新 `.tex`，也可能包含编译后的 `.pdf`、前三轮报告或现有 figures。完整阅读可用材料；有 TeX 时以其中的正式术语、符号和结构为准，PDF 用于理解上下文与已有版面。材料冲突会影响图义时只问一个必要问题，不得猜测。
+# Round 4 — Method Overview Figure Reconstruction
 
-本轮只重构方法总览图：让读者沿一条清楚路径理解输入、主要阶段或组件、关键信息流与输出，并带着这张整体心智地图阅读 Method。
+Round 4 intentionally does not maintain a second standalone figure prompt.
+The website and reconstruction workflow compile the same source of truth:
 
-- 从 TeX 中确认正式定义的输入、输出、主要组件与接口；每个组件只出现一次，用层级、分组和箭头表达关系，并清楚标出输入与输出边界。
-- 优先呈现决定整体理解的主路径；只有论文真实依赖时才显示分支、共享、循环、反馈、多模态交互或训练/推理差异。
-- 不重复引言动机，不放实验结果、性能数字、消融或研究影响；不展开每个子操作、完整公式、损失推导、超参数或代码，也不为对称虚构组件。
+```text
+COMMON_BASE
++
+FIGURE_TYPE_ADAPTERS["method-overview"]
++
+COMPILED_VISUAL_CONFIGURATION
++
+OUTPUT_PROTOCOL
+```
 
-图内标题、模块名、箭头标签、缩写和符号必须逐字匹配论文，保留原有大小写、连字符与记号。不得发明模块、数据流、公式、结果或因果关系；文字放不下时调整布局，不得擅自缩写。
+The canonical blocks live in:
 
-## 视觉要求
+- `app/figures/promptArchitecture.ts` for shared evidence rules, the Method
+  Overview Adapter, and the two-step output protocol;
+- `app/figures/config.ts` for the user-selected visual configuration and the
+  reconstruction default.
 
-- 页面必须注入用户确认的占栏与画布比例；从一开始适配该比例，不裁切、不画论文栏线，缩放到目标栏宽后仍须清楚。
-- 使用极简论文线稿：纯白画布、细而可印刷的结构线、矩形或轻圆角模块，以对齐、留白和清楚信息流建立层级；不使用渐变、阴影、3D、纹理或装饰性 AI 视觉。
-- 候选色仅使用 Paul Tol “Vibrant”中的 `#0077BB / RGB(0, 119, 187)`、`#EE7733 / RGB(238, 119, 51)`、`#009988 / RGB(0, 153, 136)`、`#CC3311 / RGB(204, 51, 17)`，按真实语义在 2–4 种内选择最少够用的颜色。边框与箭头默认使用深色中性细线，只在语义确需区分时使用强调色线。
-- 全图统一使用 Calibri，只使用正文/标签与标题两级字号，最大不超过最小的 `1.25` 倍。所有文字使用实黑或近黑色，不使用浅灰、低透明度或不可读小字；不使用图内大标题。
-- 模块保持纯白或透明。可按需使用克制的轻量技术插图或语义图标，但只能表示论文中的真实对象或过程，不能代替核心机制，也不能漫画化或营销化。
+The reconstruction default is a double-column, ultra-wide `2:1` Method
+Overview using minimal paper linework, the Tol Vibrant palette with a `2–3`
+accent budget, Calibri prose labels, dark-neutral structural lines, pale fills
+only for key regions, three type-size levels, no decorative icons, and no large
+in-figure title. A user-selected placement or aspect ratio replaces only that
+corresponding rendering setting.
 
-## 两步执行
-
-### 1. 先生成英文生图 Prompt
-
-本轮不要生成图片。先在内部完成论文语义拆解：确定唯一主旨、命名区域、区域内部结构，以及每条连接的源、目标、方向、标签和分支/合并/反馈语义。公式、维度或微型示例只在论文明确支持且确有助益时使用；不要输出推理过程或备选方案。
-
-只输出一个置于 `text` 代码块中的 `FINAL IMAGE PROMPT`。它必须是可独立生图的完整英文指令，写入论文中的精确内容与本轮视觉设置，不使用 `[Module A]`、`TBD` 或“参考论文”等占位表达，并依次包含：
-
-- `GLOBAL COMPOSITION`：唯一主旨、当前画布与占栏意图、阅读方向和区域布局。
-- `CONTENT AND REGIONS`：各区域的位置、相对尺寸、内部内容、精确标签与视觉含义。
-- `CONNECTIONS AND ANNOTATIONS`：逐条列明源 → 目标、箭头语义及必要的公式、维度、图例或标注。
-- `STYLE SPECIFICATION`：完整写入本轮已经确定的配色、线条、字体、字号、卡片、插图和可读性要求。
-- `NEGATIVE CONSTRAINTS`：写入本图边界，并禁止补造、空框、错拼、重复模块、含糊或交叉箭头、渐变、阴影、3D、低对比文字和微型文字。
-
-英文 Prompt 必须具体到图像模型无需猜测模块、布局、标签或箭头语义。代码块后只写：
-
-`详细英文制图 Prompt 已准备好。输入“开始绘图”生成这张图；如需调整，请直接说明修改项。`
-
-然后停止，不得在同一回复中生成图片。
-
-### 2. 确认后生成
-
-用户输入“开始绘图”、`Start drawing` 或明确同义指令后，严格使用最新英文 Prompt，只生成一张符合当前画布比例的高分辨率 PNG，文件名为 `<base_name>_round_4_framework_reconstruction.png`。不再给方案或备选，不添加水印、作者、论文完整标题或 caption。生成后核对术语、拼写、组件、箭头、颜色和缩小可读性；有误只修正受影响部分。若用户先提出修改，则更新并重新输出完整英文 Prompt，再次等待确认。
+Runtime output must use the same two-step confirmation protocol as `/figures/`
+and save the confirmed image as
+`<base_name>_round_4_framework_reconstruction.png`.

@@ -472,8 +472,8 @@ Related Work has exactly three subsections and follows the current paper type's 
       en: "<base_name>_round_4_framework_reconstruction.png",
     },
     finalChecks: {
-      zh: "术语、结构、箭头语义、16:9 画布与缩小后可读性均已核对。",
-      en: "Terminology, structure, arrow semantics, the 16:9 canvas, and reduced-size legibility have all been checked.",
+      zh: "术语、结构、箭头语义、所选画布比例与缩小后可读性均已核对。",
+      en: "Terminology, structure, arrow semantics, the selected canvas ratio, and reduced-size legibility have all been checked.",
     },
   },
   {

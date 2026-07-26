@@ -11,6 +11,8 @@ import {
   FIGURE_ACCENT_COLOR_RANGES,
   FIGURE_ASPECT_RATIO_IDS,
   FIGURE_ASPECT_RATIOS,
+  FIGURE_CARD_FILL_POLICIES,
+  FIGURE_CARD_FILL_POLICY_IDS,
   FIGURE_COLOR_PALETTE_IDS,
   FIGURE_COLOR_PALETTES,
   FIGURE_COPY,
@@ -21,9 +23,9 @@ import {
   FIGURE_FONT_FAMILY_IDS,
   FIGURE_PROMPT_ORDER,
   FIGURE_PROMPTS,
-  FIGURE_STYLE_DEFAULTS,
   FIGURE_STYLE_IDS,
   FIGURE_STYLES,
+  FIGURE_TYPE_RECOMMENDATIONS,
   getFigureAspectRatio,
   type FigurePreferences,
   type FigurePromptId,
@@ -31,6 +33,7 @@ import {
 
 type PromptLanguages = Record<FigurePromptId, Language>;
 type PromptExpansion = Record<FigurePromptId, boolean>;
+type FigurePreferenceMap = Record<FigurePromptId, FigurePreferences>;
 
 const DEFAULT_PROMPT_LANGUAGES: PromptLanguages = {
   introduction: PRODUCT_CONFIG.defaultPromptLanguage,
@@ -45,6 +48,18 @@ const DEFAULT_PROMPT_EXPANSION: PromptExpansion = {
 };
 
 const FONT_SIZE_LEVELS = [2, 3] as const;
+
+function createRecommendedPreferences(): FigurePreferenceMap {
+  return {
+    introduction: { ...FIGURE_TYPE_RECOMMENDATIONS.introduction },
+    "method-overview": {
+      ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"],
+    },
+    "technical-detail": {
+      ...FIGURE_TYPE_RECOMMENDATIONS["technical-detail"],
+    },
+  };
+}
 
 async function writeClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
@@ -70,9 +85,11 @@ export default function FigureWorkbench() {
   const [promptLanguages, setPromptLanguages] = useState<PromptLanguages>({
     ...DEFAULT_PROMPT_LANGUAGES,
   });
-  const [preferences, setPreferences] = useState<FigurePreferences>({
-    ...DEFAULT_FIGURE_PREFERENCES,
-  });
+  const [activePromptId, setActivePromptId] = useState<FigurePromptId>(
+    DEFAULT_FIGURE_PREFERENCES.promptId,
+  );
+  const [preferencesByPrompt, setPreferencesByPrompt] =
+    useState<FigurePreferenceMap>(createRecommendedPreferences);
   const [expandedPrompts, setExpandedPrompts] = useState<PromptExpansion>({
     ...DEFAULT_PROMPT_EXPANSION,
   });
@@ -82,7 +99,7 @@ export default function FigureWorkbench() {
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const copy = FIGURE_COPY[uiLanguage];
-  const activePromptId = preferences.promptId;
+  const preferences = preferencesByPrompt[activePromptId];
   const activePromptSpec = FIGURE_PROMPTS[activePromptId];
   const activePromptLanguage = promptLanguages[activePromptId];
   const activePrompt = buildFigurePrompt(
@@ -112,32 +129,35 @@ export default function FigureWorkbench() {
   function updatePreferences(
     update: (current: FigurePreferences) => FigurePreferences,
   ) {
-    setPreferences(update);
+    setPreferencesByPrompt((current) => ({
+      ...current,
+      [activePromptId]: update(current[activePromptId]),
+    }));
     setCopiedPrompt(null);
     setCopyError(false);
   }
 
   function selectFigurePrompt(promptId: FigurePromptId) {
-    updatePreferences((current) => {
-      if (current.promptId === promptId) return current;
-      return {
-        ...current,
-        promptId,
-        ...FIGURE_DEFAULT_LAYOUT[promptId],
-      };
-    });
+    if (activePromptId === promptId) return;
+    setActivePromptId(promptId);
+    setCopiedPrompt(null);
+    setCopyError(false);
   }
 
   function selectFigureStyle(styleId: FigurePreferences["styleId"]) {
     updatePreferences((current) => ({
       ...current,
       styleId,
-      ...FIGURE_STYLE_DEFAULTS[styleId],
     }));
   }
 
   function resetDefaults() {
-    setPreferences({ ...DEFAULT_FIGURE_PREFERENCES });
+    setPreferencesByPrompt((current) => ({
+      ...current,
+      [activePromptId]: {
+        ...FIGURE_TYPE_RECOMMENDATIONS[activePromptId],
+      },
+    }));
     setCopiedPrompt(null);
     setCopyError(false);
   }
@@ -154,7 +174,7 @@ export default function FigureWorkbench() {
   async function copyPrompt(promptId: FigurePromptId) {
     const prompt = buildFigurePrompt(
       promptId,
-      preferences,
+      preferencesByPrompt[promptId],
       promptLanguages[promptId],
     );
 
@@ -668,31 +688,41 @@ export default function FigureWorkbench() {
 
                 <div className="figure-visual-rule">
                   <strong>{copy.cardFills}</strong>
-                  <button
-                    className={`figure-rule-switch ${
-                      preferences.useCardFills ? "active" : ""
-                    }`}
-                    type="button"
-                    role="switch"
-                    aria-checked={preferences.useCardFills}
-                    onClick={() =>
-                      updatePreferences((current) => ({
-                        ...current,
-                        useCardFills: !current.useCardFills,
-                      }))
-                    }
+                  <div
+                    className="figure-compact-options figure-card-fill-options"
+                    role="radiogroup"
+                    aria-label={copy.cardFills}
                   >
-                    <span className="switch-track" aria-hidden="true">
-                      <span />
-                    </span>
-                    {preferences.useCardFills
-                      ? copy.cardFillsOn
-                      : copy.cardFillsOff}
-                  </button>
+                    {FIGURE_CARD_FILL_POLICY_IDS.map((cardFillPolicyId) => {
+                      const policy =
+                        FIGURE_CARD_FILL_POLICIES[cardFillPolicyId];
+                      const active =
+                        preferences.cardFillPolicyId === cardFillPolicyId;
+                      return (
+                        <button
+                          type="button"
+                          role="radio"
+                          aria-checked={active}
+                          className={active ? "active" : ""}
+                          key={cardFillPolicyId}
+                          onClick={() =>
+                            updatePreferences((current) => ({
+                              ...current,
+                              cardFillPolicyId,
+                            }))
+                          }
+                        >
+                          {policy.label[uiLanguage]}
+                        </button>
+                      );
+                    })}
+                  </div>
                   <small>
-                    {preferences.useCardFills
-                      ? copy.cardFillsOnHint
-                      : copy.cardFillsOffHint}
+                    {
+                      FIGURE_CARD_FILL_POLICIES[
+                        preferences.cardFillPolicyId
+                      ].shortDescription[uiLanguage]
+                    }
                   </small>
                 </div>
 

@@ -1856,7 +1856,7 @@ a {
 }
 
 .figure-canvas-options {
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
 .figure-placement-options > button,
@@ -1913,9 +1913,19 @@ a {
   height: 48px;
 }
 
+.figure-canvas-sample.landscape-3-2 {
+  width: 54px;
+  height: 36px;
+}
+
 .figure-canvas-sample.landscape-16-9 {
   width: 58px;
   height: 33px;
+}
+
+.figure-canvas-sample.landscape-2-1 {
+  width: 64px;
+  height: 32px;
 }
 
 .figure-canvas-sample.portrait-9-16 {
@@ -2199,6 +2209,10 @@ a {
 }
 
 .figure-compact-options.figure-color-options {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.figure-compact-options.figure-card-fill-options {
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
@@ -2266,6 +2280,10 @@ a {
 
 .figure-color-dots i:nth-child(3) {
   background: #708d62;
+}
+
+.figure-color-dots i:nth-child(4) {
+  background: #84638a;
 }
 
 .figure-contrast-rule {
@@ -3232,6 +3250,10 @@ body.is-resizing-prompt * {
 
   .figure-visual-rules-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .figure-canvas-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
 

@@ -40,7 +40,7 @@ const HOME_COPY = {
         index: "03",
         title: "科研绘图",
         description:
-          "从论文中生成引言图、方法总览或最关键的一张技术细节图。",
+          "从论文中生成引言图、方法总览或一张核心机制细节图。",
         href: "/figures",
         meta: "单图任务 · 精确术语",
       },
@@ -93,7 +93,7 @@ const HOME_COPY = {
         index: "03",
         title: "Research figures",
         description:
-          "Generate an Introduction figure, Method Overview, or one decisive technical-detail figure.",
+          "Generate an Introduction figure, Method Overview, or one decisive Core Mechanism Detail figure.",
         href: "/figures",
         meta: "One image · exact terminology",
       },

@@ -128,37 +128,53 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     /section → subsection → paragraph/,
   );
   assert.equal(workflow.rounds[3].id, "framework-figure");
-  assert.match(workflow.rounds[3].prompt, /exact 16:9 canvas/);
-  assert.match(workflow.rounds[3].prompt, /within the 2–4 range/);
+  assert.match(workflow.rounds[3].prompt, /Export aspect ratio: 2:1/);
   assert.match(
     workflow.rounds[3].prompt,
-    /#0077BB \/ RGB\(0, 119, 187\)/,
-  );
-  assert.match(workflow.rounds[3].prompt, /pure-white canvas, thin but print-safe structural lines/);
-  assert.match(workflow.rounds[3].prompt, /Use Calibri throughout/);
-  assert.match(
-    workflow.rounds[3].prompt,
-    /Restrained technical illustrations or semantic icons/,
+    /Allowed accent-color range: 2–3; this is a maximum semantic budget/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /Use thin dark-neutral borders and arrows by default/,
+    /candidate accents #0077BB, #EE7733, #009988/,
   );
-  assert.match(workflow.rounds[3].prompt, /Do not use a large in-figure title/);
+  assert.doesNotMatch(workflow.rounds[3].prompt, /RGB\(/);
+  assert.match(
+    workflow.rounds[3].prompt,
+    /Minimal paper linework on a pure-white canvas/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /Preferred prose typeface: Calibri/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /No decorative or pictorial icons/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /One dark-neutral color for borders, arrows, and connectors/,
+  );
+  assert.match(workflow.rounds[3].prompt, /No large in-figure title/);
   assert.match(
     workflow.rounds[3].prompt,
     /<base_name>_round_4_framework_reconstruction\.png/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /## Two-step execution/,
+    /# Output and Two-Step Execution Protocol/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /Do not generate an image in this response/,
+    /Do not generate an image in the current response/,
   );
   assert.match(workflow.rounds[3].prompt, /FINAL IMAGE PROMPT/);
+  assert.match(workflow.rounds[3].prompt, /SCIENTIFIC VISUAL OBJECTS/);
+  assert.match(workflow.rounds[3].prompt, /EXACT TEXT AND MATH/);
   assert.match(workflow.rounds[3].prompt, /Start drawing/);
+  assert.equal(
+    (workflow.rounds[3].prompt.match(/2:1/g) ?? []).length,
+    1,
+  );
   assert.equal(workflow.rounds[4].id, "final-refinement");
   assert.deepEqual(workflow.config.chatExecution, {
     modelPolicy: "latest-visible-reasoning",
@@ -188,9 +204,13 @@ test("framework figure placement and canvas are configuration-driven", () => {
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /Compose for Single column on an exact 3:4 canvas/,
+    /Target paper placement: Single column/,
   );
-  assert.match(workflow.rounds[3].prompt, /exact 3:4 canvas/);
+  assert.match(workflow.rounds[3].prompt, /Export aspect ratio: 3:4/);
+  assert.equal(
+    (workflow.rounds[3].prompt.match(/3:4/g) ?? []).length,
+    1,
+  );
 });
 
 test("skill opens one local launch page without an execution-mode question", async () => {
@@ -237,10 +257,18 @@ test("skill opens one local launch page without an execution-mode question", asy
   assert.match(skill, /openFreshChatRound/);
   assert.match(skill, /click-acknowledged/);
   assert.match(skill, /submitPreparedChatRound/);
+  assert.match(skill, /Run-scoped MCP paper workspace/);
+  assert.match(skill, /mcp-start/);
+  assert.match(skill, /yanshu_get_round_manifest/);
+  assert.match(skill, /yanshu_get_evidence_index/);
+  assert.match(skill, /yanshu_view_image/);
+  assert.match(skill, /browser attachment transfer only/);
   assert.match(bridgeReference, /openYanShuFreshChatRound/);
   assert.match(bridgeReference, /applyYanShuChatReasoningSelection/);
   assert.match(bridgeReference, /submitYanShuPreparedChatRound/);
   assert.match(bridgeReference, /thread: \{ type: "current" \}/);
+  assert.match(bridgeReference, /Prefer the MCP round bootstrap/);
+  assert.match(bridgeReference, /files: \[\]/);
 });
 
 test("local onboarding page confirms a complete automation config", async () => {
@@ -563,6 +591,7 @@ test("chat round protocol prepares a fresh thread before configuration and uploa
 
   const submitted = await submitPreparedChatRound(chatgpt, {
     files: ["/paper/main.tex", "/paper/main.pdf"],
+    tools: [{ tool: "YanShu" }],
     prompt: "Reconstruct this paper.",
   });
   assert.equal(submitted.ok, true);
@@ -585,6 +614,7 @@ test("chat round protocol prepares a fresh thread before configuration and uploa
   assert.deepEqual(submitArgs.thread, { type: "current" });
   assert.equal(submitArgs.existingTab, true);
   assert.equal(submitArgs.configuration, undefined);
+  assert.deepEqual(submitArgs.tools, [{ tool: "YanShu" }]);
 });
 
 test("chat round protocol blocks a stale thread or contradictory reasoning readback", async () => {

@@ -333,7 +333,7 @@ export const UI_COPY = {
     frameworkCustomWidth: "宽",
     frameworkCustomHeight: "高",
     frameworkFixedRules:
-      "其余规则固定：极简论文线稿；Tol 鲜明色系，由 GPT 按语义选择 2–4 个强调色；Calibri；纯白画布与纯白模块卡片；两级字号；无大标题；深色中性线为默认，必要时按语义着色；轻插图与图标按需使用。",
+      "其余规则采用方法总览推荐配置：极简论文线稿；Tol 鲜明色系，2–3 个强调色为上限且取最少够用数量；Calibri；关键区域极浅底色；三级字号；无大标题；深色中性线；不使用装饰图标，保留必要科学表示。",
     chatExecution: "ChatGPT 执行",
     chatModelPolicy: "模型策略",
     chatLatestVisibleModel: "最新可用推理模型",
@@ -427,7 +427,7 @@ export const UI_COPY = {
     frameworkCustomWidth: "Width",
     frameworkCustomHeight: "Height",
     frameworkFixedRules:
-      "All other rules are fixed: minimal paper linework; Tol Vibrant palette with 2–4 accents selected by GPT by semantics; Calibri; pure-white canvas and module cards; two type-size levels; no large title; dark-neutral lines by default with semantic color only when needed; light illustrations and icons when useful.",
+      "All other controls use the Method Overview recommendation: minimal paper linework; Tol Vibrant with at most 2–3 accents and the smallest sufficient number; Calibri; extremely pale fills for key regions; three type-size levels; no large title; dark-neutral lines; no decorative icons while preserving necessary scientific representations.",
     chatExecution: "ChatGPT execution",
     chatModelPolicy: "Model policy",
     chatLatestVisibleModel: "Latest available reasoning model",
