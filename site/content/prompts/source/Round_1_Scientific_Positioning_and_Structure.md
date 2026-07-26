@@ -157,7 +157,7 @@ Method 不得写成说明书、代码文档或操作清单；围绕“问题为�
 
 Experiments and Results 执行页面注入的预算。实验顺序必须围绕 claim–evidence chain，而不是按照表格出现顺序堆叠。第一个小节必须为 `Datasets and Experimental Setup`，第二个必须为 `Main Results`；后续不绑定第三或第四的固定序号，按当前真实证据组织 `Ablation Studies`、机制/效率/参数分析、`Case Studies and Qualitative Analysis`、稳健性、敏感性、泛化或错误分析。不存在的实验不能写成已完成。
 
-在 `Datasets and Experimental Setup` 内必须依次设置 Datasets、Experimental Configuration（服务器/硬件和超参数等）与 Baselines。会议论文使用 `\paragraph`，期刊论文使用 `\subsubsection`。
+在 `Datasets and Experimental Setup` 内必须依次设置 Datasets、Evaluation Metrics、Experimental Configuration（服务器/硬件和超参数等）与 Baselines。Evaluation Metrics 独立说明指标定义、方向、单位或尺度、聚合方式及其与任务目标的对应关系。会议论文使用 `\paragraph`，期刊论文使用 `\subsubsection`。
 
 #### Discussion
 

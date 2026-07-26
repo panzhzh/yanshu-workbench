@@ -40,6 +40,7 @@ const LABELS = {
     inputs: "## 本轮输入",
     evidence: "## 证据与事实规则",
     manuscriptProtection: "## TeX 与格式保护",
+    cohesiveRevision: "## 融合式重写规则",
     pdfReview: "## PDF 深度阅读",
     citationAndWeb: "## 引用与联网核验",
     scope: "## 本轮边界",
@@ -91,6 +92,7 @@ const LABELS = {
     inputs: "## Inputs for This Round",
     evidence: "## Evidence and Fact Rules",
     manuscriptProtection: "## TeX and Format Protection",
+    cohesiveRevision: "## Cohesive Revision Rule",
     pdfReview: "## Deep PDF Review",
     citationAndWeb: "## Citations and Web Verification",
     scope: "## Scope of This Round",
@@ -524,6 +526,9 @@ export function buildPrompt(
       ? [
           labels.manuscriptProtection,
           common.manuscriptProtection[language],
+          "",
+          labels.cohesiveRevision,
+          common.cohesiveRevision[language],
           "",
         ]
       : []),

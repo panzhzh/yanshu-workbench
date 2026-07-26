@@ -34,6 +34,16 @@ export const COMMON_PROMPT_BLOCKS = {
 5. The final output must be a complete, continuous, editable English .tex file, not a diff, excerpt, or merge instructions.
 6. Keep Chinese analysis, open questions, and revision notes in the Chinese report, never inside the TeX.`,
   },
+  cohesiveRevision: {
+    zh: `1. 禁止补丁式修改：不得保留功能冲突或逻辑断裂的原句，再通过段末补一句、括号补充、免责声明或堆叠转折词进行补救。
+2. 先识别当前允许修改范围内的最小完整论证单元——可以是一个句群、一个段落或一个 subsection——再在该单元内整体重组，使问题、claim、证据、解释、边界和过渡自然融合。
+3. 修改后的正文应像一次成稿，读者不应看到“原文 + 修补句”的接缝；删除因重组产生的重复、前后冲突和失去功能的过渡。
+4. 融合式重写不授权扩大修改范围、改变事实与 claim、补造证据或重写本轮明确冻结的内容；只在获准范围内形成完整、连贯的最终表述。`,
+    en: `1. Do not revise by patching. Never retain a functionally conflicting or logically broken sentence and then compensate with an appended sentence, parenthetical qualification, disclaimer, or stack of transition words.
+2. Identify the smallest complete argumentative unit allowed by the current scope—a sentence group, paragraph, or subsection—and recompose that unit so the problem, claim, evidence, interpretation, boundary, and transition are integrated naturally.
+3. The revision must read as a coherent first-pass final text, with no visible seam between “old prose” and a corrective add-on. Remove repetition, contradictions, and transitions that lose their function after recomposition.
+4. Cohesive recomposition does not authorize scope expansion, factual or claim changes, fabricated evidence, or edits to content frozen in this round. Form a complete, continuous final expression only inside the permitted scope.`,
+  },
   pdfReview: {
     zh: `完整阅读 PDF，并用页面截图或等价视觉方式检查所有框架图、机制图、实验图、案例图、表格与公式版式。对图检查模块、箭头、输入输出、图例、caption 和正文引用；对表检查行列含义、指标方向、标记、单位、均值/标准差和正文数字。若 TeX 与 PDF 不一致，在报告中给出页码、编号和冲突内容。`,
     en: `Read the complete PDF and visually inspect every framework diagram, mechanism figure, result plot, case figure, table, and rendered equation using page images or an equivalent visual method. For figures, check components, arrows, inputs, outputs, legends, captions, and prose references. For tables, check row and column meanings, metric direction, emphasis marks, units, mean/standard deviation notation, and numbers cited in prose. Report page numbers, identifiers, and exact conflicts whenever TeX and PDF disagree.`,
@@ -218,12 +228,12 @@ The core idea must remain meaningful without component names. Do not relabel ord
     },
     styleBranches: {
       conference: {
-        zh: "会议论文：需要第三层标题时使用 paragraph 而非 subsubsection；paragraph 只命名真实科学单元，普通论述使用连续段落。Method 不单设 Overview，在合适位置自然引出总体框架；实验设置内用 paragraph 依次组织 Datasets、Experimental Configuration 和 Baselines。",
-        en: "Conference paper: when a third-level heading is needed, use paragraph rather than subsubsection; reserve headings for genuine scientific units and develop ordinary exposition as continuous prose. Use no standalone Method Overview, introduce the framework naturally where it serves the story, and organize Datasets, Experimental Configuration, and Baselines with paragraph headings inside experimental setup.",
+        zh: "会议论文：需要第三层标题时使用 paragraph 而非 subsubsection；paragraph 只命名真实科学单元，普通论述使用连续段落。Method 不单设 Overview，在合适位置自然引出总体框架；实验设置内用 paragraph 依次组织 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines。",
+        en: "Conference paper: when a third-level heading is needed, use paragraph rather than subsubsection; reserve headings for genuine scientific units and develop ordinary exposition as continuous prose. Use no standalone Method Overview, introduce the framework naturally where it serves the story, and organize Datasets, Evaluation Metrics, Experimental Configuration, and Baselines with paragraph headings inside experimental setup.",
       },
       journal: {
-        zh: "期刊论文：目录层级默认止于 subsubsection；其下使用主题句、过渡和自然段，不把 Design Purpose、Question、Observation 等叙述功能写成 paragraph 标题。Method 单设恰好两段、总计不超过 80 词的 Overview，解释科学逻辑但不复述框架图；实验设置内用 subsubsection 依次组织 Datasets、Experimental Configuration 和 Baselines。",
-        en: "Journal paper: stop the heading hierarchy at subsubsection by default; below it, use topic sentences, transitions, and natural paragraphs rather than paragraph headings such as Design Purpose, Question, or Observation. Method has a standalone Overview of exactly two paragraphs and at most 80 words that explains scientific logic without narrating the figure. Inside experimental setup, use subsubsections for Datasets, Experimental Configuration, and Baselines in that order.",
+        zh: "期刊论文：目录层级默认止于 subsubsection；其下使用主题句、过渡和自然段，不把 Design Purpose、Question、Observation 等叙述功能写成 paragraph 标题。Method 单设恰好两段、总计不超过 80 词的 Overview，解释科学逻辑但不复述框架图；实验设置内用 subsubsection 依次组织 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines。",
+        en: "Journal paper: stop the heading hierarchy at subsubsection by default; below it, use topic sentences, transitions, and natural paragraphs rather than paragraph headings such as Design Purpose, Question, or Observation. Method has a standalone Overview of exactly two paragraphs and at most 80 words that explains scientific logic without narrating the figure. Inside experimental setup, use subsubsections for Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in that order.",
       },
     },
     tasks: [
@@ -265,9 +275,9 @@ Follow the current paper type's Overview rule before moving through core mechani
           en: "D. Rewrite Setup, Main Results, and Evidence-driven Analyses",
         },
         body: {
-          zh: `第一个小节固定为 Datasets and Experimental Setup，内部必须依次覆盖 Datasets、Experimental Configuration（服务器/硬件、超参数等）和 Baselines；第二个小节固定为 Main Results。后续不绑定第三或第四的固定序号，按真实证据组织 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis 等分析。
+          zh: `第一个小节固定为 Datasets and Experimental Setup，内部必须依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration（服务器/硬件、超参数等）和 Baselines。Evaluation Metrics 单独说明每项指标的定义、方向、单位或尺度、聚合方式及其与任务目标的对应关系；第二个小节固定为 Main Results。后续不绑定第三或第四的固定序号，按真实证据组织 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis 等分析。
 每个实验小节整体应交代所检验的不确定性、决定性证据、合理解释、与 claim 的关系和证据边界，并根据材料自然分布在连续段落中；小标题命名实验、变量或现象，而不重复 Question、Observation、Interpretation 等叙述功能。不逐单元格朗读。每项消融必须对应明确设计问题，不把普通波动写成确定机制。`,
-          en: `Fix Datasets and Experimental Setup as the first subsection, with required Datasets, Experimental Configuration (including servers/hardware and hyperparameters), and Baselines units in that order; fix Main Results as the second. Do not reserve fixed third or fourth positions. Order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, and other analyses by evidence.
+          en: `Fix Datasets and Experimental Setup as the first subsection, with required Datasets, Evaluation Metrics, Experimental Configuration (including servers/hardware and hyperparameters), and Baselines units in that order. Evaluation Metrics separately defines every metric, its direction, unit or scale, aggregation, and relation to the task objective; fix Main Results as the second subsection. Do not reserve fixed third or fourth positions. Order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, and other analyses by evidence.
 Across each experiment subsection, establish the uncertainty being tested, decisive evidence, warranted interpretation, relation to the claim, and evidence boundary, distributing these functions naturally across continuous prose. Let headings name experiments, variables, or phenomena rather than repeatedly labeling Question, Observation, or Interpretation. Do not narrate every table cell. Tie each ablation to a clear design question and do not present ordinary variation as a confirmed mechanism.`,
         },
       },

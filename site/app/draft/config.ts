@@ -217,7 +217,7 @@ ${templateDirective}
 ## 写作任务
 1. 在内部建立 Evidence Ledger，将每项核心 claim 对齐到方法定义、表格、图片、统计结果或真实引用。不要把这份内部清单当作正文输出。
 2. 从证据中确定一个清楚、可辩护的科学定位，并给出确定的英文标题和 4–7 个字母的论文品牌缩写。标题、摘要、引言、方法、实验、讨论和结论必须围绕同一主线。
-3. 直接撰写完整英文论文初稿。章节按目标模板和论文实际内容组织；方法章节要解释设计为何成立并形成连贯叙事，不要写成组件说明书。实验必须完整呈现已有设置与证据，不得删减不利结果，也不得把 Discussion 写成 Results 的复述。
+3. 直接撰写完整英文论文初稿。章节按目标模板和论文实际内容组织；方法章节要解释设计为何成立并形成连贯叙事，不要写成组件说明书。Experiments and Results 的第一个小节为 Datasets and Experimental Setup，并按目标模板允许的下一层标题依次组织 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines；Evaluation Metrics 独立说明指标定义、方向、单位或尺度、聚合方式及其与任务目标的对应关系。实验必须完整呈现已有设置与证据，不得删减不利结果，也不得把 Discussion 写成 Results 的复述。
 4. Abstract 只陈述正文能支持的内容；Introduction 说明今天仍存在的具体问题、核心洞察和可验证贡献；Related Work 用真实引用建立差异化定位；Discussion 分析机制、边界和局限。
 5. 只使用上传或经过可靠来源逐项核验的文献。不得虚构作者、标题、venue、年份、DOI、BibTeX key 或引用关系；缺失但必要的引用用清楚的 \`TODO[citation: ...]\` 标记。
 6. 不得发明实验数字、数据集、baseline、消融、显著性、复杂度、硬件、超参数、用户研究或结论。证据缺口使用精确 TODO，说明缺什么以及它影响哪项 claim，不得用含糊占位句掩盖。
@@ -271,7 +271,7 @@ Template rules change over time. Do not hardcode a previous year's page limit, a
 ## Drafting tasks
 1. Internally build an Evidence Ledger that maps every core claim to a method definition, table, figure, statistic, or authentic citation. Do not emit this internal ledger as manuscript prose.
 2. Derive one clear and defensible scientific position from the evidence, then commit to an English paper title and a 4–7-letter paper brand acronym. Keep the title, abstract, introduction, method, experiments, discussion, and conclusion on one throughline.
-3. Write the complete English manuscript directly. Organize sections according to the target template and the paper's actual needs. Explain why the method's design works through an integrated narrative rather than a component manual. Preserve all existing experimental evidence, including unfavorable results, and do not make Discussion a repetition of Results.
+3. Write the complete English manuscript directly. Organize sections according to the target template and the paper's actual needs. Explain why the method's design works through an integrated narrative rather than a component manual. Make Datasets and Experimental Setup the first Experiments and Results subsection, then use the next heading level permitted by the target template for Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in that order. Evaluation Metrics independently defines every metric, its direction, unit or scale, aggregation, and relation to the task objective. Preserve all existing experimental evidence, including unfavorable results, and do not make Discussion a repetition of Results.
 4. Keep the Abstract evidence-bounded; make the Introduction state the specific problem that still exists today, the core insight, and verifiable contributions; use authentic citations in Related Work to establish differentiated positioning; analyze mechanisms, boundaries, and limitations in Discussion.
 5. Use only references supplied by the user or individually verified against reliable sources. Never invent authors, titles, venues, years, DOIs, BibTeX keys, or citation relationships. Mark a necessary missing source as \`TODO[citation: ...]\`.
 6. Never invent experimental numbers, datasets, baselines, ablations, significance tests, complexity, hardware, hyperparameters, user studies, or conclusions. Use precise TODOs that state what evidence is missing and which claim it affects.

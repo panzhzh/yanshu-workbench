@@ -148,11 +148,12 @@
 
 必须清楚说明：
 
-- **Datasets**：数据集来源、划分、规模、任务输入输出及评价指标与方向；
+- **Datasets**：数据集来源、划分、规模及任务输入输出；
+- **Evaluation Metrics**：每项指标的定义、方向、单位或尺度、聚合方式及其与任务目标的对应关系；
 - **Experimental Configuration**：材料能够确认的服务器或硬件、实现细节、超参数、随机种子、运行次数和早停；
 - **Baselines**：基线家族、版本、来源与公平比较原则。
 
-会议论文在 `\subsection{Datasets and Experimental Setup}` 内依次使用 `\paragraph{Datasets}`、`\paragraph{Experimental Configuration}` 和 `\paragraph{Baselines}`；期刊论文依次使用同名 `\subsubsection`。其他子标题只有在材料确实需要时才能添加。
+会议论文在 `\subsection{Datasets and Experimental Setup}` 内依次使用 `\paragraph{Datasets}`、`\paragraph{Evaluation Metrics}`、`\paragraph{Experimental Configuration}` 和 `\paragraph{Baselines}`；期刊论文依次使用同名 `\subsubsection`。其他子标题只有在材料确实需要时才能添加。
 
 引用只用于基线或评价协议。不得默认写入统计显著性或公平性条件。
 

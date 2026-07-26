@@ -200,7 +200,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   });
 
   assert.equal(workflow.rounds.length, 5);
-  assert.equal(workflow.workflowVersion, "2026.07.8");
+  assert.equal(workflow.workflowVersion, "2026.07.9");
   assert.deepEqual(
     workflow.rounds.map((round) => round.number),
     [1, 2, 3, 4, 5],
@@ -877,7 +877,7 @@ test("new runs detect an older installed Prompt release", () => {
     -1,
   );
   assert.equal(
-    compareWorkflowVersions("2026.07.8", "2026.07.7"),
+    compareWorkflowVersions("2026.07.9", "2026.07.8"),
     1,
   );
 

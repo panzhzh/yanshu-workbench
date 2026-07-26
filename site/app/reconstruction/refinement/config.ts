@@ -1109,12 +1109,12 @@ function visualOperationProtocol(
 function experimentsContract(language: Language) {
   return language === "zh"
     ? `- 完整保留现有实验设置、比较协议、实验量与不利结果；不得精简、删除、弱化，或凭领域常识补齐缺失信息。
-- Datasets and Experimental Setup 必须清楚覆盖 Datasets、Experimental Configuration 和 Baselines 三个功能单元，并按该顺序建立可复现上下文；其他单元只在证据真实需要时保留。
+- Datasets and Experimental Setup 必须按 Datasets → Evaluation Metrics → Experimental Configuration → Baselines 组织四个功能单元。Evaluation Metrics 独立说明每项指标的定义、方向、单位或尺度、聚合方式及其与任务目标的对应关系；其他单元只在证据真实需要时保留。
 - 数据划分、指标方向、随机种子、运行次数、服务器、软件版本、超参数和 baseline 公平性只能来自现有证据。
 - 不把 Experiments 写成配置清单：解释每项关键设置服务于哪个研究问题、公平性要求或复现需求。
 - 图表、caption、正文数字、单位、best/second-best 标记和显著性必须逐项一致。`
     : `- Preserve every existing setting, comparison protocol, experiment, and unfavorable result. Do not compress, delete, weaken, or fill gaps from field convention.
-- Datasets and Experimental Setup must clearly cover Datasets, Experimental Configuration, and Baselines in that order to establish reproducible context. Keep other units only when supported evidence genuinely needs them.
+- Organize Datasets and Experimental Setup as Datasets → Evaluation Metrics → Experimental Configuration → Baselines. Evaluation Metrics independently defines every metric, its direction, unit or scale, aggregation, and relation to the task objective. Keep other units only when supported evidence genuinely needs them.
 - Dataset splits, metric directions, seeds, run counts, servers, software versions, hyperparameters, and baseline fairness may come only from existing evidence.
 - Do not turn Experiments into a configuration inventory: explain which research question, fairness requirement, or reproducibility need each important choice serves.
 - Keep visuals, captions, prose values, units, best/second-best marks, and significance statements exactly consistent.`;
@@ -1185,8 +1185,8 @@ function organizationDirective(
         : "Refine experimental setup only; keep Results prose, visuals, captions, ordering, and cross-references unchanged.";
     }
     return language === "zh"
-      ? "仅精修结果部分；Datasets、Experimental Configuration、Baselines 和其他实验设置保持不变。"
-      : "Refine Results only; keep Datasets, Experimental Configuration, Baselines, and all other setup unchanged.";
+      ? "仅精修结果部分；Datasets、Evaluation Metrics、Experimental Configuration、Baselines 和其他实验设置保持不变。"
+      : "Refine Results only; keep Datasets, Evaluation Metrics, Experimental Configuration, Baselines, and all other setup unchanged.";
   }
   if (
     preferences.sectionId === "discussion" &&
@@ -1409,6 +1409,9 @@ ${sectionContract(preferences, "zh")}
 ${REWRITE_DEPTHS[preferences.rewriteDepth].description.zh}
 无论强度如何，都必须保留真实事实、证据边界、公式语义、引用关系和必要交叉引用。从零重写不等于重新发明内容。
 
+## 融合式精修
+${COMMON_PROMPT_BLOCKS.cohesiveRevision.zh}
+
 ## 句段与篇幅
 ${lengthDirective(preferences, "zh")}
 
@@ -1478,6 +1481,9 @@ ${sectionContract(preferences, "en")}
 ## Revision Depth
 ${REWRITE_DEPTHS[preferences.rewriteDepth].description.en}
 At every depth, preserve verified facts, evidence boundaries, equation semantics, citation relations, and necessary cross-references. Rewriting from scratch never means reinventing content.
+
+## Cohesive Refinement
+${COMMON_PROMPT_BLOCKS.cohesiveRevision.en}
 
 ## Length and Prose Units
 ${lengthDirective(preferences, "en")}

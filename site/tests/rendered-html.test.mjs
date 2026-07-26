@@ -34,7 +34,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
   assert.match(html, /五轮重构，支持断点继续/);
-  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.8/);
+  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.9/);
   assert.match(html, /同一份 Prompt/);
   assert.match(html, /最小材料链/);
   assert.match(html, /一次交接/);
@@ -147,7 +147,10 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /三个承担综合解释、适用范围与科学意义的 discussion subsection/);
   assert.match(html, /最后单列一个 Limitations subsection/);
   assert.match(html, /具体结果数字最多保留三个/);
+  assert.match(html, /Evaluation Metrics/);
   assert.match(html, /Experimental Configuration/);
+  assert.match(html, /## 融合式重写规则/);
+  assert.match(html, /禁止补丁式修改/);
   assert.match(html, /本步骤临时上限与附录分流规则/);
   assert.match(html, /临时上限为 5,400 词/);
   assert.match(html, /Experiments and Results 的现有内容不得精简、删除、弱化或移入附录/);
@@ -158,7 +161,7 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /_round_1_bib_suggestions\.bib/);
   assert.match(
     html,
-    /data-reconstruction-workflow-version="2026\.07\.8"/,
+    /data-reconstruction-workflow-version="2026\.07\.9"/,
   );
   assert.match(html, /满足当前适用的总量与章节预算，不得使用附录/);
   assert.match(
@@ -235,6 +238,9 @@ test("server-renders the section-refinement workbench", async () => {
   assert.match(html, /当前精修范围目标为 190–220 个英文单词/);
   assert.match(html, /普通句子目标为 12–24 个英文单词/);
   assert.match(html, /冒号只在确有必要/);
+  assert.match(html, /## 融合式精修/);
+  assert.match(html, /禁止补丁式修改/);
+  assert.match(html, /最小完整论证单元/);
   assert.doesNotMatch(html, /论文类型：/);
   assert.match(html, /完整、连续、可编译的英文论文/);
   assert.match(html, /_abstract_refinement_report_zh\.md/);
@@ -298,6 +304,7 @@ test("server-renders the evidence-led paper-draft workbench", async () => {
   assert.match(html, /不是 arXiv 官方投稿格式要求/);
   assert.match(html, /顶会必须在执行时从当届官网核验并取得最新官方 TeX 模板/);
   assert.match(html, /不得发明实验数字/);
+  assert.match(html, /Evaluation Metrics/);
   assert.match(html, /TEMPLATE_SOURCE\.md/);
   assert.match(html, /不要先给提纲、写作计划或等待我逐节确认/);
   assert.match(html, /class="prompt-resize-handle"/);
@@ -610,6 +617,15 @@ test("keeps presets and production prompts configuration-driven", async () => {
     templates,
     /<base_name>_round_4_framework_reconstruction\.png/,
   );
+  assert.match(templates, /cohesiveRevision/);
+  assert.match(templates, /禁止补丁式修改/);
+  assert.match(templates, /最小完整论证单元/);
+  assert.match(
+    templates,
+    /Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines/,
+  );
+  assert.match(builder, /labels\.cohesiveRevision/);
+  assert.match(builder, /common\.cohesiveRevision\[language\]/);
   assert.match(templates, /contentKind:\s*"framework-figure"/);
   assert.match(templates, /showStyleDirective:\s*false/);
   assert.match(templates, /showAppendixConfiguration:\s*false/);
@@ -675,6 +691,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(originalPrompts, /会议论文不得单设 `Overview` 小节/);
   assert.match(originalPrompts, /期刊论文必须单设 `Overview`，恰好两个普通段落且总计不超过 80 词/);
   assert.match(originalPrompts, /后续小节不绑定第三或第四的固定序号/);
+  assert.match(originalPrompts, /\\paragraph\{Evaluation Metrics\}/);
   assert.match(originalPrompts, /\\paragraph\{Experimental Configuration\}/);
   assert.match(
     originalPrompts,
@@ -902,6 +919,12 @@ test("keeps presets and production prompts configuration-driven", async () => {
     /若正文能够满足当前适用的总量与章节预算，不得使用附录/,
   );
   assert.match(constraints, /wordLimitPlacement:\s*"after-budget"/);
+  assert.match(
+    constraints,
+    /Datasets → Evaluation Metrics → Experimental Configuration → Baselines/,
+  );
+  assert.match(constraints, /\\paragraph\{Evaluation Metrics\}/);
+  assert.match(constraints, /\\subsubsection\{Evaluation Metrics\}/);
   assert.doesNotMatch(constraints, /"evidence-audit"/);
   assert.match(submission, /DEFAULT_SUBMISSION_PREFERENCES/);
   assert.match(submission, /SUBMISSION_PROMPT_TEMPLATE/);
@@ -996,6 +1019,12 @@ test("keeps section-refinement rules and merge controls configuration-driven", a
   assert.match(config, /function relatedWorkContract/);
   assert.match(config, /function methodContract/);
   assert.match(config, /function experimentsContract/);
+  assert.match(
+    config,
+    /Datasets → Evaluation Metrics → Experimental Configuration → Baselines/,
+  );
+  assert.match(config, /## 融合式精修/);
+  assert.match(config, /COMMON_PROMPT_BLOCKS\.cohesiveRevision/);
   assert.match(config, /function resultsContract/);
   assert.match(config, /function discussionContract/);
   assert.match(config, /function conclusionContract/);
@@ -1410,6 +1439,10 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
   assert.match(draftConfig, /预印本回退/);
   assert.match(draftConfig, /TEMPLATE_SOURCE\.md/);
   assert.match(draftConfig, /不得发明实验数字/);
+  assert.match(
+    draftConfig,
+    /Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines/,
+  );
   assert.match(draftConfig, /论文写作、LaTeX、文件生成或编译 Skill/);
   assert.match(draftComponent, /buildDraftPrompt/);
   assert.match(draftComponent, /activePage="draft"/);

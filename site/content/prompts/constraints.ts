@@ -212,12 +212,12 @@ The report must contain the Scientific Positioning Contract, the final title and
         marker: "scientific_experiment_structure",
         branches: {
           conference: {
-            zh: "- Experiments and Results：第一小节必须为 Datasets and Experimental Setup，并依次以 paragraph 设置 Datasets、Experimental Configuration 和 Baselines；第二小节必须为 Main Results。后续小节不绑定固定序号，按真实证据安排 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析；",
-            en: "- Experiments and Results: the first subsection must be Datasets and Experimental Setup, containing Datasets, Experimental Configuration, and Baselines as paragraph headings in that order; the second must be Main Results. Do not bind later subsections to fixed positions; order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by evidence;",
+            zh: "- Experiments and Results：第一小节必须为 Datasets and Experimental Setup，并依次以 paragraph 设置 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines；第二小节必须为 Main Results。后续小节不绑定固定序号，按真实证据安排 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析；",
+            en: "- Experiments and Results: the first subsection must be Datasets and Experimental Setup, containing Datasets, Evaluation Metrics, Experimental Configuration, and Baselines as paragraph headings in that order; the second must be Main Results. Do not bind later subsections to fixed positions; order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by evidence;",
           },
           journal: {
-            zh: "- Experiments and Results：第一小节必须为 Datasets and Experimental Setup，并依次以 subsubsection 设置 Datasets、Experimental Configuration 和 Baselines；第二小节必须为 Main Results。后续小节不绑定固定序号，按真实证据安排 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析；",
-            en: "- Experiments and Results: the first subsection must be Datasets and Experimental Setup, containing Datasets, Experimental Configuration, and Baselines as subsubsections in that order; the second must be Main Results. Do not bind later subsections to fixed positions; order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by evidence;",
+            zh: "- Experiments and Results：第一小节必须为 Datasets and Experimental Setup，并依次以 subsubsection 设置 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines；第二小节必须为 Main Results。后续小节不绑定固定序号，按真实证据安排 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析；",
+            en: "- Experiments and Results: the first subsection must be Datasets and Experimental Setup, containing Datasets, Evaluation Metrics, Experimental Configuration, and Baselines as subsubsections in that order; the second must be Main Results. Do not bind later subsections to fixed positions; order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by evidence;",
           },
         },
       },
@@ -316,7 +316,7 @@ The report must contain the Scientific Positioning Contract, the final title and
 
 1. 第一个 subsection 必须为 Datasets and Experimental Setup，第二个必须为 Main Results；后续小节不绑定第三或第四的固定序号，应根据证据组织 Ablation Studies、机制/效率/参数分析、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析。Ablation Studies 应在材料支持时保留；没有真实案例或消融证据时不得虚构，并须在报告中登记缺口。
 2. {{experiment_setup_structure}}
-3. Datasets and Experimental Setup 必须覆盖数据来源、划分、规模、任务输入输出、指标及方向、基线家族、公平比较原则，以及材料能够确认的实现细节、随机种子、运行次数、早停、服务器/硬件和超参数。不得默认写入统计显著性或未证实的公平条件。
+3. Datasets and Experimental Setup 必须按 Datasets → Evaluation Metrics → Experimental Configuration → Baselines 组织。Datasets 说明数据来源、划分、规模和任务输入输出；Evaluation Metrics 独立说明每项指标的定义、方向、单位或尺度、聚合方式以及为何能够衡量当前任务；Experimental Configuration 只写材料能够确认的实现细节、随机种子、运行次数、早停、服务器/硬件和超参数；Baselines 说明基线家族、版本、来源与公平比较原则。不得默认写入统计显著性或未证实的公平条件。
 4. Main Results 按“总体观察 → 与强基线比较 → 跨数据集/指标稳定性 → 证据边界”组织，只选择关键数字，不逐单元格朗读。
 5. 每个消融、替换或敏感性设置都必须对应明确设计问题；区分模块必要性、参数选择和训练技巧；没有多随机种子或统计支持时不得把小幅波动解释成确定规律。
 6. 每个实验小节整体应让读者明白本节检验的不确定性、决定性证据、合理解释、与核心 claim 的关系以及边界或例外。根据证据把这些功能自然分布在连续段落中，不要求每段重复同一顺序；小标题应命名实验、变量或现象，而不是 Question、Observation、Interpretation 等叙述功能。不得重复全部数字、每句都以 Table/Figure 开头、用 higher is better 式空话、提前写 Discussion 的普遍意义或用 significant 表示普通数值差异。
@@ -342,7 +342,7 @@ The report must contain the Scientific Positioning Contract, the final title and
 
 1. The first subsection must be Datasets and Experimental Setup and the second Main Results. Do not bind later content to fixed third or fourth positions; order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by evidence. Retain Ablation Studies when the materials support it. Never invent case or ablation evidence; record a missing evidence type as a gap.
 2. {{experiment_setup_structure}}
-3. Datasets and Experimental Setup must cover data sources, splits, sizes, task inputs/outputs, metric directions, baseline families, fair-comparison principles, and only confirmed implementation details, random seeds, run counts, early stopping, servers/hardware, and hyperparameters. Do not assume significance tests or unverified fairness conditions.
+3. Organize Datasets and Experimental Setup as Datasets → Evaluation Metrics → Experimental Configuration → Baselines. Datasets covers sources, splits, sizes, and task inputs/outputs. Evaluation Metrics independently defines every metric, its direction, unit or scale, aggregation, and why it measures the current task. Experimental Configuration contains only confirmed implementation details, seeds, run counts, early stopping, servers/hardware, and hyperparameters. Baselines covers families, versions, provenance, and fair-comparison principles. Do not assume significance tests or unverified fairness conditions.
 4. Organize Main Results as overall observation → comparison with strong baselines → consistency across datasets/metrics → evidence boundary. Select only decisive numbers and do not narrate every cell.
 5. Every removal, replacement, or sensitivity setting must answer a clear design question. Separate component necessity, parameter choice, and training tricks. Without multiple seeds or statistical support, do not turn small variation into a deterministic rule.
 6. Across each experiment subsection, make clear the uncertainty being tested, decisive evidence, warranted interpretation, relation to the core claim, and boundary or exception. Distribute these functions naturally across continuous prose rather than repeating one sequence in every paragraph. Let headings name experiments, variables, or phenomena rather than discourse functions such as Question, Observation, or Interpretation. Do not repeat every number, begin every sentence with Table/Figure, use "higher is better" filler, move broad Discussion claims into Results, or use "significant" for ordinary numerical differences.
@@ -384,12 +384,12 @@ The report must contain the Method logic map, old/new Method subsection comparis
         marker: "experiment_setup_structure",
         branches: {
           conference: {
-            zh: "在 \\subsection{Datasets and Experimental Setup} 内依次设置 \\paragraph{Datasets}、\\paragraph{Experimental Configuration} 和 \\paragraph{Baselines} 三个承担真实内容分类的标题；其他内容优先并入连续正文，只有出现新的、可命名的科学单元时才增加 paragraph。",
-            en: "Inside \\subsection{Datasets and Experimental Setup}, use \\paragraph{Datasets}, \\paragraph{Experimental Configuration}, and \\paragraph{Baselines} in that order as genuine content categories. Integrate other material into continuous prose unless it forms a distinct, nameable scientific unit that warrants another paragraph heading.",
+            zh: "在 \\subsection{Datasets and Experimental Setup} 内依次设置 \\paragraph{Datasets}、\\paragraph{Evaluation Metrics}、\\paragraph{Experimental Configuration} 和 \\paragraph{Baselines} 四个承担真实内容分类的标题；其他内容优先并入连续正文，只有出现新的、可命名的科学单元时才增加 paragraph。",
+            en: "Inside \\subsection{Datasets and Experimental Setup}, use \\paragraph{Datasets}, \\paragraph{Evaluation Metrics}, \\paragraph{Experimental Configuration}, and \\paragraph{Baselines} in that order as genuine content categories. Integrate other material into continuous prose unless it forms a distinct, nameable scientific unit that warrants another paragraph heading.",
           },
           journal: {
-            zh: "在 \\subsection{Datasets and Experimental Setup} 内依次设置 \\subsubsection{Datasets}、\\subsubsection{Experimental Configuration} 和 \\subsubsection{Baselines}；每个 subsubsection 内以连续正文组织内容，只有出现新的、可命名的科学单元时才增加同级标题。",
-            en: "Inside \\subsection{Datasets and Experimental Setup}, use \\subsubsection{Datasets}, \\subsubsection{Experimental Configuration}, and \\subsubsection{Baselines} in that order. Develop each subsubsection as continuous prose and add another peer heading only for a distinct, nameable scientific unit.",
+            zh: "在 \\subsection{Datasets and Experimental Setup} 内依次设置 \\subsubsection{Datasets}、\\subsubsection{Evaluation Metrics}、\\subsubsection{Experimental Configuration} 和 \\subsubsection{Baselines}；每个 subsubsection 内以连续正文组织内容，只有出现新的、可命名的科学单元时才增加同级标题。",
+            en: "Inside \\subsection{Datasets and Experimental Setup}, use \\subsubsection{Datasets}, \\subsubsection{Evaluation Metrics}, \\subsubsection{Experimental Configuration}, and \\subsubsection{Baselines} in that order. Develop each subsubsection as continuous prose and add another peer heading only for a distinct, nameable scientific unit.",
           },
         },
       },
