@@ -887,6 +887,133 @@ a {
   margin-top: 6px;
 }
 
+.codex-launch-guide {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 11px 18px;
+  align-items: start;
+  margin: 0 0 12px;
+  padding: 13px 14px 12px;
+  background: #f8faf8;
+  border: 1px solid #ced8d7;
+  border-left: 3px solid var(--accent);
+  border-radius: 7px;
+}
+
+.codex-launch-copy {
+  min-width: 0;
+}
+
+.codex-launch-copy > span {
+  display: block;
+  color: var(--ink-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+.codex-launch-copy h2 {
+  margin: 2px 0 3px;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 760;
+  letter-spacing: -0.015em;
+}
+
+.codex-launch-copy p {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 11.5px;
+  line-height: 1.55;
+}
+
+.codex-launch-copy ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 17px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.codex-launch-copy li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink);
+}
+
+.codex-launch-copy li small {
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.codex-launch-copy li strong {
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.codex-launch-button {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  padding: 7px 11px;
+  color: var(--accent-strong);
+  background: #fff;
+  border: 1px solid #aebfc3;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 780;
+  white-space: nowrap;
+}
+
+.codex-launch-button:hover {
+  border-color: var(--accent);
+}
+
+.codex-launch-button.copied {
+  color: var(--green);
+  border-color: #9fb4a8;
+}
+
+.codex-launch-details {
+  grid-column: 1 / -1;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.codex-launch-details summary {
+  width: max-content;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 10.5px;
+  font-weight: 700;
+}
+
+.codex-launch-details[open] summary {
+  color: var(--accent-strong);
+}
+
+.codex-launch-details pre {
+  max-height: 280px;
+  overflow: auto;
+  margin: 9px 0 0;
+  padding: 11px 12px;
+  color: #203239;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  font-family: var(--font-ui);
+  font-size: 10.5px;
+  line-height: 1.65;
+  white-space: pre-wrap;
+}
+
 .text-button {
   display: inline-flex;
   align-items: center;
@@ -3791,6 +3918,20 @@ body.is-resizing-prompt * {
     flex-wrap: wrap;
     gap: 12px 18px;
     margin-top: 19px;
+  }
+
+  .codex-launch-guide {
+    grid-template-columns: 1fr;
+    margin-bottom: 15px;
+  }
+
+  .codex-launch-copy ol {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .codex-launch-button {
+    width: 100%;
   }
 
   .config-panel {

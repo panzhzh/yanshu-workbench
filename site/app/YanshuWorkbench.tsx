@@ -23,6 +23,7 @@ import type {
   ChatReasoningPreferenceId,
 } from "../content/prompts/chatExecution";
 import { RECONSTRUCTION_PROMPTS } from "../content/prompts/templates";
+import { CODEX_START_GUIDE } from "./reconstruction/startGuide";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 type SectionWords = Record<string, number>;
@@ -162,6 +163,7 @@ export default function YanshuWorkbench() {
   const targetInputRef = useRef<HTMLInputElement>(null);
 
   const copy = UI_COPY[uiLanguage];
+  const codexStart = CODEX_START_GUIDE[uiLanguage];
   const style = PRODUCT_CONFIG.paperStyles[styleId];
   const allocatedWords = Object.values(sectionWords).reduce(
     (sum, value) => sum + value,
@@ -486,6 +488,45 @@ export default function YanshuWorkbench() {
               </button>
             </div>
           </div>
+
+          <aside
+            className="codex-launch-guide"
+            aria-labelledby="codex-launch-title"
+          >
+            <div className="codex-launch-copy">
+              <span>{codexStart.eyebrow}</span>
+              <h2 id="codex-launch-title">{codexStart.title}</h2>
+              <p>{codexStart.body}</p>
+              <ol>
+                {codexStart.steps.map((step, index) => (
+                  <li key={step}>
+                    <small>{String(index + 1).padStart(2, "0")}</small>
+                    <strong>{step}</strong>
+                  </li>
+                ))}
+              </ol>
+            </div>
+            <button
+              className={`codex-launch-button ${
+                copied === "codex-start" ? "copied" : ""
+              }`}
+              type="button"
+              onClick={() =>
+                copyText(codexStart.prompt, "codex-start")
+              }
+            >
+              <span aria-hidden="true">
+                {copied === "codex-start" ? "✓" : "⧉"}
+              </span>
+              {copied === "codex-start"
+                ? codexStart.copied
+                : codexStart.copy}
+            </button>
+            <details className="codex-launch-details">
+              <summary>{codexStart.preview}</summary>
+              <pre>{codexStart.prompt}</pre>
+            </details>
+          </aside>
 
           <div className="config-panel">
             <div className="config-control style-control">

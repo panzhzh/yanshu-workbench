@@ -16,7 +16,7 @@ const HOME_COPY = {
     reconstruct: "重构现有论文",
     releaseEyebrow: "PAPER RECONSTRUCTION",
     releaseStatus: "全流程已验证",
-    releaseTitle: "五轮重构，现在可以从断点继续。",
+    releaseTitle: "五轮重构，支持断点继续。",
     releaseBody:
       "官网配置、插件执行与每轮交付使用同一套 Prompt 规则。每一轮只接收上一轮的必要成果，并把可继续使用的完整论文资产交给下一轮。",
     releaseAction: "查看五轮重构工作台",
@@ -89,7 +89,7 @@ const HOME_COPY = {
     reconstruct: "Reconstruct an existing paper",
     releaseEyebrow: "PAPER RECONSTRUCTION",
     releaseStatus: "End-to-end verified",
-    releaseTitle: "Five rounds, now resumable from every checkpoint.",
+    releaseTitle: "Five-round reconstruction with checkpoint resumption.",
     releaseBody:
       "Website configuration, plugin execution, and round handoffs now use the same prompt rules. Each round receives only the necessary outputs from the previous round and passes forward a complete, usable manuscript state.",
     releaseAction: "Open the five-round workbench",

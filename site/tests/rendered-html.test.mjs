@@ -33,7 +33,7 @@ test("server-renders the concise YanShu home page", async () => {
   const html = await response.text();
   assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
-  assert.match(html, /五轮重构，现在可以从断点继续/);
+  assert.match(html, /五轮重构，支持断点继续/);
   assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.7/);
   assert.match(html, /同一份 Prompt/);
   assert.match(html, /最小材料链/);
@@ -110,6 +110,14 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /不限制方法和实验的字数/);
   assert.match(html, /每张表格或图片按 200 词计入/);
   assert.match(html, /导出桌面配置/);
+  assert.match(html, /class="codex-launch-guide"/);
+  assert.match(html, /在 Codex 中启动/);
+  assert.match(html, /发送给 Codex/);
+  assert.match(html, /复制给 Codex/);
+  assert.match(html, /panzhzh\/yanshu-workbench/);
+  assert.match(html, /yanshu-workbench@yanshu-workbench/);
+  assert.match(html, /新建一个 Codex 任务/);
+  assert.match(html, /从断点继续/);
   assert.match(html, /重新配置/);
   assert.match(html, /复制全部/);
   assert.equal((html.match(/>English<\/button>/g) ?? []).length, 5);
