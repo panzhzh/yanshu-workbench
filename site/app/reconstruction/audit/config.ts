@@ -142,8 +142,8 @@ export const AUDIT_EXECUTION_MODES = {
       en: "Audit and safely fix",
     },
     description: {
-      zh: "只自动修复证据唯一、不会改变科学含义的问题；冲突与缺证据仍留给作者。",
-      en: "Automatically fix only deterministic issues that cannot change scientific meaning; leave conflicts and evidence gaps for the author.",
+      zh: "只修改已确认错误的最小片段；未命中的任何内容必须逐字保持原样。",
+      en: "Change only the minimum span of a confirmed defect; every unflagged part must remain verbatim.",
     },
   },
 } as const satisfies Record<
@@ -194,7 +194,7 @@ export const AUDIT_COPY = {
     clear: "清空",
     execution: "执行方式",
     executionHint:
-      "默认只报告。安全修复也不得猜测冲突值、补造证据或改变 claim。",
+      "默认只报告。安全修复采用严格最小差异：每项改动必须对应一个问题 ID，审计未命中的内容一律不改。",
     promptTitle: "专项审计",
     promptPurpose:
       "完整读取论文，对所选项目进行一次联合审计，并输出可直接执行的问题清单。",
@@ -233,7 +233,7 @@ export const AUDIT_COPY = {
     clear: "Clear",
     execution: "Execution mode",
     executionHint:
-      "Audit-only is the default. Safe fixes must never guess a conflicting value, fabricate evidence, or alter a claim.",
+      "Audit-only is the default. Safe fixes use a strict minimal-diff rule: every edit needs an issue ID, and unflagged content cannot change.",
     promptTitle: "Specialized audit",
     promptPurpose:
       "Read the complete paper, run the selected checks as one coordinated audit, and return an actionable issue register.",
@@ -390,7 +390,13 @@ function auditProtection(
     const modeBoundary =
       mode === "report-only"
         ? "本轮是只审计模式：不得改写、覆盖或另存 .tex、.bib、图片与 PDF；全局证据规则中任何“删除、弱化或修正”的表述都只能转化为带精确位置的建议。"
-        : "本轮是安全修复模式：只修改证据唯一、影响局部且不会改变科学含义的确定性问题；任何事实冲突、数学疑点、证据缺失或可能改变 claim 的操作只报告。";
+        : `本轮是安全修复模式，必须执行严格最小差异：
+   - 先建立 Fix Allowlist，为每项允许修复的问题记录问题 ID、精确源文件与行号、原文片段、目标片段及必要的联动引用；只有 Allowlist 内的字符范围可以修改。
+   - 只替换纠正该错误所需的最小片段。未被问题 ID 命中的句子、段落、标题、术语、引用、公式、图表、宏、空白和换行必须与输入逐字一致。
+   - 禁止顺便润色、改写、压缩、扩写、统一措辞、全局替换、重新排版、重新换行、清理宏包、重排 BibTeX 字段或调整章节结构。
+   - 若修复需要同步 label/ref/cite 等依赖，只能修改在同一问题中明确列出的必要依赖位置；不得扩大到相邻内容。
+   - 输出前对输入与修改稿执行完整 diff。任何无法映射到 Fix Allowlist 问题 ID 的差异都必须回退。
+   - 事实冲突、数学疑点、证据缺失或可能改变 claim 的操作只报告，不得修改。`;
     return `1. 沿用当前 .tex 的文档类、宏包、参考文献样式、单双栏、作者信息、自定义命令、图像路径和编译体系。
 2. 保留 label、ref、cite、公式编号、算法标签、图表内容和正文/附录归属；除已选择且满足安全修复条件的确定性错误外，不做结构操作。
 3. 不删除真实证据，不隐藏不利结果，不生成、虚构或替换图片、数据、公式、引用或实验。
@@ -401,7 +407,13 @@ function auditProtection(
   const modeBoundary =
     mode === "report-only"
       ? "This is audit-only mode: do not rewrite, overwrite, or save a new .tex, .bib, image, or PDF. Any wording in the global evidence rules that implies deletion, qualification, or correction must become a location-specific recommendation only."
-      : "This is safe-fix mode: change only deterministic issues with unique evidence, local impact, and no possible change to scientific meaning. Report every factual conflict, mathematical concern, evidence gap, or potentially claim-changing operation without applying it.";
+      : `This is safe-fix mode and a strict minimal-diff policy applies:
+   - Build a Fix Allowlist first. For every permitted repair, record its issue ID, exact source file and line, original span, replacement span, and any indispensable dependent reference. Only character ranges on this Allowlist may change.
+   - Replace the smallest span necessary to correct the defect. Every sentence, paragraph, heading, term, citation, equation, visual, macro, whitespace sequence, and line break not tagged by an issue ID must remain verbatim.
+   - Do not opportunistically polish, rewrite, compress, expand, normalize wording, run global replacements, reformat, rewrap lines, clean packages, reorder BibTeX fields, or restructure sections.
+   - If a repair requires synchronized label/ref/cite changes, edit only indispensable dependency locations explicitly listed under the same issue; do not touch adjacent content.
+   - Run a complete input-versus-output diff before delivery and revert every difference that cannot be mapped to a Fix Allowlist issue ID.
+   - Report rather than change every factual conflict, mathematical concern, evidence gap, or operation that could alter a claim.`;
   return `1. Preserve the current .tex document class, packages, bibliography style, column layout, author block, custom commands, image paths, and compilation system.
 2. Preserve labels, refs, cites, equation numbers, algorithm identifiers, visual content, and main-text/appendix placement except for a selected deterministic defect that meets every safe-fix condition.
 3. Delete no real evidence, hide no unfavorable result, and generate, invent, or replace no image, value, equation, citation, or experiment.
@@ -448,12 +460,12 @@ export function buildSpecializedAuditPrompt(
       preferences.executionMode === "report-only"
         ? `- \`<base_name>_specialized_audit_report_zh.md\`：完整中文审计报告；
 - 不修改 .tex、.bib、图片或 PDF。对于确定性修复，报告中给出准确替换位置和修复文本；对于 BibTeX 新增或修正，给出经过核验的完整条目。`
-        : `- \`<base_name>_audited.tex\`：包含全部确定性安全修复的完整、连续、可编译英文论文；
+        : `- \`<base_name>_audited.tex\`：包含全部确定性安全修复的完整、连续、可编译英文论文；除 Fix Allowlist 中的最小错误片段及同一问题明确列出的必要依赖外，必须与输入逐字一致；
 - \`<base_name>_audited_references.bib\`：完整当前 BibTeX 文献库；若未选择 [BIB] 或没有可核验修改，也保持输入库完整不变；
-- \`<base_name>_specialized_audit_report_zh.md\`：完整中文审计报告与逐项修改日志；
+- \`<base_name>_specialized_audit_report_zh.md\`：完整中文审计报告、Fix Allowlist 和逐项修改日志；每项修改都给出问题 ID、位置与 before/after；
 - 成功编译的 PDF。
 
-只自动修复满足以下全部条件的问题：证据唯一、修改局部、不会改变科学含义、不会隐藏冲突或负面结果。其余问题只报告，不得猜测。`;
+只自动修复满足以下全部条件的问题：证据唯一、修改局部、不会改变科学含义、不会隐藏冲突或负面结果。完成后必须检查完整 diff，回退任何无问题 ID 的变化。其余问题只报告，不得猜测。`;
 
     return `# 论文专项联合审计
 
@@ -507,12 +519,12 @@ ${deliverables}
     preferences.executionMode === "report-only"
       ? `- \`<base_name>_specialized_audit_report_zh.md\`: the complete Chinese audit report;
 - Do not modify .tex, .bib, images, or PDF. For a deterministic repair, give the exact location and replacement text in the report. For a BibTeX addition or correction, provide the complete verified entry.`
-      : `- \`<base_name>_audited.tex\`: the complete continuous compilable English manuscript containing all deterministic safe fixes;
+      : `- \`<base_name>_audited.tex\`: the complete continuous compilable English manuscript containing all deterministic safe fixes; except for the minimum defective spans on the Fix Allowlist and indispensable dependencies explicitly attached to the same issue, it must remain verbatim to the input;
 - \`<base_name>_audited_references.bib\`: the complete current BibTeX library; if [BIB] is not selected or no verified edit exists, preserve the input library in full;
-- \`<base_name>_specialized_audit_report_zh.md\`: the complete Chinese audit report and itemized change log;
+- \`<base_name>_specialized_audit_report_zh.md\`: the complete Chinese audit report, Fix Allowlist, and itemized change log; every edit includes its issue ID, location, and before/after;
 - the successfully compiled PDF.
 
-Apply an automatic fix only when all conditions hold: the evidence is unique, the edit is local, scientific meaning cannot change, and no conflict or unfavorable result is hidden. Report every other issue without guessing.`;
+Apply an automatic fix only when all conditions hold: the evidence is unique, the edit is local, scientific meaning cannot change, and no conflict or unfavorable result is hidden. Inspect the complete diff and revert every change without an issue ID. Report every other issue without guessing.`;
 
   return `# Combined Specialized Paper Audit
 

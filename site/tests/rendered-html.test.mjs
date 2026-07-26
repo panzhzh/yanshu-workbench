@@ -266,6 +266,8 @@ test("server-renders the multi-select specialized-audit workbench", async () => 
   assert.match(html, /清空/);
   assert.match(html, /只审计，不改稿/);
   assert.match(html, /审计并安全修复/);
+  assert.match(html, /只修改已确认错误的最小片段/);
+  assert.match(html, /安全修复采用严格最小差异/);
   assert.match(html, /专项审计 · 4 项/);
   assert.match(html, /# 论文专项联合审计/);
   assert.match(html, /\[TERM\] 专业术语与命名/);
@@ -1081,6 +1083,11 @@ test("keeps specialized audits selectable, coordinated, and evidence-bound", asy
   assert.match(config, /同一根因只生成一个稳定问题 ID/);
   assert.match(config, /AUD-007 \[DATA\]\[VIS\]\[CLAIM\]/);
   assert.match(config, /Blocker \/ Major \/ Minor/);
+  assert.match(config, /先建立 Fix Allowlist/);
+  assert.match(config, /未被问题 ID 命中的句子、段落、标题、术语、引用、公式、图表、宏、空白和换行必须与输入逐字一致/);
+  assert.match(config, /禁止顺便润色、改写、压缩、扩写、统一措辞、全局替换、重新排版、重新换行/);
+  assert.match(config, /任何无法映射到 Fix Allowlist 问题 ID 的差异都必须回退/);
+  assert.match(config, /every edit includes its issue ID, location, and before\/after/);
   assert.match(config, /numeric-claim ledger/);
   assert.match(config, /孤儿图表/);
   assert.match(config, /执行日前两年内直接相关的顶会、顶刊论文/);
