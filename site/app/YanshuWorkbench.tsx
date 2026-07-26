@@ -17,6 +17,7 @@ import {
   type FrameworkFigureLayoutPreferences,
 } from "./figures/config";
 import { buildPrompt } from "../content/prompts/buildPrompt";
+import { RECONSTRUCTION_WORKFLOW_VERSION } from "../content/prompts/version";
 import type {
   ChatExecutionPreferences,
   ChatReasoningPreferenceId,
@@ -437,7 +438,10 @@ export default function YanshuWorkbench() {
   }
 
   return (
-    <div className="site-shell">
+    <div
+      className="site-shell"
+      data-reconstruction-workflow-version={RECONSTRUCTION_WORKFLOW_VERSION}
+    >
       <SiteNavigation
         language={uiLanguage}
         activePage="reconstruction"

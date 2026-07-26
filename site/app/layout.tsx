@@ -3,7 +3,7 @@ import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const siteDescription =
-  "面向 CS 研究者的论文初稿、结构重构、科研绘图与投稿策略工作台。";
+  "面向 CS 研究者的论文初稿、可恢复论文重构、科研绘图与投稿策略工作台。";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -30,10 +30,10 @@ export const metadata: Metadata = {
     description: siteDescription,
     images: [
       {
-        url: "/og.png",
+        url: "/og-reconstruction-2026-07-7.png",
         width: 1731,
         height: 909,
-        alt: "研术台 · YanShu",
+        alt: "研术台 · YanShu：五轮重构，现在可以从断点继续。",
       },
     ],
   },
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "研术台 · YanShu",
     description: siteDescription,
-    images: ["/og.png"],
+    images: ["/og-reconstruction-2026-07-7.png"],
   },
 };
 

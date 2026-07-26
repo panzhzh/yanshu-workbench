@@ -23,7 +23,16 @@ import {
   startOnboardingSession,
 } from "../scripts/lib/onboarding-store.mjs";
 import {
+  artifactBundleSpec,
+  importArtifactBundle,
+} from "../scripts/lib/artifact-bundle.mjs";
+import {
+  compareWorkflowVersions,
+  inspectPublishedPromptRelease,
+} from "../scripts/lib/prompt-release.mjs";
+import {
   createRun,
+  inspectBibLibraryContinuity,
   markRound,
   nextRound,
   registerArtifact,
@@ -31,6 +40,77 @@ import {
   roundAttachments,
   summarizeRun,
 } from "../scripts/lib/run-store.mjs";
+
+let zipCrcTable;
+
+function crc32(bytes) {
+  if (!zipCrcTable) {
+    zipCrcTable = new Uint32Array(256);
+    for (let index = 0; index < 256; index += 1) {
+      let value = index;
+      for (let bit = 0; bit < 8; bit += 1) {
+        value =
+          value & 1
+            ? 0xedb88320 ^ (value >>> 1)
+            : value >>> 1;
+      }
+      zipCrcTable[index] = value >>> 0;
+    }
+  }
+  let value = 0xffffffff;
+  for (const byte of bytes) {
+    value = zipCrcTable[(value ^ byte) & 0xff] ^ (value >>> 8);
+  }
+  return (value ^ 0xffffffff) >>> 0;
+}
+
+function storedZip(entries) {
+  const localRecords = [];
+  const centralRecords = [];
+  let localOffset = 0;
+
+  for (const [name, text] of Object.entries(entries)) {
+    const nameBytes = Buffer.from(name, "utf8");
+    const content = Buffer.from(text, "utf8");
+    const checksum = crc32(content);
+    const local = Buffer.alloc(30 + nameBytes.length + content.length);
+    local.writeUInt32LE(0x04034b50, 0);
+    local.writeUInt16LE(20, 4);
+    local.writeUInt16LE(0x800, 6);
+    local.writeUInt16LE(0, 8);
+    local.writeUInt32LE(checksum, 14);
+    local.writeUInt32LE(content.length, 18);
+    local.writeUInt32LE(content.length, 22);
+    local.writeUInt16LE(nameBytes.length, 26);
+    nameBytes.copy(local, 30);
+    content.copy(local, 30 + nameBytes.length);
+    localRecords.push(local);
+
+    const central = Buffer.alloc(46 + nameBytes.length);
+    central.writeUInt32LE(0x02014b50, 0);
+    central.writeUInt16LE(20, 4);
+    central.writeUInt16LE(20, 6);
+    central.writeUInt16LE(0x800, 8);
+    central.writeUInt16LE(0, 10);
+    central.writeUInt32LE(checksum, 16);
+    central.writeUInt32LE(content.length, 20);
+    central.writeUInt32LE(content.length, 24);
+    central.writeUInt16LE(nameBytes.length, 28);
+    central.writeUInt32LE(localOffset, 42);
+    nameBytes.copy(central, 46);
+    centralRecords.push(central);
+    localOffset += local.length;
+  }
+
+  const centralDirectory = Buffer.concat(centralRecords);
+  const end = Buffer.alloc(22);
+  end.writeUInt32LE(0x06054b50, 0);
+  end.writeUInt16LE(centralRecords.length, 8);
+  end.writeUInt16LE(centralRecords.length, 10);
+  end.writeUInt32LE(centralDirectory.length, 12);
+  end.writeUInt32LE(localOffset, 16);
+  return Buffer.concat([...localRecords, centralDirectory, end]);
+}
 
 test("pinned visible Chat bridge bundle loads without external packages", async () => {
   const runtime = await importChatGPTControl({ cacheBust: false });
@@ -117,6 +197,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   });
 
   assert.equal(workflow.rounds.length, 5);
+  assert.equal(workflow.workflowVersion, "2026.07.7");
   assert.deepEqual(
     workflow.rounds.map((round) => round.number),
     [1, 2, 3, 4, 5],
@@ -125,7 +206,27 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   assert.match(workflow.rounds[0].prompt, /Appendix allowed/);
   assert.match(
     workflow.rounds[0].prompt,
-    /section → subsection → paragraph/,
+    /use paragraph rather than subsubsection when a third-level heading is genuinely needed/,
+  );
+  assert.match(
+    workflow.rounds[0].prompt,
+    /<base_name>_round_1_artifacts\.zip/,
+  );
+  assert.match(
+    workflow.rounds[0].prompt,
+    /complete current BibTeX library/,
+  );
+  assert.match(
+    workflow.rounds[0].prompt,
+    /<base_name>_round_1_references\.bib/,
+  );
+  assert.match(
+    workflow.rounds[1].prompt,
+    /Distribute these functions naturally across continuous prose/,
+  );
+  assert.match(
+    workflow.rounds[1].prompt,
+    /never turn its column labels into repeated TeX headings/,
   );
   assert.equal(workflow.rounds[3].id, "framework-figure");
   assert.match(workflow.rounds[3].prompt, /Export aspect ratio: 2:1/);
@@ -174,6 +275,10 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   assert.equal(
     (workflow.rounds[3].prompt.match(/2:1/g) ?? []).length,
     1,
+  );
+  assert.doesNotMatch(
+    workflow.rounds[3].prompt,
+    /_round_4_artifacts\.zip/,
   );
   assert.equal(workflow.rounds[4].id, "final-refinement");
   assert.deepEqual(workflow.config.chatExecution, {
@@ -711,6 +816,44 @@ test("workflow preserves an explicit reasoning preference", () => {
   );
 });
 
+test("new runs detect an older installed Prompt release", () => {
+  assert.equal(
+    compareWorkflowVersions("2026.07.7", "2026.07.7"),
+    0,
+  );
+  assert.equal(
+    compareWorkflowVersions("2026.07.6", "2026.07.7"),
+    -1,
+  );
+  assert.equal(
+    compareWorkflowVersions("2026.07.8", "2026.07.7"),
+    1,
+  );
+
+  const release = inspectPublishedPromptRelease(
+    "2026.07.6",
+    '<div data-reconstruction-workflow-version="2026.07.7"></div>',
+  );
+  assert.equal(release.ok, false);
+  assert.equal(release.status, "installed-older");
+  assert.equal(release.publishedVersion, "2026.07.7");
+});
+
+test("complete BibTeX handoff preserves every prior key", () => {
+  const audit = inspectBibLibraryContinuity(
+    `@article{first, title={First}}
+@inproceedings{second, title={Second}}
+`,
+    `@article{first, title={First}}
+@article{third, title={Third}}
+`,
+  );
+  assert.equal(audit.ok, false);
+  assert.deepEqual(audit.missingKeys, ["second"]);
+  assert.equal(audit.inputKeyCount, 2);
+  assert.equal(audit.outputKeyCount, 2);
+});
+
 test("no-limit and unlimited-core modes alter generated prompts", () => {
   const noLimit = buildReconstructionWorkflow({
     language: "en",
@@ -720,6 +863,18 @@ test("no-limit and unlimited-core modes alter generated prompts", () => {
   assert.doesNotMatch(
     noLimit.rounds[0].prompt,
     /## Main-text and Section Budgets/,
+  );
+  assert.match(
+    noLimit.rounds[1].prompt,
+    /stop the heading hierarchy at subsubsection by default/i,
+  );
+  assert.match(
+    noLimit.rounds[1].prompt,
+    /rather than paragraph headings for discourse functions/i,
+  );
+  assert.doesNotMatch(
+    noLimit.rounds[1].prompt,
+    /section → subsection → subsubsection → paragraph/,
   );
 
   const unlimitedCore = buildReconstructionWorkflow({
@@ -816,7 +971,7 @@ test("run state is recoverable and attachment-scoped", async () => {
     const attachments = await roundAttachments(state, "scientific-positioning");
     assert.deepEqual(
       attachments.map((item) => path.basename(item)).sort(),
-      ["main.pdf", "main.tex", "overview.png", "references.bib"],
+      ["main.pdf", "main.tex", "references.bib"],
     );
 
     await markRound(state, "1", {
@@ -831,18 +986,171 @@ test("run state is recoverable and attachment-scoped", async () => {
       state.rounds[0].chat.configurationVerification,
       "click-acknowledged",
     );
-    const downloaded = path.join(temporaryRoot, "round-1-output.tex");
-    await writeFile(downloaded, "round output", "utf8");
-    await registerArtifact(state, "1", downloaded);
+    async function addRoundArtifacts(selector, names) {
+      for (const name of names) {
+        const downloaded = path.join(temporaryRoot, name);
+        await writeFile(downloaded, `${name} fixture`, "utf8");
+        await registerArtifact(state, selector, downloaded);
+      }
+    }
+
+    await addRoundArtifacts("1", [
+      "paper_round_1_scientific_structure.tex",
+      "paper_round_1_report_zh.md",
+      "paper_round_1_references.bib",
+      "paper_round_1_scientific_structure.pdf",
+    ]);
     await markRound(state, "1", { status: "completed" });
 
     assert.equal(nextRound(state)?.number, 2);
     assert.equal(summarizeRun(state).progress.completed, 1);
     const secondAttachments = await roundAttachments(state, "2");
-    assert.ok(
-      secondAttachments.some(
-        (item) => path.basename(item) === "round-1-output.tex",
+    assert.deepEqual(
+      secondAttachments.map((item) => path.basename(item)).sort(),
+      [
+        "paper_round_1_references.bib",
+        "paper_round_1_scientific_structure.pdf",
+        "paper_round_1_scientific_structure.tex",
+      ],
+    );
+
+    await addRoundArtifacts("2", [
+      "paper_round_2_method_experiments.tex",
+      "paper_round_2_report_zh.md",
+      "paper_round_2_references.bib",
+      "paper_round_2_method_experiments.pdf",
+    ]);
+    await markRound(state, "2", { status: "completed" });
+    assert.deepEqual(
+      (await roundAttachments(state, "3"))
+        .map((item) => path.basename(item))
+        .sort(),
+      [
+        "paper_round_2_method_experiments.pdf",
+        "paper_round_2_method_experiments.tex",
+        "paper_round_2_references.bib",
+      ],
+    );
+
+    await addRoundArtifacts("3", [
+      "paper_round_3_narrative_reconstruction.tex",
+      "paper_round_3_report_zh.md",
+      "paper_round_3_references.bib",
+      "paper_round_3_narrative_reconstruction.pdf",
+    ]);
+    await markRound(state, "3", { status: "completed" });
+    assert.deepEqual(
+      (await roundAttachments(state, "4"))
+        .map((item) => path.basename(item))
+        .sort(),
+      [
+        "paper_round_3_narrative_reconstruction.pdf",
+        "paper_round_3_narrative_reconstruction.tex",
+      ],
+    );
+
+    await addRoundArtifacts("4", [
+      "paper_round_4_framework_reconstruction.png",
+    ]);
+    await markRound(state, "4", { status: "completed" });
+    assert.deepEqual(
+      (await roundAttachments(state, "5"))
+        .map((item) => path.basename(item))
+        .sort(),
+      [
+        "paper_round_3_narrative_reconstruction.pdf",
+        "paper_round_3_narrative_reconstruction.tex",
+        "paper_round_3_references.bib",
+        "paper_round_4_framework_reconstruction.png",
+      ],
+    );
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
+test("one validated ZIP imports all fallback Chat artifacts", async () => {
+  const temporaryRoot = await mkdtemp(path.join(tmpdir(), "yanshu-bundle-"));
+  try {
+    const paperRoot = path.join(temporaryRoot, "paper");
+    await mkdir(paperRoot, { recursive: true });
+    await writeFile(
+      path.join(paperRoot, "main.tex"),
+      "\\documentclass{article}\\begin{document}Test\\end{document}\n",
+      "utf8",
+    );
+    await writeFile(path.join(paperRoot, "references.bib"), "", "utf8");
+    await writeFile(path.join(paperRoot, "main.pdf"), "pdf fixture", "utf8");
+    const inputs = await resolvePaperInputs(paperRoot);
+    const workflow = buildReconstructionWorkflow({
+      language: "en",
+      styleId: "journal",
+    });
+    const state = await createRun({
+      projectRoot: paperRoot,
+      runId: "bundle-run",
+      inputs,
+      workflow,
+    });
+
+    const spec = artifactBundleSpec(
+      state.rounds[1],
+      state.workflowVersion,
+    );
+    assert.equal(spec.required, true);
+    assert.equal(
+      spec.archiveName,
+      "<base_name>_round_2_artifacts.zip",
+    );
+    const legacySpec = artifactBundleSpec(
+      state.rounds[1],
+      "2026.07.6",
+    );
+    assert.equal(legacySpec.required, false);
+    assert.match(legacySpec.reason, /saved run predates/i);
+    const bundlePath = path.join(
+      temporaryRoot,
+      "paper_round_2_artifacts.zip",
+    );
+    await writeFile(
+      bundlePath,
+      storedZip({
+        "paper_round_2_method_experiments.tex": "complete tex",
+        "paper_round_2_report_zh.md": "完整报告",
+        "paper_round_2_references.bib": "@article{fixture}",
+      }),
+    );
+
+    const imported = await importArtifactBundle({
+      state,
+      selector: "2",
+      bundlePath,
+    });
+    assert.equal(path.basename(imported.bundle), path.basename(bundlePath));
+    assert.deepEqual(
+      imported.artifacts.map((item) => path.basename(item)).sort(),
+      [
+        "paper_round_2_method_experiments.tex",
+        "paper_round_2_references.bib",
+        "paper_round_2_report_zh.md",
+      ],
+    );
+    assert.equal(
+      await readFile(
+        path.join(
+          state.runPath,
+          state.rounds[1].directory,
+          "output",
+          "paper_round_2_method_experiments.tex",
+        ),
+        "utf8",
       ),
+      "complete tex",
+    );
+    assert.equal(
+      state.rounds[1].outputs.length,
+      4,
+      "the ZIP and its three exact artifacts are registered",
     );
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });

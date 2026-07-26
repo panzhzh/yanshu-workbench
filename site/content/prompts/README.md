@@ -20,6 +20,8 @@ by the website.
   temporary ceiling and protected sections, are defined here as data.
 - `buildPrompt.ts` compiles a selected template with the current planner state.
 - `types.ts` defines the template and runtime-variable contract.
+- `version.ts` defines the one reconstruction workflow release shared by the
+  rendered website and generated plugin runtime.
 - `chatExecution.ts` defines stable ChatGPT model-policy, reasoning-preference,
   and fallback identifiers without pinning a changing GPT model name.
 
@@ -54,6 +56,9 @@ editing and audit: it receives the paper type but omits the style directive,
 appendix configuration, and all length-budget content.
 
 The Markdown files are maintained as reviewed source references rather than
-browser assets. Runtime copies are regression-tested for high-value
-constraints. This keeps the workflow readable while allowing the product
-templates to be bilingual, configuration-driven, and type checked.
+browser assets. The website TypeScript sources above are the executable
+canonical Prompt implementation. The plugin does not maintain another Prompt
+set: `npm run plugin:bundle` generates
+`plugins/yanshu-workbench/runtime/prompt-engine.mjs` from these exact sources,
+and `npm run plugin:check` fails when that generated runtime differs by even one
+byte. The test command runs this parity check before building the website.

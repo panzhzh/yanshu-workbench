@@ -72,8 +72,14 @@ The result is summarized in Figure~\ref{fig:result} and Table~\ref{tab:main}.
 \end{table}
 \end{document}
 `;
+  const bib = `@article{existing_source,
+  title = {Existing Source},
+  author = {Author, Example},
+  year = {2025}
+}
+`;
   await writeFile(path.join(paperRoot, "main.tex"), tex, "utf8");
-  await writeFile(path.join(paperRoot, "references.bib"), "", "utf8");
+  await writeFile(path.join(paperRoot, "references.bib"), bib, "utf8");
   await writeFile(path.join(figures, "result.png"), ONE_PIXEL_PNG);
   const inputs = await resolvePaperInputs(paperRoot);
   const workflow = buildReconstructionWorkflow({
@@ -86,7 +92,7 @@ The result is summarized in Figure~\ref{fig:result} and Table~\ref{tab:main}.
     inputs,
     workflow,
   });
-  return { temporaryRoot, paperRoot, state, tex };
+  return { temporaryRoot, paperRoot, state, tex, bib };
 }
 
 test("MCP workspace exposes prompts, TeX evidence, and real figure pixels", async () => {
@@ -197,6 +203,33 @@ test("MCP writes are scoped, versioned, compiled, rendered, and handed off", asy
     );
     assert.ok(compilation.compiledPdfArtifactId);
 
+    await assert.rejects(
+      completeRound({
+        runPath: fixture.state.runPath,
+        round: "1",
+        note: "Missing the report and complete bibliography.",
+      }),
+      /missing required registered artifacts/i,
+    );
+    await writeRoundArtifact({
+      runPath: fixture.state.runPath,
+      round: "1",
+      fileName: "round_1_report_zh.md",
+      content: "# Report\n",
+    });
+    await writeRoundArtifact({
+      runPath: fixture.state.runPath,
+      round: "1",
+      fileName: "round_1_references.bib",
+      content: `${fixture.bib}
+@article{verified_addition,
+  title = {Verified Addition},
+  author = {Researcher, Example},
+  year = {2026}
+}
+`,
+    });
+
     const pdfText = await readPdfText({
       runPath: fixture.state.runPath,
       round: "1",
@@ -222,6 +255,26 @@ test("MCP writes are scoped, versioned, compiled, rendered, and handed off", asy
     });
     assert.equal(completed.completedRound.number, 1);
     assert.equal(completed.nextRound.number, 2);
+
+    const handoff = await getRoundManifest(
+      fixture.state.runPath,
+      "2",
+    );
+    const handoffNames = handoff.artifacts.map(
+      (artifact) => artifact.name,
+    );
+    assert.ok(handoffNames.includes("rewritten.tex"));
+    assert.ok(
+      handoff.artifacts.some(
+        (artifact) =>
+          artifact.kind === "pdf" &&
+          artifact.roles.includes("compiled-paper"),
+      ),
+    );
+    assert.ok(handoffNames.includes("round_1_references.bib"));
+    assert.ok(!handoffNames.includes("references.bib"));
+    assert.ok(!handoffNames.includes("main.tex"));
+    assert.ok(!handoffNames.includes("result.png"));
   } finally {
     await rm(fixture.temporaryRoot, { recursive: true, force: true });
   }

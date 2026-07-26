@@ -146,10 +146,15 @@ The returned loopback URL is private to the current computer. A compatible
 local plugin host can use the bundled MCP companion directly. External
 `chatgpt.com` needs an authenticated HTTPS MCP connection or supported secure
 tunnel; a loopback URL alone is not remotely reachable. When that connection is
-unavailable, YanShu falls back to handing approved `.tex`, `.bib`, `.pdf`, and
-figure inputs to ChatGPT as real files. It prefers the visible file chooser and
-keeps native Windows file-object clipboard paste as the final fallback. YanShu
-never bypasses login, CAPTCHA, permissions, or confirmation.
+unavailable, YanShu falls back to handing only the latest necessary `.tex`,
+complete current `.bib`, and `.pdf` artifacts to ChatGPT as real files; Round 4 needs no BibTeX,
+and Round 5 adds only the reconstructed PNG. It does not accumulate old reports,
+superseded rounds, or source figures already rendered in the PDF. It prefers
+the visible file chooser and keeps native Windows file-object clipboard paste
+as the final fallback. Text-output rounds return complete TeX, report, and
+current BibTeX files in one validated ZIP for a single download and deterministic
+import. YanShu never bypasses login, CAPTCHA,
+permissions, or confirmation.
 
 ## Developer commands
 
@@ -158,7 +163,10 @@ shared workflow configuration:
 
 ```bash
 npm run plugin:bundle
+npm run plugin:check
 ```
 
+`plugin:check` compares the generated runtime byte for byte with the website's
+canonical TypeScript Prompt sources and runs before the website test build.
 Validate the skill and plugin with the OpenAI plugin and skill validators before
 distribution.

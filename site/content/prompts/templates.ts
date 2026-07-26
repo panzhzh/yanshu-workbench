@@ -39,18 +39,18 @@ export const COMMON_PROMPT_BLOCKS = {
     en: `Read the complete PDF and visually inspect every framework diagram, mechanism figure, result plot, case figure, table, and rendered equation using page images or an equivalent visual method. For figures, check components, arrows, inputs, outputs, legends, captions, and prose references. For tables, check row and column meanings, metric direction, emphasis marks, units, mean/standard deviation notation, and numbers cited in prose. Report page numbers, identifiers, and exact conflicts whenever TeX and PDF disagree.`,
   },
   citationAndWeb: {
-    zh: `1. 写作前提取当前 .bib 的全部 BibTeX key；最终 TeX 中每个 cite key 都必须真实存在。
-2. 新检索但尚未加入当前 .bib 的文献只能写入单独的建议 BibTeX 文件，不得直接插入 TeX。
+    zh: `1. 写作前提取当前 .bib 的全部 BibTeX key，并完整保留现有条目；最终 TeX 中每个 cite key 都必须真实存在于本轮输出的完整 .bib。
+2. 本轮输出的 .bib 必须是一份可直接供下一轮和编译继续使用的完整当前文献库，不得只输出增量建议。仅追加已核验且不重复的新条目；若 TeX 引用新增文献，其准确条目必须同时写入该完整 .bib。
 3. 技术事实优先核验原论文、官方论文页、出版社页面、DBLP、Crossref 或作者公开版本。
 4. 优先近三年直接相关工作，同时保留必要的奠基文献；不得用仅关键词相似的文献凑数。
-5. 每条新增建议要说明支持的具体论点、建议位置、与现有 .bib 是否重复及推荐理由。
-6. 核验标题、作者、年份、venue、DOI 或官方 URL；无法确认的字段宁缺毋滥。`,
-    en: `1. Extract every BibTeX key from the current .bib before drafting. Every cite key in the final TeX must exist in that file.
-2. Newly discovered works that are not yet in the current .bib may appear only in a separate BibTeX suggestions file, never directly in the TeX.
+5. 每条新增文献都要在报告中说明支持的具体论点、使用位置、与原有 .bib 是否重复及加入理由。
+6. 核验标题、作者、年份、venue、DOI 或官方 URL；无法确认的字段宁缺毋滥。除修正已核实的错误外，不得改写现有条目；任何修正都必须在报告中记录。`,
+    en: `1. Extract every BibTeX key from the current .bib before drafting and preserve all existing entries. Every cite key in the final TeX must exist in the complete .bib delivered for this round.
+2. The delivered .bib must be a complete current library that the next round and compiler can use directly, never a delta-only suggestions file. Append only verified, non-duplicate additions. If the TeX cites a newly found work, include its exact verified entry in that complete .bib.
 3. Prefer original papers, official proceedings pages, publisher pages, DBLP, Crossref, or author-hosted versions for technical facts.
 4. Prioritize directly relevant work from the last three years while retaining necessary foundations. Do not pad the bibliography with keyword-only matches.
-5. For each suggested addition, state the exact claim it supports, proposed location, possible duplication with the current .bib, and why it matters.
-6. Verify title, authors, year, venue, DOI, or official URL. Omit uncertain fields instead of guessing.`,
+5. For each addition, state in the report the exact claim it supports, where it is used, whether it duplicates the input .bib, and why it was added.
+6. Verify title, authors, year, venue, DOI, or official URL. Omit uncertain fields instead of guessing. Do not rewrite existing entries except to correct a verified error, and document every correction in the report.`,
   },
 } satisfies Record<string, LocalizedText>;
 
@@ -76,11 +76,11 @@ export const PROMPT_TEMPLATES: PromptTemplate[] = [
       zh: `- 当前最新完整 .tex
 - 与其一致的 PDF
 - 当前完整 .bib
-- 可选：其他附件`,
+- 仅在没有完整 PDF 时：支撑正文证据所必需的图像文件`,
       en: `- The current latest complete .tex
 - Its matching PDF
 - The current complete .bib
-- Optional: other attachments`,
+- Only when no complete PDF exists: image files necessary to recover manuscript evidence`,
     },
     scope: {
       zh: "允许重排章节和段落、合并重复内容、重写章节开头与主题句、重构贡献、调整 Method 与 Experiments 的分工并建立必要的 Discussion。不得改变模板或添加材料不支持的机制与实验。",
@@ -88,12 +88,12 @@ export const PROMPT_TEMPLATES: PromptTemplate[] = [
     },
     styleBranches: {
       conference: {
-        zh: "会议论文：采用 section → subsection → paragraph；Related Work 恰好三个单段小节；Method 不单设 Overview；Discussion and Limitations 由三个讨论小节和一个约 100 词的 Limitations 小节组成。",
-        en: "Conference paper: use section → subsection → paragraph; give Related Work exactly three one-paragraph subsections; omit a standalone Method Overview; and structure Discussion and Limitations as three discussion subsections plus an approximately 100-word Limitations subsection.",
+        zh: "会议论文：需要第三层标题时使用 paragraph 而非 subsubsection；paragraph 只命名真实科学单元，普通论述使用连续段落。Related Work 恰好三个单段小节；Method 不单设 Overview；Discussion and Limitations 由三个讨论小节和一个约 100 词的 Limitations 小节组成。",
+        en: "Conference paper: when a third-level heading is needed, use paragraph rather than subsubsection; reserve headings for genuine scientific units and develop ordinary exposition as continuous prose. Give Related Work exactly three one-paragraph subsections, omit a standalone Method Overview, and structure Discussion and Limitations as three discussion subsections plus an approximately 100-word Limitations subsection.",
       },
       journal: {
-        zh: "期刊论文：采用 section → subsection → subsubsection → paragraph；Related Work 恰好三个双段小节；Method 单设恰好两段且不超过 80 词的 Overview，不得复述框架图。",
-        en: "Journal paper: use section → subsection → subsubsection → paragraph; give Related Work exactly three two-paragraph subsections; and use a standalone, exactly two-paragraph Method Overview capped at 80 words without narrating the framework figure.",
+        zh: "期刊论文：目录层级默认止于 subsubsection，其下使用主题句、过渡和自然段，不把叙述功能写成 paragraph 标题。Related Work 恰好三个双段小节；Method 单设恰好两段且不超过 80 词的 Overview，不得复述框架图。",
+        en: "Journal paper: stop the heading hierarchy at subsubsection by default, using topic sentences, transitions, and natural paragraphs below it rather than paragraph headings for discourse functions. Give Related Work exactly three two-paragraph subsections and use a standalone, exactly two-paragraph Method Overview capped at 80 words without narrating the framework figure.",
       },
     },
     tasks: [
@@ -161,16 +161,16 @@ The core idea must remain meaningful without component names. Do not relabel ord
       },
     ],
     deliverables: {
-      zh: `生成完整英文 .tex、中文报告和建议 BibTeX。中文报告至少包含：Scientific Positioning Contract、最终标题与论文品牌缩写及依据、一句话主旨与痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、最终术语表、章节功能与预算表、图表角色、结构操作清单、联网核验、作者需确认项和下一步交接摘要。`,
-      en: `Create a complete English .tex, a Chinese report, and BibTeX suggestions. The report must include the Scientific Positioning Contract, final title and paper brand acronym with rationale, one-sentence thesis and pain point, old/new throughline comparison, contribution hierarchy, Claim–Evidence Map, final terminology table, section-function and budget table, visual roles, structural operation log, web verification, author-confirmation items, and a self-contained handoff.`,
+      zh: `生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。中文报告至少包含：Scientific Positioning Contract、最终标题与论文品牌缩写及依据、一句话主旨与痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、最终术语表、章节功能与预算表、图表角色、结构操作清单、联网核验、新增或修正文献记录、作者需确认项和下一步交接摘要。`,
+      en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract, final title and paper brand acronym with rationale, one-sentence thesis and pain point, old/new throughline comparison, contribution hierarchy, Claim–Evidence Map, final terminology table, section-function and budget table, visual roles, structural operation log, web verification, added or corrected bibliography records, author-confirmation items, and a self-contained handoff.`,
     },
     fileNames: {
       zh: `<base_name>_round_1_scientific_structure.tex
 <base_name>_round_1_report_zh.md
-<base_name>_round_1_bib_suggestions.bib`,
+<base_name>_round_1_references.bib`,
       en: `<base_name>_round_1_scientific_structure.tex
 <base_name>_round_1_report_zh.md
-<base_name>_round_1_bib_suggestions.bib`,
+<base_name>_round_1_references.bib`,
     },
     finalChecks: {
       zh: `- 全文围绕一个科学问题和核心思想组织。
@@ -207,12 +207,10 @@ The core idea must remain meaningful without component names. Do not relabel ord
     inputs: {
       zh: `- 最新完整 .tex，优先为第一步输出
 - 对应完整 PDF
-- 当前完整 .bib
-- 可选：其他附件`,
+- 当前完整 .bib`,
       en: `- The newest complete .tex, preferably the Step 1 output
 - Its complete matching PDF
-- The current complete .bib
-- Optional: other attachments`,
+- The current complete .bib`,
     },
     scope: {
       zh: "Method 与 Experiments 允许大幅重构。其他章节只为术语、事实与交叉引用一致性做最小同步。没有证据的实现或实验信息必须删除或标记为作者需确认。",
@@ -220,12 +218,12 @@ The core idea must remain meaningful without component names. Do not relabel ord
     },
     styleBranches: {
       conference: {
-        zh: "会议论文：采用 section → subsection → paragraph，不单设 Overview；在合适位置自然引出总体框架。实验设置内用 paragraph 依次组织 Datasets、Experimental Configuration 和 Baselines。",
-        en: "Conference paper: use section → subsection → paragraph with no standalone Overview; introduce the framework naturally where it serves the story. Inside experimental setup, use paragraph headings for Datasets, Experimental Configuration, and Baselines in that order.",
+        zh: "会议论文：需要第三层标题时使用 paragraph 而非 subsubsection；paragraph 只命名真实科学单元，普通论述使用连续段落。Method 不单设 Overview，在合适位置自然引出总体框架；实验设置内用 paragraph 依次组织 Datasets、Experimental Configuration 和 Baselines。",
+        en: "Conference paper: when a third-level heading is needed, use paragraph rather than subsubsection; reserve headings for genuine scientific units and develop ordinary exposition as continuous prose. Use no standalone Method Overview, introduce the framework naturally where it serves the story, and organize Datasets, Experimental Configuration, and Baselines with paragraph headings inside experimental setup.",
       },
       journal: {
-        zh: "期刊论文：采用 section → subsection → subsubsection → paragraph；Method 单设恰好两段、总计不超过 80 词的 Overview，解释科学逻辑但不复述框架图。实验设置内用 subsubsection 依次组织 Datasets、Experimental Configuration 和 Baselines。",
-        en: "Journal paper: use section → subsection → subsubsection → paragraph. Method has a standalone Overview of exactly two paragraphs and at most 80 words that explains scientific logic without narrating the figure. Inside experimental setup, use subsubsections for Datasets, Experimental Configuration, and Baselines in that order.",
+        zh: "期刊论文：目录层级默认止于 subsubsection；其下使用主题句、过渡和自然段，不把 Design Purpose、Question、Observation 等叙述功能写成 paragraph 标题。Method 单设恰好两段、总计不超过 80 词的 Overview，解释科学逻辑但不复述框架图；实验设置内用 subsubsection 依次组织 Datasets、Experimental Configuration 和 Baselines。",
+        en: "Journal paper: stop the heading hierarchy at subsubsection by default; below it, use topic sentences, transitions, and natural paragraphs rather than paragraph headings such as Design Purpose, Question, or Observation. Method has a standalone Overview of exactly two paragraphs and at most 80 words that explains scientific logic without narrating the figure. Inside experimental setup, use subsubsections for Datasets, Experimental Configuration, and Baselines in that order.",
       },
     },
     tasks: [
@@ -257,8 +255,8 @@ Follow the current paper type's Overview rule before moving through core mechani
           en: "C. Build the Experiment Question–Evidence Matrix",
         },
         body: {
-          zh: "为每项实验写明要回答的问题、使用的数据与设置、指标、比较对象、图表证据、所支持的 claim、证据强度和不能推出的结论。实验顺序从总体有效性进入机制、边界与解释。",
-          en: "For every experiment, record the question, data and setup, metric, comparison, visual evidence, supported claim, evidence strength, and conclusions that cannot be drawn. Order experiments from overall effectiveness to mechanisms, boundaries, and interpretation.",
+          zh: "在中文报告中，为每项实验写明要回答的问题、使用的数据与设置、指标、比较对象、图表证据、所支持的 claim、证据强度和不能推出的结论。矩阵只用于规划与审计，其列名不得成为 TeX 中重复的小标题或句首标签。实验顺序从总体有效性进入机制、边界与解释。",
+          en: "In the Chinese report, record the question, data and setup, metric, comparison, visual evidence, supported claim, evidence strength, and conclusions that cannot be drawn for every experiment. Use the matrix only for planning and audit; never turn its column labels into repeated TeX headings or sentence prefixes. Order experiments from overall effectiveness to mechanisms, boundaries, and interpretation.",
         },
       },
       {
@@ -268,9 +266,9 @@ Follow the current paper type's Overview rule before moving through core mechani
         },
         body: {
           zh: `第一个小节固定为 Datasets and Experimental Setup，内部必须依次覆盖 Datasets、Experimental Configuration（服务器/硬件、超参数等）和 Baselines；第二个小节固定为 Main Results。后续不绑定第三或第四的固定序号，按真实证据组织 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis 等分析。
-结果段落按“实验问题 → 关键观察 → 解释 → 与 claim 的关系 → 边界”展开，不逐单元格朗读。每项消融必须对应明确设计问题，不把普通波动写成确定机制。`,
+每个实验小节整体应交代所检验的不确定性、决定性证据、合理解释、与 claim 的关系和证据边界，并根据材料自然分布在连续段落中；小标题命名实验、变量或现象，而不重复 Question、Observation、Interpretation 等叙述功能。不逐单元格朗读。每项消融必须对应明确设计问题，不把普通波动写成确定机制。`,
           en: `Fix Datasets and Experimental Setup as the first subsection, with required Datasets, Experimental Configuration (including servers/hardware and hyperparameters), and Baselines units in that order; fix Main Results as the second. Do not reserve fixed third or fourth positions. Order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, and other analyses by evidence.
-Write each result paragraph as question, key observation, interpretation, relation to a claim, and boundary. Do not narrate every table cell. Tie each ablation to a clear design question and do not present ordinary variation as a confirmed mechanism.`,
+Across each experiment subsection, establish the uncertainty being tested, decisive evidence, warranted interpretation, relation to the claim, and evidence boundary, distributing these functions naturally across continuous prose. Let headings name experiments, variables, or phenomena rather than repeatedly labeling Question, Observation, or Interpretation. Do not narrate every table cell. Tie each ablation to a clear design question and do not present ordinary variation as a confirmed mechanism.`,
         },
       },
       {
@@ -279,22 +277,22 @@ Write each result paragraph as question, key observation, interpretation, relati
           en: "E. Verify Numbers, Statistics, and Related Work",
         },
         body: {
-          zh: "核对图表、正文、caption 和摘要中的数值、指标方向、单位、均值/标准差及显著性表述。联网核验最相关基线、数据集来源、评价协议和近邻机制；新文献仍只进入建议 BibTeX。",
-          en: "Cross-check values, metric direction, units, mean/standard-deviation notation, and significance language across visuals, prose, captions, and abstract. Verify the closest baselines, dataset sources, evaluation protocols, and neighboring mechanisms on the web. New works still go only to BibTeX suggestions.",
+          zh: "核对图表、正文、caption 和摘要中的数值、指标方向、单位、均值/标准差及显著性表述。联网核验最相关基线、数据集来源、评价协议和近邻机制；把核验通过且不重复的新条目追加到完整当前 BibTeX，并在报告中记录。",
+          en: "Cross-check values, metric direction, units, mean/standard-deviation notation, and significance language across visuals, prose, captions, and abstract. Verify the closest baselines, dataset sources, evaluation protocols, and neighboring mechanisms on the web. Append verified, non-duplicate entries to the complete current BibTeX library and record them in the report.",
         },
       },
     ],
     deliverables: {
-      zh: "生成完整英文 .tex、中文报告和建议 BibTeX。报告包含 Method 逻辑图谱、旧/新小节对照、公式符号审计、现有图表与正文接口审计、Experiment Question–Evidence Matrix、实验顺序说明、数字风险、弱化主张、联网核验、修改清单、作者需确认项和下一轮交接摘要。",
-      en: "Create a complete English .tex, a Chinese report, and BibTeX suggestions. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, revision log, author-confirmation items, and the next-round handoff.",
+      zh: "生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。报告包含 Method 逻辑图谱、旧/新小节对照、公式符号审计、现有图表与正文接口审计、Experiment Question–Evidence Matrix、实验顺序说明、数字风险、弱化主张、联网核验、新增或修正文献记录、修改清单、作者需确认项和下一轮交接摘要。",
+      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, added or corrected bibliography records, revision log, author-confirmation items, and the next-round handoff.",
     },
     fileNames: {
       zh: `<base_name>_round_2_method_experiments.tex
 <base_name>_round_2_report_zh.md
-<base_name>_round_2_bib_suggestions.bib`,
+<base_name>_round_2_references.bib`,
       en: `<base_name>_round_2_method_experiments.tex
 <base_name>_round_2_report_zh.md
-<base_name>_round_2_bib_suggestions.bib`,
+<base_name>_round_2_references.bib`,
     },
     finalChecks: {
       zh: `- Method 与 Experiments 完成实质重构而非同义词替换。
@@ -331,12 +329,10 @@ Write each result paragraph as question, key observation, interpretation, relati
     inputs: {
       zh: `- 最新完整 .tex，优先为第二步输出
 - 与其一致的 PDF
-- 当前完整 .bib
-- 可选：第二步报告和作者确认结果`,
+- 当前完整 .bib`,
       en: `- The newest complete .tex, preferably the Step 2 output
 - Its matching PDF
-- The current complete .bib
-- Optional: the Step 2 report and author confirmations`,
+- The current complete .bib`,
     },
     scope: {
       zh: "允许完全重写 Abstract、Introduction、Related Work、Discussion 和 Conclusion；不得重新生成或改写第一步已确定的 Title 与论文品牌缩写。Method 与 Experiments 原则上冻结，只修复术语、章节引用、图表引用和与新叙事直接冲突的局部句子。不得改变模板。",
@@ -401,22 +397,22 @@ Related Work has exactly three subsections and follows the current paper type's 
           en: "E. Align Global Terminology, Citations, and Facts",
         },
         body: {
-          zh: "检查各叙事章节是否和既定标题、Method、Experiments、图表、贡献点及唯一术语体系完全一致。联网核验 Introduction 与 Related Work 的研究缺口；新增文献只进入建议 BibTeX。",
-          en: "Verify that the narrative sections align completely with the fixed title, Method, Experiments, visuals, contributions, and canonical terminology system. Use web research to verify the gap in Introduction and Related Work. Put newly discovered works only in BibTeX suggestions.",
+          zh: "检查各叙事章节是否和既定标题、Method、Experiments、图表、贡献点及唯一术语体系完全一致。联网核验 Introduction 与 Related Work 的研究缺口；把核验通过且不重复的新条目追加到完整当前 BibTeX，并在报告中记录。",
+          en: "Verify that the narrative sections align completely with the fixed title, Method, Experiments, visuals, contributions, and canonical terminology system. Use web research to verify the gap in Introduction and Related Work. Append verified, non-duplicate entries to the complete current BibTeX library and record them in the report.",
         },
       },
     ],
     deliverables: {
-      zh: "生成完整英文 .tex、中文报告和建议 BibTeX。报告包含事实底稿、既定标题与论文品牌缩写确认、Abstract 功能表、Introduction 功能表、贡献对照、Related Work 主题与文献簇、Discussion 证据/推断/边界表、Conclusion 功能表、术语对齐、联网核验、重构清单和下一步交接摘要。",
-      en: "Create a complete English .tex, a Chinese report, and BibTeX suggestions. The report must include the fact base, confirmation of the fixed title and paper brand acronym, Abstract function table, Introduction function table, contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion function table, terminology alignment, web verification, reconstruction log, and next-step handoff.",
+      zh: "生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。报告包含事实底稿、既定标题与论文品牌缩写确认、Abstract 功能表、Introduction 功能表、贡献对照、Related Work 主题与文献簇、Discussion 证据/推断/边界表、Conclusion 功能表、术语对齐、联网核验、新增或修正文献记录、重构清单和下一步交接摘要。",
+      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the fact base, confirmation of the fixed title and paper brand acronym, Abstract function table, Introduction function table, contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion function table, terminology alignment, web verification, added or corrected bibliography records, reconstruction log, and next-step handoff.",
     },
     fileNames: {
       zh: `<base_name>_round_3_narrative_reconstruction.tex
 <base_name>_round_3_report_zh.md
-<base_name>_round_3_bib_suggestions.bib`,
+<base_name>_round_3_references.bib`,
       en: `<base_name>_round_3_narrative_reconstruction.tex
 <base_name>_round_3_report_zh.md
-<base_name>_round_3_bib_suggestions.bib`,
+<base_name>_round_3_references.bib`,
     },
     finalChecks: {
       zh: `- 第一步确定的标题与论文品牌缩写保持不变。
@@ -500,13 +496,11 @@ Related Work has exactly three subsections and follows the current paper type's 
       zh: `- 最新完整 .tex，优先为第三步输出
 - 与其一致的 PDF
 - 当前完整 .bib
-- 第四步重构的总体框架图 PNG
-- 可选：前三步报告、第四步图片核对结果和作者确认结果`,
+- 第四步重构的总体框架图 PNG`,
       en: `- The newest complete .tex, preferably the Step 3 output
 - Its matching PDF
 - The current complete .bib
-- The overall-framework PNG reconstructed in Step 4
-- Optional: reports from Steps 1–3, the Step 4 image audit, and author confirmations`,
+- The overall-framework PNG reconstructed in Step 4`,
     },
     scope: {
       zh: "允许句子级和局部段落级精修、合并冗余、调整局部顺序、改善过渡、降低过强 claim 和压缩重复。原则上不再改变科学问题、核心思想、方法结构、实验设计与已确定章节功能；严重科学或数字错误必须修正并标为重大修正。",
@@ -569,16 +563,16 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
       },
     ],
     deliverables: {
-      zh: "生成完整英文 .tex、中文终审报告和最终建议 BibTeX。报告包含重大修正、术语与缩写表、Cross-Section Redundancy Matrix、Claim–Evidence 表、数字与统计审计、引用审计、图表公式算法与 LaTeX 审计、审稿人攻击测试、不可通过文字解决的风险、修改清单和投稿目标检索交接摘要。",
-      en: "Create a complete English .tex, a Chinese final-audit report, and final BibTeX suggestions. The report must include major revisions, terminology and acronym tables, Cross-Section Redundancy Matrix, Claim–Evidence audit, numeric/statistical audit, citation audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks that prose cannot solve, revision log, and the submission-targeting handoff.",
+      zh: "生成完整英文 .tex、中文终审报告和完整最终 BibTeX 文献库。报告包含重大修正、术语与缩写表、Cross-Section Redundancy Matrix、Claim–Evidence 表、数字与统计审计、引用审计、图表公式算法与 LaTeX 审计、审稿人攻击测试、不可通过文字解决的风险、新增或修正文献记录、修改清单和投稿目标检索交接摘要。",
+      en: "Create a complete English .tex, a Chinese final-audit report, and a complete final BibTeX library. The report must include major revisions, terminology and acronym tables, Cross-Section Redundancy Matrix, Claim–Evidence audit, numeric/statistical audit, citation audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks that prose cannot solve, added or corrected bibliography records, revision log, and the submission-targeting handoff.",
     },
     fileNames: {
       zh: `<base_name>_round_5_final_refinement.tex
 <base_name>_round_5_report_zh.md
-<base_name>_round_5_bib_suggestions.bib`,
+<base_name>_round_5_references.bib`,
       en: `<base_name>_round_5_final_refinement.tex
 <base_name>_round_5_report_zh.md
-<base_name>_round_5_bib_suggestions.bib`,
+<base_name>_round_5_references.bib`,
     },
     finalChecks: {
       zh: `- 全文完成实质精修而非拼写检查。

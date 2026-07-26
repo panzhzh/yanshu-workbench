@@ -15,6 +15,7 @@ import {
   markRound,
   nextRound,
   pathExists,
+  roundMaterials,
   saveRun,
 } from "./run-store.mjs";
 import {
@@ -268,71 +269,38 @@ async function buildManifestInternal(runPath, selector) {
 
   const promptPath = path.join(state.runPath, round.promptPath);
   await add(promptPath, { source: "run", role: "round-prompt" });
-  await add(state.inputs.tex, { source: "original", role: "primary-tex" });
-  await add(state.inputs.bib, { source: "original", role: "primary-bib" });
-  await add(state.inputs.pdf, { source: "original", role: "compiled-paper" });
-
-  const sourceTextFiles = await walkFiles(state.projectRoot, {
-    extensions: new Set([".tex", ".bib"]),
-    skipRunPath: state.runPath,
-    limit: 192,
-  });
-  for (const source of sourceTextFiles) {
-    await add(source, {
-      source: "original",
-      role: path.extname(source).toLowerCase() === ".tex"
-        ? "supporting-tex"
-        : "supporting-bib",
-    });
-  }
-
-  if (state.inputs.figures) {
-    const figures = await walkFiles(state.inputs.figures, {
-      extensions: FIGURE_EXTENSIONS,
-      skipRunPath: state.runPath,
-      limit: 256,
-    });
-    for (const figure of figures) {
-      await add(figure, { source: "original", role: "paper-figure" });
-    }
-  }
-
-  for (const candidate of state.rounds) {
-    if (candidate.number > round.number) break;
-    if (
-      candidate.number !== round.number &&
-      candidate.status !== "completed"
-    ) {
-      continue;
-    }
-    for (const relative of candidate.outputs ?? []) {
-      const output = path.resolve(state.runPath, relative);
-      if (!isWithin(state.runPath, output)) continue;
-      await add(output, {
-        source: "round-output",
-        role:
-          candidate.number === round.number
-            ? "current-round-output"
-            : "previous-round-output",
-        roundNumber: candidate.number,
+  for (const material of await roundMaterials(state, round.id)) {
+    for (const role of material.roles) {
+      await add(material.path, {
+        source: material.source,
+        role,
+        roundNumber: material.roundNumber,
       });
     }
-    if (candidate.number === round.number) {
-      const logFiles = await walkFiles(
-        path.join(state.runPath, candidate.directory, "logs"),
-        {
-          extensions: new Set([".log"]),
-          limit: 24,
-        },
-      );
-      for (const logFile of logFiles) {
-        await add(logFile, {
-          source: "run",
-          role: "compile-log",
-          roundNumber: candidate.number,
-        });
-      }
-    }
+  }
+
+  for (const relative of round.outputs ?? []) {
+    const output = path.resolve(state.runPath, relative);
+    if (!isWithin(state.runPath, output)) continue;
+    await add(output, {
+      source: "round-output",
+      role: "current-round-output",
+      roundNumber: round.number,
+    });
+  }
+  const logFiles = await walkFiles(
+    path.join(state.runPath, round.directory, "logs"),
+    {
+      extensions: new Set([".log"]),
+      limit: 24,
+    },
+  );
+  for (const logFile of logFiles) {
+    await add(logFile, {
+      source: "run",
+      role: "compile-log",
+      roundNumber: round.number,
+    });
   }
 
   const items = [...artifacts.values()].sort((left, right) => {

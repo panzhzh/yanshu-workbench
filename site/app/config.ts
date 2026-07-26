@@ -84,20 +84,20 @@ export const PRODUCT_CONFIG = {
         },
       },
       structureNote: {
-        zh: "层级采用 section → subsection → paragraph；Related Work 每小节单段，Method 不单设 Overview。",
-        en: "Use section → subsection → paragraph; keep one paragraph per Related Work subsection and no standalone Method Overview.",
+        zh: "目录第三层采用 paragraph 而非 subsubsection；paragraph 标题只命名真实科学单元，普通论述使用连续段落。Related Work 每小节单段，Method 不单设 Overview。",
+        en: "Use paragraph rather than subsubsection for third-level headings, reserving headings for genuine scientific units and writing ordinary exposition as continuous prose. Keep one paragraph per Related Work subsection and no standalone Method Overview.",
       },
       emphasisNote: {
         zh: "优先保证贡献辨识度、基线公平性、消融实验和可复现细节。",
         en: "Prioritize contribution clarity, fair baselines, ablations, and reproducibility details.",
       },
       plannerSummary: {
-        zh: "section → subsection → paragraph；引言 480 词，讨论与局限占 10%，结论 200 词，Method 不单设 Overview。",
-        en: "section → subsection → paragraph; 480-word Introduction, 10% Discussion & Limitations, 200-word Conclusion, and no standalone Method Overview.",
+        zh: "第三层使用 paragraph 而非 subsubsection；引言 480 词，讨论与局限占 10%，结论 200 词，Method 不单设 Overview。",
+        en: "Use paragraph rather than subsubsection for third-level headings; 480-word Introduction, 10% Discussion & Limitations, 200-word Conclusion, and no standalone Method Overview.",
       },
       promptDirective: {
-        zh: "采用紧凑的问题—方法—证据闭环和 section → subsection → paragraph 层级；Related Work 每个小节只写一个普通段落，Method 不单设 Overview，并优先保证必要机制、公平比较、关键消融和可复现信息。",
-        en: "Use a compact problem–method–evidence loop and section → subsection → paragraph hierarchy; write one ordinary paragraph per Related Work subsection, omit a standalone Method Overview, and prioritize necessary mechanisms, fair comparisons, decisive ablations, and reproducibility.",
+        zh: "采用紧凑的问题—方法—证据闭环；需要第三层标题时使用 paragraph 而非 subsubsection，并让标题命名科学内容而不是 Question、Observation 等叙述功能。普通论述以自然连续段落展开。Related Work 每个小节只写一个普通段落，Method 不单设 Overview，并优先保证必要机制、公平比较、关键消融和可复现信息。",
+        en: "Use a compact problem–method–evidence loop. When a third-level heading is needed, use paragraph rather than subsubsection and name scientific content rather than discourse functions such as Question or Observation. Develop ordinary exposition as natural continuous prose. Keep one ordinary paragraph per Related Work subsection, omit a standalone Method Overview, and prioritize necessary mechanisms, fair comparisons, decisive ablations, and reproducibility.",
       },
       sections: [
         {
@@ -199,20 +199,20 @@ export const PRODUCT_CONFIG = {
         },
       },
       structureNote: {
-        zh: "层级采用 section → subsection → subsubsection → paragraph；Method 单设不超过 80 词的双段 Overview。",
-        en: "Use section → subsection → subsubsection → paragraph, with a standalone two-paragraph Method Overview capped at 80 words.",
+        zh: "目录层级默认止于 subsubsection，不使用 paragraph 标题；普通段落依靠主题句与过渡形成连续论证。Method 单设不超过 80 词的双段 Overview。",
+        en: "Stop the heading hierarchy at subsubsection by default and develop ordinary paragraphs through topic sentences and transitions rather than paragraph headings. Use a standalone two-paragraph Method Overview capped at 80 words.",
       },
       emphasisNote: {
         zh: "优先保证理论与经验论证的完整性、方法透明度和对既有研究的累积贡献。",
         en: "Prioritize complete theoretical and empirical argumentation, methodological transparency, and cumulative contribution.",
       },
       plannerSummary: {
-        zh: "section → subsection → subsubsection → paragraph；保留双段 Overview，并扩展文献定位、方法细节与讨论。",
-        en: "section → subsection → subsubsection → paragraph; retain a two-paragraph Overview and deepen positioning, methods, and discussion.",
+        zh: "目录层级默认止于 subsubsection；保留双段 Overview，并扩展文献定位、方法细节与讨论。",
+        en: "Stop the heading hierarchy at subsubsection by default; retain a two-paragraph Overview and deepen positioning, methods, and discussion.",
       },
       promptDirective: {
-        zh: "采用 section → subsection → subsubsection → paragraph 层级和更完整的累积论证；Method 单设两个普通段落且不超过 80 词的 Overview，不复述框架图，并扩展研究定位、方法透明度、稳健性与独立讨论。",
-        en: "Use a section → subsection → subsubsection → paragraph hierarchy and a fuller cumulative argument; give Method a standalone two-paragraph Overview capped at 80 words without narrating the framework figure, and deepen positioning, transparency, robustness, and discussion.",
+        zh: "采用更完整的累积论证，目录层级默认止于 subsubsection；其下用主题句、过渡和自然段组织内容，不把 Question、Observation、Design Purpose 等叙述功能写成 paragraph 标题。Method 单设两个普通段落且不超过 80 词的 Overview，不复述框架图，并扩展研究定位、方法透明度、稳健性与独立讨论。",
+        en: "Use a fuller cumulative argument and stop the heading hierarchy at subsubsection by default. Organize lower-level content with topic sentences, transitions, and natural prose instead of paragraph headings labeled by discourse functions such as Question, Observation, or Design Purpose. Give Method a standalone two-paragraph Overview capped at 80 words without narrating the framework figure, and deepen positioning, transparency, robustness, and discussion.",
       },
       sections: [
         {

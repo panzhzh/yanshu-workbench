@@ -145,20 +145,20 @@ var PRODUCT_CONFIG = {
         }
       },
       structureNote: {
-        zh: "\u5C42\u7EA7\u91C7\u7528 section \u2192 subsection \u2192 paragraph\uFF1BRelated Work \u6BCF\u5C0F\u8282\u5355\u6BB5\uFF0CMethod \u4E0D\u5355\u8BBE Overview\u3002",
-        en: "Use section \u2192 subsection \u2192 paragraph; keep one paragraph per Related Work subsection and no standalone Method Overview."
+        zh: "\u76EE\u5F55\u7B2C\u4E09\u5C42\u91C7\u7528 paragraph \u800C\u975E subsubsection\uFF1Bparagraph \u6807\u9898\u53EA\u547D\u540D\u771F\u5B9E\u79D1\u5B66\u5355\u5143\uFF0C\u666E\u901A\u8BBA\u8FF0\u4F7F\u7528\u8FDE\u7EED\u6BB5\u843D\u3002Related Work \u6BCF\u5C0F\u8282\u5355\u6BB5\uFF0CMethod \u4E0D\u5355\u8BBE Overview\u3002",
+        en: "Use paragraph rather than subsubsection for third-level headings, reserving headings for genuine scientific units and writing ordinary exposition as continuous prose. Keep one paragraph per Related Work subsection and no standalone Method Overview."
       },
       emphasisNote: {
         zh: "\u4F18\u5148\u4FDD\u8BC1\u8D21\u732E\u8FA8\u8BC6\u5EA6\u3001\u57FA\u7EBF\u516C\u5E73\u6027\u3001\u6D88\u878D\u5B9E\u9A8C\u548C\u53EF\u590D\u73B0\u7EC6\u8282\u3002",
         en: "Prioritize contribution clarity, fair baselines, ablations, and reproducibility details."
       },
       plannerSummary: {
-        zh: "section \u2192 subsection \u2192 paragraph\uFF1B\u5F15\u8A00 480 \u8BCD\uFF0C\u8BA8\u8BBA\u4E0E\u5C40\u9650\u5360 10%\uFF0C\u7ED3\u8BBA 200 \u8BCD\uFF0CMethod \u4E0D\u5355\u8BBE Overview\u3002",
-        en: "section \u2192 subsection \u2192 paragraph; 480-word Introduction, 10% Discussion & Limitations, 200-word Conclusion, and no standalone Method Overview."
+        zh: "\u7B2C\u4E09\u5C42\u4F7F\u7528 paragraph \u800C\u975E subsubsection\uFF1B\u5F15\u8A00 480 \u8BCD\uFF0C\u8BA8\u8BBA\u4E0E\u5C40\u9650\u5360 10%\uFF0C\u7ED3\u8BBA 200 \u8BCD\uFF0CMethod \u4E0D\u5355\u8BBE Overview\u3002",
+        en: "Use paragraph rather than subsubsection for third-level headings; 480-word Introduction, 10% Discussion & Limitations, 200-word Conclusion, and no standalone Method Overview."
       },
       promptDirective: {
-        zh: "\u91C7\u7528\u7D27\u51D1\u7684\u95EE\u9898\u2014\u65B9\u6CD5\u2014\u8BC1\u636E\u95ED\u73AF\u548C section \u2192 subsection \u2192 paragraph \u5C42\u7EA7\uFF1BRelated Work \u6BCF\u4E2A\u5C0F\u8282\u53EA\u5199\u4E00\u4E2A\u666E\u901A\u6BB5\u843D\uFF0CMethod \u4E0D\u5355\u8BBE Overview\uFF0C\u5E76\u4F18\u5148\u4FDD\u8BC1\u5FC5\u8981\u673A\u5236\u3001\u516C\u5E73\u6BD4\u8F83\u3001\u5173\u952E\u6D88\u878D\u548C\u53EF\u590D\u73B0\u4FE1\u606F\u3002",
-        en: "Use a compact problem\u2013method\u2013evidence loop and section \u2192 subsection \u2192 paragraph hierarchy; write one ordinary paragraph per Related Work subsection, omit a standalone Method Overview, and prioritize necessary mechanisms, fair comparisons, decisive ablations, and reproducibility."
+        zh: "\u91C7\u7528\u7D27\u51D1\u7684\u95EE\u9898\u2014\u65B9\u6CD5\u2014\u8BC1\u636E\u95ED\u73AF\uFF1B\u9700\u8981\u7B2C\u4E09\u5C42\u6807\u9898\u65F6\u4F7F\u7528 paragraph \u800C\u975E subsubsection\uFF0C\u5E76\u8BA9\u6807\u9898\u547D\u540D\u79D1\u5B66\u5185\u5BB9\u800C\u4E0D\u662F Question\u3001Observation \u7B49\u53D9\u8FF0\u529F\u80FD\u3002\u666E\u901A\u8BBA\u8FF0\u4EE5\u81EA\u7136\u8FDE\u7EED\u6BB5\u843D\u5C55\u5F00\u3002Related Work \u6BCF\u4E2A\u5C0F\u8282\u53EA\u5199\u4E00\u4E2A\u666E\u901A\u6BB5\u843D\uFF0CMethod \u4E0D\u5355\u8BBE Overview\uFF0C\u5E76\u4F18\u5148\u4FDD\u8BC1\u5FC5\u8981\u673A\u5236\u3001\u516C\u5E73\u6BD4\u8F83\u3001\u5173\u952E\u6D88\u878D\u548C\u53EF\u590D\u73B0\u4FE1\u606F\u3002",
+        en: "Use a compact problem\u2013method\u2013evidence loop. When a third-level heading is needed, use paragraph rather than subsubsection and name scientific content rather than discourse functions such as Question or Observation. Develop ordinary exposition as natural continuous prose. Keep one ordinary paragraph per Related Work subsection, omit a standalone Method Overview, and prioritize necessary mechanisms, fair comparisons, decisive ablations, and reproducibility."
       },
       sections: [
         {
@@ -260,20 +260,20 @@ var PRODUCT_CONFIG = {
         }
       },
       structureNote: {
-        zh: "\u5C42\u7EA7\u91C7\u7528 section \u2192 subsection \u2192 subsubsection \u2192 paragraph\uFF1BMethod \u5355\u8BBE\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684\u53CC\u6BB5 Overview\u3002",
-        en: "Use section \u2192 subsection \u2192 subsubsection \u2192 paragraph, with a standalone two-paragraph Method Overview capped at 80 words."
+        zh: "\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF0C\u4E0D\u4F7F\u7528 paragraph \u6807\u9898\uFF1B\u666E\u901A\u6BB5\u843D\u4F9D\u9760\u4E3B\u9898\u53E5\u4E0E\u8FC7\u6E21\u5F62\u6210\u8FDE\u7EED\u8BBA\u8BC1\u3002Method \u5355\u8BBE\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684\u53CC\u6BB5 Overview\u3002",
+        en: "Stop the heading hierarchy at subsubsection by default and develop ordinary paragraphs through topic sentences and transitions rather than paragraph headings. Use a standalone two-paragraph Method Overview capped at 80 words."
       },
       emphasisNote: {
         zh: "\u4F18\u5148\u4FDD\u8BC1\u7406\u8BBA\u4E0E\u7ECF\u9A8C\u8BBA\u8BC1\u7684\u5B8C\u6574\u6027\u3001\u65B9\u6CD5\u900F\u660E\u5EA6\u548C\u5BF9\u65E2\u6709\u7814\u7A76\u7684\u7D2F\u79EF\u8D21\u732E\u3002",
         en: "Prioritize complete theoretical and empirical argumentation, methodological transparency, and cumulative contribution."
       },
       plannerSummary: {
-        zh: "section \u2192 subsection \u2192 subsubsection \u2192 paragraph\uFF1B\u4FDD\u7559\u53CC\u6BB5 Overview\uFF0C\u5E76\u6269\u5C55\u6587\u732E\u5B9A\u4F4D\u3001\u65B9\u6CD5\u7EC6\u8282\u4E0E\u8BA8\u8BBA\u3002",
-        en: "section \u2192 subsection \u2192 subsubsection \u2192 paragraph; retain a two-paragraph Overview and deepen positioning, methods, and discussion."
+        zh: "\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF1B\u4FDD\u7559\u53CC\u6BB5 Overview\uFF0C\u5E76\u6269\u5C55\u6587\u732E\u5B9A\u4F4D\u3001\u65B9\u6CD5\u7EC6\u8282\u4E0E\u8BA8\u8BBA\u3002",
+        en: "Stop the heading hierarchy at subsubsection by default; retain a two-paragraph Overview and deepen positioning, methods, and discussion."
       },
       promptDirective: {
-        zh: "\u91C7\u7528 section \u2192 subsection \u2192 subsubsection \u2192 paragraph \u5C42\u7EA7\u548C\u66F4\u5B8C\u6574\u7684\u7D2F\u79EF\u8BBA\u8BC1\uFF1BMethod \u5355\u8BBE\u4E24\u4E2A\u666E\u901A\u6BB5\u843D\u4E14\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF0C\u4E0D\u590D\u8FF0\u6846\u67B6\u56FE\uFF0C\u5E76\u6269\u5C55\u7814\u7A76\u5B9A\u4F4D\u3001\u65B9\u6CD5\u900F\u660E\u5EA6\u3001\u7A33\u5065\u6027\u4E0E\u72EC\u7ACB\u8BA8\u8BBA\u3002",
-        en: "Use a section \u2192 subsection \u2192 subsubsection \u2192 paragraph hierarchy and a fuller cumulative argument; give Method a standalone two-paragraph Overview capped at 80 words without narrating the framework figure, and deepen positioning, transparency, robustness, and discussion."
+        zh: "\u91C7\u7528\u66F4\u5B8C\u6574\u7684\u7D2F\u79EF\u8BBA\u8BC1\uFF0C\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF1B\u5176\u4E0B\u7528\u4E3B\u9898\u53E5\u3001\u8FC7\u6E21\u548C\u81EA\u7136\u6BB5\u7EC4\u7EC7\u5185\u5BB9\uFF0C\u4E0D\u628A Question\u3001Observation\u3001Design Purpose \u7B49\u53D9\u8FF0\u529F\u80FD\u5199\u6210 paragraph \u6807\u9898\u3002Method \u5355\u8BBE\u4E24\u4E2A\u666E\u901A\u6BB5\u843D\u4E14\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF0C\u4E0D\u590D\u8FF0\u6846\u67B6\u56FE\uFF0C\u5E76\u6269\u5C55\u7814\u7A76\u5B9A\u4F4D\u3001\u65B9\u6CD5\u900F\u660E\u5EA6\u3001\u7A33\u5065\u6027\u4E0E\u72EC\u7ACB\u8BA8\u8BBA\u3002",
+        en: "Use a fuller cumulative argument and stop the heading hierarchy at subsubsection by default. Organize lower-level content with topic sentences, transitions, and natural prose instead of paragraph headings labeled by discourse functions such as Question, Observation, or Design Purpose. Give Method a standalone two-paragraph Overview capped at 80 words without narrating the framework figure, and deepen positioning, transparency, robustness, and discussion."
       },
       sections: [
         {
@@ -3273,18 +3273,18 @@ var COMMON_PROMPT_BLOCKS = {
     en: `Read the complete PDF and visually inspect every framework diagram, mechanism figure, result plot, case figure, table, and rendered equation using page images or an equivalent visual method. For figures, check components, arrows, inputs, outputs, legends, captions, and prose references. For tables, check row and column meanings, metric direction, emphasis marks, units, mean/standard deviation notation, and numbers cited in prose. Report page numbers, identifiers, and exact conflicts whenever TeX and PDF disagree.`
   },
   citationAndWeb: {
-    zh: `1. \u5199\u4F5C\u524D\u63D0\u53D6\u5F53\u524D .bib \u7684\u5168\u90E8 BibTeX key\uFF1B\u6700\u7EC8 TeX \u4E2D\u6BCF\u4E2A cite key \u90FD\u5FC5\u987B\u771F\u5B9E\u5B58\u5728\u3002
-2. \u65B0\u68C0\u7D22\u4F46\u5C1A\u672A\u52A0\u5165\u5F53\u524D .bib \u7684\u6587\u732E\u53EA\u80FD\u5199\u5165\u5355\u72EC\u7684\u5EFA\u8BAE BibTeX \u6587\u4EF6\uFF0C\u4E0D\u5F97\u76F4\u63A5\u63D2\u5165 TeX\u3002
+    zh: `1. \u5199\u4F5C\u524D\u63D0\u53D6\u5F53\u524D .bib \u7684\u5168\u90E8 BibTeX key\uFF0C\u5E76\u5B8C\u6574\u4FDD\u7559\u73B0\u6709\u6761\u76EE\uFF1B\u6700\u7EC8 TeX \u4E2D\u6BCF\u4E2A cite key \u90FD\u5FC5\u987B\u771F\u5B9E\u5B58\u5728\u4E8E\u672C\u8F6E\u8F93\u51FA\u7684\u5B8C\u6574 .bib\u3002
+2. \u672C\u8F6E\u8F93\u51FA\u7684 .bib \u5FC5\u987B\u662F\u4E00\u4EFD\u53EF\u76F4\u63A5\u4F9B\u4E0B\u4E00\u8F6E\u548C\u7F16\u8BD1\u7EE7\u7EED\u4F7F\u7528\u7684\u5B8C\u6574\u5F53\u524D\u6587\u732E\u5E93\uFF0C\u4E0D\u5F97\u53EA\u8F93\u51FA\u589E\u91CF\u5EFA\u8BAE\u3002\u4EC5\u8FFD\u52A0\u5DF2\u6838\u9A8C\u4E14\u4E0D\u91CD\u590D\u7684\u65B0\u6761\u76EE\uFF1B\u82E5 TeX \u5F15\u7528\u65B0\u589E\u6587\u732E\uFF0C\u5176\u51C6\u786E\u6761\u76EE\u5FC5\u987B\u540C\u65F6\u5199\u5165\u8BE5\u5B8C\u6574 .bib\u3002
 3. \u6280\u672F\u4E8B\u5B9E\u4F18\u5148\u6838\u9A8C\u539F\u8BBA\u6587\u3001\u5B98\u65B9\u8BBA\u6587\u9875\u3001\u51FA\u7248\u793E\u9875\u9762\u3001DBLP\u3001Crossref \u6216\u4F5C\u8005\u516C\u5F00\u7248\u672C\u3002
 4. \u4F18\u5148\u8FD1\u4E09\u5E74\u76F4\u63A5\u76F8\u5173\u5DE5\u4F5C\uFF0C\u540C\u65F6\u4FDD\u7559\u5FC5\u8981\u7684\u5960\u57FA\u6587\u732E\uFF1B\u4E0D\u5F97\u7528\u4EC5\u5173\u952E\u8BCD\u76F8\u4F3C\u7684\u6587\u732E\u51D1\u6570\u3002
-5. \u6BCF\u6761\u65B0\u589E\u5EFA\u8BAE\u8981\u8BF4\u660E\u652F\u6301\u7684\u5177\u4F53\u8BBA\u70B9\u3001\u5EFA\u8BAE\u4F4D\u7F6E\u3001\u4E0E\u73B0\u6709 .bib \u662F\u5426\u91CD\u590D\u53CA\u63A8\u8350\u7406\u7531\u3002
-6. \u6838\u9A8C\u6807\u9898\u3001\u4F5C\u8005\u3001\u5E74\u4EFD\u3001venue\u3001DOI \u6216\u5B98\u65B9 URL\uFF1B\u65E0\u6CD5\u786E\u8BA4\u7684\u5B57\u6BB5\u5B81\u7F3A\u6BCB\u6EE5\u3002`,
-    en: `1. Extract every BibTeX key from the current .bib before drafting. Every cite key in the final TeX must exist in that file.
-2. Newly discovered works that are not yet in the current .bib may appear only in a separate BibTeX suggestions file, never directly in the TeX.
+5. \u6BCF\u6761\u65B0\u589E\u6587\u732E\u90FD\u8981\u5728\u62A5\u544A\u4E2D\u8BF4\u660E\u652F\u6301\u7684\u5177\u4F53\u8BBA\u70B9\u3001\u4F7F\u7528\u4F4D\u7F6E\u3001\u4E0E\u539F\u6709 .bib \u662F\u5426\u91CD\u590D\u53CA\u52A0\u5165\u7406\u7531\u3002
+6. \u6838\u9A8C\u6807\u9898\u3001\u4F5C\u8005\u3001\u5E74\u4EFD\u3001venue\u3001DOI \u6216\u5B98\u65B9 URL\uFF1B\u65E0\u6CD5\u786E\u8BA4\u7684\u5B57\u6BB5\u5B81\u7F3A\u6BCB\u6EE5\u3002\u9664\u4FEE\u6B63\u5DF2\u6838\u5B9E\u7684\u9519\u8BEF\u5916\uFF0C\u4E0D\u5F97\u6539\u5199\u73B0\u6709\u6761\u76EE\uFF1B\u4EFB\u4F55\u4FEE\u6B63\u90FD\u5FC5\u987B\u5728\u62A5\u544A\u4E2D\u8BB0\u5F55\u3002`,
+    en: `1. Extract every BibTeX key from the current .bib before drafting and preserve all existing entries. Every cite key in the final TeX must exist in the complete .bib delivered for this round.
+2. The delivered .bib must be a complete current library that the next round and compiler can use directly, never a delta-only suggestions file. Append only verified, non-duplicate additions. If the TeX cites a newly found work, include its exact verified entry in that complete .bib.
 3. Prefer original papers, official proceedings pages, publisher pages, DBLP, Crossref, or author-hosted versions for technical facts.
 4. Prioritize directly relevant work from the last three years while retaining necessary foundations. Do not pad the bibliography with keyword-only matches.
-5. For each suggested addition, state the exact claim it supports, proposed location, possible duplication with the current .bib, and why it matters.
-6. Verify title, authors, year, venue, DOI, or official URL. Omit uncertain fields instead of guessing.`
+5. For each addition, state in the report the exact claim it supports, where it is used, whether it duplicates the input .bib, and why it was added.
+6. Verify title, authors, year, venue, DOI, or official URL. Omit uncertain fields instead of guessing. Do not rewrite existing entries except to correct a verified error, and document every correction in the report.`
   }
 };
 var PROMPT_TEMPLATES = [
@@ -3309,11 +3309,11 @@ var PROMPT_TEMPLATES = [
       zh: `- \u5F53\u524D\u6700\u65B0\u5B8C\u6574 .tex
 - \u4E0E\u5176\u4E00\u81F4\u7684 PDF
 - \u5F53\u524D\u5B8C\u6574 .bib
-- \u53EF\u9009\uFF1A\u5176\u4ED6\u9644\u4EF6`,
+- \u4EC5\u5728\u6CA1\u6709\u5B8C\u6574 PDF \u65F6\uFF1A\u652F\u6491\u6B63\u6587\u8BC1\u636E\u6240\u5FC5\u9700\u7684\u56FE\u50CF\u6587\u4EF6`,
       en: `- The current latest complete .tex
 - Its matching PDF
 - The current complete .bib
-- Optional: other attachments`
+- Only when no complete PDF exists: image files necessary to recover manuscript evidence`
     },
     scope: {
       zh: "\u5141\u8BB8\u91CD\u6392\u7AE0\u8282\u548C\u6BB5\u843D\u3001\u5408\u5E76\u91CD\u590D\u5185\u5BB9\u3001\u91CD\u5199\u7AE0\u8282\u5F00\u5934\u4E0E\u4E3B\u9898\u53E5\u3001\u91CD\u6784\u8D21\u732E\u3001\u8C03\u6574 Method \u4E0E Experiments \u7684\u5206\u5DE5\u5E76\u5EFA\u7ACB\u5FC5\u8981\u7684 Discussion\u3002\u4E0D\u5F97\u6539\u53D8\u6A21\u677F\u6216\u6DFB\u52A0\u6750\u6599\u4E0D\u652F\u6301\u7684\u673A\u5236\u4E0E\u5B9E\u9A8C\u3002",
@@ -3321,12 +3321,12 @@ var PROMPT_TEMPLATES = [
     },
     styleBranches: {
       conference: {
-        zh: "\u4F1A\u8BAE\u8BBA\u6587\uFF1A\u91C7\u7528 section \u2192 subsection \u2192 paragraph\uFF1BRelated Work \u6070\u597D\u4E09\u4E2A\u5355\u6BB5\u5C0F\u8282\uFF1BMethod \u4E0D\u5355\u8BBE Overview\uFF1BDiscussion and Limitations \u7531\u4E09\u4E2A\u8BA8\u8BBA\u5C0F\u8282\u548C\u4E00\u4E2A\u7EA6 100 \u8BCD\u7684 Limitations \u5C0F\u8282\u7EC4\u6210\u3002",
-        en: "Conference paper: use section \u2192 subsection \u2192 paragraph; give Related Work exactly three one-paragraph subsections; omit a standalone Method Overview; and structure Discussion and Limitations as three discussion subsections plus an approximately 100-word Limitations subsection."
+        zh: "\u4F1A\u8BAE\u8BBA\u6587\uFF1A\u9700\u8981\u7B2C\u4E09\u5C42\u6807\u9898\u65F6\u4F7F\u7528 paragraph \u800C\u975E subsubsection\uFF1Bparagraph \u53EA\u547D\u540D\u771F\u5B9E\u79D1\u5B66\u5355\u5143\uFF0C\u666E\u901A\u8BBA\u8FF0\u4F7F\u7528\u8FDE\u7EED\u6BB5\u843D\u3002Related Work \u6070\u597D\u4E09\u4E2A\u5355\u6BB5\u5C0F\u8282\uFF1BMethod \u4E0D\u5355\u8BBE Overview\uFF1BDiscussion and Limitations \u7531\u4E09\u4E2A\u8BA8\u8BBA\u5C0F\u8282\u548C\u4E00\u4E2A\u7EA6 100 \u8BCD\u7684 Limitations \u5C0F\u8282\u7EC4\u6210\u3002",
+        en: "Conference paper: when a third-level heading is needed, use paragraph rather than subsubsection; reserve headings for genuine scientific units and develop ordinary exposition as continuous prose. Give Related Work exactly three one-paragraph subsections, omit a standalone Method Overview, and structure Discussion and Limitations as three discussion subsections plus an approximately 100-word Limitations subsection."
       },
       journal: {
-        zh: "\u671F\u520A\u8BBA\u6587\uFF1A\u91C7\u7528 section \u2192 subsection \u2192 subsubsection \u2192 paragraph\uFF1BRelated Work \u6070\u597D\u4E09\u4E2A\u53CC\u6BB5\u5C0F\u8282\uFF1BMethod \u5355\u8BBE\u6070\u597D\u4E24\u6BB5\u4E14\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF0C\u4E0D\u5F97\u590D\u8FF0\u6846\u67B6\u56FE\u3002",
-        en: "Journal paper: use section \u2192 subsection \u2192 subsubsection \u2192 paragraph; give Related Work exactly three two-paragraph subsections; and use a standalone, exactly two-paragraph Method Overview capped at 80 words without narrating the framework figure."
+        zh: "\u671F\u520A\u8BBA\u6587\uFF1A\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF0C\u5176\u4E0B\u4F7F\u7528\u4E3B\u9898\u53E5\u3001\u8FC7\u6E21\u548C\u81EA\u7136\u6BB5\uFF0C\u4E0D\u628A\u53D9\u8FF0\u529F\u80FD\u5199\u6210 paragraph \u6807\u9898\u3002Related Work \u6070\u597D\u4E09\u4E2A\u53CC\u6BB5\u5C0F\u8282\uFF1BMethod \u5355\u8BBE\u6070\u597D\u4E24\u6BB5\u4E14\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF0C\u4E0D\u5F97\u590D\u8FF0\u6846\u67B6\u56FE\u3002",
+        en: "Journal paper: stop the heading hierarchy at subsubsection by default, using topic sentences, transitions, and natural paragraphs below it rather than paragraph headings for discourse functions. Give Related Work exactly three two-paragraph subsections and use a standalone, exactly two-paragraph Method Overview capped at 80 words without narrating the framework figure."
       }
     },
     tasks: [
@@ -3394,16 +3394,16 @@ The core idea must remain meaningful without component names. Do not relabel ord
       }
     ],
     deliverables: {
-      zh: `\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5EFA\u8BAE BibTeX\u3002\u4E2D\u6587\u62A5\u544A\u81F3\u5C11\u5305\u542B\uFF1AScientific Positioning Contract\u3001\u6700\u7EC8\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u53CA\u4F9D\u636E\u3001\u4E00\u53E5\u8BDD\u4E3B\u65E8\u4E0E\u75DB\u70B9\u3001\u65E7/\u65B0\u4E3B\u7EBF\u5BF9\u7167\u3001\u8D21\u732E\u5206\u5C42\u3001Claim\u2013Evidence Map\u3001\u6700\u7EC8\u672F\u8BED\u8868\u3001\u7AE0\u8282\u529F\u80FD\u4E0E\u9884\u7B97\u8868\u3001\u56FE\u8868\u89D2\u8272\u3001\u7ED3\u6784\u64CD\u4F5C\u6E05\u5355\u3001\u8054\u7F51\u6838\u9A8C\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
-      en: `Create a complete English .tex, a Chinese report, and BibTeX suggestions. The report must include the Scientific Positioning Contract, final title and paper brand acronym with rationale, one-sentence thesis and pain point, old/new throughline comparison, contribution hierarchy, Claim\u2013Evidence Map, final terminology table, section-function and budget table, visual roles, structural operation log, web verification, author-confirmation items, and a self-contained handoff.`
+      zh: `\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u4E2D\u6587\u62A5\u544A\u81F3\u5C11\u5305\u542B\uFF1AScientific Positioning Contract\u3001\u6700\u7EC8\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u53CA\u4F9D\u636E\u3001\u4E00\u53E5\u8BDD\u4E3B\u65E8\u4E0E\u75DB\u70B9\u3001\u65E7/\u65B0\u4E3B\u7EBF\u5BF9\u7167\u3001\u8D21\u732E\u5206\u5C42\u3001Claim\u2013Evidence Map\u3001\u6700\u7EC8\u672F\u8BED\u8868\u3001\u7AE0\u8282\u529F\u80FD\u4E0E\u9884\u7B97\u8868\u3001\u56FE\u8868\u89D2\u8272\u3001\u7ED3\u6784\u64CD\u4F5C\u6E05\u5355\u3001\u8054\u7F51\u6838\u9A8C\u3001\u65B0\u589E\u6216\u4FEE\u6B63\u6587\u732E\u8BB0\u5F55\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
+      en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract, final title and paper brand acronym with rationale, one-sentence thesis and pain point, old/new throughline comparison, contribution hierarchy, Claim\u2013Evidence Map, final terminology table, section-function and budget table, visual roles, structural operation log, web verification, added or corrected bibliography records, author-confirmation items, and a self-contained handoff.`
     },
     fileNames: {
       zh: `<base_name>_round_1_scientific_structure.tex
 <base_name>_round_1_report_zh.md
-<base_name>_round_1_bib_suggestions.bib`,
+<base_name>_round_1_references.bib`,
       en: `<base_name>_round_1_scientific_structure.tex
 <base_name>_round_1_report_zh.md
-<base_name>_round_1_bib_suggestions.bib`
+<base_name>_round_1_references.bib`
     },
     finalChecks: {
       zh: `- \u5168\u6587\u56F4\u7ED5\u4E00\u4E2A\u79D1\u5B66\u95EE\u9898\u548C\u6838\u5FC3\u601D\u60F3\u7EC4\u7EC7\u3002
@@ -3440,12 +3440,10 @@ The core idea must remain meaningful without component names. Do not relabel ord
     inputs: {
       zh: `- \u6700\u65B0\u5B8C\u6574 .tex\uFF0C\u4F18\u5148\u4E3A\u7B2C\u4E00\u6B65\u8F93\u51FA
 - \u5BF9\u5E94\u5B8C\u6574 PDF
-- \u5F53\u524D\u5B8C\u6574 .bib
-- \u53EF\u9009\uFF1A\u5176\u4ED6\u9644\u4EF6`,
+- \u5F53\u524D\u5B8C\u6574 .bib`,
       en: `- The newest complete .tex, preferably the Step 1 output
 - Its complete matching PDF
-- The current complete .bib
-- Optional: other attachments`
+- The current complete .bib`
     },
     scope: {
       zh: "Method \u4E0E Experiments \u5141\u8BB8\u5927\u5E45\u91CD\u6784\u3002\u5176\u4ED6\u7AE0\u8282\u53EA\u4E3A\u672F\u8BED\u3001\u4E8B\u5B9E\u4E0E\u4EA4\u53C9\u5F15\u7528\u4E00\u81F4\u6027\u505A\u6700\u5C0F\u540C\u6B65\u3002\u6CA1\u6709\u8BC1\u636E\u7684\u5B9E\u73B0\u6216\u5B9E\u9A8C\u4FE1\u606F\u5FC5\u987B\u5220\u9664\u6216\u6807\u8BB0\u4E3A\u4F5C\u8005\u9700\u786E\u8BA4\u3002",
@@ -3453,12 +3451,12 @@ The core idea must remain meaningful without component names. Do not relabel ord
     },
     styleBranches: {
       conference: {
-        zh: "\u4F1A\u8BAE\u8BBA\u6587\uFF1A\u91C7\u7528 section \u2192 subsection \u2192 paragraph\uFF0C\u4E0D\u5355\u8BBE Overview\uFF1B\u5728\u5408\u9002\u4F4D\u7F6E\u81EA\u7136\u5F15\u51FA\u603B\u4F53\u6846\u67B6\u3002\u5B9E\u9A8C\u8BBE\u7F6E\u5185\u7528 paragraph \u4F9D\u6B21\u7EC4\u7EC7 Datasets\u3001Experimental Configuration \u548C Baselines\u3002",
-        en: "Conference paper: use section \u2192 subsection \u2192 paragraph with no standalone Overview; introduce the framework naturally where it serves the story. Inside experimental setup, use paragraph headings for Datasets, Experimental Configuration, and Baselines in that order."
+        zh: "\u4F1A\u8BAE\u8BBA\u6587\uFF1A\u9700\u8981\u7B2C\u4E09\u5C42\u6807\u9898\u65F6\u4F7F\u7528 paragraph \u800C\u975E subsubsection\uFF1Bparagraph \u53EA\u547D\u540D\u771F\u5B9E\u79D1\u5B66\u5355\u5143\uFF0C\u666E\u901A\u8BBA\u8FF0\u4F7F\u7528\u8FDE\u7EED\u6BB5\u843D\u3002Method \u4E0D\u5355\u8BBE Overview\uFF0C\u5728\u5408\u9002\u4F4D\u7F6E\u81EA\u7136\u5F15\u51FA\u603B\u4F53\u6846\u67B6\uFF1B\u5B9E\u9A8C\u8BBE\u7F6E\u5185\u7528 paragraph \u4F9D\u6B21\u7EC4\u7EC7 Datasets\u3001Experimental Configuration \u548C Baselines\u3002",
+        en: "Conference paper: when a third-level heading is needed, use paragraph rather than subsubsection; reserve headings for genuine scientific units and develop ordinary exposition as continuous prose. Use no standalone Method Overview, introduce the framework naturally where it serves the story, and organize Datasets, Experimental Configuration, and Baselines with paragraph headings inside experimental setup."
       },
       journal: {
-        zh: "\u671F\u520A\u8BBA\u6587\uFF1A\u91C7\u7528 section \u2192 subsection \u2192 subsubsection \u2192 paragraph\uFF1BMethod \u5355\u8BBE\u6070\u597D\u4E24\u6BB5\u3001\u603B\u8BA1\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF0C\u89E3\u91CA\u79D1\u5B66\u903B\u8F91\u4F46\u4E0D\u590D\u8FF0\u6846\u67B6\u56FE\u3002\u5B9E\u9A8C\u8BBE\u7F6E\u5185\u7528 subsubsection \u4F9D\u6B21\u7EC4\u7EC7 Datasets\u3001Experimental Configuration \u548C Baselines\u3002",
-        en: "Journal paper: use section \u2192 subsection \u2192 subsubsection \u2192 paragraph. Method has a standalone Overview of exactly two paragraphs and at most 80 words that explains scientific logic without narrating the figure. Inside experimental setup, use subsubsections for Datasets, Experimental Configuration, and Baselines in that order."
+        zh: "\u671F\u520A\u8BBA\u6587\uFF1A\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF1B\u5176\u4E0B\u4F7F\u7528\u4E3B\u9898\u53E5\u3001\u8FC7\u6E21\u548C\u81EA\u7136\u6BB5\uFF0C\u4E0D\u628A Design Purpose\u3001Question\u3001Observation \u7B49\u53D9\u8FF0\u529F\u80FD\u5199\u6210 paragraph \u6807\u9898\u3002Method \u5355\u8BBE\u6070\u597D\u4E24\u6BB5\u3001\u603B\u8BA1\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF0C\u89E3\u91CA\u79D1\u5B66\u903B\u8F91\u4F46\u4E0D\u590D\u8FF0\u6846\u67B6\u56FE\uFF1B\u5B9E\u9A8C\u8BBE\u7F6E\u5185\u7528 subsubsection \u4F9D\u6B21\u7EC4\u7EC7 Datasets\u3001Experimental Configuration \u548C Baselines\u3002",
+        en: "Journal paper: stop the heading hierarchy at subsubsection by default; below it, use topic sentences, transitions, and natural paragraphs rather than paragraph headings such as Design Purpose, Question, or Observation. Method has a standalone Overview of exactly two paragraphs and at most 80 words that explains scientific logic without narrating the figure. Inside experimental setup, use subsubsections for Datasets, Experimental Configuration, and Baselines in that order."
       }
     },
     tasks: [
@@ -3490,8 +3488,8 @@ Follow the current paper type's Overview rule before moving through core mechani
           en: "C. Build the Experiment Question\u2013Evidence Matrix"
         },
         body: {
-          zh: "\u4E3A\u6BCF\u9879\u5B9E\u9A8C\u5199\u660E\u8981\u56DE\u7B54\u7684\u95EE\u9898\u3001\u4F7F\u7528\u7684\u6570\u636E\u4E0E\u8BBE\u7F6E\u3001\u6307\u6807\u3001\u6BD4\u8F83\u5BF9\u8C61\u3001\u56FE\u8868\u8BC1\u636E\u3001\u6240\u652F\u6301\u7684 claim\u3001\u8BC1\u636E\u5F3A\u5EA6\u548C\u4E0D\u80FD\u63A8\u51FA\u7684\u7ED3\u8BBA\u3002\u5B9E\u9A8C\u987A\u5E8F\u4ECE\u603B\u4F53\u6709\u6548\u6027\u8FDB\u5165\u673A\u5236\u3001\u8FB9\u754C\u4E0E\u89E3\u91CA\u3002",
-          en: "For every experiment, record the question, data and setup, metric, comparison, visual evidence, supported claim, evidence strength, and conclusions that cannot be drawn. Order experiments from overall effectiveness to mechanisms, boundaries, and interpretation."
+          zh: "\u5728\u4E2D\u6587\u62A5\u544A\u4E2D\uFF0C\u4E3A\u6BCF\u9879\u5B9E\u9A8C\u5199\u660E\u8981\u56DE\u7B54\u7684\u95EE\u9898\u3001\u4F7F\u7528\u7684\u6570\u636E\u4E0E\u8BBE\u7F6E\u3001\u6307\u6807\u3001\u6BD4\u8F83\u5BF9\u8C61\u3001\u56FE\u8868\u8BC1\u636E\u3001\u6240\u652F\u6301\u7684 claim\u3001\u8BC1\u636E\u5F3A\u5EA6\u548C\u4E0D\u80FD\u63A8\u51FA\u7684\u7ED3\u8BBA\u3002\u77E9\u9635\u53EA\u7528\u4E8E\u89C4\u5212\u4E0E\u5BA1\u8BA1\uFF0C\u5176\u5217\u540D\u4E0D\u5F97\u6210\u4E3A TeX \u4E2D\u91CD\u590D\u7684\u5C0F\u6807\u9898\u6216\u53E5\u9996\u6807\u7B7E\u3002\u5B9E\u9A8C\u987A\u5E8F\u4ECE\u603B\u4F53\u6709\u6548\u6027\u8FDB\u5165\u673A\u5236\u3001\u8FB9\u754C\u4E0E\u89E3\u91CA\u3002",
+          en: "In the Chinese report, record the question, data and setup, metric, comparison, visual evidence, supported claim, evidence strength, and conclusions that cannot be drawn for every experiment. Use the matrix only for planning and audit; never turn its column labels into repeated TeX headings or sentence prefixes. Order experiments from overall effectiveness to mechanisms, boundaries, and interpretation."
         }
       },
       {
@@ -3501,9 +3499,9 @@ Follow the current paper type's Overview rule before moving through core mechani
         },
         body: {
           zh: `\u7B2C\u4E00\u4E2A\u5C0F\u8282\u56FA\u5B9A\u4E3A Datasets and Experimental Setup\uFF0C\u5185\u90E8\u5FC5\u987B\u4F9D\u6B21\u8986\u76D6 Datasets\u3001Experimental Configuration\uFF08\u670D\u52A1\u5668/\u786C\u4EF6\u3001\u8D85\u53C2\u6570\u7B49\uFF09\u548C Baselines\uFF1B\u7B2C\u4E8C\u4E2A\u5C0F\u8282\u56FA\u5B9A\u4E3A Main Results\u3002\u540E\u7EED\u4E0D\u7ED1\u5B9A\u7B2C\u4E09\u6216\u7B2C\u56DB\u7684\u56FA\u5B9A\u5E8F\u53F7\uFF0C\u6309\u771F\u5B9E\u8BC1\u636E\u7EC4\u7EC7 Ablation Studies\u3001\u673A\u5236/\u6548\u7387/\u53C2\u6570\u3001Case Studies and Qualitative Analysis \u7B49\u5206\u6790\u3002
-\u7ED3\u679C\u6BB5\u843D\u6309\u201C\u5B9E\u9A8C\u95EE\u9898 \u2192 \u5173\u952E\u89C2\u5BDF \u2192 \u89E3\u91CA \u2192 \u4E0E claim \u7684\u5173\u7CFB \u2192 \u8FB9\u754C\u201D\u5C55\u5F00\uFF0C\u4E0D\u9010\u5355\u5143\u683C\u6717\u8BFB\u3002\u6BCF\u9879\u6D88\u878D\u5FC5\u987B\u5BF9\u5E94\u660E\u786E\u8BBE\u8BA1\u95EE\u9898\uFF0C\u4E0D\u628A\u666E\u901A\u6CE2\u52A8\u5199\u6210\u786E\u5B9A\u673A\u5236\u3002`,
+\u6BCF\u4E2A\u5B9E\u9A8C\u5C0F\u8282\u6574\u4F53\u5E94\u4EA4\u4EE3\u6240\u68C0\u9A8C\u7684\u4E0D\u786E\u5B9A\u6027\u3001\u51B3\u5B9A\u6027\u8BC1\u636E\u3001\u5408\u7406\u89E3\u91CA\u3001\u4E0E claim \u7684\u5173\u7CFB\u548C\u8BC1\u636E\u8FB9\u754C\uFF0C\u5E76\u6839\u636E\u6750\u6599\u81EA\u7136\u5206\u5E03\u5728\u8FDE\u7EED\u6BB5\u843D\u4E2D\uFF1B\u5C0F\u6807\u9898\u547D\u540D\u5B9E\u9A8C\u3001\u53D8\u91CF\u6216\u73B0\u8C61\uFF0C\u800C\u4E0D\u91CD\u590D Question\u3001Observation\u3001Interpretation \u7B49\u53D9\u8FF0\u529F\u80FD\u3002\u4E0D\u9010\u5355\u5143\u683C\u6717\u8BFB\u3002\u6BCF\u9879\u6D88\u878D\u5FC5\u987B\u5BF9\u5E94\u660E\u786E\u8BBE\u8BA1\u95EE\u9898\uFF0C\u4E0D\u628A\u666E\u901A\u6CE2\u52A8\u5199\u6210\u786E\u5B9A\u673A\u5236\u3002`,
           en: `Fix Datasets and Experimental Setup as the first subsection, with required Datasets, Experimental Configuration (including servers/hardware and hyperparameters), and Baselines units in that order; fix Main Results as the second. Do not reserve fixed third or fourth positions. Order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, and other analyses by evidence.
-Write each result paragraph as question, key observation, interpretation, relation to a claim, and boundary. Do not narrate every table cell. Tie each ablation to a clear design question and do not present ordinary variation as a confirmed mechanism.`
+Across each experiment subsection, establish the uncertainty being tested, decisive evidence, warranted interpretation, relation to the claim, and evidence boundary, distributing these functions naturally across continuous prose. Let headings name experiments, variables, or phenomena rather than repeatedly labeling Question, Observation, or Interpretation. Do not narrate every table cell. Tie each ablation to a clear design question and do not present ordinary variation as a confirmed mechanism.`
         }
       },
       {
@@ -3512,22 +3510,22 @@ Write each result paragraph as question, key observation, interpretation, relati
           en: "E. Verify Numbers, Statistics, and Related Work"
         },
         body: {
-          zh: "\u6838\u5BF9\u56FE\u8868\u3001\u6B63\u6587\u3001caption \u548C\u6458\u8981\u4E2D\u7684\u6570\u503C\u3001\u6307\u6807\u65B9\u5411\u3001\u5355\u4F4D\u3001\u5747\u503C/\u6807\u51C6\u5DEE\u53CA\u663E\u8457\u6027\u8868\u8FF0\u3002\u8054\u7F51\u6838\u9A8C\u6700\u76F8\u5173\u57FA\u7EBF\u3001\u6570\u636E\u96C6\u6765\u6E90\u3001\u8BC4\u4EF7\u534F\u8BAE\u548C\u8FD1\u90BB\u673A\u5236\uFF1B\u65B0\u6587\u732E\u4ECD\u53EA\u8FDB\u5165\u5EFA\u8BAE BibTeX\u3002",
-          en: "Cross-check values, metric direction, units, mean/standard-deviation notation, and significance language across visuals, prose, captions, and abstract. Verify the closest baselines, dataset sources, evaluation protocols, and neighboring mechanisms on the web. New works still go only to BibTeX suggestions."
+          zh: "\u6838\u5BF9\u56FE\u8868\u3001\u6B63\u6587\u3001caption \u548C\u6458\u8981\u4E2D\u7684\u6570\u503C\u3001\u6307\u6807\u65B9\u5411\u3001\u5355\u4F4D\u3001\u5747\u503C/\u6807\u51C6\u5DEE\u53CA\u663E\u8457\u6027\u8868\u8FF0\u3002\u8054\u7F51\u6838\u9A8C\u6700\u76F8\u5173\u57FA\u7EBF\u3001\u6570\u636E\u96C6\u6765\u6E90\u3001\u8BC4\u4EF7\u534F\u8BAE\u548C\u8FD1\u90BB\u673A\u5236\uFF1B\u628A\u6838\u9A8C\u901A\u8FC7\u4E14\u4E0D\u91CD\u590D\u7684\u65B0\u6761\u76EE\u8FFD\u52A0\u5230\u5B8C\u6574\u5F53\u524D BibTeX\uFF0C\u5E76\u5728\u62A5\u544A\u4E2D\u8BB0\u5F55\u3002",
+          en: "Cross-check values, metric direction, units, mean/standard-deviation notation, and significance language across visuals, prose, captions, and abstract. Verify the closest baselines, dataset sources, evaluation protocols, and neighboring mechanisms on the web. Append verified, non-duplicate entries to the complete current BibTeX library and record them in the report."
         }
       }
     ],
     deliverables: {
-      zh: "\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5EFA\u8BAE BibTeX\u3002\u62A5\u544A\u5305\u542B Method \u903B\u8F91\u56FE\u8C31\u3001\u65E7/\u65B0\u5C0F\u8282\u5BF9\u7167\u3001\u516C\u5F0F\u7B26\u53F7\u5BA1\u8BA1\u3001\u73B0\u6709\u56FE\u8868\u4E0E\u6B63\u6587\u63A5\u53E3\u5BA1\u8BA1\u3001Experiment Question\u2013Evidence Matrix\u3001\u5B9E\u9A8C\u987A\u5E8F\u8BF4\u660E\u3001\u6570\u5B57\u98CE\u9669\u3001\u5F31\u5316\u4E3B\u5F20\u3001\u8054\u7F51\u6838\u9A8C\u3001\u4FEE\u6539\u6E05\u5355\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u8F6E\u4EA4\u63A5\u6458\u8981\u3002",
-      en: "Create a complete English .tex, a Chinese report, and BibTeX suggestions. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question\u2013Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, revision log, author-confirmation items, and the next-round handoff."
+      zh: "\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u62A5\u544A\u5305\u542B Method \u903B\u8F91\u56FE\u8C31\u3001\u65E7/\u65B0\u5C0F\u8282\u5BF9\u7167\u3001\u516C\u5F0F\u7B26\u53F7\u5BA1\u8BA1\u3001\u73B0\u6709\u56FE\u8868\u4E0E\u6B63\u6587\u63A5\u53E3\u5BA1\u8BA1\u3001Experiment Question\u2013Evidence Matrix\u3001\u5B9E\u9A8C\u987A\u5E8F\u8BF4\u660E\u3001\u6570\u5B57\u98CE\u9669\u3001\u5F31\u5316\u4E3B\u5F20\u3001\u8054\u7F51\u6838\u9A8C\u3001\u65B0\u589E\u6216\u4FEE\u6B63\u6587\u732E\u8BB0\u5F55\u3001\u4FEE\u6539\u6E05\u5355\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u8F6E\u4EA4\u63A5\u6458\u8981\u3002",
+      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question\u2013Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, added or corrected bibliography records, revision log, author-confirmation items, and the next-round handoff."
     },
     fileNames: {
       zh: `<base_name>_round_2_method_experiments.tex
 <base_name>_round_2_report_zh.md
-<base_name>_round_2_bib_suggestions.bib`,
+<base_name>_round_2_references.bib`,
       en: `<base_name>_round_2_method_experiments.tex
 <base_name>_round_2_report_zh.md
-<base_name>_round_2_bib_suggestions.bib`
+<base_name>_round_2_references.bib`
     },
     finalChecks: {
       zh: `- Method \u4E0E Experiments \u5B8C\u6210\u5B9E\u8D28\u91CD\u6784\u800C\u975E\u540C\u4E49\u8BCD\u66FF\u6362\u3002
@@ -3564,12 +3562,10 @@ Write each result paragraph as question, key observation, interpretation, relati
     inputs: {
       zh: `- \u6700\u65B0\u5B8C\u6574 .tex\uFF0C\u4F18\u5148\u4E3A\u7B2C\u4E8C\u6B65\u8F93\u51FA
 - \u4E0E\u5176\u4E00\u81F4\u7684 PDF
-- \u5F53\u524D\u5B8C\u6574 .bib
-- \u53EF\u9009\uFF1A\u7B2C\u4E8C\u6B65\u62A5\u544A\u548C\u4F5C\u8005\u786E\u8BA4\u7ED3\u679C`,
+- \u5F53\u524D\u5B8C\u6574 .bib`,
       en: `- The newest complete .tex, preferably the Step 2 output
 - Its matching PDF
-- The current complete .bib
-- Optional: the Step 2 report and author confirmations`
+- The current complete .bib`
     },
     scope: {
       zh: "\u5141\u8BB8\u5B8C\u5168\u91CD\u5199 Abstract\u3001Introduction\u3001Related Work\u3001Discussion \u548C Conclusion\uFF1B\u4E0D\u5F97\u91CD\u65B0\u751F\u6210\u6216\u6539\u5199\u7B2C\u4E00\u6B65\u5DF2\u786E\u5B9A\u7684 Title \u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u3002Method \u4E0E Experiments \u539F\u5219\u4E0A\u51BB\u7ED3\uFF0C\u53EA\u4FEE\u590D\u672F\u8BED\u3001\u7AE0\u8282\u5F15\u7528\u3001\u56FE\u8868\u5F15\u7528\u548C\u4E0E\u65B0\u53D9\u4E8B\u76F4\u63A5\u51B2\u7A81\u7684\u5C40\u90E8\u53E5\u5B50\u3002\u4E0D\u5F97\u6539\u53D8\u6A21\u677F\u3002",
@@ -3634,22 +3630,22 @@ Related Work has exactly three subsections and follows the current paper type's 
           en: "E. Align Global Terminology, Citations, and Facts"
         },
         body: {
-          zh: "\u68C0\u67E5\u5404\u53D9\u4E8B\u7AE0\u8282\u662F\u5426\u548C\u65E2\u5B9A\u6807\u9898\u3001Method\u3001Experiments\u3001\u56FE\u8868\u3001\u8D21\u732E\u70B9\u53CA\u552F\u4E00\u672F\u8BED\u4F53\u7CFB\u5B8C\u5168\u4E00\u81F4\u3002\u8054\u7F51\u6838\u9A8C Introduction \u4E0E Related Work \u7684\u7814\u7A76\u7F3A\u53E3\uFF1B\u65B0\u589E\u6587\u732E\u53EA\u8FDB\u5165\u5EFA\u8BAE BibTeX\u3002",
-          en: "Verify that the narrative sections align completely with the fixed title, Method, Experiments, visuals, contributions, and canonical terminology system. Use web research to verify the gap in Introduction and Related Work. Put newly discovered works only in BibTeX suggestions."
+          zh: "\u68C0\u67E5\u5404\u53D9\u4E8B\u7AE0\u8282\u662F\u5426\u548C\u65E2\u5B9A\u6807\u9898\u3001Method\u3001Experiments\u3001\u56FE\u8868\u3001\u8D21\u732E\u70B9\u53CA\u552F\u4E00\u672F\u8BED\u4F53\u7CFB\u5B8C\u5168\u4E00\u81F4\u3002\u8054\u7F51\u6838\u9A8C Introduction \u4E0E Related Work \u7684\u7814\u7A76\u7F3A\u53E3\uFF1B\u628A\u6838\u9A8C\u901A\u8FC7\u4E14\u4E0D\u91CD\u590D\u7684\u65B0\u6761\u76EE\u8FFD\u52A0\u5230\u5B8C\u6574\u5F53\u524D BibTeX\uFF0C\u5E76\u5728\u62A5\u544A\u4E2D\u8BB0\u5F55\u3002",
+          en: "Verify that the narrative sections align completely with the fixed title, Method, Experiments, visuals, contributions, and canonical terminology system. Use web research to verify the gap in Introduction and Related Work. Append verified, non-duplicate entries to the complete current BibTeX library and record them in the report."
         }
       }
     ],
     deliverables: {
-      zh: "\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5EFA\u8BAE BibTeX\u3002\u62A5\u544A\u5305\u542B\u4E8B\u5B9E\u5E95\u7A3F\u3001\u65E2\u5B9A\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u786E\u8BA4\u3001Abstract \u529F\u80FD\u8868\u3001Introduction \u529F\u80FD\u8868\u3001\u8D21\u732E\u5BF9\u7167\u3001Related Work \u4E3B\u9898\u4E0E\u6587\u732E\u7C07\u3001Discussion \u8BC1\u636E/\u63A8\u65AD/\u8FB9\u754C\u8868\u3001Conclusion \u529F\u80FD\u8868\u3001\u672F\u8BED\u5BF9\u9F50\u3001\u8054\u7F51\u6838\u9A8C\u3001\u91CD\u6784\u6E05\u5355\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002",
-      en: "Create a complete English .tex, a Chinese report, and BibTeX suggestions. The report must include the fact base, confirmation of the fixed title and paper brand acronym, Abstract function table, Introduction function table, contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion function table, terminology alignment, web verification, reconstruction log, and next-step handoff."
+      zh: "\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u62A5\u544A\u5305\u542B\u4E8B\u5B9E\u5E95\u7A3F\u3001\u65E2\u5B9A\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u786E\u8BA4\u3001Abstract \u529F\u80FD\u8868\u3001Introduction \u529F\u80FD\u8868\u3001\u8D21\u732E\u5BF9\u7167\u3001Related Work \u4E3B\u9898\u4E0E\u6587\u732E\u7C07\u3001Discussion \u8BC1\u636E/\u63A8\u65AD/\u8FB9\u754C\u8868\u3001Conclusion \u529F\u80FD\u8868\u3001\u672F\u8BED\u5BF9\u9F50\u3001\u8054\u7F51\u6838\u9A8C\u3001\u65B0\u589E\u6216\u4FEE\u6B63\u6587\u732E\u8BB0\u5F55\u3001\u91CD\u6784\u6E05\u5355\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002",
+      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the fact base, confirmation of the fixed title and paper brand acronym, Abstract function table, Introduction function table, contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion function table, terminology alignment, web verification, added or corrected bibliography records, reconstruction log, and next-step handoff."
     },
     fileNames: {
       zh: `<base_name>_round_3_narrative_reconstruction.tex
 <base_name>_round_3_report_zh.md
-<base_name>_round_3_bib_suggestions.bib`,
+<base_name>_round_3_references.bib`,
       en: `<base_name>_round_3_narrative_reconstruction.tex
 <base_name>_round_3_report_zh.md
-<base_name>_round_3_bib_suggestions.bib`
+<base_name>_round_3_references.bib`
     },
     finalChecks: {
       zh: `- \u7B2C\u4E00\u6B65\u786E\u5B9A\u7684\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u4FDD\u6301\u4E0D\u53D8\u3002
@@ -3733,13 +3729,11 @@ Related Work has exactly three subsections and follows the current paper type's 
       zh: `- \u6700\u65B0\u5B8C\u6574 .tex\uFF0C\u4F18\u5148\u4E3A\u7B2C\u4E09\u6B65\u8F93\u51FA
 - \u4E0E\u5176\u4E00\u81F4\u7684 PDF
 - \u5F53\u524D\u5B8C\u6574 .bib
-- \u7B2C\u56DB\u6B65\u91CD\u6784\u7684\u603B\u4F53\u6846\u67B6\u56FE PNG
-- \u53EF\u9009\uFF1A\u524D\u4E09\u6B65\u62A5\u544A\u3001\u7B2C\u56DB\u6B65\u56FE\u7247\u6838\u5BF9\u7ED3\u679C\u548C\u4F5C\u8005\u786E\u8BA4\u7ED3\u679C`,
+- \u7B2C\u56DB\u6B65\u91CD\u6784\u7684\u603B\u4F53\u6846\u67B6\u56FE PNG`,
       en: `- The newest complete .tex, preferably the Step 3 output
 - Its matching PDF
 - The current complete .bib
-- The overall-framework PNG reconstructed in Step 4
-- Optional: reports from Steps 1\u20133, the Step 4 image audit, and author confirmations`
+- The overall-framework PNG reconstructed in Step 4`
     },
     scope: {
       zh: "\u5141\u8BB8\u53E5\u5B50\u7EA7\u548C\u5C40\u90E8\u6BB5\u843D\u7EA7\u7CBE\u4FEE\u3001\u5408\u5E76\u5197\u4F59\u3001\u8C03\u6574\u5C40\u90E8\u987A\u5E8F\u3001\u6539\u5584\u8FC7\u6E21\u3001\u964D\u4F4E\u8FC7\u5F3A claim \u548C\u538B\u7F29\u91CD\u590D\u3002\u539F\u5219\u4E0A\u4E0D\u518D\u6539\u53D8\u79D1\u5B66\u95EE\u9898\u3001\u6838\u5FC3\u601D\u60F3\u3001\u65B9\u6CD5\u7ED3\u6784\u3001\u5B9E\u9A8C\u8BBE\u8BA1\u4E0E\u5DF2\u786E\u5B9A\u7AE0\u8282\u529F\u80FD\uFF1B\u4E25\u91CD\u79D1\u5B66\u6216\u6570\u5B57\u9519\u8BEF\u5FC5\u987B\u4FEE\u6B63\u5E76\u6807\u4E3A\u91CD\u5927\u4FEE\u6B63\u3002",
@@ -3802,16 +3796,16 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
       }
     ],
     deliverables: {
-      zh: "\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u7EC8\u5BA1\u62A5\u544A\u548C\u6700\u7EC8\u5EFA\u8BAE BibTeX\u3002\u62A5\u544A\u5305\u542B\u91CD\u5927\u4FEE\u6B63\u3001\u672F\u8BED\u4E0E\u7F29\u5199\u8868\u3001Cross-Section Redundancy Matrix\u3001Claim\u2013Evidence \u8868\u3001\u6570\u5B57\u4E0E\u7EDF\u8BA1\u5BA1\u8BA1\u3001\u5F15\u7528\u5BA1\u8BA1\u3001\u56FE\u8868\u516C\u5F0F\u7B97\u6CD5\u4E0E LaTeX \u5BA1\u8BA1\u3001\u5BA1\u7A3F\u4EBA\u653B\u51FB\u6D4B\u8BD5\u3001\u4E0D\u53EF\u901A\u8FC7\u6587\u5B57\u89E3\u51B3\u7684\u98CE\u9669\u3001\u4FEE\u6539\u6E05\u5355\u548C\u6295\u7A3F\u76EE\u6807\u68C0\u7D22\u4EA4\u63A5\u6458\u8981\u3002",
-      en: "Create a complete English .tex, a Chinese final-audit report, and final BibTeX suggestions. The report must include major revisions, terminology and acronym tables, Cross-Section Redundancy Matrix, Claim\u2013Evidence audit, numeric/statistical audit, citation audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks that prose cannot solve, revision log, and the submission-targeting handoff."
+      zh: "\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u7EC8\u5BA1\u62A5\u544A\u548C\u5B8C\u6574\u6700\u7EC8 BibTeX \u6587\u732E\u5E93\u3002\u62A5\u544A\u5305\u542B\u91CD\u5927\u4FEE\u6B63\u3001\u672F\u8BED\u4E0E\u7F29\u5199\u8868\u3001Cross-Section Redundancy Matrix\u3001Claim\u2013Evidence \u8868\u3001\u6570\u5B57\u4E0E\u7EDF\u8BA1\u5BA1\u8BA1\u3001\u5F15\u7528\u5BA1\u8BA1\u3001\u56FE\u8868\u516C\u5F0F\u7B97\u6CD5\u4E0E LaTeX \u5BA1\u8BA1\u3001\u5BA1\u7A3F\u4EBA\u653B\u51FB\u6D4B\u8BD5\u3001\u4E0D\u53EF\u901A\u8FC7\u6587\u5B57\u89E3\u51B3\u7684\u98CE\u9669\u3001\u65B0\u589E\u6216\u4FEE\u6B63\u6587\u732E\u8BB0\u5F55\u3001\u4FEE\u6539\u6E05\u5355\u548C\u6295\u7A3F\u76EE\u6807\u68C0\u7D22\u4EA4\u63A5\u6458\u8981\u3002",
+      en: "Create a complete English .tex, a Chinese final-audit report, and a complete final BibTeX library. The report must include major revisions, terminology and acronym tables, Cross-Section Redundancy Matrix, Claim\u2013Evidence audit, numeric/statistical audit, citation audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks that prose cannot solve, added or corrected bibliography records, revision log, and the submission-targeting handoff."
     },
     fileNames: {
       zh: `<base_name>_round_5_final_refinement.tex
 <base_name>_round_5_report_zh.md
-<base_name>_round_5_bib_suggestions.bib`,
+<base_name>_round_5_references.bib`,
       en: `<base_name>_round_5_final_refinement.tex
 <base_name>_round_5_report_zh.md
-<base_name>_round_5_bib_suggestions.bib`
+<base_name>_round_5_references.bib`
     },
     finalChecks: {
       zh: `- \u5168\u6587\u5B8C\u6210\u5B9E\u8D28\u7CBE\u4FEE\u800C\u975E\u62FC\u5199\u68C0\u67E5\u3002
@@ -4089,12 +4083,12 @@ The report must contain the Scientific Positioning Contract, the final title and
         marker: "scientific_document_hierarchy",
         branches: {
           conference: {
-            zh: "- \u4F1A\u8BAE\u8BBA\u6587\u76EE\u5F55\u5C42\u7EA7\u56FA\u5B9A\u4E3A section \u2192 subsection \u2192 paragraph\uFF0C\u4E0D\u4F7F\u7528 subsubsection\uFF1B",
-            en: "- Conference-paper hierarchy is section \u2192 subsection \u2192 paragraph; do not use subsubsection;"
+            zh: "- \u4F1A\u8BAE\u8BBA\u6587\u9700\u8981\u7B2C\u4E09\u5C42\u6807\u9898\u65F6\u4F7F\u7528 paragraph \u800C\u975E subsubsection\uFF1Bparagraph \u6807\u9898\u53EA\u547D\u540D\u771F\u5B9E\u79D1\u5B66\u5BF9\u8C61\u3001\u673A\u5236\u3001\u5B9E\u9A8C\u8BBE\u7F6E\u6216\u5206\u6790\u4E3B\u9898\uFF0C\u666E\u901A\u8BBA\u8FF0\u4EE5\u4E3B\u9898\u53E5\u3001\u8FC7\u6E21\u548C\u8FDE\u7EED\u6BB5\u843D\u5C55\u5F00\uFF1B",
+            en: "- In a conference paper, use paragraph rather than subsubsection when a third-level heading is genuinely needed. Let paragraph headings name scientific objects, mechanisms, experimental settings, or analysis themes, while ordinary exposition develops through topic sentences, transitions, and continuous prose;"
           },
           journal: {
-            zh: "- \u671F\u520A\u8BBA\u6587\u76EE\u5F55\u5C42\u7EA7\u56FA\u5B9A\u4E3A section \u2192 subsection \u2192 subsubsection \u2192 paragraph\uFF1B",
-            en: "- Journal-paper hierarchy is section \u2192 subsection \u2192 subsubsection \u2192 paragraph;"
+            zh: "- \u671F\u520A\u8BBA\u6587\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF1B\u5176\u4E0B\u7528\u4E3B\u9898\u53E5\u3001\u8FC7\u6E21\u548C\u81EA\u7136\u6BB5\u7EC4\u7EC7\u8FDE\u7EED\u8BBA\u8BC1\uFF0C\u4E0D\u628A Question\u3001Observation\u3001Design Purpose\u3001Scope \u7B49\u53D9\u8FF0\u529F\u80FD\u5347\u7EA7\u4E3A paragraph \u6807\u9898\uFF1B",
+            en: "- In a journal paper, stop the heading hierarchy at subsubsection by default. Below it, build a continuous argument with topic sentences, transitions, and natural paragraphs rather than promoting discourse functions such as Question, Observation, Design Purpose, or Scope into paragraph headings;"
           }
         }
       },
@@ -4222,7 +4216,7 @@ The report must contain the Scientific Positioning Contract, the final title and
 2. Method \u4E0D\u5F97\u5199\u6210\u8BBA\u6587\u8BF4\u660E\u4E66\u3001\u4EE3\u7801\u6587\u6863\u6216\u9010\u6B65\u64CD\u4F5C\u6E05\u5355\u3002\u53D9\u8FF0\u5E94\u56F4\u7ED5\u201C\u95EE\u9898\u4E3A\u4EC0\u4E48\u96BE \u2192 \u73B0\u6709\u8BBE\u8BA1\u4E3A\u4EC0\u4E48\u4E0D\u8DB3 \u2192 \u4E3A\u4EC0\u4E48\u9700\u8981\u5F53\u524D\u673A\u5236 \u2192 \u673A\u5236\u5982\u4F55\u56DE\u5E94\u95EE\u9898 \u2192 \u9002\u7528\u8FB9\u754C\u201D\u5F62\u6210\u878D\u5408\u6027\u7684\u79D1\u5B66\u6545\u4E8B\uFF1B\u4E0D\u8981\u6C42\u6BCF\u53E5\u8BDD\u90FD\u673A\u68B0\u56DE\u7B54 why\uFF0C\u800C\u8981\u8BA9\u52A8\u673A\u3001\u8BBE\u8BA1\u3001\u8BA1\u7B97\u8FC7\u7A0B\u548C\u4F5C\u7528\u5728\u6BB5\u843D\u5C42\u9762\u81EA\u7136\u8854\u63A5\u3002
 3. Problem Definition \u5FC5\u987B\u5B9A\u4E49\u4EFB\u52A1\u3001\u8F93\u5165\u3001\u8F93\u51FA\u3001\u6838\u5FC3\u7EA6\u675F\u548C\u5B66\u4E60\u76EE\u6807\uFF1B\u53EA\u4FDD\u7559\u5FC5\u8981\u516C\u5F0F\uFF1B\u6BCF\u4E2A\u7B26\u53F7\u5728\u9996\u6B21\u4F7F\u7528\u524D\u6216\u540C\u53E5\u5B9A\u4E49\uFF1B\u7B26\u53F7\u8DB3\u591F\u591A\u65F6\u53EF\u4FDD\u7559 notation table\uFF0C\u4E0D\u5F97\u4E3A\u5F62\u5F0F\u611F\u6DFB\u52A0\u88C5\u9970\u6027\u7B26\u53F7\u3002
 4. {{method_overview_structure}}
-5. \u6BCF\u4E2A\u6838\u5FC3\u673A\u5236\u6309\u201C\u8BBE\u8BA1\u76EE\u7684 \u2192 \u6570\u5B66\u6216\u8BA1\u7B97\u6784\u9020 \u2192 \u4E0E\u5176\u4ED6\u7EC4\u4EF6\u7684\u63A5\u53E3 \u2192 \u8BBE\u8BA1\u76F4\u89C9 \u2192 \u8BAD\u7EC3\u6216\u63A8\u7406\u4E2D\u7684\u4F5C\u7528 \u2192 \u9002\u7528\u8FB9\u754C\u201D\u5C55\u5F00\uFF1B\u4E0D\u5F97\u53EA\u590D\u8FF0\u6267\u884C\u6D41\u7A0B\uFF0C\u4E5F\u4E0D\u5F97\u628A\u5E38\u89C4 backbone\u3001\u6807\u51C6\u6CE8\u610F\u529B\u3001\u5E38\u89C1\u635F\u5931\u6216\u7B80\u5355\u62FC\u63A5\u5305\u88C5\u6210\u72EC\u7ACB\u8D21\u732E\u3002
+5. \u6BCF\u4E2A\u6838\u5FC3\u673A\u5236\u90FD\u5E94\u8BA9\u8BFB\u8005\u7406\u89E3\u5176\u5FC5\u8981\u6027\u3001\u8BA1\u7B97\u6784\u9020\u3001\u7EC4\u4EF6\u63A5\u53E3\u3001\u8BBE\u8BA1\u76F4\u89C9\u3001\u8BAD\u7EC3\u6216\u63A8\u7406\u4F5C\u7528\u53CA\u9002\u7528\u8FB9\u754C\uFF0C\u4F46\u987A\u5E8F\u3001\u7BC7\u5E45\u548C\u7EC4\u5408\u65B9\u5F0F\u7531\u8BE5\u673A\u5236\u7684\u79D1\u5B66\u903B\u8F91\u51B3\u5B9A\u3002\u7528\u8FDE\u7EED\u6BB5\u843D\u628A\u8FD9\u4E9B\u529F\u80FD\u878D\u5408\u8D77\u6765\uFF0C\u6807\u9898\u53EA\u547D\u540D\u673A\u5236\u6216\u79D1\u5B66\u5185\u5BB9\uFF0C\u4E0D\u628A\u4E0A\u8FF0\u529F\u80FD\u62C6\u6210\u91CD\u590D\u7684\u56FA\u5B9A\u69FD\u4F4D\uFF1B\u4E0D\u5F97\u53EA\u590D\u8FF0\u6267\u884C\u6D41\u7A0B\uFF0C\u4E5F\u4E0D\u5F97\u628A\u5E38\u89C4 backbone\u3001\u6807\u51C6\u6CE8\u610F\u529B\u3001\u5E38\u89C1\u635F\u5931\u6216\u7B80\u5355\u62FC\u63A5\u5305\u88C5\u6210\u72EC\u7ACB\u8D21\u732E\u3002
 6. \u516C\u5F0F\u5FC5\u987B\u5148\u89E3\u91CA\u540E\u51FA\u73B0\uFF0C\u51FA\u73B0\u540E\u8BF4\u660E\u4F5C\u7528\u53CA\u4E0E\u6574\u4F53\u76EE\u6807\u7684\u5173\u7CFB\uFF1B\u5173\u952E\u516C\u5F0F\u81F3\u5C11\u88AB\u6B63\u6587\u5F15\u7528\u4E00\u6B21\uFF1B\u68C0\u67E5\u4E0A\u4E0B\u6807\u3001\u7EF4\u5EA6\u3001\u6C42\u548C\u8303\u56F4\u3001\u5F52\u4E00\u5316\u3001mask\u3001\u635F\u5931\u6743\u91CD\u548C\u4F18\u5316\u76EE\u6807\uFF1B\u53EA\u6709\u6750\u6599\u652F\u6301\u65F6\u624D\u4FDD\u7559\u7B97\u6CD5\u6216\u590D\u6742\u5EA6\uFF0C\u8BAD\u7EC3\u4E0E\u63A8\u7406\u6709\u5DEE\u5F02\u65F6\u5FC5\u987B\u660E\u786E\u533A\u5206\u3002
 7. \u8BED\u8A00\u4F18\u5148\u4E00\u822C\u73B0\u5728\u65F6\u3001\u4E3B\u52A8\u8BED\u6001\u548C\u65E0\u751F\u547D\u4E3B\u8BED\uFF1B\u5168\u7AE0 we \u6700\u591A\u51FA\u73B0\u4E09\u6B21\u3002
 8. \u6838\u5BF9\u73B0\u6709\u6846\u67B6\u56FE\u4E0E\u673A\u5236\u56FE\u7684\u8F93\u5165\u3001\u8F93\u51FA\u3001\u6A21\u5757\u3001\u7BAD\u5934\u3001\u8BAD\u7EC3/\u63A8\u7406\u8DEF\u5F84\u548C\u672F\u8BED\u662F\u5426\u4E0E\u91CD\u6784\u540E\u7684 Method \u4E00\u81F4\uFF1B\u672C\u6B65\u4E0D\u751F\u6210\u6216\u66FF\u6362\u603B\u4F53\u6846\u67B6\u56FE\uFF0C\u7EDF\u4E00\u4EA4\u7531\u540E\u7EED\u72EC\u7ACB\u6B65\u9AA4\u5904\u7406\u3002
@@ -4235,20 +4229,20 @@ The report must contain the Scientific Positioning Contract, the final title and
 3. Datasets and Experimental Setup \u5FC5\u987B\u8986\u76D6\u6570\u636E\u6765\u6E90\u3001\u5212\u5206\u3001\u89C4\u6A21\u3001\u4EFB\u52A1\u8F93\u5165\u8F93\u51FA\u3001\u6307\u6807\u53CA\u65B9\u5411\u3001\u57FA\u7EBF\u5BB6\u65CF\u3001\u516C\u5E73\u6BD4\u8F83\u539F\u5219\uFF0C\u4EE5\u53CA\u6750\u6599\u80FD\u591F\u786E\u8BA4\u7684\u5B9E\u73B0\u7EC6\u8282\u3001\u968F\u673A\u79CD\u5B50\u3001\u8FD0\u884C\u6B21\u6570\u3001\u65E9\u505C\u3001\u670D\u52A1\u5668/\u786C\u4EF6\u548C\u8D85\u53C2\u6570\u3002\u4E0D\u5F97\u9ED8\u8BA4\u5199\u5165\u7EDF\u8BA1\u663E\u8457\u6027\u6216\u672A\u8BC1\u5B9E\u7684\u516C\u5E73\u6761\u4EF6\u3002
 4. Main Results \u6309\u201C\u603B\u4F53\u89C2\u5BDF \u2192 \u4E0E\u5F3A\u57FA\u7EBF\u6BD4\u8F83 \u2192 \u8DE8\u6570\u636E\u96C6/\u6307\u6807\u7A33\u5B9A\u6027 \u2192 \u8BC1\u636E\u8FB9\u754C\u201D\u7EC4\u7EC7\uFF0C\u53EA\u9009\u62E9\u5173\u952E\u6570\u5B57\uFF0C\u4E0D\u9010\u5355\u5143\u683C\u6717\u8BFB\u3002
 5. \u6BCF\u4E2A\u6D88\u878D\u3001\u66FF\u6362\u6216\u654F\u611F\u6027\u8BBE\u7F6E\u90FD\u5FC5\u987B\u5BF9\u5E94\u660E\u786E\u8BBE\u8BA1\u95EE\u9898\uFF1B\u533A\u5206\u6A21\u5757\u5FC5\u8981\u6027\u3001\u53C2\u6570\u9009\u62E9\u548C\u8BAD\u7EC3\u6280\u5DE7\uFF1B\u6CA1\u6709\u591A\u968F\u673A\u79CD\u5B50\u6216\u7EDF\u8BA1\u652F\u6301\u65F6\u4E0D\u5F97\u628A\u5C0F\u5E45\u6CE2\u52A8\u89E3\u91CA\u6210\u786E\u5B9A\u89C4\u5F8B\u3002
-6. \u7ED3\u679C\u6BB5\u843D\u5C3D\u91CF\u5305\u542B\u201C\u5B9E\u9A8C\u95EE\u9898 \u2192 \u5173\u952E\u89C2\u5BDF \u2192 \u89E3\u91CA \u2192 \u4E0E\u6838\u5FC3 claim \u7684\u5173\u7CFB \u2192 \u8FB9\u754C\u6216\u4F8B\u5916\u201D\u3002\u4E0D\u5F97\u91CD\u590D\u5168\u90E8\u6570\u5B57\u3001\u6BCF\u53E5\u90FD\u4EE5 Table/Figure \u5F00\u5934\u3001\u7528 higher is better \u5F0F\u7A7A\u8BDD\u3001\u63D0\u524D\u5199 Discussion \u7684\u666E\u904D\u610F\u4E49\u6216\u7528 significant \u8868\u793A\u666E\u901A\u6570\u503C\u5DEE\u5F02\u3002
+6. \u6BCF\u4E2A\u5B9E\u9A8C\u5C0F\u8282\u6574\u4F53\u5E94\u8BA9\u8BFB\u8005\u660E\u767D\u672C\u8282\u68C0\u9A8C\u7684\u4E0D\u786E\u5B9A\u6027\u3001\u51B3\u5B9A\u6027\u8BC1\u636E\u3001\u5408\u7406\u89E3\u91CA\u3001\u4E0E\u6838\u5FC3 claim \u7684\u5173\u7CFB\u4EE5\u53CA\u8FB9\u754C\u6216\u4F8B\u5916\u3002\u6839\u636E\u8BC1\u636E\u628A\u8FD9\u4E9B\u529F\u80FD\u81EA\u7136\u5206\u5E03\u5728\u8FDE\u7EED\u6BB5\u843D\u4E2D\uFF0C\u4E0D\u8981\u6C42\u6BCF\u6BB5\u91CD\u590D\u540C\u4E00\u987A\u5E8F\uFF1B\u5C0F\u6807\u9898\u5E94\u547D\u540D\u5B9E\u9A8C\u3001\u53D8\u91CF\u6216\u73B0\u8C61\uFF0C\u800C\u4E0D\u662F Question\u3001Observation\u3001Interpretation \u7B49\u53D9\u8FF0\u529F\u80FD\u3002\u4E0D\u5F97\u91CD\u590D\u5168\u90E8\u6570\u5B57\u3001\u6BCF\u53E5\u90FD\u4EE5 Table/Figure \u5F00\u5934\u3001\u7528 higher is better \u5F0F\u7A7A\u8BDD\u3001\u63D0\u524D\u5199 Discussion \u7684\u666E\u904D\u610F\u4E49\u6216\u7528 significant \u8868\u793A\u666E\u901A\u6570\u503C\u5DEE\u5F02\u3002
 7. \u5BF9\u6BCF\u5F20\u5B9E\u9A8C\u56FE\u68C0\u67E5 caption \u662F\u5426\u89E3\u91CA\u53D8\u91CF\u3001\u8BBE\u7F6E\u3001\u5747\u503C\u6216\u8BEF\u5DEE\u5E26\uFF0C\u56FE\u4F8B\u4E0E\u672F\u8BED\u662F\u5426\u4E00\u81F4\uFF0C\u6570\u503C\u662F\u5426\u4E0E\u8868\u683C\u51B2\u7A81\uFF0C\u6B63\u6587\u662F\u5426\u89E3\u91CA\u8D8B\u52BF\uFF0C\u4EE5\u53CA\u89C6\u89C9\u8BC1\u636E\u662F\u5426\u771F\u7684\u652F\u6301 claim\u3002
 {{experiments_word_limits}}
 
 ### \u4E2D\u6587\u62A5\u544A\u56FA\u5B9A\u6E05\u5355
 
-\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1AMethod \u903B\u8F91\u56FE\u8C31\u3001\u65B9\u6CD5\u5C0F\u8282\u91CD\u6784\u5BF9\u7167\u3001\u516C\u5F0F\u4E0E\u7B26\u53F7\u5BA1\u8BA1\u3001\u73B0\u6709\u56FE\u8868\u4E0E\u6B63\u6587\u63A5\u53E3\u5BA1\u8BA1\u3001Experiment Question\u2013Evidence \u8868\u3001\u5B9E\u9A8C\u987A\u5E8F\u8BBE\u8BA1\u3001\u6570\u5B57\u4E0E\u7EDF\u8BA1\u98CE\u9669\u3001\u5220\u9664\u6216\u5F31\u5316\u7684\u673A\u5236\u4E3B\u5F20\u3001\u8054\u7F51\u57FA\u7EBF\u4E0E\u534F\u8BAE\u6838\u9A8C\u3001\u4FEE\u6539\u6E05\u5355\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u8F6E\u4EA4\u63A5\u6458\u8981\u3002`,
+\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1AMethod \u903B\u8F91\u56FE\u8C31\u3001\u65B9\u6CD5\u5C0F\u8282\u91CD\u6784\u5BF9\u7167\u3001\u516C\u5F0F\u4E0E\u7B26\u53F7\u5BA1\u8BA1\u3001\u73B0\u6709\u56FE\u8868\u4E0E\u6B63\u6587\u63A5\u53E3\u5BA1\u8BA1\u3001Experiment Question\u2013Evidence \u8868\u3001\u5B9E\u9A8C\u987A\u5E8F\u8BBE\u8BA1\u3001\u6570\u5B57\u4E0E\u7EDF\u8BA1\u98CE\u9669\u3001\u5220\u9664\u6216\u5F31\u5316\u7684\u673A\u5236\u4E3B\u5F20\u3001\u8054\u7F51\u57FA\u7EBF\u4E0E\u534F\u8BAE\u6838\u9A8C\u3001\u4FEE\u6539\u6E05\u5355\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u8F6E\u4EA4\u63A5\u6458\u8981\u3002Question\u2013Evidence \u8868\u662F\u62A5\u544A\u4E2D\u7684\u89C4\u5212\u4E0E\u5BA1\u8BA1\u5DE5\u5177\uFF0C\u5176\u5217\u540D\u4E0D\u5F97\u53D8\u6210 TeX \u4E2D\u91CD\u590D\u7684\u5C0F\u6807\u9898\u6216\u53E5\u9996\u6807\u7B7E\u3002`,
       en: `### Fixed Constraints for Method
 
 1. {{method_document_hierarchy}}
 2. Method must not read like a manuscript manual, code document, or procedural checklist. Build an integrated scientific story around why the problem is difficult, why existing designs are insufficient, why each mechanism is needed, how it addresses the problem, and where it applies. Do not force every sentence to state a why; integrate motivation, design, computation, and function naturally at paragraph level.
 3. Problem Definition must define the task, inputs, outputs, central constraints, and learning objective. Keep only necessary equations. Define every symbol before or at first use. Retain a notation table only when notation volume warrants it; never add decorative notation.
 4. {{method_overview_structure}}
-5. Develop each core mechanism in this order: design purpose \u2192 mathematical or computational construction \u2192 interfaces \u2192 intuition \u2192 training or inference role \u2192 applicable boundary. Do not merely describe execution steps or package a standard backbone, ordinary attention, common loss, or simple concatenation as an independent contribution.
+5. Make each core mechanism intelligible in terms of its necessity, computational construction, interfaces, design intuition, training or inference role, and applicable boundary, but let the mechanism's scientific logic determine their order, emphasis, and grouping. Integrate these functions into continuous prose, and let headings name mechanisms or scientific content rather than repeated template slots. Do not merely describe execution steps or package a standard backbone, ordinary attention, common loss, or simple concatenation as an independent contribution.
 6. Motivate equations before they appear and explain their role and relation to the overall objective afterward. Cite each key equation at least once. Check indices, dimensions, summation ranges, normalization, masks, loss weights, and optimization objectives. Retain algorithms or complexity only when supported, and distinguish training from inference whenever they differ.
 7. Prefer present tense, active voice, and inanimate subjects. Use "we" no more than three times in the entire section.
 8. Audit whether the inputs, outputs, components, arrows, training/inference paths, and terminology of existing framework and mechanism figures still match the reconstructed Method. Do not generate or replace the overall framework figure in this step; the separate later step handles it.
@@ -4261,25 +4255,25 @@ The report must contain the Scientific Positioning Contract, the final title and
 3. Datasets and Experimental Setup must cover data sources, splits, sizes, task inputs/outputs, metric directions, baseline families, fair-comparison principles, and only confirmed implementation details, random seeds, run counts, early stopping, servers/hardware, and hyperparameters. Do not assume significance tests or unverified fairness conditions.
 4. Organize Main Results as overall observation \u2192 comparison with strong baselines \u2192 consistency across datasets/metrics \u2192 evidence boundary. Select only decisive numbers and do not narrate every cell.
 5. Every removal, replacement, or sensitivity setting must answer a clear design question. Separate component necessity, parameter choice, and training tricks. Without multiple seeds or statistical support, do not turn small variation into a deterministic rule.
-6. Each results paragraph should contain experiment question \u2192 key observation \u2192 interpretation \u2192 relation to the core claim \u2192 boundary or exception. Do not repeat every number, begin every sentence with Table/Figure, use "higher is better" filler, move broad Discussion claims into Results, or use "significant" for ordinary numerical differences.
+6. Across each experiment subsection, make clear the uncertainty being tested, decisive evidence, warranted interpretation, relation to the core claim, and boundary or exception. Distribute these functions naturally across continuous prose rather than repeating one sequence in every paragraph. Let headings name experiments, variables, or phenomena rather than discourse functions such as Question, Observation, or Interpretation. Do not repeat every number, begin every sentence with Table/Figure, use "higher is better" filler, move broad Discussion claims into Results, or use "significant" for ordinary numerical differences.
 7. For every experimental figure, check whether the caption explains variables, settings, means, or error bands; whether legend terminology is consistent; whether values conflict with tables; whether prose interprets the trend; and whether the visual actually supports the claim.
 {{experiments_word_limits}}
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question\u2013Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, author-confirmation items, and next-step handoff.`
+The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question\u2013Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, author-confirmation items, and next-step handoff. Treat the Question\u2013Evidence table as a report-only planning and audit device; never turn its column labels into repeated TeX headings or sentence prefixes.`
     },
     inlineStyleConstraints: [
       {
         marker: "method_document_hierarchy",
         branches: {
           conference: {
-            zh: "\u4F1A\u8BAE\u8BBA\u6587\u91C7\u7528 section \u2192 subsection \u2192 paragraph \u5C42\u7EA7\uFF0C\u4E0D\u4F7F\u7528 subsubsection\uFF1B\u65B9\u6CD5\u7EC6\u8282\u6309\u79D1\u5B66\u903B\u8F91\u800C\u975E\u4EE3\u7801\u7C7B\u540D\u7EC4\u7EC7\u3002",
-            en: "Conference papers use section \u2192 subsection \u2192 paragraph and do not use subsubsection; organize Method by scientific logic rather than code class names."
+            zh: "\u4F1A\u8BAE\u8BBA\u6587\u9700\u8981\u7B2C\u4E09\u5C42\u6807\u9898\u65F6\u4F7F\u7528 paragraph \u800C\u975E subsubsection\uFF1Bparagraph \u6807\u9898\u53EA\u547D\u540D\u771F\u5B9E\u79D1\u5B66\u5355\u5143\uFF0C\u666E\u901A\u8BBA\u8FF0\u4EE5\u8FDE\u7EED\u6BB5\u843D\u5C55\u5F00\u3002\u65B9\u6CD5\u7ED3\u6784\u6309\u79D1\u5B66\u903B\u8F91\u800C\u975E\u4EE3\u7801\u7C7B\u540D\u7EC4\u7EC7\u3002",
+            en: "In a conference paper, use paragraph rather than subsubsection when a third-level heading is genuinely needed. Reserve paragraph headings for named scientific units and develop ordinary exposition as continuous prose. Organize Method by scientific logic rather than code class names."
           },
           journal: {
-            zh: "\u671F\u520A\u8BBA\u6587\u91C7\u7528 section \u2192 subsection \u2192 subsubsection \u2192 paragraph \u5C42\u7EA7\uFF1B\u65B9\u6CD5\u7EC6\u8282\u6309\u79D1\u5B66\u903B\u8F91\u800C\u975E\u4EE3\u7801\u7C7B\u540D\u7EC4\u7EC7\u3002",
-            en: "Journal papers use section \u2192 subsection \u2192 subsubsection \u2192 paragraph; organize Method by scientific logic rather than code class names."
+            zh: "\u671F\u520A\u8BBA\u6587\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF1B\u5176\u4E0B\u4EE5\u4E3B\u9898\u53E5\u3001\u8FC7\u6E21\u548C\u81EA\u7136\u6BB5\u5F62\u6210\u8FDE\u7EED\u8BBA\u8BC1\uFF0C\u4E0D\u628A\u53D9\u8FF0\u529F\u80FD\u5199\u6210 paragraph \u6807\u9898\u3002\u65B9\u6CD5\u7ED3\u6784\u6309\u79D1\u5B66\u903B\u8F91\u800C\u975E\u4EE3\u7801\u7C7B\u540D\u7EC4\u7EC7\u3002",
+            en: "In a journal paper, stop the heading hierarchy at subsubsection by default. Below it, use topic sentences, transitions, and natural paragraphs to form a continuous argument rather than paragraph headings for discourse functions. Organize Method by scientific logic rather than code class names."
           }
         }
       },
@@ -4300,12 +4294,12 @@ The report must contain the Method logic map, old/new Method subsection comparis
         marker: "experiment_setup_structure",
         branches: {
           conference: {
-            zh: "\u5728 \\subsection{Datasets and Experimental Setup} \u5185\u5FC5\u987B\u4F9D\u6B21\u8BBE\u7F6E \\paragraph{Datasets}\u3001\\paragraph{Experimental Configuration} \u548C \\paragraph{Baselines} \u4E09\u4E2A\u5B50\u6807\u9898\uFF1B\u5176\u4ED6 paragraph \u53EA\u6709\u5728\u6750\u6599\u786E\u5B9E\u9700\u8981\u65F6\u624D\u80FD\u6DFB\u52A0\u3002",
-            en: "Inside \\subsection{Datasets and Experimental Setup}, include \\paragraph{Datasets}, \\paragraph{Experimental Configuration}, and \\paragraph{Baselines} in that order. Add another paragraph heading only when the materials genuinely require it."
+            zh: "\u5728 \\subsection{Datasets and Experimental Setup} \u5185\u4F9D\u6B21\u8BBE\u7F6E \\paragraph{Datasets}\u3001\\paragraph{Experimental Configuration} \u548C \\paragraph{Baselines} \u4E09\u4E2A\u627F\u62C5\u771F\u5B9E\u5185\u5BB9\u5206\u7C7B\u7684\u6807\u9898\uFF1B\u5176\u4ED6\u5185\u5BB9\u4F18\u5148\u5E76\u5165\u8FDE\u7EED\u6B63\u6587\uFF0C\u53EA\u6709\u51FA\u73B0\u65B0\u7684\u3001\u53EF\u547D\u540D\u7684\u79D1\u5B66\u5355\u5143\u65F6\u624D\u589E\u52A0 paragraph\u3002",
+            en: "Inside \\subsection{Datasets and Experimental Setup}, use \\paragraph{Datasets}, \\paragraph{Experimental Configuration}, and \\paragraph{Baselines} in that order as genuine content categories. Integrate other material into continuous prose unless it forms a distinct, nameable scientific unit that warrants another paragraph heading."
           },
           journal: {
-            zh: "\u5728 \\subsection{Datasets and Experimental Setup} \u5185\u5FC5\u987B\u4F9D\u6B21\u8BBE\u7F6E \\subsubsection{Datasets}\u3001\\subsubsection{Experimental Configuration} \u548C \\subsubsection{Baselines}\uFF1B\u5176\u4ED6 subsubsection \u53EA\u6709\u5728\u6750\u6599\u786E\u5B9E\u9700\u8981\u65F6\u624D\u80FD\u6DFB\u52A0\u3002",
-            en: "Inside \\subsection{Datasets and Experimental Setup}, include \\subsubsection{Datasets}, \\subsubsection{Experimental Configuration}, and \\subsubsection{Baselines} in that order. Add another subsubsection only when the materials genuinely require it."
+            zh: "\u5728 \\subsection{Datasets and Experimental Setup} \u5185\u4F9D\u6B21\u8BBE\u7F6E \\subsubsection{Datasets}\u3001\\subsubsection{Experimental Configuration} \u548C \\subsubsection{Baselines}\uFF1B\u6BCF\u4E2A subsubsection \u5185\u4EE5\u8FDE\u7EED\u6B63\u6587\u7EC4\u7EC7\u5185\u5BB9\uFF0C\u53EA\u6709\u51FA\u73B0\u65B0\u7684\u3001\u53EF\u547D\u540D\u7684\u79D1\u5B66\u5355\u5143\u65F6\u624D\u589E\u52A0\u540C\u7EA7\u6807\u9898\u3002",
+            en: "Inside \\subsection{Datasets and Experimental Setup}, use \\subsubsection{Datasets}, \\subsubsection{Experimental Configuration}, and \\subsubsection{Baselines} in that order. Develop each subsubsection as continuous prose and add another peer heading only for a distinct, nameable scientific unit."
           }
         }
       }
@@ -4560,7 +4554,7 @@ The report must contain the fact base extracted from Method/Experiments, Abstrac
 
 ### \u4E2D\u6587\u62A5\u544A\u56FA\u5B9A\u6E05\u5355
 
-\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1A\u7EC8\u5BA1\u6458\u8981\u4E0E\u91CD\u5927\u4FEE\u6B63\u3001Terminology Consistency Table\u3001\u7F29\u5199\u9996\u6B21\u5B9A\u4E49\u4E0E\u5197\u4F59\u7F29\u5199\u8868\u3001Cross-Section Redundancy Matrix\u3001Claim\u2013Evidence \u8868\u3001\u6570\u5B57\u7EDF\u8BA1\u8868\u3001\u5F15\u7528\u952E\u4E0E\u8BED\u4E49\u652F\u6301\u5BA1\u8BA1\u3001\u56FE\u8868/\u516C\u5F0F/\u7B97\u6CD5/LaTeX \u5BA1\u8BA1\u3001\u5BA1\u7A3F\u4EBA\u653B\u51FB\u6D4B\u8BD5\u3001\u65E0\u6CD5\u901A\u8FC7\u6587\u5B57\u89E3\u51B3\u7684\u98CE\u9669\u3001\u8054\u7F51\u6838\u9A8C\u4E0E\u6700\u7EC8 BibTeX \u5EFA\u8BAE\u3001\u9010\u7AE0\u8282\u4FEE\u6539\u6E05\u5355\u548C\u6295\u7A3F\u76EE\u6807\u68C0\u7D22\u4EA4\u63A5\u6458\u8981\u3002`,
+\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1A\u7EC8\u5BA1\u6458\u8981\u4E0E\u91CD\u5927\u4FEE\u6B63\u3001Terminology Consistency Table\u3001\u7F29\u5199\u9996\u6B21\u5B9A\u4E49\u4E0E\u5197\u4F59\u7F29\u5199\u8868\u3001Cross-Section Redundancy Matrix\u3001Claim\u2013Evidence \u8868\u3001\u6570\u5B57\u7EDF\u8BA1\u8868\u3001\u5F15\u7528\u952E\u4E0E\u8BED\u4E49\u652F\u6301\u5BA1\u8BA1\u3001\u56FE\u8868/\u516C\u5F0F/\u7B97\u6CD5/LaTeX \u5BA1\u8BA1\u3001\u5BA1\u7A3F\u4EBA\u653B\u51FB\u6D4B\u8BD5\u3001\u65E0\u6CD5\u901A\u8FC7\u6587\u5B57\u89E3\u51B3\u7684\u98CE\u9669\u3001\u8054\u7F51\u6838\u9A8C\u4E0E\u5B8C\u6574\u6700\u7EC8 BibTeX \u7684\u65B0\u589E/\u4FEE\u6B63\u8BB0\u5F55\u3001\u9010\u7AE0\u8282\u4FEE\u6539\u6E05\u5355\u548C\u6295\u7A3F\u76EE\u6807\u68C0\u7D22\u4EA4\u63A5\u6458\u8981\u3002`,
       en: `### Sentence-by-sentence Language Checks
 
 - Grammar, articles, singular/plural form, subject\u2013verb agreement, tense, and voice;
@@ -4605,7 +4599,7 @@ Attack and address whether the novelty is only module assembly, the core idea is
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the final-audit summary and major revisions, Terminology Consistency Table, first-definition and redundant-acronym table, Cross-Section Redundancy Matrix, Claim\u2013Evidence table, numeric/statistical table, citation-key and semantic-support audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks prose cannot solve, web verification and final BibTeX suggestions, section-by-section revision log, and the submission-targeting handoff.`
+The report must contain the final-audit summary and major revisions, Terminology Consistency Table, first-definition and redundant-acronym table, Cross-Section Redundancy Matrix, Claim\u2013Evidence table, numeric/statistical table, citation-key and semantic-support audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks prose cannot solve, web verification and the addition/correction log for the complete final BibTeX library, section-by-section revision log, and the submission-targeting handoff.`
     }
   },
   "venue-targeting": {
@@ -4616,7 +4610,7 @@ The report must contain the final-audit summary and major revisions, Terminology
 - \u4E0D\u5F97\u4E3A\u4E86\u5339\u914D venue \u6539\u5199\u6807\u9898\u3001\u6458\u8981\u3001Introduction\u3001\u7AE0\u8282\u540D\u3001\u53C2\u8003\u6587\u732E\u6216\u6B63\u6587\uFF1B
 - \u4E0D\u5F97\u8F6C\u6362\u5230\u51FA\u7248\u793E\u6216\u4F1A\u8BAE\u6A21\u677F\uFF1B
 - \u8BBA\u6587\u6587\u4EF6\u53EA\u4F5C\u4E3A\u53EA\u8BFB\u8F93\u5165\uFF1B\u4E0D\u5F97\u590D\u5236\u3001\u5F52\u6863\u3001\u91CD\u547D\u540D\u6216\u751F\u6210\u4EFB\u4F55 .tex\u3001.md \u6216\u5176\u4ED6\u4E0B\u8F7D\u6587\u4EF6\u3002\u53D1\u73B0\u660E\u786E\u9519\u8BEF\u53EA\u5728\u5F53\u524D\u5BF9\u8BDD\u4E2D\u63D0\u51FA\uFF1B
-- \u672C\u8F6E\u4E0D\u518D\u751F\u6210\u65B0\u589E BibTeX\uFF0C\u91CD\u70B9\u662F\u76EE\u6807\u7B5B\u9009\u548C\u5B98\u7F51\u6838\u9A8C\u3002
+- \u672C\u8F6E\u4E0D\u4FEE\u6539\u6216\u751F\u6210 BibTeX \u6587\u732E\u5E93\uFF0C\u91CD\u70B9\u662F\u76EE\u6807\u7B5B\u9009\u548C\u5B98\u7F51\u6838\u9A8C\u3002
 
 ### \u6765\u6E90\u4F18\u5148\u7EA7
 
@@ -4675,7 +4669,7 @@ The report must contain the final-audit summary and major revisions, Terminology
 - Do not rewrite title, abstract, Introduction, section names, references, or prose to fit a venue;
 - Do not convert the paper to a publisher or conference template;
 - Treat manuscript files as read-only inputs. Do not copy, archive, rename, or generate any .tex, .md, or other downloadable file. Report confirmed errors only in the current conversation;
-- Do not create further BibTeX suggestions. This round focuses on targeting and official verification.
+- Do not modify or create a BibTeX library. This round focuses on targeting and official verification.
 
 ### Source Priority
 
@@ -4776,6 +4770,7 @@ var LABELS = {
     deliverables: "## \u8F93\u51FA\u4E0E\u6587\u4EF6\u8981\u6C42",
     targetingDeliverables: "## \u8F93\u51FA\u8981\u6C42",
     fileNames: "### \u6587\u4EF6\u540D",
+    deliveryBundle: "### \u5355\u6587\u4EF6\u4EA4\u4ED8\u5305",
     finalChecks: "## \u8F93\u51FA\u524D\u81EA\u68C0",
     words: "\u8BCD"
   },
@@ -4821,6 +4816,7 @@ var LABELS = {
     deliverables: "## Output and File Requirements",
     targetingDeliverables: "## Output Requirements",
     fileNames: "### File Names",
+    deliveryBundle: "### Single-download Handoff Bundle",
     finalChecks: "## Final Checklist",
     words: "words"
   }
@@ -4918,6 +4914,26 @@ function buildLengthBudget(context) {
     "",
     context.unlimitedCoreSections ? labels.flexibleLengthInstruction : labels.lengthInstruction
   ].join("\n");
+}
+function buildDeliveryBundle(template, language) {
+  if (template.profile !== "manuscript" || template.contentKind === "framework-figure" || !template.fileNames) {
+    return "";
+  }
+  const bundleName = `<base_name>_round_${template.number}_artifacts.zip`;
+  if (language === "zh") {
+    return `${LABELS.zh.deliveryBundle}
+
+- \u82E5\u5F53\u524D\u73AF\u5883\u63D0\u4F9B YanShu artifact \u5199\u5165\u5DE5\u5177\uFF0C\u76F4\u63A5\u5206\u522B\u5199\u5165\u5E76\u767B\u8BB0\u4E0A\u8FF0\u4E09\u4E2A\u6587\u4EF6\uFF0C\u4E0D\u518D\u521B\u5EFA\u91CD\u590D\u5F52\u6863\u3002
+- \u5426\u5219\uFF0C\u5728\u6700\u7EC8\u56DE\u590D\u4E2D\u521B\u5EFA\u5E76\u9644\u52A0\u4E00\u4E2A\u53EF\u76F4\u63A5\u4E0B\u8F7D\u7684 \`${bundleName}\`\u3002ZIP \u6839\u76EE\u5F55\u5FC5\u987B\u6070\u597D\u5305\u542B\u201C\u6587\u4EF6\u540D\u201D\u4E2D\u5217\u51FA\u7684\u4E09\u4E2A\u5B8C\u6574 UTF-8 \u6587\u4EF6\uFF0C\u4E0D\u8BBE\u5B50\u76EE\u5F55\uFF0C\u4E0D\u52A0\u5165\u989D\u5916\u6587\u4EF6\u3002
+- ZIP \u662F\u81EA\u52A8\u5316\u534F\u8C03\u5668\u9996\u9009\u7684\u5355\u6B21\u4E0B\u8F7D\u4EA4\u4ED8\u9762\uFF1B\u5355\u72EC\u6587\u4EF6\u94FE\u63A5\u53EF\u4EE5\u4FDD\u7559\uFF0C\u4F46\u4E0D\u662F\u5FC5\u9700\u3002
+- \u4EC5\u5728\u5BF9\u8BDD\u4E2D\u7C98\u8D34\u4EE3\u7801\u5757\u3001\u663E\u793A Canvas/\u6587\u6863\u89C6\u56FE\u6216\u6587\u5B57\u58F0\u79F0\u201C\u6587\u4EF6\u5DF2\u521B\u5EFA\u201D\u90FD\u4E0D\u7B97\u5B8C\u6210\u6587\u4EF6\u4EA4\u4ED8\u3002`;
+  }
+  return `${LABELS.en.deliveryBundle}
+
+- When YanShu artifact-writing tools are available, write and register the three files separately and do not create a duplicate archive.
+- Otherwise, create and attach one directly downloadable \`${bundleName}\` in the final response. The ZIP root must contain exactly the three complete UTF-8 files listed under \u201CFile Names,\u201D with no subdirectories or extra files.
+- The ZIP is the automation coordinator's preferred single-download handoff surface. Separate file links may remain available but are optional.
+- Pasted code blocks, Canvas/document-only views, or prose claiming that files were created do not constitute file delivery.`;
 }
 function roundToFive(value) {
   return Math.max(1, Math.round(value / 5) * 5);
@@ -5063,6 +5079,7 @@ function buildPrompt(template, context) {
     template.id
   ) : "";
   const wordLimitAfterBudget = detailedConstraints?.wordLimitPlacement === "after-budget";
+  const deliveryBundle = buildDeliveryBundle(template, language);
   return [
     labels.role,
     template.role[language],
@@ -5106,14 +5123,21 @@ function buildPrompt(template, context) {
     template.profile === "targeting" ? labels.targetingDeliverables : labels.deliverables,
     template.deliverables[language],
     "",
-    ...template.fileNames ? [labels.fileNames, template.fileNames[language], ""] : [],
+    ...template.fileNames ? [
+      labels.fileNames,
+      template.fileNames[language],
+      "",
+      ...deliveryBundle ? [deliveryBundle, ""] : []
+    ] : [],
     labels.finalChecks,
     template.finalChecks[language]
   ].join("\n");
 }
 
+// content/prompts/version.ts
+var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.7";
+
 // content/prompts/pluginExport.ts
-var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.6";
 function getReconstructionConfigurationModel() {
   return {
     schemaVersion: 1,
@@ -5347,7 +5371,6 @@ function buildReconstructionWorkflow(input = {}) {
   };
 }
 export {
-  RECONSTRUCTION_WORKFLOW_VERSION,
   buildReconstructionWorkflow,
   getReconstructionConfigurationModel
 };

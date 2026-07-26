@@ -12,6 +12,7 @@ import {
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CliError } from "./cli.mjs";
+import { compareWorkflowVersions } from "./prompt-release.mjs";
 
 export const RUN_SCHEMA_VERSION = 1;
 export const ROUND_STATUSES = [
@@ -26,6 +27,7 @@ export const CHAT_CONFIGURATION_VERIFICATIONS = [
   "verified",
   "click-acknowledged",
 ];
+const COMPLETE_LIBRARY_PROTOCOL_VERSION = "2026.07.7";
 
 const FIGURE_EXTENSIONS = new Set([
   ".png",
@@ -325,6 +327,132 @@ function findRound(state, selector) {
   return round;
 }
 
+export function inspectBibLibraryContinuity(
+  inputContent,
+  outputContent,
+) {
+  const extractKeys = (content) => {
+    const keys = [];
+    const expression =
+      /@([a-z][a-z0-9_-]*)\s*[\{\(]\s*([^,\s=]+)\s*,/giu;
+    for (const match of String(content).matchAll(expression)) {
+      if (
+        ["comment", "preamble", "string"].includes(
+          match[1].toLocaleLowerCase("en-US"),
+        )
+      ) {
+        continue;
+      }
+      keys.push(match[2]);
+    }
+    return keys;
+  };
+  const inputKeys = extractKeys(inputContent);
+  const outputKeys = extractKeys(outputContent);
+  const outputCounts = new Map();
+  for (const key of outputKeys) {
+    outputCounts.set(key, (outputCounts.get(key) ?? 0) + 1);
+  }
+  const missingKeys = [
+    ...new Set(inputKeys.filter((key) => !outputCounts.has(key))),
+  ];
+  const duplicateKeys = [...outputCounts.entries()]
+    .filter(([, count]) => count > 1)
+    .map(([key]) => key);
+  return {
+    ok: missingKeys.length === 0 && duplicateKeys.length === 0,
+    inputKeyCount: new Set(inputKeys).size,
+    outputKeyCount: new Set(outputKeys).size,
+    missingKeys,
+    duplicateKeys,
+  };
+}
+
+export async function validateRoundDeliverables(state, selector) {
+  const round = findRound(state, selector);
+  if (
+    compareWorkflowVersions(
+      state.workflowVersion,
+      COMPLETE_LIBRARY_PROTOCOL_VERSION,
+    ) < 0
+  ) {
+    return {
+      enforced: false,
+      reason:
+        "The saved run predates the complete-library handoff protocol.",
+    };
+  }
+
+  const outputs = [];
+  for (const relative of round.outputs ?? []) {
+    const target = path.resolve(state.runPath, relative);
+    if (!isWithin(state.runPath, target) || !(await pathExists(target))) {
+      continue;
+    }
+    const info = await stat(target);
+    if (info.isFile()) outputs.push(target);
+  }
+  const outputExtensions = new Set(
+    outputs.map((target) => path.extname(target).toLowerCase()),
+  );
+  if (round.id === "framework-figure") {
+    if (
+      ![".png", ".jpg", ".jpeg", ".webp"].some((extension) =>
+        outputExtensions.has(extension),
+      )
+    ) {
+      throw new CliError(
+        "The framework-figure round requires a registered image artifact.",
+        "missing_required_artifact",
+      );
+    }
+    return { enforced: true, bibContinuity: null };
+  }
+
+  const requiredExtensions = [".tex", ".md", ".bib", ".pdf"];
+  const missingExtensions = requiredExtensions.filter(
+    (extension) => !outputExtensions.has(extension),
+  );
+  if (missingExtensions.length > 0) {
+    throw new CliError(
+      `This manuscript round is missing required registered artifacts: ${missingExtensions.join(", ")}.`,
+      "missing_required_artifact",
+      { missingExtensions },
+    );
+  }
+
+  const outputBib = [...outputs]
+    .reverse()
+    .find((target) => path.extname(target).toLowerCase() === ".bib");
+  const inputBib = (await roundMaterials(state, round.id)).find(
+    (material) => material.roles.includes("primary-bib"),
+  )?.path;
+  if (!inputBib) {
+    return {
+      enforced: true,
+      bibContinuity: {
+        ok: true,
+        inputKeyCount: 0,
+        outputKeyCount: 0,
+        missingKeys: [],
+        duplicateKeys: [],
+      },
+    };
+  }
+  const bibContinuity = inspectBibLibraryContinuity(
+    await readFile(inputBib, "utf8"),
+    await readFile(outputBib, "utf8"),
+  );
+  if (!bibContinuity.ok) {
+    throw new CliError(
+      "The round BibTeX artifact is not a complete continuation of the input library.",
+      "incomplete_bib_library",
+      bibContinuity,
+    );
+  }
+  return { enforced: true, bibContinuity };
+}
+
 export async function markRound(state, selector, update, force = false) {
   const round = findRound(state, selector);
   if (!ROUND_STATUSES.includes(update.status)) {
@@ -345,6 +473,9 @@ export async function markRound(state, selector, update, force = false) {
       `Round ${round.number} is completed. Pass --force to reopen it.`,
       "completed_round",
     );
+  }
+  if (update.status === "completed") {
+    await validateRoundDeliverables(state, round.id);
   }
 
   const now = new Date().toISOString();
@@ -436,29 +567,180 @@ function selectFigureRepresentations(files) {
   );
 }
 
-export async function roundAttachments(state, selector) {
+function isWithin(root, target) {
+  const relative = path.relative(root, target);
+  return (
+    relative === "" ||
+    (!relative.startsWith(`..${path.sep}`) && relative !== ".." && !path.isAbsolute(relative))
+  );
+}
+
+async function latestCompletedOutput(
+  state,
+  currentRoundNumber,
+  extensions,
+  roundPredicate = () => true,
+) {
+  const normalizedExtensions = new Set(
+    extensions.map((extension) => extension.toLowerCase()),
+  );
+  const candidates = state.rounds
+    .filter(
+      (round) =>
+        round.number < currentRoundNumber &&
+        round.status === "completed" &&
+        roundPredicate(round),
+    )
+    .sort((left, right) => right.number - left.number);
+
+  for (const round of candidates) {
+    for (const relative of [...(round.outputs ?? [])].reverse()) {
+      const target = path.resolve(state.runPath, relative);
+      if (
+        !isWithin(state.runPath, target) ||
+        !normalizedExtensions.has(path.extname(target).toLowerCase()) ||
+        !(await pathExists(target))
+      ) {
+        continue;
+      }
+      const info = await stat(target);
+      if (info.isFile()) {
+        return {
+          path: target,
+          source: "round-output",
+          roundNumber: round.number,
+        };
+      }
+    }
+  }
+  return null;
+}
+
+export async function roundMaterials(state, selector) {
   const round = findRound(state, selector);
-  const attachments = [
-    state.inputs.tex,
-    state.inputs.bib,
-    state.inputs.pdf,
-  ].filter(Boolean);
-  if (state.inputs.figures) {
+  const materials = new Map();
+  const add = (target, metadata) => {
+    if (!target) return;
+    const resolved = path.resolve(target);
+    const existing = materials.get(resolved);
+    if (existing) {
+      existing.roles = [...new Set([...existing.roles, ...metadata.roles])];
+      return;
+    }
+    materials.set(resolved, {
+      path: resolved,
+      source: metadata.source,
+      roles: metadata.roles,
+      roundNumber: metadata.roundNumber ?? null,
+    });
+  };
+
+  let tex = null;
+  let bib = null;
+  let pdf = null;
+
+  if (round.number === 1) {
+    tex = state.inputs.tex
+      ? { path: state.inputs.tex, source: "original", roundNumber: null }
+      : null;
+    bib = state.inputs.bib
+      ? { path: state.inputs.bib, source: "original", roundNumber: null }
+      : null;
+    pdf = state.inputs.pdf
+      ? { path: state.inputs.pdf, source: "original", roundNumber: null }
+      : null;
+  } else {
+    tex =
+      (await latestCompletedOutput(
+        state,
+        round.number,
+        [".tex"],
+      )) ??
+      (state.inputs.tex
+        ? { path: state.inputs.tex, source: "original", roundNumber: null }
+        : null);
+    if (round.id !== "framework-figure") {
+      bib =
+        (await latestCompletedOutput(
+          state,
+          round.number,
+          [".bib"],
+        )) ??
+        (state.inputs.bib
+          ? { path: state.inputs.bib, source: "original", roundNumber: null }
+          : null);
+    }
+    pdf =
+      (await latestCompletedOutput(
+        state,
+        round.number,
+        [".pdf"],
+      )) ??
+      (state.inputs.pdf
+        ? { path: state.inputs.pdf, source: "original", roundNumber: null }
+        : null);
+  }
+
+  add(tex?.path, {
+    source: tex?.source,
+    roles: [
+      "primary-tex",
+      ...(tex?.source === "round-output" ? ["previous-round-output"] : []),
+    ],
+    roundNumber: tex?.roundNumber,
+  });
+  add(bib?.path, {
+    source: bib?.source,
+    roles: [
+      "primary-bib",
+      ...(bib?.source === "round-output" ? ["previous-round-output"] : []),
+    ],
+    roundNumber: bib?.roundNumber,
+  });
+  add(pdf?.path, {
+    source: pdf?.source,
+    roles: [
+      "compiled-paper",
+      ...(pdf?.source === "round-output" ? ["previous-round-output"] : []),
+    ],
+    roundNumber: pdf?.roundNumber,
+  });
+
+  if (round.id === "final-refinement") {
+    const frameworkFigure = await latestCompletedOutput(
+      state,
+      round.number,
+      [".png", ".jpg", ".jpeg", ".webp"],
+      (candidate) => candidate.id === "framework-figure",
+    );
+    add(frameworkFigure?.path, {
+      source: frameworkFigure?.source,
+      roles: ["framework-figure", "previous-round-output"],
+      roundNumber: frameworkFigure?.roundNumber,
+    });
+  }
+
+  if (!pdf && state.inputs.figures) {
     const figureFiles = await collectFiles(state.inputs.figures, {
-        limit: 64,
-        extensions: FIGURE_EXTENSIONS,
+      limit: 64,
+      extensions: FIGURE_EXTENSIONS,
+    });
+    for (const figure of selectFigureRepresentations(figureFiles)) {
+      add(figure, {
+        source: "original",
+        roles: ["paper-figure"],
+        roundNumber: null,
       });
-    attachments.push(...selectFigureRepresentations(figureFiles));
+    }
   }
 
-  for (const previous of state.rounds) {
-    if (previous.number >= round.number) break;
-    if (previous.status !== "completed") continue;
-    const outputPath = path.join(state.runPath, previous.directory, "output");
-    attachments.push(...(await collectFiles(outputPath, { limit: 64 })));
-  }
+  return [...materials.values()];
+}
 
-  return [...new Set(attachments.map((target) => path.resolve(target)))];
+export async function roundAttachments(state, selector) {
+  return (await roundMaterials(state, selector)).map(
+    (material) => material.path,
+  );
 }
 
 export function nextRound(state) {
@@ -489,7 +771,11 @@ export async function registerArtifact(
     "output",
   );
   const destination = path.join(outputDirectory, path.basename(source));
-  if ((await pathExists(destination)) && !replace) {
+  if (
+    source !== destination &&
+    (await pathExists(destination)) &&
+    !replace
+  ) {
     throw new CliError(
       `Artifact already exists: ${destination}. Pass --replace to overwrite it.`,
       "artifact_exists",

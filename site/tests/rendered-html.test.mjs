@@ -33,6 +33,11 @@ test("server-renders the concise YanShu home page", async () => {
   const html = await response.text();
   assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
+  assert.match(html, /五轮重构，现在可以从断点继续/);
+  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.7/);
+  assert.match(html, /同一份 Prompt/);
+  assert.match(html, /最小材料链/);
+  assert.match(html, /一次交接/);
   assert.match(html, /选择当前最需要完成的一步/);
   assert.match(html, /论文初稿/);
   assert.match(html, /论文重构/);
@@ -117,7 +122,14 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /论文标题与品牌缩写/);
   assert.match(html, /4–7 个拉丁字母/);
   assert.match(html, /不提供候选标题/);
-  assert.match(html, /会议论文目录层级固定为 section → subsection → paragraph/);
+  assert.match(
+    html,
+    /会议论文需要第三层标题时使用 paragraph 而非 subsubsection/,
+  );
+  assert.match(
+    html,
+    /标题只命名真实科学对象、机制、实验设置或分析主题/,
+  );
   assert.match(html, /Related Work：恰好三个 subsection，每个小节恰好一个普通段落/);
   assert.match(html, /不单设 Overview subsection/);
   assert.match(html, /三个承担综合解释、适用范围与科学意义的 discussion subsection/);
@@ -128,6 +140,14 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /临时上限为 5,400 词/);
   assert.match(html, /Experiments and Results 的现有内容不得精简、删除、弱化或移入附录/);
   assert.match(html, /当前配置只允许、并不要求使用附录/);
+  assert.match(html, /_round_1_artifacts\.zip/);
+  assert.match(html, /完整当前 BibTeX 文献库/);
+  assert.match(html, /_round_1_references\.bib/);
+  assert.doesNotMatch(html, /_round_1_bib_suggestions\.bib/);
+  assert.match(
+    html,
+    /data-reconstruction-workflow-version="2026\.07\.7"/,
+  );
   assert.match(html, /满足当前适用的总量与章节预算，不得使用附录/);
   assert.match(
     html,
@@ -412,8 +432,12 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(config, /ratio:\s*0\.10666666666666667/);
   assert.match(config, /ratio:\s*0\.1/);
   assert.match(config, /ratio:\s*0\.044444444444444446/);
-  assert.match(config, /section → subsection → paragraph/);
-  assert.match(config, /section → subsection → subsubsection → paragraph/);
+  assert.match(config, /第三层使用 paragraph 而非 subsubsection/);
+  assert.match(config, /目录层级默认止于 subsubsection/);
+  assert.doesNotMatch(
+    config,
+    /section → subsection → subsubsection → paragraph/,
+  );
   assert.match(config, /三个小节，每小节一个普通段落/);
   assert.match(config, /约 100 词的局限小节/);
   assert.match(config, /defaultMode:\s*"target"/);
@@ -465,8 +489,8 @@ test("keeps presets and production prompts configuration-driven", async () => {
     /sourceFile:\s*"Submission_Strategy_and_Verification\.md"/,
   );
   assert.doesNotMatch(templates, /evidence-audit|Evidence Baseline/);
-  assert.match(templates, /可选：其他附件/);
-  assert.match(templates, /Optional: other attachments/);
+  assert.doesNotMatch(templates, /可选：其他附件/);
+  assert.doesNotMatch(templates, /Optional: other attachments/);
   assert.doesNotMatch(templates, /<base_name>_round_2_framework\.png/);
   assert.match(
     templates,
@@ -538,6 +562,14 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(originalPrompts, /期刊论文必须单设 `Overview`，恰好两个普通段落且总计不超过 80 词/);
   assert.match(originalPrompts, /后续小节不绑定第三或第四的固定序号/);
   assert.match(originalPrompts, /\\paragraph\{Experimental Configuration\}/);
+  assert.match(
+    originalPrompts,
+    /Question、Observation、Interpretation 等叙述功能/,
+  );
+  assert.match(
+    originalPrompts,
+    /列名不得变成 TeX 中重复的小标题或句首标签/,
+  );
   assert.doesNotMatch(
     originalPrompts,
     /<base_name>_round_2_framework\.png/,
@@ -785,7 +817,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(promptReadme, /counted as 200 words/);
   assert.match(page, /<HomePage \/>/);
   assert.match(layout, /研术台 · YanShu/);
-  assert.match(layout, /\/og\.png/);
+  assert.match(layout, /\/og-reconstruction-2026-07-7\.png/);
   assert.match(packageJson, /"name": "yanshu-workbench-site"/);
   assert.match(packageJson, /"build:pages":\s*"CLOUDFLARE_PAGES_STATIC=1 next build"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);

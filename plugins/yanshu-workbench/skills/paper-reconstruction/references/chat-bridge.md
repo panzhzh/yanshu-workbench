@@ -253,19 +253,48 @@ Send a continuation only when the visible conversation genuinely requires it. Do
 ## Collect exact artifacts
 
 In MCP mode, verify the files registered in `run.json` and do not download a
-second copy from Chat. In attachment-fallback mode, when the prompt names an
-expected file, use an exact case-insensitive filename expression and the round
-output directory:
+second copy from Chat.
+
+In attachment-fallback mode, read `next.artifactBundle`. For Rounds 1, 2, 3,
+and 5 when `artifactBundle.required` is true, download its single ZIP first:
 
 ```js
-var yanshuDownloadedArtifact =
+var yanshuDownloadedBundle =
   await yanshuChatGPT.files.downloadLatest({
     destDir: absoluteRoundOutputDirectory,
-    filenamePattern: "^expected-name\\.tex$"
+    filenamePattern: artifactBundle.filenamePattern
   });
 ```
 
-A filename mismatch, older artifact, image fallback, or missing download is not success. Register every accepted file with the YanShu `artifact` command.
+Import it deterministically:
+
+```text
+node <plugin-root>/scripts/yanshu.mjs artifact-bundle \
+  --run <run-path> \
+  --round <round-number> \
+  --file <downloaded-zip>
+```
+
+The importer rejects a mismatched archive name, missing or extra entry,
+subdirectory, path traversal, symlink, unsupported compression, invalid CRC,
+oversized content, non-UTF-8 text, or a filename that does not share the
+archive's exact `<base_name>`. Do not manually extract an invalid bundle.
+
+Round 4 has one PNG and still uses an exact case-insensitive filename
+expression with `files.downloadLatest`, followed by the YanShu `artifact`
+command.
+
+If a manuscript round requires a ZIP but does not expose it, ask once in the same
+thread to attach the exact directly downloadable bundle. Only when the visible
+Chat surface cannot create that archive, fall back to exact individual
+downloads for the three named files. A filename mismatch, older artifact,
+image fallback, document-only entity, or missing download is not success.
+Register every accepted compatibility-fallback file with `artifact`.
+
+For a resumed legacy run, `artifactBundle.required` may be false because its
+saved Prompt predates the bundle protocol. Do not rewrite that Prompt or demand
+new filenames. Download and register the exact individual artifacts named by
+the saved round instead.
 
 If Chat returns paper prose only in the conversation, request the named downloadable artifact in the same thread. Do not copy the manuscript through Codex.
 

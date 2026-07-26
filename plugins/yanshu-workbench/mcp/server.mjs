@@ -74,7 +74,7 @@ export function toolDefinitions(boundRunPath = null) {
       name: "yanshu_get_round_manifest",
       title: "Open YanShu Round",
       description:
-        "Start or resume a YanShu round. Returns the exact round Prompt, approved TeX/Bib/PDF/figure artifact IDs, prior outputs, and evidence policy. Call this before reading or writing anything.",
+        "Start or resume a YanShu round. Returns the exact round Prompt and only the latest necessary TeX/Bib/PDF/framework-figure artifact IDs plus the evidence policy. It does not accumulate superseded rounds or figures already represented by a usable PDF. Call this before reading or writing anything.",
       inputSchema: objectSchema(
         {
           ...runProperties,
@@ -315,7 +315,7 @@ export function toolDefinitions(boundRunPath = null) {
       name: "yanshu_complete_round",
       title: "Complete YanShu Round",
       description:
-        "Finalize the current round only after required artifacts exist and manuscript TeX compiles successfully. Returns the next round identity for a clean new Chat conversation.",
+        "Finalize the current round only after the complete TeX, report, complete current BibTeX, and compiled PDF exist (or the Round 4 image exists). Verifies that the BibTeX preserves every prior key and that manuscript TeX compiled successfully, then returns the next round identity for a clean new Chat conversation.",
       inputSchema: objectSchema(
         {
           ...runProperties,

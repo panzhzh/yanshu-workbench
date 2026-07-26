@@ -60,6 +60,7 @@ const LABELS = {
     deliverables: "## 输出与文件要求",
     targetingDeliverables: "## 输出要求",
     fileNames: "### 文件名",
+    deliveryBundle: "### 单文件交付包",
     finalChecks: "## 输出前自检",
     words: "词",
   },
@@ -110,6 +111,7 @@ const LABELS = {
     deliverables: "## Output and File Requirements",
     targetingDeliverables: "## Output Requirements",
     fileNames: "### File Names",
+    deliveryBundle: "### Single-download Handoff Bundle",
     finalChecks: "## Final Checklist",
     words: "words",
   },
@@ -254,6 +256,37 @@ function buildLengthBudget(context: PromptBuildContext) {
       ? labels.flexibleLengthInstruction
       : labels.lengthInstruction,
   ].join("\n");
+}
+
+function buildDeliveryBundle(
+  template: PromptTemplate,
+  language: Language,
+) {
+  if (
+    template.profile !== "manuscript" ||
+    template.contentKind === "framework-figure" ||
+    !template.fileNames
+  ) {
+    return "";
+  }
+
+  const bundleName =
+    `<base_name>_round_${template.number}_artifacts.zip`;
+  if (language === "zh") {
+    return `${LABELS.zh.deliveryBundle}
+
+- 若当前环境提供 YanShu artifact 写入工具，直接分别写入并登记上述三个文件，不再创建重复归档。
+- 否则，在最终回复中创建并附加一个可直接下载的 \`${bundleName}\`。ZIP 根目录必须恰好包含“文件名”中列出的三个完整 UTF-8 文件，不设子目录，不加入额外文件。
+- ZIP 是自动化协调器首选的单次下载交付面；单独文件链接可以保留，但不是必需。
+- 仅在对话中粘贴代码块、显示 Canvas/文档视图或文字声称“文件已创建”都不算完成文件交付。`;
+  }
+
+  return `${LABELS.en.deliveryBundle}
+
+- When YanShu artifact-writing tools are available, write and register the three files separately and do not create a duplicate archive.
+- Otherwise, create and attach one directly downloadable \`${bundleName}\` in the final response. The ZIP root must contain exactly the three complete UTF-8 files listed under “File Names,” with no subdirectories or extra files.
+- The ZIP is the automation coordinator's preferred single-download handoff surface. Separate file links may remain available but are optional.
+- Pasted code blocks, Canvas/document-only views, or prose claiming that files were created do not constitute file delivery.`;
 }
 
 function roundToFive(value: number) {
@@ -472,6 +505,7 @@ export function buildPrompt(
       : "";
   const wordLimitAfterBudget =
     detailedConstraints?.wordLimitPlacement === "after-budget";
+  const deliveryBundle = buildDeliveryBundle(template, language);
 
   return [
     labels.role,
@@ -531,7 +565,12 @@ export function buildPrompt(
     template.deliverables[language],
     "",
     ...(template.fileNames
-      ? [labels.fileNames, template.fileNames[language], ""]
+      ? [
+          labels.fileNames,
+          template.fileNames[language],
+          "",
+          ...(deliveryBundle ? [deliveryBundle, ""] : []),
+        ]
       : []),
     labels.finalChecks,
     template.finalChecks[language],

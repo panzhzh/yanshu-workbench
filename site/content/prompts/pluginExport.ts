@@ -15,13 +15,12 @@ import {
 } from "../../app/figures/config";
 import { buildPrompt } from "./buildPrompt";
 import { RECONSTRUCTION_PROMPTS } from "./templates";
+import { RECONSTRUCTION_WORKFLOW_VERSION } from "./version";
 import type {
   Language,
   PaperStyleId,
   PromptBuildContext,
 } from "./types";
-
-export const RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.6";
 
 export interface ReconstructionWorkflowInput {
   language?: Language;

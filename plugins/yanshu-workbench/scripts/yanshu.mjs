@@ -20,6 +20,14 @@ import {
   resolveChatPreference,
 } from "./lib/chat-preferences.mjs";
 import {
+  artifactBundleSpec,
+  importArtifactBundle,
+} from "./lib/artifact-bundle.mjs";
+import {
+  checkPublishedPromptRelease,
+  OFFICIAL_RECONSTRUCTION_URL,
+} from "./lib/prompt-release.mjs";
+import {
   onboardingStatus,
   startOnboardingSession,
 } from "./lib/onboarding-store.mjs";
@@ -68,6 +76,8 @@ function help() {
         "Resolve a saved reasoning preference against ChatGPT options currently visible to the user.",
       mark: "Record round status and visible Chat thread metadata.",
       artifact: "Copy one downloaded artifact into a round output directory.",
+      "artifact-bundle":
+        "Validate and import one round ZIP into its exact TeX, report, and BibTeX artifacts.",
     },
   };
 }
@@ -122,8 +132,41 @@ async function doctor(flags) {
   }
 
   const nodeMajor = Number(process.versions.node.split(".")[0]);
+  let promptRuntime;
+  try {
+    const engine = await loadPromptEngine();
+    const workflow = engine.buildReconstructionWorkflow({
+      hasWordLimit: false,
+    });
+    promptRuntime = {
+      ok: true,
+      workflowVersion: workflow.workflowVersion,
+      generatedFrom:
+        "site/content/prompts plus site/app/figures canonical sources",
+    };
+  } catch (error) {
+    promptRuntime = {
+      ok: false,
+      workflowVersion: null,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+  const promptRelease = promptRuntime.ok
+    ? await checkPublishedPromptRelease(promptRuntime.workflowVersion)
+    : {
+        ok: false,
+        status: "runtime-unavailable",
+        installedVersion: null,
+        publishedVersion: null,
+        officialUrl: OFFICIAL_RECONSTRUCTION_URL,
+      };
   return {
-    ok: projectExists && nodeMajor >= 22 && !inputError,
+    ok:
+      projectExists &&
+      nodeMajor >= 22 &&
+      !inputError &&
+      promptRuntime.ok &&
+      promptRelease.ok,
     checks: {
       node: {
         ok: nodeMajor >= 22,
@@ -136,6 +179,8 @@ async function doctor(flags) {
         detected: inputs,
         error: inputError,
       },
+      promptRuntime,
+      promptRelease,
       latex: {
         latexmk: executableAvailable("latexmk"),
         pdflatex: executableAvailable("pdflatex"),
@@ -291,6 +336,16 @@ async function init(flags) {
     frameworkFigure,
     chatExecution,
   });
+  const promptRelease = await checkPublishedPromptRelease(
+    workflow.workflowVersion,
+  );
+  if (promptRelease.status === "installed-older") {
+    throw new CliError(
+      "The installed YanShu prompt runtime is older than the official website. Upgrade the plugin before starting a new run.",
+      "plugin_update_required",
+      promptRelease,
+    );
+  }
   const state = await createRun({
     projectRoot,
     outputRoot: stringFlag(flags, "output", fileConfig.outputRoot),
@@ -301,6 +356,7 @@ async function init(flags) {
   return {
     ok: true,
     ...summarizeRun(state),
+    promptRelease,
     next:
       "Run `next` for the first prompt and approved attachment list. Do not upload any path not listed there.",
   };
@@ -340,6 +396,7 @@ async function next(flags) {
       chat: round.chat,
     },
     approvedAttachments: await roundAttachments(state, round.id),
+    artifactBundle: artifactBundleSpec(round, state.workflowVersion),
     mcpWorkspace: {
       available: true,
       startCommand:
@@ -440,6 +497,21 @@ async function artifact(flags) {
   };
 }
 
+async function artifactBundle(flags) {
+  const state = await loadRun(requiredFlag(flags, "run"));
+  const imported = await importArtifactBundle({
+    state,
+    selector: requiredFlag(flags, "round"),
+    bundlePath: requiredFlag(flags, "file"),
+    replace: booleanFlag(flags, "replace", false),
+  });
+  return {
+    ok: true,
+    ...imported,
+    run: summarizeRun(state),
+  };
+}
+
 async function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   let result;
@@ -484,6 +556,9 @@ async function main() {
       break;
     case "artifact":
       result = await artifact(flags);
+      break;
+    case "artifact-bundle":
+      result = await artifactBundle(flags);
       break;
     default:
       throw new CliError(`Unknown command: ${command}`);
