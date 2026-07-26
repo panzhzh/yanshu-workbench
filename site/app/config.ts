@@ -331,6 +331,9 @@ export const UI_COPY = {
     chatModelPolicy: "模型策略",
     chatLatestVisibleModel: "最新可用推理模型",
     chatReasoningPreference: "推理等级",
+    chatPollingInterval: "结果检查间隔",
+    chatPollingAuto:
+      "按实际档位自动采用：Medium / High 1 分钟，Extra High 3 分钟，Pro 5 分钟；无法识别时按 1 分钟。",
     chatRuntimePolicy:
       "不锁定 GPT 型号名称；插件每轮读取 ChatGPT 当前可见选项。发生回退时先明确提示，名称无法判断时选择最强可用档位。",
     exportAutomation: "导出桌面配置",
@@ -418,6 +421,9 @@ export const UI_COPY = {
     chatModelPolicy: "Model policy",
     chatLatestVisibleModel: "Latest available reasoning model",
     chatReasoningPreference: "Reasoning level",
+    chatPollingInterval: "Result-check interval",
+    chatPollingAuto:
+      "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",
     chatRuntimePolicy:
       "GPT model names are never pinned. The plugin inspects the options currently visible in ChatGPT for every round, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
     exportAutomation: "Export desktop config",

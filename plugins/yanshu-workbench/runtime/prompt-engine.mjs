@@ -8,6 +8,16 @@ var CHAT_REASONING_PREFERENCE_IDS = [
   "extra-high",
   "pro"
 ];
+var CHAT_RESULT_POLLING_POLICY = {
+  strategy: "selected-reasoning-capability",
+  intervalMsByCapability: {
+    medium: 6e4,
+    high: 6e4,
+    "extra-high": 18e4,
+    pro: 3e5
+  },
+  unknownIntervalMs: 6e4
+};
 var CHAT_REASONING_PREFERENCES = {
   strongest: {
     id: "strongest",
@@ -88,7 +98,8 @@ var CHAT_REASONING_PREFERENCES = {
 var DEFAULT_CHAT_EXECUTION_PREFERENCES = {
   modelPolicy: CHAT_MODEL_POLICY,
   reasoningPreference: "strongest",
-  fallbackPolicy: CHAT_FALLBACK_POLICY
+  fallbackPolicy: CHAT_FALLBACK_POLICY,
+  pollingPolicy: CHAT_RESULT_POLLING_POLICY
 };
 
 // content/prompts/wordCountPolicy.ts
@@ -388,6 +399,8 @@ var UI_COPY = {
     chatModelPolicy: "\u6A21\u578B\u7B56\u7565",
     chatLatestVisibleModel: "\u6700\u65B0\u53EF\u7528\u63A8\u7406\u6A21\u578B",
     chatReasoningPreference: "\u63A8\u7406\u7B49\u7EA7",
+    chatPollingInterval: "\u7ED3\u679C\u68C0\u67E5\u95F4\u9694",
+    chatPollingAuto: "\u6309\u5B9E\u9645\u6863\u4F4D\u81EA\u52A8\u91C7\u7528\uFF1AMedium / High 1 \u5206\u949F\uFF0CExtra High 3 \u5206\u949F\uFF0CPro 5 \u5206\u949F\uFF1B\u65E0\u6CD5\u8BC6\u522B\u65F6\u6309 1 \u5206\u949F\u3002",
     chatRuntimePolicy: "\u4E0D\u9501\u5B9A GPT \u578B\u53F7\u540D\u79F0\uFF1B\u63D2\u4EF6\u6BCF\u8F6E\u8BFB\u53D6 ChatGPT \u5F53\u524D\u53EF\u89C1\u9009\u9879\u3002\u53D1\u751F\u56DE\u9000\u65F6\u5148\u660E\u786E\u63D0\u793A\uFF0C\u540D\u79F0\u65E0\u6CD5\u5224\u65AD\u65F6\u9009\u62E9\u6700\u5F3A\u53EF\u7528\u6863\u4F4D\u3002",
     exportAutomation: "\u5BFC\u51FA\u684C\u9762\u914D\u7F6E",
     exportedAutomation: "\u914D\u7F6E\u5DF2\u4E0B\u8F7D",
@@ -465,6 +478,8 @@ var UI_COPY = {
     chatModelPolicy: "Model policy",
     chatLatestVisibleModel: "Latest available reasoning model",
     chatReasoningPreference: "Reasoning level",
+    chatPollingInterval: "Result-check interval",
+    chatPollingAuto: "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",
     chatRuntimePolicy: "GPT model names are never pinned. The plugin inspects the options currently visible in ChatGPT for every round, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
     exportAutomation: "Export desktop config",
     exportedAutomation: "Config downloaded",
@@ -5135,7 +5150,7 @@ function buildPrompt(template, context) {
 }
 
 // content/prompts/version.ts
-var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.7";
+var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.8";
 
 // content/prompts/pluginExport.ts
 function getReconstructionConfigurationModel() {
@@ -5178,7 +5193,8 @@ function getReconstructionConfigurationModel() {
       default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
       reasoningPreferences: CHAT_REASONING_PREFERENCE_IDS.map(
         (id) => CHAT_REASONING_PREFERENCES[id]
-      )
+      ),
+      pollingPolicy: CHAT_RESULT_POLLING_POLICY
     }
   };
 }
@@ -5281,7 +5297,8 @@ function normalizeInput(input = {}) {
   const chatExecution = {
     modelPolicy,
     reasoningPreference,
-    fallbackPolicy
+    fallbackPolicy,
+    pollingPolicy: CHAT_RESULT_POLLING_POLICY
   };
   return {
     language,

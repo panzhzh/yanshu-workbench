@@ -18,9 +18,10 @@ import {
 } from "./figures/config";
 import { buildPrompt } from "../content/prompts/buildPrompt";
 import { RECONSTRUCTION_WORKFLOW_VERSION } from "../content/prompts/version";
-import type {
-  ChatExecutionPreferences,
-  ChatReasoningPreferenceId,
+import {
+  getRequestedChatPollingIntervalMs,
+  type ChatExecutionPreferences,
+  type ChatReasoningPreferenceId,
 } from "../content/prompts/chatExecution";
 import { RECONSTRUCTION_PROMPTS } from "../content/prompts/templates";
 import { CODEX_START_GUIDE } from "./reconstruction/startGuide";
@@ -191,6 +192,17 @@ export default function YanshuWorkbench() {
     PRODUCT_CONFIG.chatExecution.reasoningPreferences[
       chatExecution.reasoningPreference
     ];
+  const chatPollingIntervalMs = getRequestedChatPollingIntervalMs(
+    chatExecution.reasoningPreference,
+  );
+  const chatPollingDescription =
+    chatPollingIntervalMs === null
+      ? copy.chatPollingAuto
+      : uiLanguage === "zh"
+        ? `每 ${chatPollingIntervalMs / 60_000} 分钟检查一次`
+        : `Check every ${chatPollingIntervalMs / 60_000} ${
+            chatPollingIntervalMs === 60_000 ? "minute" : "minutes"
+          }`;
 
   const prompts = useMemo(
     () =>
@@ -740,6 +752,10 @@ export default function YanshuWorkbench() {
                     })}
                   </div>
                 </div>
+              </div>
+              <div className="chat-polling-policy">
+                <span>{copy.chatPollingInterval}</span>
+                <strong>{chatPollingDescription}</strong>
               </div>
               <small>
                 <strong>

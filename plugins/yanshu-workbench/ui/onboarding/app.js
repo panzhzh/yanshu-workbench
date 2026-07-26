@@ -39,6 +39,9 @@ const COPY = {
       "模型名称不写死；YanShu 会读取当前账号真实可见的推理档位。",
     promptLanguage: "Prompt 语言",
     reasoning: "推理偏好",
+    resultPolling: "结果检查间隔",
+    pollingStrongest:
+      "按实际档位自动采用：Medium / High 1 分钟，Extra High 3 分钟，Pro 5 分钟；无法识别时按 1 分钟。",
     summaryEyebrow: "READY TO START",
     summaryTitle: "本次配置",
     localOnly: "仅在本机处理",
@@ -79,6 +82,7 @@ const COPY = {
     summaryFigure: "框架图",
     summaryLanguage: "Prompt",
     summaryReasoning: "推理",
+    summaryPolling: "结果检查",
     noLimit: "不限制",
     limitedCore: "方法与实验不限",
     allowed: "允许",
@@ -135,6 +139,9 @@ const COPY = {
       "Model names are not pinned; YanShu reads the reasoning levels actually visible to the account.",
     promptLanguage: "Prompt language",
     reasoning: "Reasoning preference",
+    resultPolling: "Result-check interval",
+    pollingStrongest:
+      "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",
     summaryEyebrow: "READY TO START",
     summaryTitle: "Run configuration",
     localOnly: "Processed locally",
@@ -177,6 +184,7 @@ const COPY = {
     summaryFigure: "Framework figure",
     summaryLanguage: "Prompt",
     summaryReasoning: "Reasoning",
+    summaryPolling: "Result checks",
     noLimit: "No limit",
     limitedCore: "Method and Experiments unlimited",
     allowed: "Allowed",
@@ -217,6 +225,9 @@ const elements = {
   reasoningSelect: document.querySelector("#reasoning-select"),
   reasoningDescription: document.querySelector(
     "#reasoning-description",
+  ),
+  pollingDescription: document.querySelector(
+    "#polling-description",
   ),
   summary: document.querySelector("#configuration-summary"),
   confirmButton: document.querySelector("#confirm-button"),
@@ -674,6 +685,20 @@ function renderExecution() {
   elements.reasoningDescription.textContent = localize(
     selected?.description,
   );
+  elements.pollingDescription.textContent =
+    `${copy("resultPolling")} · ${pollingIntervalText(selected?.id)}`;
+}
+
+function pollingIntervalText(preferenceId) {
+  const policy = model.chatExecution.pollingPolicy;
+  if (preferenceId === "strongest") return copy("pollingStrongest");
+  const intervalMs =
+    policy.intervalMsByCapability[preferenceId] ??
+    policy.unknownIntervalMs;
+  const minutes = intervalMs / 60_000;
+  return uiLanguage === "zh"
+    ? `每 ${minutes} 分钟检查一次`
+    : `Check every ${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
 }
 
 function ratioSummary() {
@@ -719,6 +744,10 @@ function summaryRows() {
     ],
     [copy("summaryLanguage"), promptLanguageSummary()],
     [copy("summaryReasoning"), localize(reasoning?.label)],
+    [
+      copy("summaryPolling"),
+      pollingIntervalText(reasoning?.id),
+    ],
   ];
 }
 

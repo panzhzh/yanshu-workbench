@@ -2,6 +2,7 @@ import { PRODUCT_CONFIG } from "../../app/config";
 import {
   CHAT_FALLBACK_POLICY,
   CHAT_MODEL_POLICY,
+  CHAT_RESULT_POLLING_POLICY,
   CHAT_REASONING_PREFERENCES,
   CHAT_REASONING_PREFERENCE_IDS,
   DEFAULT_CHAT_EXECUTION_PREFERENCES,
@@ -76,6 +77,7 @@ export function getReconstructionConfigurationModel() {
       reasoningPreferences: CHAT_REASONING_PREFERENCE_IDS.map(
         (id) => CHAT_REASONING_PREFERENCES[id],
       ),
+      pollingPolicy: CHAT_RESULT_POLLING_POLICY,
     },
   };
 }
@@ -216,6 +218,7 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     modelPolicy,
     reasoningPreference,
     fallbackPolicy,
+    pollingPolicy: CHAT_RESULT_POLLING_POLICY,
   };
 
   return {

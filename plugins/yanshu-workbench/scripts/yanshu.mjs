@@ -426,6 +426,7 @@ async function mcpStop(flags) {
 
 async function chatPlan(flags) {
   const state = await loadRun(requiredFlag(flags, "run"));
+  const engine = await loadPromptEngine();
   const requested = enumFlag(
     flags,
     "requested",
@@ -435,9 +436,17 @@ async function chatPlan(flags) {
   const visibleOptions = parseVisibleChatOptions(
     requiredFlag(flags, "visible"),
   );
+  const pollingPolicy =
+    state.config.chatExecution?.pollingPolicy ??
+    engine.getReconstructionConfigurationModel().chatExecution
+      .pollingPolicy;
   return {
     ok: true,
-    ...resolveChatPreference({ requested, visibleOptions }),
+    ...resolveChatPreference({
+      requested,
+      visibleOptions,
+      pollingPolicy,
+    }),
     visibleOptions,
     fallbackPolicy:
       state.config.chatExecution?.fallbackPolicy ??

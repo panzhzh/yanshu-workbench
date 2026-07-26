@@ -1234,6 +1234,26 @@ a {
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
+.chat-polling-policy {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  padding-top: 8px;
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.chat-polling-policy span {
+  flex: 0 0 auto;
+  font-weight: 680;
+}
+
+.chat-polling-policy strong {
+  color: var(--ink-soft);
+  font-weight: 720;
+}
+
 .chat-execution-control > small {
   padding-top: 8px;
 }

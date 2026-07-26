@@ -9,7 +9,10 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { buildReconstructionWorkflow } from "../runtime/prompt-engine.mjs";
+import {
+  buildReconstructionWorkflow,
+  getReconstructionConfigurationModel,
+} from "../runtime/prompt-engine.mjs";
 import { importChatGPTControl } from "../vendor/chatgpt-control/import-chatgpt-control.mjs";
 import {
   applyChatReasoningSelection,
@@ -197,7 +200,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   });
 
   assert.equal(workflow.rounds.length, 5);
-  assert.equal(workflow.workflowVersion, "2026.07.7");
+  assert.equal(workflow.workflowVersion, "2026.07.8");
   assert.deepEqual(
     workflow.rounds.map((round) => round.number),
     [1, 2, 3, 4, 5],
@@ -285,6 +288,16 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     modelPolicy: "latest-visible-reasoning",
     reasoningPreference: "strongest",
     fallbackPolicy: "closest-lower-then-strongest",
+    pollingPolicy: {
+      strategy: "selected-reasoning-capability",
+      intervalMsByCapability: {
+        medium: 60_000,
+        high: 60_000,
+        "extra-high": 180_000,
+        pro: 300_000,
+      },
+      unknownIntervalMs: 60_000,
+    },
   });
 });
 
@@ -347,6 +360,9 @@ test("skill opens one local launch page without an execution-mode question", asy
   assert.match(skill, /do not run `init`/);
   assert.match(skill, /--reasoning strongest\|medium\|high\|extra-high\|pro/);
   assert.match(skill, /chat-plan/);
+  assert.match(skill, /Medium and High every 1 minute/);
+  assert.match(skill, /Extra High every 3 minutes/);
+  assert.match(skill, /Pro every 5 minutes/);
   assert.match(skill, /Never pin a GPT model name/);
   assert.match(
     skill,
@@ -367,6 +383,11 @@ test("skill opens one local launch page without an execution-mode question", asy
   assert.match(bridgeReference, /thread: \{ type: "current" \}/);
   assert.match(bridgeReference, /Prefer the MCP round bootstrap/);
   assert.match(bridgeReference, /files: \[\]/);
+  assert.match(
+    bridgeReference,
+    /timeoutMs: yanshuChatPlan\.pollIntervalMs/,
+  );
+  assert.doesNotMatch(bridgeReference, /timeoutMs: 25_000/);
 });
 
 test("paper input detection prefers the current build PDF over archived copies", async () => {
@@ -444,6 +465,15 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.equal(bootstrap.model.paperStyles.journal.defaultTargetWords, 5000);
     assert.equal(bootstrap.initialWorkflow.styleId, "conference");
     assert.equal("placements" in bootstrap.model.frameworkFigure, false);
+    assert.deepEqual(
+      bootstrap.model.chatExecution.pollingPolicy.intervalMsByCapability,
+      {
+        medium: 60_000,
+        high: 60_000,
+        "extra-high": 180_000,
+        pro: 300_000,
+      },
+    );
 
     const previewResponse = await fetch(endpoint("/api/preview"), {
       method: "POST",
@@ -579,42 +609,63 @@ test("exiting local onboarding cancels without creating a run config", async () 
 });
 
 test("reasoning preferences fall back against visible Chat options", () => {
+  const pollingPolicy =
+    getReconstructionConfigurationModel().chatExecution.pollingPolicy;
   const plusPro = resolveChatPreference({
     requested: "pro",
     visibleOptions: ["Medium", "High"],
+    pollingPolicy,
   });
   assert.equal(plusPro.selectedLabel, "High");
   assert.equal(plusPro.fallbackApplied, true);
+  assert.equal(plusPro.pollIntervalMs, 60_000);
   assert.match(plusPro.notice, /Requested Pro; selected High/);
 
   const plusExtraHigh = resolveChatPreference({
     requested: "extra-high",
     visibleOptions: ["Medium", "High"],
+    pollingPolicy,
   });
   assert.equal(plusExtraHigh.selectedLabel, "High");
   assert.equal(plusExtraHigh.fallbackApplied, true);
+  assert.equal(plusExtraHigh.pollIntervalMs, 60_000);
 
   const strongest = resolveChatPreference({
     requested: "strongest",
     visibleOptions: ["Medium", "High", "Extra High", "Pro Standard", "Pro Extended"],
+    pollingPolicy,
   });
   assert.equal(strongest.selectedLabel, "Pro Extended");
   assert.equal(strongest.fallbackApplied, false);
+  assert.equal(strongest.pollIntervalMs, 300_000);
 
   const renamed = resolveChatPreference({
     requested: "pro",
     visibleOptions: ["Balanced", "Deep"],
+    pollingPolicy,
   });
   assert.equal(renamed.selectedLabel, "Deep");
   assert.equal(renamed.fallbackApplied, true);
+  assert.equal(renamed.pollIntervalMs, 60_000);
+  assert.equal(renamed.pollIntervalSource, "unknown-capability-default");
   assert.match(renamed.source, /visible-order/);
 
   const newerAliases = resolveChatPreference({
     requested: "pro",
     visibleOptions: ["Standard", "Extended", "Max", "Ultra"],
+    pollingPolicy,
   });
   assert.equal(newerAliases.selectedLabel, "Ultra");
   assert.equal(newerAliases.fallbackApplied, false);
+  assert.equal(newerAliases.pollIntervalMs, 300_000);
+
+  const extraHigh = resolveChatPreference({
+    requested: "extra-high",
+    visibleOptions: ["Medium", "High", "Extra High"],
+    pollingPolicy,
+  });
+  assert.equal(extraHigh.selectedLabel, "Extra High");
+  assert.equal(extraHigh.pollIntervalMs, 180_000);
 });
 
 test("chat round protocol prepares a fresh thread before configuration and upload", async () => {

@@ -109,7 +109,9 @@ node <plugin-root>/scripts/yanshu.mjs chat-plan \
 The example labels are illustrative only. Pass exactly the labels returned by
 the live inspection. The resolver never assumes a plan or a fixed model name.
 If it reports a fallback, tell the user which visible level will be used before
-submitting the round.
+submitting the round. Preserve its `pollIntervalMs`: the interval is resolved
+from the level actually selected after fallback, not merely from the requested
+preference.
 
 Apply the returned `selectedLabel` with the YanShu protocol:
 
@@ -221,14 +223,18 @@ Immediately preserve the returned thread or conversation URL in `run.json` throu
 
 ## Wait without resubmitting
 
-Use compact metadata polling:
+Use the `pollIntervalMs` returned by `chat-plan` as the bounded result-check
+window. Medium and High use 60 seconds, Extra High uses 180 seconds, and Pro
+uses 300 seconds. An unrecognized selected label uses the configured 60-second
+safe default. `pollMs` below is only the helper's lightweight in-page
+observation cadence; it is not the round-level result-check interval.
 
 ```js
 var yanshuRoundStatus = await yanshuChatGPT.messages.status({
   maxPreviewChars: 500
 });
 var yanshuRoundResult = await yanshuChatGPT.messages.waitAndRead({
-  timeoutMs: 25_000,
+  timeoutMs: yanshuChatPlan.pollIntervalMs,
   stableMs: 1_500,
   pollMs: 750,
   role: "assistant",

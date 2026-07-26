@@ -102,6 +102,33 @@ function strongestVisible(options) {
   };
 }
 
+function resolvePollingInterval(pollingPolicy, capability) {
+  if (
+    !pollingPolicy ||
+    pollingPolicy.strategy !== "selected-reasoning-capability"
+  ) {
+    throw new CliError(
+      "The run does not contain a supported ChatGPT polling policy.",
+      "invalid_polling_policy",
+    );
+  }
+  const configuredInterval =
+    capability === null
+      ? pollingPolicy.unknownIntervalMs
+      : pollingPolicy.intervalMsByCapability?.[capability] ??
+        pollingPolicy.unknownIntervalMs;
+  if (
+    !Number.isSafeInteger(configuredInterval) ||
+    configuredInterval <= 0
+  ) {
+    throw new CliError(
+      "The ChatGPT polling interval must be a positive integer.",
+      "invalid_polling_policy",
+    );
+  }
+  return configuredInterval;
+}
+
 export function parseVisibleChatOptions(rawValue) {
   if (!rawValue) {
     throw new CliError(
@@ -141,6 +168,7 @@ export function parseVisibleChatOptions(rawValue) {
 export function resolveChatPreference({
   requested = "strongest",
   visibleOptions,
+  pollingPolicy,
 }) {
   if (!CHAT_REASONING_PREFERENCES.includes(requested)) {
     throw new CliError(
@@ -210,6 +238,10 @@ export function resolveChatPreference({
     : requested === "strongest"
       ? `Selected the strongest visible reasoning level: ${selected.label}.`
       : `Selected the requested reasoning level: ${selected.label}.`;
+  const pollIntervalMs = resolvePollingInterval(
+    pollingPolicy,
+    selected.capability,
+  );
 
   return {
     modelPolicy: "latest-visible-reasoning",
@@ -220,5 +252,11 @@ export function resolveChatPreference({
     fallbackApplied,
     source,
     notice,
+    pollIntervalMs,
+    pollIntervalMinutes: pollIntervalMs / 60_000,
+    pollIntervalSource:
+      selected.capability === null
+        ? "unknown-capability-default"
+        : `selected-${selected.capability}`,
   };
 }

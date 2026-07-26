@@ -34,7 +34,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
   assert.match(html, /五轮重构，支持断点继续/);
-  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.7/);
+  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.8/);
   assert.match(html, /同一份 Prompt/);
   assert.match(html, /最小材料链/);
   assert.match(html, /一次交接/);
@@ -102,6 +102,8 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /论文占栏/);
   assert.match(html, /ChatGPT 执行/);
   assert.match(html, /最新可用推理模型/);
+  assert.match(html, /结果检查间隔/);
+  assert.match(html, /Medium \/ High 1 分钟/);
   assert.match(html, /自动最强/);
   assert.match(html, /Extra High/);
   assert.match(html, /不锁定 GPT 型号名称/);
@@ -154,7 +156,7 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /_round_1_bib_suggestions\.bib/);
   assert.match(
     html,
-    /data-reconstruction-workflow-version="2026\.07\.7"/,
+    /data-reconstruction-workflow-version="2026\.07\.8"/,
   );
   assert.match(html, /满足当前适用的总量与章节预算，不得使用附录/);
   assert.match(
@@ -460,6 +462,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(config, /defaultUnlimitedCoreSections:\s*false/);
   assert.match(config, /chatExecution:\s*\{/);
   assert.match(config, /chatLatestVisibleModel:\s*"最新可用推理模型"/);
+  assert.match(config, /chatPollingInterval:\s*"结果检查间隔"/);
   assert.match(
     chatExecutionConfig,
     /CHAT_MODEL_POLICY\s*=\s*"latest-visible-reasoning"/,
@@ -471,6 +474,10 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(
     chatExecutionConfig,
     /"strongest"[\s\S]*"medium"[\s\S]*"high"[\s\S]*"extra-high"[\s\S]*"pro"/,
+  );
+  assert.match(
+    chatExecutionConfig,
+    /medium:\s*60_000[\s\S]*high:\s*60_000[\s\S]*"extra-high":\s*180_000[\s\S]*pro:\s*300_000/,
   );
   assert.match(
     config,
@@ -644,6 +651,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(component, /roundLanguages:\s*promptLanguages/);
   assert.match(component, /chatExecution/);
   assert.match(component, /reasoningPreference:\s*preferenceId/);
+  assert.match(component, /chatPollingDescription/);
   assert.match(component, /chatRuntimePolicy/);
   assert.match(component, /\.yanshu\.json/);
   assert.match(

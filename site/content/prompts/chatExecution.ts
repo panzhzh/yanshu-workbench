@@ -15,10 +15,32 @@ export const CHAT_REASONING_PREFERENCE_IDS = [
 export type ChatReasoningPreferenceId =
   (typeof CHAT_REASONING_PREFERENCE_IDS)[number];
 
+export const CHAT_REASONING_CAPABILITY_IDS = [
+  "medium",
+  "high",
+  "extra-high",
+  "pro",
+] as const;
+
+export type ChatReasoningCapabilityId =
+  (typeof CHAT_REASONING_CAPABILITY_IDS)[number];
+
+export const CHAT_RESULT_POLLING_POLICY = {
+  strategy: "selected-reasoning-capability",
+  intervalMsByCapability: {
+    medium: 60_000,
+    high: 60_000,
+    "extra-high": 180_000,
+    pro: 300_000,
+  },
+  unknownIntervalMs: 60_000,
+} as const;
+
 export interface ChatExecutionPreferences {
   modelPolicy: typeof CHAT_MODEL_POLICY;
   reasoningPreference: ChatReasoningPreferenceId;
   fallbackPolicy: typeof CHAT_FALLBACK_POLICY;
+  pollingPolicy: typeof CHAT_RESULT_POLLING_POLICY;
 }
 
 export interface ChatReasoningPreferenceDefinition {
@@ -113,4 +135,12 @@ export const DEFAULT_CHAT_EXECUTION_PREFERENCES: ChatExecutionPreferences = {
   modelPolicy: CHAT_MODEL_POLICY,
   reasoningPreference: "strongest",
   fallbackPolicy: CHAT_FALLBACK_POLICY,
+  pollingPolicy: CHAT_RESULT_POLLING_POLICY,
 };
+
+export function getRequestedChatPollingIntervalMs(
+  preference: ChatReasoningPreferenceId,
+) {
+  if (preference === "strongest") return null;
+  return CHAT_RESULT_POLLING_POLICY.intervalMsByCapability[preference];
+}
