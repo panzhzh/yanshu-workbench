@@ -10,8 +10,6 @@ import {
 import {
   FIGURE_ASPECT_RATIO_IDS,
   FIGURE_ASPECT_RATIOS,
-  FIGURE_PLACEMENT_IDS,
-  FIGURE_PLACEMENTS,
   RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
   type FrameworkFigureLayoutPreferences,
 } from "../../app/figures/config";
@@ -67,11 +65,6 @@ export function getReconstructionConfigurationModel() {
     ),
     frameworkFigure: {
       default: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
-      placements: FIGURE_PLACEMENT_IDS.map((id) => ({
-        id,
-        label: FIGURE_PLACEMENTS[id].label,
-        description: FIGURE_PLACEMENTS[id].shortDescription,
-      })),
       aspectRatios: FIGURE_ASPECT_RATIO_IDS.map((id) => ({
         id,
         label: FIGURE_ASPECT_RATIOS[id].label,
@@ -165,9 +158,6 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
   }
 
   const frameworkFigure = {
-    placementId:
-      input.frameworkFigure?.placementId ??
-      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
     aspectRatioId:
       input.frameworkFigure?.aspectRatioId ??
       RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
@@ -179,11 +169,6 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
       RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
   };
 
-  if (!(frameworkFigure.placementId in FIGURE_PLACEMENTS)) {
-    throw new Error(
-      `Unsupported framework figure placement: ${String(frameworkFigure.placementId)}.`,
-    );
-  }
   if (!(frameworkFigure.aspectRatioId in FIGURE_ASPECT_RATIOS)) {
     throw new Error(
       `Unsupported framework figure ratio: ${String(frameworkFigure.aspectRatioId)}.`,

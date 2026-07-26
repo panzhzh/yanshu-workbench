@@ -13,12 +13,20 @@
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-F38020?logo=cloudflarepages&logoColor=white)](https://pages.cloudflare.com/)
 
 [在线使用](https://yanshu-workbench.pages.dev/) ·
-[论文初稿](https://yanshu-workbench.pages.dev/draft/) ·
-[论文重构](https://yanshu-workbench.pages.dev/reconstruction/) ·
-[科研绘图](https://yanshu-workbench.pages.dev/figures/) ·
-[投稿策略](https://yanshu-workbench.pages.dev/submission/)
+[全文初稿](https://yanshu-workbench.pages.dev/draft/) ·
+[全文重构](https://yanshu-workbench.pages.dev/reconstruction/) ·
+[科学示意图](https://yanshu-workbench.pages.dev/figures/) ·
+[投稿定位](https://yanshu-workbench.pages.dev/submission/)
 
 </div>
+
+## 唯一公开部署
+
+YanShu 的唯一公开生产地址是 **Cloudflare Pages**：
+[https://yanshu-workbench.pages.dev/](https://yanshu-workbench.pages.dev/)。
+GitHub `main` 是网站源码的唯一事实来源。ChatGPT Sites 中保存的版本号、
+预览站或 `*.chatgpt.site` 地址不属于本项目的发布流程，也不得作为线上地址写入
+代码、文档或交接信息。
 
 ## 为什么做 YanShu
 
@@ -44,10 +52,10 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 
 | 模块 | 适用阶段 | 当前能力 |
 | --- | --- | --- |
-| [论文初稿](https://yanshu-workbench.pages.dev/draft/) | 实验已经完成 | 从证据材料生成完整、可编译的英文 LaTeX 初稿；arXiv 默认样式或当届顶会官方模板 |
-| [论文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
-| [科研绘图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，引言图与关键技术细节图可选；先生成结构化英文生图 Prompt，确认后再绘制单图 |
-| [投稿策略](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/ESCI 动态筛选与官网核验 |
+| [全文初稿](https://yanshu-workbench.pages.dev/draft/) | 实验已经完成 | 从证据材料生成完整、可编译的英文 LaTeX 初稿；arXiv 默认样式或当届顶会官方模板 |
+| [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
+| [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；先生成结构化英文生图 Prompt，确认后再绘制单图 |
+| [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/ESCI 动态筛选与官网核验 |
 | YanShu 插件 | 需要全链路执行 | 通过 **Paper Reconstruction** 创建可恢复的五轮目录，保存 Chat 会话与产物状态；当前为开发者预览 |
 
 ## 设计原则
@@ -75,10 +83,13 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 - 记录并恢复每轮 Chat 会话地址、实际模型标签和推理档位；
 - 默认使用 ChatGPT 当前可见的最新推理模型与最强档位，也可选择 Medium、High、Extra High 或 Pro；
 - 所选档位不可用时，先提示用户，再回退到最接近的较低档位；名称无法判断时选择最强可用档位；
+- 内置受控的 YanShu Paper Workspace MCP：ChatGPT 可以按需读取 Prompt、TeX、BibTeX、图表证据和 PDF 页面，而不是每轮重新上传整套文件；
+- 从 TeX 建立图表证据索引，并将 PNG/JPEG/WebP/SVG 原图、PDF 页面、PDF/EPS 图件作为真实图像返回给模型；实验数字不得只凭文件名或 caption 推断；
+- 将 ChatGPT 产出的 TeX、BibTeX 与报告版本化写入当前轮次，隔离编译 LaTeX，并把 PDF 和错误日志直接交给同一对话修正；
 - 为每轮生成严格的文件传输白名单；
 - 在 Chat 桥接缺失时停在可恢复状态，而不是让 Codex 代写论文。
 
-完整自动执行还需要可见的 ChatGPT 会话与兼容的浏览器桥接。YanShu 已内置并锁定可见 Chat 控制运行时，用户不需要再安装第二个委派插件；它不会绕过登录、验证码或文件权限，也不要求 OpenAI API Key。
+完整自动执行还需要可见的 ChatGPT 会话与兼容的浏览器桥接。YanShu 已内置并锁定可见 Chat 控制运行时以及本地 MCP 工作区，用户不需要再安装第二个文件插件。外部网页 ChatGPT 若要直接调用本地 MCP，仍需一次性连接经过认证的 HTTPS MCP 端点或受支持的安全隧道；单纯的 `127.0.0.1` 地址无法被网页端访问。没有该连接时，真实文件附件链路继续作为保底。
 
 ### 当前 GitHub 预览版
 
@@ -128,7 +139,7 @@ YanShu 会先确认论文目录；若目录中有多篇论文，只需选择目�
 
 运行时以 ChatGPT 真实可见的选择器为准，而不是根据 Plus、Pro 等套餐名称猜测。比如用户选择 Extra High 或 Pro，但页面只显示 Medium 与 High，YanShu 会明确说明并使用 High；若新名称无法可靠分类，则使用选择器中最强的可用档位。
 
-每一轮都会先显式新建独立的空白 Chat，再在该会话中选择推理档位并传入文件，不会修改用户原本打开的聊天。YanShu 优先通过 ChatGPT 可见的文件选择器传入白名单中的 `.tex`、`.bib`、`.pdf` 与图件，并逐张核对附件卡；Windows 文件对象剪贴板粘贴保留为后备路径。文件始终作为真实附件传递，不会被摊平成一段巨型文本。如果 ChatGPT 已接受准确的档位点击、但新版界面暂时无法回读当前标签，YanShu 会将其记录为 `click-acknowledged` 并继续；只有选项未找到、点击失败、新会话未建立或回读明确冲突时才暂停。
+每一轮都会先显式新建独立的空白 Chat，再在该会话中选择推理档位，不会修改用户原本打开的聊天。连接 MCP 时，新对话只接收一个很短的运行标识，随后自行读取本轮 Prompt、最新源码和上一轮产物；写入、编译与 PDF 页面复核也通过 MCP 完成。没有 MCP 连接时，YanShu 才通过 ChatGPT 可见的文件选择器传入白名单中的 `.tex`、`.bib`、`.pdf` 与图件，并逐张核对附件卡；Windows 文件对象剪贴板粘贴保留为后备路径。如果 ChatGPT 已接受准确的档位点击、但新版界面暂时无法回读当前标签，YanShu 会将其记录为 `click-acknowledged` 并继续；只有选项未找到、点击失败、新会话未建立或回读明确冲突时才暂停。
 
 ## 论文模板策略
 

@@ -17,16 +17,12 @@ import {
   FIGURE_COLOR_PALETTES,
   FIGURE_COPY,
   FIGURE_DEFAULT_LAYOUT,
-  FIGURE_PLACEMENT_IDS,
-  FIGURE_PLACEMENTS,
   FIGURE_FONT_FAMILIES,
   FIGURE_FONT_FAMILY_IDS,
   FIGURE_PROMPT_GROUP_ORDER,
   FIGURE_PROMPT_GROUPS,
   FIGURE_PROMPT_ORDER,
   FIGURE_PROMPTS,
-  FIGURE_STYLE_IDS,
-  FIGURE_STYLES,
   FIGURE_TYPE_RECOMMENDATIONS,
   getFigureAspectRatio,
   type FigurePreferences,
@@ -152,13 +148,6 @@ export default function FigureWorkbench() {
     setActivePromptId(promptId);
     setCopiedPrompt(null);
     setCopyError(false);
-  }
-
-  function selectFigureStyle(styleId: FigurePreferences["styleId"]) {
-    updatePreferences((current) => ({
-      ...current,
-      styleId,
-    }));
   }
 
   function resetDefaults() {
@@ -391,56 +380,6 @@ export default function FigureWorkbench() {
               </legend>
               <div className="figure-layout-groups">
                 <div className="figure-layout-group">
-                  <p>{copy.paperPlacement}</p>
-                  <div
-                    className="figure-placement-options"
-                    role="radiogroup"
-                    aria-label={copy.paperPlacement}
-                  >
-                    {FIGURE_PLACEMENT_IDS.map((placementId) => {
-                      const placement = FIGURE_PLACEMENTS[placementId];
-                      const active = preferences.placementId === placementId;
-                      const recommended =
-                        FIGURE_DEFAULT_LAYOUT[preferences.promptId]
-                          .placementId === placementId;
-
-                      return (
-                        <button
-                          type="button"
-                          role="radio"
-                          aria-checked={active}
-                          className={active ? "active" : ""}
-                          key={placementId}
-                          onClick={() =>
-                            updatePreferences((current) => ({
-                              ...current,
-                              placementId,
-                            }))
-                          }
-                        >
-                          <span
-                            className={`figure-placement-sample ${placementId}`}
-                            aria-hidden="true"
-                          >
-                            <i />
-                            <i />
-                          </span>
-                          <span>
-                            <span className="figure-option-heading">
-                              <strong>{placement.label[uiLanguage]}</strong>
-                              {recommended && <em>{copy.recommended}</em>}
-                            </span>
-                            <small>
-                              {placement.shortDescription[uiLanguage]}
-                            </small>
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="figure-layout-group">
                   <p>{copy.aspectRatio}</p>
                   <div
                     className="figure-canvas-options"
@@ -558,48 +497,9 @@ export default function FigureWorkbench() {
               <small>{copy.canvasHint}</small>
             </fieldset>
 
-            <fieldset className="figure-control-card figure-style-control">
-              <legend>
-                <span className="control-index">04</span>
-                {copy.visualStyle}
-              </legend>
-              <div className="figure-style-options">
-                {FIGURE_STYLE_IDS.map((styleId) => {
-                  const style = FIGURE_STYLES[styleId];
-                  const active = preferences.styleId === styleId;
-                  return (
-                    <button
-                      type="button"
-                      role="radio"
-                      aria-checked={active}
-                      className={active ? "active" : ""}
-                      key={styleId}
-                      onClick={() => selectFigureStyle(styleId)}
-                    >
-                      <span
-                        className={`figure-style-sample ${styleId}`}
-                        aria-hidden="true"
-                      >
-                        <i />
-                        <i />
-                        <i />
-                        <b />
-                        <b />
-                      </span>
-                      <span>
-                        <strong>{style.label[uiLanguage]}</strong>
-                        <small>{style.shortDescription[uiLanguage]}</small>
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-              <small>{copy.visualStyleHint}</small>
-            </fieldset>
-
             <fieldset className="figure-control-card figure-visual-rules-control">
               <legend>
-                <span className="control-index">05</span>
+                <span className="control-index">04</span>
                 {copy.visualRules}
               </legend>
               <div className="figure-visual-rules-grid">

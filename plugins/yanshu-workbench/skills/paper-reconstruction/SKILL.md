@@ -17,6 +17,7 @@ Follow the user's conversation language during onboarding and status updates. Pr
 - Resolve the saved reasoning preference against the controls actually visible to the signed-in user. Do not infer availability from a subscription name.
 - Keep all browser activity visible and user-directed. Never bypass login, CAPTCHA, confirmation, or upload permissions.
 - Copy, paste, or upload only paths returned by the YanShu `next` command. Never transmit `.env` files, credentials, private keys, unrelated folders, or unapproved files.
+- Prefer the run-scoped YanShu MCP workspace over browser attachments. Its original inputs are read-only, and its write tools are restricted to the current reconstruction run. Use browser attachment transfer only when the visible Chat surface cannot use the YanShu MCP connection.
 - Never resubmit an original round after a timeout. Preserve the Chat thread URL and poll, wait, read, or continue that same thread.
 - Store every downloaded artifact and status change inside the current YanShu run directory.
 - Never apply a round's Chat configuration inside an unrelated conversation. Prepare a fresh blank Chat thread before inspecting or changing reasoning; `experience.open` alone does not create a new thread.
@@ -68,7 +69,7 @@ Omit an unavailable optional input instead of inventing one. Add `--config <webs
    - whether Method and Experiments are exempt when limits are active;
    - appendix allowed or not allowed;
    - Prompt language;
-   - framework-figure placement and canvas ratio, including custom width:height;
+   - framework-figure canvas ratio, including custom width:height;
    - ChatGPT reasoning preference: `strongest`, `medium`, `high`, `extra-high`, or `pro`.
 4. Every configuration change must refresh the five generated Prompts in the page's right rail. Each Prompt supports expand/collapse, independent Chinese/English switching, and copy; the page also supports copy all. This replaces the old Prompt-only execution question: a user who wants manual handoff can copy the Prompts and select **Exit** without creating a run.
 5. The page has exactly two workflow exits:
@@ -84,8 +85,8 @@ node <plugin-root>/scripts/yanshu.mjs configure-status \
 Use bounded waits and concise progress updates. Do not ask the user to report that they clicked the button.
 7. If status becomes `cancelled`, stop cleanly. Do not initialize, transmit manuscript content, or ask for replacement workflow choices.
 8. The page's **Start full automation** action is the explicit start authorization. When status becomes `confirmed`, use the returned `configPath`; do not display another confirmation summary and do not ask the user to type “start”.
-9. Immediately run the visible Chat bridge preflight from `references/chat-bridge.md`. This checks the bridge, login, upload handoff, Chat configuration, and download path. Prefer ChatGPT's verified visible file chooser; keep native Windows file-copy/paste as a fallback.
-10. If preflight succeeds, run `init --config <configPath>` and proceed directly to Round 1. If preflight returns a real blocker, report only the exact required action. After the user resolves it, repeat preflight and continue with the same confirmed configuration without reopening the page or asking workflow questions.
+9. Immediately run the visible Chat bridge preflight from `references/chat-bridge.md`. This checks the bridge, login, Chat configuration, and whether the visible Chat surface can use the YanShu MCP connection. Clipboard, upload, and download checks are fallback checks, not the primary paper-delivery route.
+10. If preflight succeeds, run `init --config <configPath>`, start the run-scoped MCP workspace described below, and proceed directly to Round 1. If preflight returns a real blocker, report only the exact required action. After the user resolves it, repeat preflight and continue with the same confirmed configuration without reopening the page or asking workflow questions.
 
 The page is local infrastructure, not a hosted paper service. Do not replace its loopback URL with a public callback, do not place paper paths in a remote URL, and never expose its one-time token in user-facing summaries or logs.
 
@@ -105,14 +106,37 @@ Run `init` with:
 - `--unlimited-core true|false`
 - `--appendix true|false`
 - `--language zh|en`
-- `--figure-placement single-column|double-column`
-- `--figure-ratio landscape-4-3|portrait-3-4|landscape-16-9|portrait-9-16|custom`
+- `--figure-ratio landscape-4-3|landscape-3-2|landscape-16-9|landscape-2-1|portrait-3-4|portrait-9-16|custom`
 - `--figure-ratio-width <number>` and `--figure-ratio-height <number>` for a custom ratio
 - `--reasoning strongest|medium|high|extra-high|pro`
 
 Report the created run directory before transmitting manuscript content.
 
-The initializer creates `yanshu-reconstruction/<run-id>/` with five round folders, generated prompts, outputs, logs, and `run.json`. It does not modify or copy the original manuscript. Round 4 reconstructs only the Method Overview figure with the shared YanShu figure prompt. The confirmed placement and ratio remain configurable. Its other visual rules remain fixed: minimal paper linework; the Tol Vibrant palette with explicit HEX/RGB references and two-to-four accents selected by Chat according to semantics; Calibri; a pure-white canvas and pure-white module cards; exactly two type-size levels; no large in-figure title; dark-neutral lines by default, with semantic line colors only when needed; and restrained light illustrations or icons only when useful.
+The initializer creates `yanshu-reconstruction/<run-id>/` with five round folders, generated prompts, outputs, logs, and `run.json`. It does not modify or copy the original manuscript. Round 4 reconstructs only the Method Overview figure with the shared YanShu figure prompt. The canvas ratio remains configurable. Its default visual controls use an ultra-wide `2:1` pure-white canvas, the Tol Vibrant palette with a maximum `2–3` accent budget, Calibri, dark-neutral structural lines, extremely pale fills only for key regions, three type-size levels, no large in-figure title, and restrained paper-specific scientific forms when useful.
+
+## Run-scoped MCP paper workspace
+
+After `init`, start one workspace for the entire five-round run:
+
+```text
+node <plugin-root>/scripts/yanshu.mjs mcp-start \
+  --run <run-path>
+```
+
+The command returns a health-checked loopback session and a concise `bootstrapPrompt`. The server is bound to exactly one run. Original TeX, BibTeX, PDF, and figure inputs are read-only. Text writes are atomic, previous versions are recoverable, and compilation occurs in isolated versioned build directories.
+
+The bundled local MCP companion can be used directly by a compatible local ChatGPT/Codex plugin host. An external `chatgpt.com` conversation can use it only when the user has connected YanShu through an authenticated HTTPS MCP endpoint or supported secure tunnel. A loopback URL by itself is not remotely reachable. Do not pretend that the browser can call it, and never expose the unprotected local listener publicly. If the visible Chat surface has no YanShu MCP connection, continue through the approved real-file attachment route as a fallback.
+
+When MCP is connected, the visible Chat model must follow this evidence sequence:
+
+1. Call `yanshu_get_round_manifest` and read the exact Prompt artifact.
+2. Read the latest relevant TeX and BibTeX artifacts.
+3. Before Method, Experiments, Discussion, or any numeric claim, call `yanshu_get_evidence_index`.
+4. Call `yanshu_view_image` for every result-bearing figure. For tables or visuals in the manuscript PDF, use `yanshu_search_pdf` to locate the page and `yanshu_view_image` to inspect that rendered page. Captions and filenames are navigation aids, not sufficient evidence.
+5. Save complete outputs with `yanshu_write_round_artifact`, compile with `yanshu_compile_latex`, repair failures in the same Chat thread, and visually inspect relevant pages of the compiled PDF.
+6. Call `yanshu_complete_round` only after required artifacts and compilation checks pass.
+
+PDF rendering uses Poppler and returns actual page images to the model. PDF figures are rendered page by page; EPS figures use Ghostscript; PNG, JPEG, WebP, and SVG inputs are returned directly. The TeX evidence index preserves figure/table labels, captions, section context, table source, and the artifact id of each resolvable graphic. Missing or unreadable visual evidence must be reported, never guessed.
 
 ## Resolve the live ChatGPT configuration
 
@@ -157,7 +181,7 @@ Use the bundled runtime from a compatible Codex/Chrome bridge host. It does not 
 
 1. Leave the initialized run intact.
 2. Mark the current round `blocked` with the exact missing prerequisite.
-3. Provide the manual prompt path as a fallback.
+3. Provide the manual prompt path and approved attachment list as a fallback.
 4. Do not continue the writing round in Codex.
 
 ## Execute each round
@@ -165,25 +189,26 @@ Use the bundled runtime from a compatible Codex/Chrome bridge host. It does not 
 For every round:
 
 1. Run `next --run <run-path>`.
-2. Read only the returned prompt and approved source list.
+2. Run `mcp-status --run <run-path>`. Reuse the healthy run-scoped workspace; do not create another server for each round.
 3. Prepare a fresh blank Chat thread before configuration unless the round already records a thread URL. A successful `experience.open` without `threads.new` is insufficient.
 4. Resolve and apply the saved ChatGPT configuration as described above.
 5. Mark the round `running`, recording the experience, model label, reasoning label, and configuration-verification level. A fresh blank thread may not receive its stable `/c/...` URL until the first message is submitted.
-6. Submit through `submitPreparedChatRound` from `references/chat-bridge.md`. It transfers approved `.tex`, `.bib`, `.pdf`, image, and other inputs as real files rather than pasting their contents as text. Prefer ChatGPT's visible file chooser and use native Windows file-object paste only as a fallback. The helper targets `thread: { type: "current" }` so the configured blank thread is reused; do not request another new thread at submission time.
-7. Immediately record the returned `/c/...` thread URL. If submission returns no stable URL, preserve its partial result and stop instead of guessing a thread.
-8. For long responses, keep the same thread and use bounded waits or status checks. Give the user a concise progress update at least once per minute while actively monitoring.
-9. Download every generated `.tex`, `.bib`, `.md`, PDF, PNG, or other explicit artifact into the round output directory. Register files with the `artifact` command.
-10. If Chat returns essential result text without a downloadable file, ask Chat in the same thread to provide the required artifact instead of copying paper prose through Codex.
-11. Mark the round `completed` only after required artifacts are present and readable.
-12. Move to the next round. Later rounds may receive registered outputs from completed rounds in addition to the original approved inputs.
+6. If the visible Chat thread has the YanShu MCP connection, submit only the `bootstrapPrompt` returned by `mcp-start`, with an empty file list. The model reads the round Prompt and all approved evidence through MCP and writes/compiles through MCP. Do not also upload the same sources.
+7. If the visible Chat thread cannot use the MCP connection, submit the full generated Prompt and exactly the fallback `approvedAttachments` through `submitPreparedChatRound` from `references/chat-bridge.md`. It transfers approved `.tex`, `.bib`, `.pdf`, image, and other inputs as real files rather than pasting their contents as text. Prefer ChatGPT's visible file chooser and use native Windows file-object paste only as a fallback. The helper targets `thread: { type: "current" }` so the configured blank thread is reused; do not request another new thread at submission time.
+8. Immediately record the returned `/c/...` thread URL. If submission returns no stable URL, preserve its partial result and stop instead of guessing a thread.
+9. For long responses, keep the same thread and use bounded waits or status checks. Give the user a concise progress update at least once per minute while actively monitoring.
+10. In MCP mode, treat successfully written YanShu artifacts as the source of truth; do not require duplicate downloads. In fallback mode, download and register every generated `.tex`, `.bib`, `.md`, PDF, PNG, or other explicit artifact.
+11. If fallback Chat returns essential result text without a downloadable file, ask Chat in the same thread to provide the required artifact instead of copying paper prose through Codex.
+12. Mark the round `completed` only after required artifacts are present and readable. In MCP mode, prefer the model's `yanshu_complete_round` call; verify local state rather than trusting conversational prose.
+13. Move to the next fresh Chat thread. Later rounds read registered outputs and compiled PDFs from the same MCP run without re-uploading them.
 
 ## Compilation and correction
 
 After a round produces TeX:
 
-1. Compile it with the project's existing TeX toolchain in the round output directory or an isolated validation directory.
+1. In MCP mode, the visible Chat model calls `yanshu_compile_latex`; the tool compiles in an isolated versioned workspace, registers the PDF, and returns a focused log tail. In attachment fallback mode, compile with the project's existing TeX toolchain in the round output directory or an isolated validation directory.
 2. Treat build logs as diagnostics, not authorization for Codex to rewrite the manuscript.
-3. For a compilation error, copy and paste only the relevant log and affected files into the same Chat thread, then ask Chat to return corrected artifacts.
+3. For an MCP compilation error, Chat reads the returned log, writes a corrected artifact, and compiles again in the same thread. In fallback mode, copy and paste only the relevant log and affected files into the same Chat thread, then ask Chat to return corrected artifacts.
 4. Register the corrected artifact without overwriting an existing file unless the replacement is explicit and recoverable.
 5. Repeat until the document compiles or the workflow reaches a genuine user-input blocker.
 

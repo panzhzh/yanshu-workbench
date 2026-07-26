@@ -35,6 +35,12 @@ import {
   roundAttachments,
   summarizeRun,
 } from "./lib/run-store.mjs";
+import {
+  mcpSessionStatus,
+  startMcpSession,
+  stopMcpSession,
+} from "./lib/mcp-session.mjs";
+import { workspaceCapabilities } from "./lib/mcp-workspace.mjs";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(scriptDirectory, "..");
@@ -53,6 +59,11 @@ function help() {
       init: "Create a resumable five-round reconstruction run.",
       status: "Read compact progress for an existing run.",
       next: "Return the next round, prompt, and approved attachments.",
+      "mcp-start":
+        "Start a run-scoped YanShu MCP workspace for TeX, PDF-page, figure, write, and compile tools.",
+      "mcp-status":
+        "Check whether the run-scoped YanShu MCP workspace is reachable.",
+      "mcp-stop": "Stop the run-scoped YanShu MCP workspace.",
       "chat-plan":
         "Resolve a saved reasoning preference against ChatGPT options currently visible to the user.",
       mark: "Record round status and visible Chat thread metadata.",
@@ -134,6 +145,12 @@ async function doctor(flags) {
           "A TeX engine is optional at initialization and required only for automatic compilation.",
       },
       chatBridge: bridgeHints(),
+      mcpWorkspace: {
+        bundled: true,
+        capabilities: workspaceCapabilities(),
+        note:
+          "The local workspace can read approved TeX/Bib files, return real figure and rendered PDF-page images, save versioned round outputs, and compile LaTeX.",
+      },
     },
   };
 }
@@ -225,34 +242,30 @@ async function init(flags) {
     fileConfig.workflow?.unlimitedCoreSections ?? false,
   );
   const frameworkFigure = {
-    placementId: enumFlag(
-      flags,
-      "figure-placement",
-      ["single-column", "double-column"],
-      fileConfig.workflow?.frameworkFigure?.placementId ?? "double-column",
-    ),
     aspectRatioId: enumFlag(
       flags,
       "figure-ratio",
       [
         "landscape-4-3",
-        "portrait-3-4",
+        "landscape-3-2",
         "landscape-16-9",
+        "landscape-2-1",
+        "portrait-3-4",
         "portrait-9-16",
         "custom",
       ],
       fileConfig.workflow?.frameworkFigure?.aspectRatioId ??
-        "landscape-16-9",
+        "landscape-2-1",
     ),
     customAspectWidth: numberFlag(
       flags,
       "figure-ratio-width",
-      fileConfig.workflow?.frameworkFigure?.customAspectWidth ?? 16,
+      fileConfig.workflow?.frameworkFigure?.customAspectWidth ?? 2,
     ),
     customAspectHeight: numberFlag(
       flags,
       "figure-ratio-height",
-      fileConfig.workflow?.frameworkFigure?.customAspectHeight ?? 9,
+      fileConfig.workflow?.frameworkFigure?.customAspectHeight ?? 1,
     ),
   };
   const chatExecution = {
@@ -327,10 +340,31 @@ async function next(flags) {
       chat: round.chat,
     },
     approvedAttachments: await roundAttachments(state, round.id),
+    mcpWorkspace: {
+      available: true,
+      startCommand:
+        "Run `mcp-start --run <run-path>` and use its bootstrapPrompt in the visible Chat conversation. If the Chat surface cannot use the YanShu MCP connection, fall back to approvedAttachments.",
+    },
     chatExecution: state.config.chatExecution,
     instruction:
       "Prepare a fresh visible Chat thread before configuration, inspect and resolve reasoning with `chat-plan`, apply it with the YanShu Chat-round protocol, submit to that same prepared thread exactly once, preserve the returned thread URL, and poll/read the same thread after timeouts.",
   };
+}
+
+async function mcpStart(flags) {
+  return startMcpSession({
+    pluginRoot,
+    runPath: requiredFlag(flags, "run"),
+    port: numberFlag(flags, "port", 0),
+  });
+}
+
+async function mcpStatus(flags) {
+  return mcpSessionStatus(requiredFlag(flags, "run"));
+}
+
+async function mcpStop(flags) {
+  return stopMcpSession(requiredFlag(flags, "run"));
 }
 
 async function chatPlan(flags) {
@@ -432,6 +466,15 @@ async function main() {
       break;
     case "next":
       result = await next(flags);
+      break;
+    case "mcp-start":
+      result = await mcpStart(flags);
+      break;
+    case "mcp-status":
+      result = await mcpStatus(flags);
+      break;
+    case "mcp-stop":
+      result = await mcpStop(flags);
       break;
     case "chat-plan":
       result = await chatPlan(flags);

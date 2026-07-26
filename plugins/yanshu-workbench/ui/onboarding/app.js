@@ -30,8 +30,7 @@ const COPY = {
       "正文能满足规则时不使用附录；只有非主线内容确有必要时才移入。",
     figureTitle: "总体框架图",
     figureHint:
-      "固定采用极简论文线稿、蓝橙配色、Calibri、两级字号和无大标题。",
-    placement: "论文占栏",
+      "默认采用纯白画布、蓝橙配色、Calibri、三级字号和无大标题，并允许按需使用论文对象图形。",
     aspectRatio: "画布比例",
     ratioWidth: "宽",
     ratioHeight: "高",
@@ -127,8 +126,7 @@ const COPY = {
       "Do not use it when the main text fits; move only genuinely non-core material when necessary.",
     figureTitle: "Overall framework figure",
     figureHint:
-      "Uses minimal paper linework, a blue–orange palette, Calibri, two type levels, and no large title.",
-    placement: "Paper placement",
+      "Uses a pure-white canvas, a blue–orange palette, Calibri, three type levels, no large title, and restrained paper-specific scientific forms when useful.",
     aspectRatio: "Canvas ratio",
     ratioWidth: "Width",
     ratioHeight: "Height",
@@ -209,7 +207,6 @@ const elements = {
   budgetTotal: document.querySelector("#budget-total"),
   budgetError: document.querySelector("#budget-error"),
   appendixToggle: document.querySelector("#appendix-toggle"),
-  placementOptions: document.querySelector("#placement-options"),
   ratioOptions: document.querySelector("#ratio-options"),
   customRatio: document.querySelector("#custom-ratio"),
   ratioWidth: document.querySelector("#ratio-width"),
@@ -625,26 +622,6 @@ function renderAppendix() {
   elements.appendixToggle.checked = workflow.includeAppendix;
 }
 
-function renderPlacement() {
-  elements.placementOptions.replaceChildren();
-  model.frameworkFigure.placements.forEach((placement) => {
-    elements.placementOptions.append(
-      createChoice({
-        id: placement.id,
-        title: localize(placement.label),
-        description: localize(placement.description),
-        active: workflow.frameworkFigure.placementId === placement.id,
-        onClick: () => {
-          workflow.frameworkFigure.placementId = placement.id;
-          renderPlacement();
-          renderSummary();
-          schedulePromptPreview();
-        },
-      }),
-    );
-  });
-}
-
 function renderRatios() {
   elements.ratioOptions.replaceChildren();
   model.frameworkFigure.aspectRatios.forEach((ratio) => {
@@ -720,9 +697,6 @@ function promptLanguageSummary() {
 
 function summaryRows() {
   const style = activeStyle();
-  const placement = model.frameworkFigure.placements.find(
-    (item) => item.id === workflow.frameworkFigure.placementId,
-  );
   const reasoning = model.chatExecution.reasoningPreferences.find(
     (item) => item.id === workflow.chatExecution.reasoningPreference,
   );
@@ -741,7 +715,7 @@ function summaryRows() {
     ],
     [
       copy("summaryFigure"),
-      `${localize(placement?.label)} · ${ratioSummary()}`,
+      ratioSummary(),
     ],
     [copy("summaryLanguage"), promptLanguageSummary()],
     [copy("summaryReasoning"), localize(reasoning?.label)],
@@ -768,7 +742,6 @@ function render() {
   renderStyles();
   renderWordLimit();
   renderAppendix();
-  renderPlacement();
   renderRatios();
   renderExecution();
   renderSummary();

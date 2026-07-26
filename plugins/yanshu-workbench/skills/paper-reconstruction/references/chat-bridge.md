@@ -44,9 +44,12 @@ var yanshuChatDoctor = await yanshuChatGPT.doctor({
 ```
 
 Stop on a failed required check. YanShu transfers approved `.tex`, `.bib`,
-`.pdf`, and image inputs as real files without converting their contents to
-message text. The preferred route is ChatGPT's visible file chooser; native
-Windows file-object paste remains a fallback.
+`.pdf`, and image inputs through its run-scoped MCP paper workspace when the
+visible Chat surface has the YanShu connection. Check the connection before
+testing attachment permissions. The browser attachment route remains a
+fallback and transfers approved inputs as real files without converting their
+contents to message text. Its preferred route is ChatGPT's visible file
+chooser; native Windows file-object paste remains the final fallback.
 
 The visible file chooser fallback may require:
 
@@ -156,10 +159,41 @@ latest/default reasoning family. Do not infer a subscription plan or hidden
 model identifier from a visible label. Record the visible labels and
 `yanshuAppliedConfiguration.data.verification` only.
 
-## Submit one round exactly once
+## Prefer the MCP round bootstrap
 
-Read the generated prompt file locally and pass its full text with only the
-approved source paths returned by `yanshu next`:
+After `init`, start or reuse the run-scoped paper workspace:
+
+```text
+node <plugin-root>/scripts/yanshu.mjs mcp-start \
+  --run <run-path>
+```
+
+If the visible Chat composer exposes the connected **YanShu Paper Workspace**,
+submit the returned `bootstrapPrompt` with no attachments:
+
+```js
+var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
+  yanshuChatGPT,
+  {
+    files: [],
+    tools: [{ tool: "YanShu" }],
+    prompt: mcpBootstrapPrompt
+  }
+);
+```
+
+Do not paste the full generated Prompt or attach the paper again in MCP mode.
+The Chat model calls `yanshu_get_round_manifest`, reads the Prompt and approved
+sources, inspects figures and rendered PDF pages, writes versioned artifacts,
+and compiles through the MCP tools. A loopback-only MCP URL is not evidence
+that an external `chatgpt.com` conversation can use it; the visible Chat must
+actually have the YanShu connection.
+
+## Submit one attachment-fallback round exactly once
+
+Only when the MCP connection is unavailable, read the generated prompt file
+locally and pass its full text with only the approved source paths returned by
+`yanshu next`:
 
 ```js
 var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
@@ -216,9 +250,12 @@ var yanshuContinuedRound = await yanshuChatGPT.askInThread({
 
 Send a continuation only when the visible conversation genuinely requires it. Do not use a continuation merely because a local wait timed out.
 
-## Download exact artifacts
+## Collect exact artifacts
 
-When the prompt names an expected file, use an exact case-insensitive filename expression and the round output directory:
+In MCP mode, verify the files registered in `run.json` and do not download a
+second copy from Chat. In attachment-fallback mode, when the prompt names an
+expected file, use an exact case-insensitive filename expression and the round
+output directory:
 
 ```js
 var yanshuDownloadedArtifact =

@@ -82,6 +82,25 @@ async function detectFile(projectRoot, supplied, extension, preferredName) {
   return candidates.length === 1 ? candidates[0] : null;
 }
 
+async function detectPdf(projectRoot, supplied) {
+  if (supplied) {
+    return resolveExistingPath(projectRoot, supplied, "PDF");
+  }
+
+  for (const relativePath of [
+    "main.pdf",
+    path.join("build", "main.pdf"),
+    path.join("output", "main.pdf"),
+    path.join("out", "main.pdf"),
+  ]) {
+    const candidate = path.join(projectRoot, relativePath);
+    if (await pathExists(candidate)) return candidate;
+  }
+
+  const candidates = await rootFilesWithExtension(projectRoot, ".pdf");
+  return candidates.length === 1 ? candidates[0] : null;
+}
+
 async function detectFigures(projectRoot, supplied) {
   if (supplied) {
     return resolveExistingPath(projectRoot, supplied, "Figures path");
@@ -101,7 +120,7 @@ export async function resolvePaperInputs(projectRoot, supplied = {}) {
     ".bib",
     "references.bib",
   );
-  const pdf = await detectFile(projectRoot, supplied.pdf, ".pdf", "main.pdf");
+  const pdf = await detectPdf(projectRoot, supplied.pdf);
   const figures = await detectFigures(projectRoot, supplied.figures);
 
   if (!tex && !pdf) {

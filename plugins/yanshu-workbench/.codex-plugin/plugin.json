@@ -1,6 +1,6 @@
 {
   "name": "yanshu-workbench",
-  "version": "0.2.0+codex.20260726030529",
+  "version": "0.2.0+codex.20260726062148",
   "description": "Extensible research workflows coordinated across local files and visible ChatGPT sessions.",
   "author": {
     "name": "panzhzh",
@@ -17,10 +17,11 @@
     "workflow"
   ],
   "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
   "interface": {
     "displayName": "YanShu",
     "shortDescription": "Installable research workflows for writing, figures, and publication.",
-    "longDescription": "YanShu is an extensible research-workflow plugin. Its first workflow, Paper Reconstruction, delegates manuscript writing and figure generation to the user's visible ChatGPT Chat session while Codex coordinates approved local files, checkpoints, compilation, fallbacks, and recovery.",
+    "longDescription": "YanShu is an extensible research-workflow plugin. Its first workflow, Paper Reconstruction, delegates manuscript writing and figure generation to the user's visible ChatGPT Chat session while a controlled local MCP workspace provides approved TeX, BibTeX, PDF-page and figure evidence, versioned outputs, compilation, fallbacks, and recovery.",
     "developerName": "panzhzh",
     "category": "Productivity",
     "capabilities": [

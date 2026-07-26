@@ -214,10 +214,18 @@ export async function applyChatReasoningSelection(
 
 export async function submitPreparedChatRound(
   chatgpt,
-  { files = [], prompt, report = { enabled: true, includeContent: false } },
+  {
+    files = [],
+    tools = [],
+    prompt,
+    report = { enabled: true, includeContent: false },
+  },
 ) {
   if (!Array.isArray(files)) {
     throw new TypeError("files must be an array of approved absolute paths.");
+  }
+  if (!Array.isArray(tools)) {
+    throw new TypeError("tools must be an array of visible ChatGPT tool selections.");
   }
   if (typeof prompt !== "string" || !prompt.trim()) {
     throw new TypeError("prompt must be a non-empty string.");
@@ -226,6 +234,7 @@ export async function submitPreparedChatRound(
     thread: { type: "current" },
     existingTab: true,
     files,
+    tools,
     prompt,
     wait: false,
     read: false,

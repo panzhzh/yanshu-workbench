@@ -38,6 +38,34 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /论文重构/);
   assert.match(html, /科研绘图/);
   assert.match(html, /投稿策略/);
+  assert.match(html, /论文写作/);
+  assert.match(html, /实验与复现/);
+  assert.match(html, /科研图表/);
+  assert.match(html, /投稿与审校/);
+  assert.match(html, /搜索/);
+  assert.match(html, /Idea 查找/);
+  assert.match(html, /Idea 评估与优化/);
+  assert.match(html, /全文初稿/);
+  assert.match(html, /分章节写作/);
+  assert.match(html, /全文重构/);
+  assert.match(html, /章节精修/);
+  assert.match(html, /专项审计/);
+  assert.match(html, /版本转换/);
+  assert.match(html, /实验方案设计/);
+  assert.match(html, /Baseline 与复现/);
+  assert.match(html, /实验代码/);
+  assert.match(html, /结果分析/);
+  assert.match(html, /可复现性/);
+  assert.match(html, /科学示意图/);
+  assert.match(html, /实验绘图/);
+  assert.match(html, /论文表格/);
+  assert.match(html, /图表审计/);
+  assert.match(html, /投稿定位/);
+  assert.match(html, /投稿前终检/);
+  assert.match(html, /投稿材料/);
+  assert.match(html, /审稿与返修/);
+  assert.match(html, /搜索功能或页面/);
+  assert.doesNotMatch(html, /关于研术台|About YanShu/);
   assert.match(html, /href="\/draft"/);
   assert.match(html, /href="\/reconstruction"/);
   assert.match(html, /class="home-module-grid"/);
@@ -61,12 +89,12 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /限制正文字数/);
   assert.match(html, /附录不计入正文，每张表格或图片按 200 词计入/);
   assert.match(html, /总体框架图/);
-  assert.match(html, /论文占栏/);
   assert.match(html, /画布比例/);
   assert.match(html, /Tol 鲜明色系/);
   assert.match(html, /2–3 个强调色为上限/);
   assert.match(html, /Calibri/);
-  assert.match(html, /不使用装饰图标，保留必要科学表示/);
+  assert.match(html, /可按需使用与论文对象直接对应的简化科学图形/);
+  assert.doesNotMatch(html, /论文占栏/);
   assert.match(html, /ChatGPT 执行/);
   assert.match(html, /最新可用推理模型/);
   assert.match(html, /自动最强/);
@@ -235,12 +263,10 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /此页负责科学示意图，不负责实验数据图/);
   assert.match(html, /真实 attention 或 feature heatmap/);
   assert.match(html, /机制图中的示意 matrix、mask 与 token heatmap 仍可使用/);
-  assert.match(html, /极简论文线稿/);
-  assert.match(html, /轻插图技术图/);
   assert.match(html, /11 种图型分别保存自己的设置/);
-  assert.match(html, /论文占栏与画布/);
-  assert.match(html, /单栏/);
-  assert.match(html, /跨双栏/);
+  assert.match(html, /画布比例/);
+  assert.doesNotMatch(html, /极简论文线稿|轻插图技术图/);
+  assert.doesNotMatch(html, /论文占栏|单栏|跨双栏/);
   assert.match(html, /横版 4:3/);
   assert.match(html, /横版 3:2/);
   assert.match(html, /竖版 3:4/);
@@ -320,6 +346,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     config,
     component,
     navigation,
+    navigationConfig,
     styles,
     resizer,
     submission,
@@ -338,6 +365,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     readFile(new URL("../app/config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/YanshuWorkbench.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/SiteNavigation.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/navigation.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
     readFile(new URL("../app/PromptResizeHandle.tsx", import.meta.url), "utf8"),
     readFile(
@@ -518,11 +546,13 @@ test("keeps presets and production prompts configuration-driven", async () => {
     originalPrompts,
     /COMMON_BASE[\s\S]*?FIGURE_TYPE_ADAPTERS\["method-overview"\][\s\S]*?COMPILED_VISUAL_CONFIGURATION[\s\S]*?OUTPUT_PROTOCOL/,
   );
-  assert.match(originalPrompts, /double-column, ultra-wide `2:1`/);
+  assert.match(originalPrompts, /ultra-wide `2:1`/);
+  assert.doesNotMatch(originalPrompts, /double-column|paper placement/);
   assert.match(originalPrompts, /`2–3`[\s\S]*?accent budget/);
   assert.doesNotMatch(originalPrompts, /RGB\(/);
   assert.match(originalPrompts, /Calibri prose labels/);
-  assert.match(originalPrompts, /minimal paper linework/);
+  assert.match(originalPrompts, /pure-white canvas/);
+  assert.match(originalPrompts, /paper-specific scientific forms/);
   assert.match(originalPrompts, /no large[\s\S]*?in-figure title/);
   assert.match(
     originalPrompts,
@@ -590,14 +620,37 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigation, /className="topbar-brand"/);
   assert.match(navigation, /className="top-nav-list"/);
   assert.doesNotMatch(navigation, /site-sidebar|desktopCollapsed/);
-  assert.match(navigation, /href:\s*"\/"/);
-  assert.match(navigation, /href:\s*"\/draft"/);
-  assert.match(navigation, /href:\s*"\/reconstruction"/);
-  assert.match(navigation, /href:\s*"\/submission"/);
-  assert.doesNotMatch(navigation, /navWriting|id:\s*"writing"/);
+  assert.match(navigation, /className="top-nav-dropdown"/);
+  assert.match(navigation, /className="top-nav-search-trigger"/);
+  assert.match(navigation, /searchResults/);
+  assert.match(navigation, /aria-live="polite"/);
+  assert.match(navigationConfig, /id:\s*"writing"/);
+  assert.match(navigationConfig, /id:\s*"reconstruction"/);
+  assert.match(navigationConfig, /id:\s*"experiments"/);
+  assert.match(navigationConfig, /id:\s*"figures"/);
+  assert.match(navigationConfig, /id:\s*"submission"/);
+  assert.match(navigationConfig, /href:\s*"\/draft"/);
+  assert.match(navigationConfig, /href:\s*"\/reconstruction"/);
+  assert.match(navigationConfig, /href:\s*"\/figures"/);
+  assert.match(navigationConfig, /href:\s*"\/submission"/);
+  assert.equal(
+    (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
+    4,
+  );
+  assert.equal(
+    (navigationConfig.match(/status:\s*"future",/g) ?? []).length,
+    17,
+  );
+  assert.doesNotMatch(navigationConfig, /关于研术台|About YanShu/);
   assert.match(
     styles,
     /--prompt-rail-width:\s*40%[\s\S]*?@media \(min-width: 1101px\)[\s\S]*?grid-template-columns:[\s\S]*?var\(--prompt-rail-width\)[\s\S]*?\.prompt-rail[\s\S]*?position: sticky/,
+  );
+  assert.match(styles, /\.top-nav-dropdown-panel/);
+  assert.match(styles, /\.top-nav-search-panel/);
+  assert.match(
+    styles,
+    /@media \(max-width: 1280px\)[\s\S]*?\.top-nav-dropdown,[\s\S]*?position: static/,
   );
   assert.match(styles, /\.prompt-resize-handle[\s\S]*?cursor: col-resize/);
   assert.match(resizer, /DEFAULT_PROMPT_WIDTH\s*=\s*40/);
@@ -734,10 +787,17 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(layout, /研术台 · YanShu/);
   assert.match(layout, /\/og\.png/);
   assert.match(packageJson, /"name": "yanshu-workbench-site"/);
+  assert.match(packageJson, /"build:pages":\s*"CLOUDFLARE_PAGES_STATIC=1 next build"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
 
   await assert.rejects(
     access(new URL("app/_sites-preview/", templateRoot)),
+  );
+  await assert.rejects(
+    access(new URL(".openai/hosting.json", templateRoot)),
+  );
+  await assert.rejects(
+    access(new URL("build/sites-vite-plugin.ts", templateRoot)),
   );
 });
 
@@ -749,6 +809,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     figureComponent,
     figurePage,
     navigation,
+    navigationConfig,
   ] =
     await Promise.all([
       readFile(new URL("../app/figures/config.ts", import.meta.url), "utf8"),
@@ -769,6 +830,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
       ),
       readFile(new URL("../app/figures/page.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/SiteNavigation.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/navigation.ts", import.meta.url), "utf8"),
     ]);
 
   assert.match(figureConfig, /promptId:\s*"method-overview"/);
@@ -787,8 +849,15 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   ]) {
     assert.match(figureConfig, new RegExp(`"${promptId}"|${promptId}:`));
   }
-  assert.match(figureConfig, /placementId:\s*"double-column"/);
   assert.match(figureConfig, /aspectRatioId:\s*"landscape-2-1"/);
+  assert.doesNotMatch(
+    figureConfig,
+    /FigurePlacementId|placementId|FIGURE_PLACEMENTS|FIGURE_PLACEMENT_IDS/,
+  );
+  assert.doesNotMatch(
+    figureConfig,
+    /FigureStyleId|styleId|FIGURE_STYLES|FIGURE_STYLE_IDS|极简论文线稿|轻插图技术图/,
+  );
   assert.doesNotMatch(
     figureConfig,
     /canvasPresetId|includeIntroductionFigure|includeMethodOverview|includeTechnicalDetailFigure/,
@@ -796,19 +865,19 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.doesNotMatch(figureConfig, /technicalFigureCount|TechnicalFigureCount/);
   assert.match(
     figureConfig,
-    /introduction:\s*\{[\s\S]*?placementId:\s*"double-column"[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?styleId:\s*"illustrated-technical"[\s\S]*?accentColorRangeId:\s*"2-3"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"semantic-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /introduction:\s*\{[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?accentColorRangeId:\s*"2-3"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"semantic-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
-    /"method-overview":\s*\{[\s\S]*?placementId:\s*"double-column"[\s\S]*?aspectRatioId:\s*"landscape-2-1"[\s\S]*?styleId:\s*"conference-minimal"[\s\S]*?accentColorRangeId:\s*"2-3"[\s\S]*?allowLightIllustrations:\s*false[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /"method-overview":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-2-1"[\s\S]*?accentColorRangeId:\s*"2-3"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
-    /"technical-detail":\s*\{[\s\S]*?placementId:\s*"single-column"[\s\S]*?aspectRatioId:\s*"landscape-4-3"[\s\S]*?accentColorRangeId:\s*"1-2"[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /"technical-detail":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-4-3"[\s\S]*?accentColorRangeId:\s*"1-2"[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
-    /"task-definition":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-3-2"[\s\S]*?styleId:\s*"illustrated-technical"/,
+    /"task-definition":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-3-2"[\s\S]*?allowLightIllustrations:\s*true/,
   );
   assert.match(
     figureConfig,
@@ -832,9 +901,6 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /getFigureAspectRatio/);
   assert.match(figureConfig, /greatestCommonDivisor/);
   assert.match(figureConfig, /输入任意宽高比例/);
-  assert.match(figureConfig, /双栏论文中的一栏/);
-  assert.match(figureConfig, /横跨双栏的通栏图/);
-  assert.match(figureConfig, /styleId:\s*"conference-minimal"/);
   assert.match(figureConfig, /lineColorMode:\s*"neutral"/);
   assert.match(figureConfig, /accentColorRangeId:\s*"1-2"/);
   assert.match(figureConfig, /accentColorRangeId:\s*"2-3"/);
@@ -845,9 +911,10 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /includeLargeTitle:\s*false/);
   assert.match(figureConfig, /paletteId:\s*"tol-vibrant"/);
   assert.match(figureConfig, /fontFamilyId:\s*"calibri"/);
-  assert.match(figureConfig, /"conference-minimal"/);
-  assert.match(figureConfig, /"illustrated-technical"/);
-  assert.doesNotMatch(figureConfig, /"structured-technical"|"light-academic"/);
+  assert.doesNotMatch(
+    figureConfig,
+    /"conference-minimal"|"illustrated-technical"|"structured-technical"|"light-academic"/,
+  );
   assert.match(figureConfig, /FIGURE_PROMPT_ORDER/);
   assert.match(figureConfig, /FIGURE_PROMPT_GROUPS/);
   assert.match(figureConfig, /核心论文图/);
@@ -861,6 +928,11 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     /COMMON_BASE\[language\][\s\S]*?FIGURE_TYPE_ADAPTERS\[promptId\]\[language\][\s\S]*?buildVisualConfiguration\(preferences\)[\s\S]*?OUTPUT_PROTOCOL\[language\]/,
   );
   assert.match(figureConfig, /User-Selected Visual Configuration/);
+  assert.match(figureConfig, /Canvas background: pure white/);
+  assert.doesNotMatch(
+    figureConfig,
+    /Target paper placement|Visual style preset/,
+  );
   assert.match(figureConfig, /maximum semantic budget, not a target/);
   assert.match(figureConfig, /1\.00 : 1\.22 : 1\.50/);
   assert.match(figureConfig, /No decorative or pictorial icons/);
@@ -951,11 +1023,13 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureComponent, /setActivePromptId\(promptId\)/);
   assert.match(figureComponent, /FIGURE_TYPE_RECOMMENDATIONS\[activePromptId\]/);
   assert.doesNotMatch(figureComponent, /\.\.\.FIGURE_DEFAULT_LAYOUT\[promptId\]/);
-  assert.match(figureComponent, /selectFigureStyle/);
-  assert.doesNotMatch(figureComponent, /FIGURE_STYLE_DEFAULTS/);
+  assert.doesNotMatch(
+    figureComponent,
+    /selectFigureStyle|FIGURE_STYLE_DEFAULTS|FIGURE_STYLE_IDS/,
+  );
   assert.match(figureComponent, /role="radiogroup"/);
   assert.match(figureComponent, /role="radio"/);
-  assert.match(figureComponent, /FIGURE_PLACEMENT_IDS\.map/);
+  assert.doesNotMatch(figureComponent, /FIGURE_PLACEMENT_IDS|placementId/);
   assert.match(figureComponent, /FIGURE_ASPECT_RATIO_IDS\.map/);
   assert.match(figureComponent, /getFigureAspectRatio\(preferences\)/);
   assert.match(figureComponent, /copy\.customRatioWidth/);
@@ -992,11 +1066,19 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     /content-section prompt-rail figure-prompt-section/,
   );
   assert.match(figurePage, /<FigureWorkbench \/>/);
-  assert.match(navigation, /href:\s*"\/figures"/);
+  assert.match(navigation, /NAVIGATION_GROUPS/);
+  assert.match(navigationConfig, /href:\s*"\/figures"/);
 });
 
 test("keeps paper-draft templates and provenance rules configuration-driven", async () => {
-  const [draftConfig, draftComponent, draftPage, navigation, homePage] =
+  const [
+    draftConfig,
+    draftComponent,
+    draftPage,
+    navigation,
+    navigationConfig,
+    homePage,
+  ] =
     await Promise.all([
       readFile(new URL("../app/draft/config.ts", import.meta.url), "utf8"),
       readFile(
@@ -1005,6 +1087,7 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
       ),
       readFile(new URL("../app/draft/page.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/SiteNavigation.tsx", import.meta.url), "utf8"),
+      readFile(new URL("../app/navigation.ts", import.meta.url), "utf8"),
       readFile(new URL("../app/HomePage.tsx", import.meta.url), "utf8"),
     ]);
 
@@ -1028,7 +1111,8 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
   assert.match(draftComponent, /<PromptResizeHandle language=\{uiLanguage\}/);
   assert.match(draftComponent, /useState\(true\)/);
   assert.match(draftPage, /<DraftWorkbench \/>/);
-  assert.match(navigation, /href:\s*"\/draft"/);
+  assert.match(navigation, /NAVIGATION_GROUPS/);
+  assert.match(navigationConfig, /href:\s*"\/draft"/);
   assert.match(homePage, /href="\/draft"/);
   assert.match(homePage, /href="\/reconstruction"/);
 });

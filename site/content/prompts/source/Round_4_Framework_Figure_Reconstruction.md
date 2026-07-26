@@ -20,12 +20,12 @@ The canonical blocks live in:
 - `app/figures/config.ts` for the user-selected visual configuration and the
   reconstruction default.
 
-The reconstruction default is a double-column, ultra-wide `2:1` Method
-Overview using minimal paper linework, the Tol Vibrant palette with a `2–3`
-accent budget, Calibri prose labels, dark-neutral structural lines, pale fills
-only for key regions, three type-size levels, no decorative icons, and no large
-in-figure title. A user-selected placement or aspect ratio replaces only that
-corresponding rendering setting.
+The reconstruction default is an ultra-wide `2:1` Method Overview on a
+pure-white canvas, using the Tol Vibrant palette with a `2–3` accent budget,
+Calibri prose labels, dark-neutral structural lines, pale fills only for key
+regions, three type-size levels, restrained paper-specific scientific forms
+when useful, and no large in-figure title. A user-selected aspect ratio replaces
+only that rendering setting.
 
 Runtime output must use the same two-step confirmation protocol as `/figures/`
 and save the confirmed image as

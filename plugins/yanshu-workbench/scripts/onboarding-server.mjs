@@ -78,9 +78,6 @@ function paperDisplayName(projectRoot) {
 
 function localizedSelection(config, model) {
   const style = model.paperStyles[config.styleId];
-  const placement = model.frameworkFigure.placements.find(
-    (item) => item.id === config.frameworkFigure.placementId,
-  );
   const ratio = model.frameworkFigure.aspectRatios.find(
     (item) => item.id === config.frameworkFigure.aspectRatioId,
   );
@@ -97,7 +94,6 @@ function localizedSelection(config, model) {
       config.hasWordLimit && config.unlimitedCoreSections,
     includeAppendix: config.includeAppendix,
     promptLanguage: config.language,
-    figurePlacement: placement?.label,
     figureRatio: ratioLabel,
     reasoningPreference: config.chatExecution.reasoningPreference,
   };

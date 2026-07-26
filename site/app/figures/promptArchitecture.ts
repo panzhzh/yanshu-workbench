@@ -26,7 +26,7 @@ export const COMMON_BASE = {
 
 有 \`.pdf\` 时：
 
-- 用于理解论文上下文、现有图表、版面位置和视觉重复；
+- 用于理解论文上下文、现有图表和视觉重复；
 - 不得重新绘制已有图已经承担的主要信息。
 
 材料冲突会直接改变图义时，只提出一个不可缺少的澄清问题。非关键缺失内容直接省略，不得自行补造。
@@ -121,7 +121,7 @@ When \`.tex\` is available:
 
 When \`.pdf\` is available:
 
-- Use it to understand context, existing figures, intended placement, and visual duplication.
+- Use it to understand context, existing figures, and visual duplication.
 - Do not redraw the main information already carried by an existing figure.
 
 If a material conflict would directly change the meaning of the figure, ask only one indispensable clarification question. Omit noncritical missing content instead of fabricating it.
@@ -1011,7 +1011,7 @@ FINAL IMAGE PROMPT
 
 - 使用最近一次确认的完整英文 Prompt；
 - 只生成一张最终图片；
-- 使用所选宽高比与论文占栏意图；
+- 使用所选宽高比；
 - 不提供备选方案或额外设计建议；
 - 不添加论文标题、作者、caption、水印或无证据内容。${
     outputFileName
@@ -1085,7 +1085,7 @@ Only after the user enters “开始绘图”, “Start drawing”, or an unambi
 
 - use the most recently confirmed complete English prompt;
 - generate exactly one final image;
-- use the selected aspect ratio and placement intent;
+- use the selected aspect ratio;
 - do not provide alternatives or additional design proposals;
 - do not add the paper title, authors, caption, watermark, or unsupported content.${
     outputFileName

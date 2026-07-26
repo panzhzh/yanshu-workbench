@@ -12,8 +12,6 @@ import PromptResizeHandle from "./PromptResizeHandle";
 import {
   FIGURE_ASPECT_RATIO_IDS,
   FIGURE_ASPECT_RATIOS,
-  FIGURE_PLACEMENT_IDS,
-  FIGURE_PLACEMENTS,
   RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
   getFigureAspectRatio,
   type FrameworkFigureLayoutPreferences,
@@ -136,8 +134,6 @@ export default function YanshuWorkbench() {
   );
   const [frameworkFigure, setFrameworkFigure] =
     useState<FrameworkFigureLayoutPreferences>(() => ({
-      placementId:
-        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
       aspectRatioId:
         RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
       customAspectWidth:
@@ -364,8 +360,6 @@ export default function YanshuWorkbench() {
     );
     setIncludeAppendix(nextStyle.defaultAppendix);
     setFrameworkFigure({
-      placementId:
-        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
       aspectRatioId:
         RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
       customAspectWidth:
@@ -582,38 +576,6 @@ export default function YanshuWorkbench() {
                 <span>{copy.frameworkFigure}</span>
               </legend>
               <div className="framework-figure-row">
-                <div className="framework-figure-field">
-                  <span>{copy.frameworkPlacement}</span>
-                  <div
-                    className="framework-placement-options"
-                    role="radiogroup"
-                    aria-label={copy.frameworkPlacement}
-                  >
-                    {FIGURE_PLACEMENT_IDS.map((placementId) => {
-                      const active =
-                        frameworkFigure.placementId === placementId;
-                      return (
-                        <button
-                          type="button"
-                          role="radio"
-                          aria-checked={active}
-                          className={active ? "active" : ""}
-                          key={placementId}
-                          onClick={() => {
-                            setFrameworkFigure((current) => ({
-                              ...current,
-                              placementId,
-                            }));
-                            setCopied(null);
-                          }}
-                        >
-                          {FIGURE_PLACEMENTS[placementId].label[uiLanguage]}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
                 <label className="framework-figure-field">
                   <span>{copy.frameworkRatio}</span>
                   <select

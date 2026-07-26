@@ -361,12 +361,6 @@ var UI_COPY = {
     skipToContent: "\u8DF3\u5230\u6B63\u6587",
     navLabel: "\u7AD9\u70B9\u5BFC\u822A",
     navDirectory: "\u5BFC\u822A",
-    navHome: "\u9996\u9875",
-    navDraft: "\u8BBA\u6587\u521D\u7A3F",
-    navReconstruction: "\u8BBA\u6587\u91CD\u6784",
-    navFigures: "\u79D1\u7814\u7ED8\u56FE",
-    navSubmission: "\u6295\u7A3F\u7B56\u7565",
-    navAbout: "\u5173\u4E8E\u7814\u672F\u53F0",
     comingSoon: "\u5373\u5C06\u63A8\u51FA",
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "\u8BBA\u6587\u91CD\u6784",
@@ -386,11 +380,10 @@ var UI_COPY = {
     appendixOn: "\u5141\u8BB8\u9644\u5F55",
     appendixOff: "\u4E0D\u542B\u9644\u5F55",
     frameworkFigure: "\u603B\u4F53\u6846\u67B6\u56FE",
-    frameworkPlacement: "\u8BBA\u6587\u5360\u680F",
     frameworkRatio: "\u753B\u5E03\u6BD4\u4F8B",
     frameworkCustomWidth: "\u5BBD",
     frameworkCustomHeight: "\u9AD8",
-    frameworkFixedRules: "\u5176\u4F59\u89C4\u5219\u91C7\u7528\u65B9\u6CD5\u603B\u89C8\u63A8\u8350\u914D\u7F6E\uFF1A\u6781\u7B80\u8BBA\u6587\u7EBF\u7A3F\uFF1BTol \u9C9C\u660E\u8272\u7CFB\uFF0C2\u20133 \u4E2A\u5F3A\u8C03\u8272\u4E3A\u4E0A\u9650\u4E14\u53D6\u6700\u5C11\u591F\u7528\u6570\u91CF\uFF1BCalibri\uFF1B\u5173\u952E\u533A\u57DF\u6781\u6D45\u5E95\u8272\uFF1B\u4E09\u7EA7\u5B57\u53F7\uFF1B\u65E0\u5927\u6807\u9898\uFF1B\u6DF1\u8272\u4E2D\u6027\u7EBF\uFF1B\u4E0D\u4F7F\u7528\u88C5\u9970\u56FE\u6807\uFF0C\u4FDD\u7559\u5FC5\u8981\u79D1\u5B66\u8868\u793A\u3002",
+    frameworkFixedRules: "\u5176\u4F59\u89C4\u5219\u91C7\u7528\u65B9\u6CD5\u603B\u89C8\u63A8\u8350\u914D\u7F6E\uFF1A\u7EAF\u767D\u753B\u5E03\uFF1BTol \u9C9C\u660E\u8272\u7CFB\uFF0C2\u20133 \u4E2A\u5F3A\u8C03\u8272\u4E3A\u4E0A\u9650\u4E14\u53D6\u6700\u5C11\u591F\u7528\u6570\u91CF\uFF1BCalibri\uFF1B\u5173\u952E\u533A\u57DF\u6781\u6D45\u5E95\u8272\uFF1B\u4E09\u7EA7\u5B57\u53F7\uFF1B\u65E0\u5927\u6807\u9898\uFF1B\u6DF1\u8272\u4E2D\u6027\u7EBF\uFF1B\u53EF\u6309\u9700\u4F7F\u7528\u4E0E\u8BBA\u6587\u5BF9\u8C61\u76F4\u63A5\u5BF9\u5E94\u7684\u7B80\u5316\u79D1\u5B66\u56FE\u5F62\uFF0C\u4E0D\u4F7F\u7528\u4EBA\u7269\u6F2B\u753B\u3001\u5409\u7965\u7269\u6216\u8425\u9500\u63D2\u753B\u3002",
     chatExecution: "ChatGPT \u6267\u884C",
     chatModelPolicy: "\u6A21\u578B\u7B56\u7565",
     chatLatestVisibleModel: "\u6700\u65B0\u53EF\u7528\u63A8\u7406\u6A21\u578B",
@@ -445,12 +438,6 @@ var UI_COPY = {
     skipToContent: "Skip to content",
     navLabel: "Site navigation",
     navDirectory: "Navigation",
-    navHome: "Home",
-    navDraft: "Paper draft",
-    navReconstruction: "Paper reconstruction",
-    navFigures: "Research figures",
-    navSubmission: "Submission strategy",
-    navAbout: "About YanShu",
     comingSoon: "Coming soon",
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "Paper reconstruction",
@@ -470,11 +457,10 @@ var UI_COPY = {
     appendixOn: "Appendix allowed",
     appendixOff: "No appendix",
     frameworkFigure: "Overall framework figure",
-    frameworkPlacement: "Paper placement",
     frameworkRatio: "Canvas ratio",
     frameworkCustomWidth: "Width",
     frameworkCustomHeight: "Height",
-    frameworkFixedRules: "All other controls use the Method Overview recommendation: minimal paper linework; Tol Vibrant with at most 2\u20133 accents and the smallest sufficient number; Calibri; extremely pale fills for key regions; three type-size levels; no large title; dark-neutral lines; no decorative icons while preserving necessary scientific representations.",
+    frameworkFixedRules: "All other controls use the Method Overview recommendation: a pure-white canvas; Tol Vibrant with at most 2\u20133 accents and the smallest sufficient number; Calibri; extremely pale fills for key regions; three type-size levels; no large title; dark-neutral lines; restrained paper-specific scientific forms when useful, with no character cartoons, mascots, or marketing illustration.",
     chatExecution: "ChatGPT execution",
     chatModelPolicy: "Model policy",
     chatLatestVisibleModel: "Latest available reasoning model",
@@ -1716,7 +1702,7 @@ var COMMON_BASE = {
 
 \u6709 \`.pdf\` \u65F6\uFF1A
 
-- \u7528\u4E8E\u7406\u89E3\u8BBA\u6587\u4E0A\u4E0B\u6587\u3001\u73B0\u6709\u56FE\u8868\u3001\u7248\u9762\u4F4D\u7F6E\u548C\u89C6\u89C9\u91CD\u590D\uFF1B
+- \u7528\u4E8E\u7406\u89E3\u8BBA\u6587\u4E0A\u4E0B\u6587\u3001\u73B0\u6709\u56FE\u8868\u548C\u89C6\u89C9\u91CD\u590D\uFF1B
 - \u4E0D\u5F97\u91CD\u65B0\u7ED8\u5236\u5DF2\u6709\u56FE\u5DF2\u7ECF\u627F\u62C5\u7684\u4E3B\u8981\u4FE1\u606F\u3002
 
 \u6750\u6599\u51B2\u7A81\u4F1A\u76F4\u63A5\u6539\u53D8\u56FE\u4E49\u65F6\uFF0C\u53EA\u63D0\u51FA\u4E00\u4E2A\u4E0D\u53EF\u7F3A\u5C11\u7684\u6F84\u6E05\u95EE\u9898\u3002\u975E\u5173\u952E\u7F3A\u5931\u5185\u5BB9\u76F4\u63A5\u7701\u7565\uFF0C\u4E0D\u5F97\u81EA\u884C\u8865\u9020\u3002
@@ -1811,7 +1797,7 @@ When \`.tex\` is available:
 
 When \`.pdf\` is available:
 
-- Use it to understand context, existing figures, intended placement, and visual duplication.
+- Use it to understand context, existing figures, and visual duplication.
 - Do not redraw the main information already carried by an existing figure.
 
 If a material conflict would directly change the meaning of the figure, ask only one indispensable clarification question. Omit noncritical missing content instead of fabricating it.
@@ -2699,7 +2685,7 @@ FINAL IMAGE PROMPT
 
 - \u4F7F\u7528\u6700\u8FD1\u4E00\u6B21\u786E\u8BA4\u7684\u5B8C\u6574\u82F1\u6587 Prompt\uFF1B
 - \u53EA\u751F\u6210\u4E00\u5F20\u6700\u7EC8\u56FE\u7247\uFF1B
-- \u4F7F\u7528\u6240\u9009\u5BBD\u9AD8\u6BD4\u4E0E\u8BBA\u6587\u5360\u680F\u610F\u56FE\uFF1B
+- \u4F7F\u7528\u6240\u9009\u5BBD\u9AD8\u6BD4\uFF1B
 - \u4E0D\u63D0\u4F9B\u5907\u9009\u65B9\u6848\u6216\u989D\u5916\u8BBE\u8BA1\u5EFA\u8BAE\uFF1B
 - \u4E0D\u6DFB\u52A0\u8BBA\u6587\u6807\u9898\u3001\u4F5C\u8005\u3001caption\u3001\u6C34\u5370\u6216\u65E0\u8BC1\u636E\u5185\u5BB9\u3002${outputFileName ? `
 - \u6700\u7EC8\u56FE\u50CF\u5FC5\u987B\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}
@@ -2770,7 +2756,7 @@ Only after the user enters \u201C\u5F00\u59CB\u7ED8\u56FE\u201D, \u201CStart dra
 
 - use the most recently confirmed complete English prompt;
 - generate exactly one final image;
-- use the selected aspect ratio and placement intent;
+- use the selected aspect ratio;
 - do not provide alternatives or additional design proposals;
 - do not add the paper title, authors, caption, watermark, or unsupported content.${outputFileName ? `
 - save the final image as \`${outputFileName}\`.` : ""}
@@ -2807,11 +2793,9 @@ var FIGURE_PROMPT_ORDER = [
 var FIGURE_TYPE_RECOMMENDATIONS = {
   introduction: {
     promptId: "introduction",
-    placementId: "double-column",
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
-    styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -2823,11 +2807,9 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "task-definition": {
     promptId: "task-definition",
-    placementId: "double-column",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
-    styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -2839,27 +2821,23 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "method-overview": {
     promptId: "method-overview",
-    placementId: "double-column",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
-    styleId: "conference-minimal",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
     accentColorRangeId: "2-3",
-    allowLightIllustrations: false,
+    allowLightIllustrations: true,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
     includeLargeTitle: false
   },
   "technical-detail": {
     promptId: "technical-detail",
-    placementId: "single-column",
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
-    styleId: "conference-minimal",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
@@ -2871,11 +2849,9 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "training-inference": {
     promptId: "training-inference",
-    placementId: "double-column",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
-    styleId: "conference-minimal",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -2887,11 +2863,9 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "algorithm-protocol": {
     promptId: "algorithm-protocol",
-    placementId: "double-column",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
-    styleId: "conference-minimal",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -2903,11 +2877,9 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "data-construction": {
     promptId: "data-construction",
-    placementId: "double-column",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
-    styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -2919,11 +2891,9 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "system-deployment": {
     promptId: "system-deployment",
-    placementId: "double-column",
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
-    styleId: "conference-minimal",
     paletteId: "tol-bright",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -2935,11 +2905,9 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "theory-concept": {
     promptId: "theory-concept",
-    placementId: "single-column",
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
-    styleId: "conference-minimal",
     paletteId: "tol-muted",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
@@ -2951,11 +2919,9 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "geometry-coordinate": {
     promptId: "geometry-coordinate",
-    placementId: "double-column",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
-    styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -2967,11 +2933,9 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "survey-taxonomy": {
     promptId: "survey-taxonomy",
-    placementId: "double-column",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
-    styleId: "conference-minimal",
     paletteId: "tol-bright",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -2986,7 +2950,6 @@ var FIGURE_DEFAULT_LAYOUT = Object.fromEntries(
   FIGURE_PROMPT_ORDER.map((promptId) => [
     promptId,
     {
-      placementId: FIGURE_TYPE_RECOMMENDATIONS[promptId].placementId,
       aspectRatioId: FIGURE_TYPE_RECOMMENDATIONS[promptId].aspectRatioId
     }
   ])
@@ -2997,31 +2960,6 @@ var DEFAULT_FIGURE_PREFERENCES = {
 var RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES = {
   ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"]
 };
-var FIGURE_PLACEMENTS = {
-  "single-column": {
-    label: {
-      zh: "\u5355\u680F",
-      en: "Single column"
-    },
-    shortDescription: {
-      zh: "\u53CC\u680F\u8BBA\u6587\u4E2D\u7684\u4E00\u680F",
-      en: "One column in a two-column paper"
-    }
-  },
-  "double-column": {
-    label: {
-      zh: "\u8DE8\u53CC\u680F",
-      en: "Span both columns"
-    },
-    shortDescription: {
-      zh: "\u6A2A\u8DE8\u53CC\u680F\u7684\u901A\u680F\u56FE",
-      en: "Full-width figure across both columns"
-    }
-  }
-};
-var FIGURE_PLACEMENT_IDS = Object.keys(
-  FIGURE_PLACEMENTS
-);
 var FIGURE_ASPECT_RATIOS = {
   "landscape-4-3": {
     label: {
@@ -3063,8 +3001,8 @@ var FIGURE_ASPECT_RATIOS = {
     },
     ratio: "2:1",
     shortDescription: {
-      zh: "\u8DE8\u53CC\u680F\u65B9\u6CD5\u603B\u89C8\u9996\u9009",
-      en: "Preferred for double-column method overviews"
+      zh: "\u8D85\u5BBD\u65B9\u6CD5\u603B\u89C8\u9996\u9009",
+      en: "Preferred for ultra-wide method overviews"
     }
   },
   "portrait-3-4": {
@@ -3120,33 +3058,6 @@ function getFigureAspectRatio(preferences) {
   const divisor = greatestCommonDivisor(width, height);
   return `${width / divisor}:${height / divisor}`;
 }
-var FIGURE_STYLES = {
-  "conference-minimal": {
-    label: {
-      zh: "\u6781\u7B80\u8BBA\u6587\u7EBF\u7A3F",
-      en: "Minimal paper linework"
-    },
-    shortDescription: {
-      zh: "\u79D1\u5B66\u7ED3\u6784 \xB7 \u7EC6\u7EBF \xB7 \u5F3A\u7559\u767D",
-      en: "Scientific structure \xB7 thin lines \xB7 strong whitespace"
-    },
-    compiledValue: "Minimal paper linework on a pure-white canvas, using thin print-safe structure, disciplined alignment, and no decorative effects"
-  },
-  "illustrated-technical": {
-    label: {
-      zh: "\u8F7B\u63D2\u56FE\u6280\u672F\u56FE",
-      en: "Light illustrated technical"
-    },
-    shortDescription: {
-      zh: "\u6280\u672F\u56FE\u9AA8\u67B6 \xB7 \u8BBA\u6587\u5BF9\u8C61\u79D1\u5B66\u56FE\u5F62",
-      en: "Technical structure \xB7 paper-specific scientific forms"
-    },
-    compiledValue: "A structured technical figure that may use simplified scientific forms, examples, and scene elements directly corresponding to the paper; never character cartoons, mascots, or marketing illustration"
-  }
-};
-var FIGURE_STYLE_IDS = Object.keys(
-  FIGURE_STYLES
-);
 var FIGURE_ACCENT_COLOR_RANGES = {
   "1-2": {
     min: 1,
@@ -3254,9 +3165,7 @@ var FIGURE_CARD_FILL_POLICY_IDS = Object.keys(
   FIGURE_CARD_FILL_POLICIES
 );
 function buildVisualConfiguration(preferences) {
-  const placement = FIGURE_PLACEMENTS[preferences.placementId];
   const selectedAspectRatio = getFigureAspectRatio(preferences);
-  const style = FIGURE_STYLES[preferences.styleId];
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
   const accentRange = FIGURE_ACCENT_COLOR_RANGES[preferences.accentColorRangeId];
@@ -3270,9 +3179,8 @@ function buildVisualConfiguration(preferences) {
 
 Treat the following settings as the authoritative rendering configuration for this figure.
 
-- Target paper placement: ${placement.label.en}
 - Export aspect ratio: ${selectedAspectRatio}
-- Visual style preset: ${style.compiledValue}
+- Canvas background: pure white
 - Accent palette: ${palette.label.en}; candidate accents ${candidateColors}
 - Preferred prose typeface: ${fontFamily.label}
 - Structural line policy: ${linePolicy}
@@ -3288,21 +3196,19 @@ Interpret these settings as follows:
 
 2. The allowed accent-color range is a maximum semantic budget, not a requirement to use every available color. Use the smallest sufficient number.
 
-3. The visual style changes rendering only. It must not change the scientific modules, data flow, labels, formulas, or causal structure.
+3. \u201CNo icons\u201D forbids decorative or pictorial icons, but it does not forbid scientific visual representations such as token stacks, matrices, masks, graphs, feature maps, nested bands, gates, selectors, traces, or state diagrams.
 
-4. \u201CNo icons\u201D forbids decorative or pictorial icons, but it does not forbid scientific visual representations such as token stacks, matrices, masks, graphs, feature maps, nested bands, gates, selectors, traces, or state diagrams.
+4. \u201CPure-white cards\u201D applies to container cards. It does not require every scientific object, representation band, token, matrix cell, or semantic marker to be white.
 
-5. \u201CPure-white cards\u201D applies to container cards. It does not require every scientific object, representation band, token, matrix cell, or semantic marker to be white.
+5. When pale card fills are enabled, use only extremely light semantic tints. Never use gradients, shadows, dark cards, glow, glass effects, or 3D.
 
-6. When pale card fills are enabled, use only extremely light semantic tints. Never use gradients, shadows, dark cards, glow, glass effects, or 3D.
+6. Use the selected prose typeface for ordinary labels. Mathematical expressions may use a compatible clean mathematical typeface when necessary to preserve correct notation.
 
-7. Use the selected prose typeface for ordinary labels. Mathematical expressions may use a compatible clean mathematical typeface when necessary to preserve correct notation.
+7. Structural lines should normally remain dark neutral. When semantic line differentiation is enabled, use colored lines only for a small number of clearly defined information streams; do not create rainbow arrows.
 
-8. Structural lines should normally remain dark neutral. When semantic line differentiation is enabled, use colored lines only for a small number of clearly defined information streams; do not create rainbow arrows.
+8. When a large in-figure title is disabled, retain only necessary panel headings, stage labels, or mechanism names.
 
-9. When a large in-figure title is disabled, retain only necessary panel headings, stage labels, or mechanism names.
-
-10. Every label must remain legible at the selected final paper placement. Remove or reflow secondary content rather than shrinking it into microtext.`;
+9. Every label must remain legible at the selected canvas ratio. Remove or reflow secondary content rather than shrinking it into microtext.`;
 }
 function buildFigurePrompt(promptId, preferences, language, options = {}) {
   return [
@@ -3313,7 +3219,6 @@ function buildFigurePrompt(promptId, preferences, language, options = {}) {
   ].join("\n\n");
 }
 function buildFrameworkFigureReconstructionPrompt(language, layout = {
-  placementId: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
   aspectRatioId: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
   customAspectWidth: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
   customAspectHeight: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight
@@ -5238,11 +5143,6 @@ function getReconstructionConfigurationModel() {
     ),
     frameworkFigure: {
       default: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
-      placements: FIGURE_PLACEMENT_IDS.map((id) => ({
-        id,
-        label: FIGURE_PLACEMENTS[id].label,
-        description: FIGURE_PLACEMENTS[id].shortDescription
-      })),
       aspectRatios: FIGURE_ASPECT_RATIO_IDS.map((id) => ({
         id,
         label: FIGURE_ASPECT_RATIOS[id].label,
@@ -5320,16 +5220,10 @@ function normalizeInput(input = {}) {
     }
   }
   const frameworkFigure = {
-    placementId: input.frameworkFigure?.placementId ?? RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
     aspectRatioId: input.frameworkFigure?.aspectRatioId ?? RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
     customAspectWidth: input.frameworkFigure?.customAspectWidth ?? RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
     customAspectHeight: input.frameworkFigure?.customAspectHeight ?? RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight
   };
-  if (!(frameworkFigure.placementId in FIGURE_PLACEMENTS)) {
-    throw new Error(
-      `Unsupported framework figure placement: ${String(frameworkFigure.placementId)}.`
-    );
-  }
   if (!(frameworkFigure.aspectRatioId in FIGURE_ASPECT_RATIOS)) {
     throw new Error(
       `Unsupported framework figure ratio: ${String(frameworkFigure.aspectRatioId)}.`

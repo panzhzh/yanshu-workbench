@@ -5,10 +5,6 @@ import {
   OUTPUT_PROTOCOL,
 } from "./promptArchitecture";
 
-export type FigureStyleId =
-  | "conference-minimal"
-  | "illustrated-technical";
-
 export type FigurePromptId =
   | "introduction"
   | "task-definition"
@@ -37,8 +33,6 @@ export const FIGURE_PROMPT_ORDER: FigurePromptId[] = [
   "geometry-coordinate",
   "survey-taxonomy",
 ];
-
-export type FigurePlacementId = "single-column" | "double-column";
 
 export type FigureAspectRatioId =
   | "landscape-4-3"
@@ -69,11 +63,9 @@ export type FigureFontFamilyId =
 
 export interface FigurePreferences {
   promptId: FigurePromptId;
-  placementId: FigurePlacementId;
   aspectRatioId: FigureAspectRatioId;
   customAspectWidth: number;
   customAspectHeight: number;
-  styleId: FigureStyleId;
   paletteId: FigurePaletteId;
   fontFamilyId: FigureFontFamilyId;
   lineColorMode: FigureLineColorMode;
@@ -89,7 +81,6 @@ export interface FigurePromptBuildOptions {
 }
 
 export interface FrameworkFigureLayoutPreferences {
-  placementId: FigurePlacementId;
   aspectRatioId: FigureAspectRatioId;
   customAspectWidth: number;
   customAspectHeight: number;
@@ -98,11 +89,9 @@ export interface FrameworkFigureLayoutPreferences {
 export const FIGURE_TYPE_RECOMMENDATIONS = {
   introduction: {
     promptId: "introduction",
-    placementId: "double-column",
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
-    styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -114,11 +103,9 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "task-definition": {
     promptId: "task-definition",
-    placementId: "double-column",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
-    styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -130,27 +117,23 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "method-overview": {
     promptId: "method-overview",
-    placementId: "double-column",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
-    styleId: "conference-minimal",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
     accentColorRangeId: "2-3",
-    allowLightIllustrations: false,
+    allowLightIllustrations: true,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
     includeLargeTitle: false,
   },
   "technical-detail": {
     promptId: "technical-detail",
-    placementId: "single-column",
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
-    styleId: "conference-minimal",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
@@ -162,11 +145,9 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "training-inference": {
     promptId: "training-inference",
-    placementId: "double-column",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
-    styleId: "conference-minimal",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -178,11 +159,9 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "algorithm-protocol": {
     promptId: "algorithm-protocol",
-    placementId: "double-column",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
-    styleId: "conference-minimal",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -194,11 +173,9 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "data-construction": {
     promptId: "data-construction",
-    placementId: "double-column",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
-    styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -210,11 +187,9 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "system-deployment": {
     promptId: "system-deployment",
-    placementId: "double-column",
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
-    styleId: "conference-minimal",
     paletteId: "tol-bright",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -226,11 +201,9 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "theory-concept": {
     promptId: "theory-concept",
-    placementId: "single-column",
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
-    styleId: "conference-minimal",
     paletteId: "tol-muted",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
@@ -242,11 +215,9 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "geometry-coordinate": {
     promptId: "geometry-coordinate",
-    placementId: "double-column",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
-    styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -258,11 +229,9 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "survey-taxonomy": {
     promptId: "survey-taxonomy",
-    placementId: "double-column",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
-    styleId: "conference-minimal",
     paletteId: "tol-bright",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
@@ -278,7 +247,6 @@ export const FIGURE_DEFAULT_LAYOUT = Object.fromEntries(
   FIGURE_PROMPT_ORDER.map((promptId) => [
     promptId,
     {
-      placementId: FIGURE_TYPE_RECOMMENDATIONS[promptId].placementId,
       aspectRatioId:
         FIGURE_TYPE_RECOMMENDATIONS[promptId].aspectRatioId,
     },
@@ -286,7 +254,6 @@ export const FIGURE_DEFAULT_LAYOUT = Object.fromEntries(
 ) as Record<
   FigurePromptId,
   {
-    placementId: FigurePlacementId;
     aspectRatioId: FigureAspectRatioId;
   }
 >;
@@ -298,39 +265,6 @@ export const DEFAULT_FIGURE_PREFERENCES: FigurePreferences = {
 export const RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES = {
   ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"],
 } as const satisfies FigurePreferences;
-
-export const FIGURE_PLACEMENTS = {
-  "single-column": {
-    label: {
-      zh: "单栏",
-      en: "Single column",
-    },
-    shortDescription: {
-      zh: "双栏论文中的一栏",
-      en: "One column in a two-column paper",
-    },
-  },
-  "double-column": {
-    label: {
-      zh: "跨双栏",
-      en: "Span both columns",
-    },
-    shortDescription: {
-      zh: "横跨双栏的通栏图",
-      en: "Full-width figure across both columns",
-    },
-  },
-} as const satisfies Record<
-  FigurePlacementId,
-  {
-    label: Record<Language, string>;
-    shortDescription: Record<Language, string>;
-  }
->;
-
-export const FIGURE_PLACEMENT_IDS = Object.keys(
-  FIGURE_PLACEMENTS,
-) as FigurePlacementId[];
 
 export const FIGURE_ASPECT_RATIOS = {
   "landscape-4-3": {
@@ -373,8 +307,8 @@ export const FIGURE_ASPECT_RATIOS = {
     },
     ratio: "2:1",
     shortDescription: {
-      zh: "跨双栏方法总览首选",
-      en: "Preferred for double-column method overviews",
+      zh: "超宽方法总览首选",
+      en: "Preferred for ultra-wide method overviews",
     },
   },
   "portrait-3-4": {
@@ -443,44 +377,6 @@ export function getFigureAspectRatio(preferences: FigurePreferences) {
   const divisor = greatestCommonDivisor(width, height);
   return `${width / divisor}:${height / divisor}`;
 }
-
-export const FIGURE_STYLES = {
-  "conference-minimal": {
-    label: {
-      zh: "极简论文线稿",
-      en: "Minimal paper linework",
-    },
-    shortDescription: {
-      zh: "科学结构 · 细线 · 强留白",
-      en: "Scientific structure · thin lines · strong whitespace",
-    },
-    compiledValue:
-      "Minimal paper linework on a pure-white canvas, using thin print-safe structure, disciplined alignment, and no decorative effects",
-  },
-  "illustrated-technical": {
-    label: {
-      zh: "轻插图技术图",
-      en: "Light illustrated technical",
-    },
-    shortDescription: {
-      zh: "技术图骨架 · 论文对象科学图形",
-      en: "Technical structure · paper-specific scientific forms",
-    },
-    compiledValue:
-      "A structured technical figure that may use simplified scientific forms, examples, and scene elements directly corresponding to the paper; never character cartoons, mascots, or marketing illustration",
-  },
-} as const satisfies Record<
-  FigureStyleId,
-  {
-    label: Record<Language, string>;
-    shortDescription: Record<Language, string>;
-    compiledValue: string;
-  }
->;
-
-export const FIGURE_STYLE_IDS = Object.keys(
-  FIGURE_STYLES,
-) as FigureStyleId[];
 
 export const FIGURE_ACCENT_COLOR_RANGES = {
   "1-2": {
@@ -877,19 +773,15 @@ export const FIGURE_COPY = {
       "适合论文叙事、任务定义、方法机制、系统关系与分类体系。柱线散点图、消融与敏感性、ROC/PR、真实 attention 或 feature heatmap、定量与定性结果应由代码或专用实验绘图工具生成；机制图中的示意 matrix、mask 与 token heatmap 仍可使用。",
     professionalClosedHint: "展开 3 种专业图型",
     professionalOpenHint: "收起专业图型",
-    canvas: "论文占栏与画布",
-    paperPlacement: "论文占栏",
+    canvas: "画布比例",
     aspectRatio: "画布比例",
     customRatioWidth: "比例宽度",
     customRatioHeight: "比例高度",
     customRatioCurrent: "当前比例",
     customRatioHint: "填写比例数值而非像素；系统会自动约分并写入 Prompt。",
     canvasHint:
-      "占栏决定最终论文尺寸，比例是硬布局约束。方法总览默认使用超宽 2:1，仍可按 venue 模板调整。",
+      "画布比例是硬布局约束。方法总览默认使用超宽 2:1，仍可按 venue 模板调整。",
     recommended: "推荐",
-    visualStyle: "视觉风格",
-    visualStyleHint:
-      "视觉风格只改变渲染语言，不会重置配色、线条、卡片或其他已修改设置。",
     visualRules: "视觉约束",
     visualRulesHint:
       "颜色范围是语义预算上限，不是必须用满的任务指标；始终使用最少够用的颜色。",
@@ -960,8 +852,7 @@ export const FIGURE_COPY = {
       "Use it for paper narrative, task definitions, method mechanisms, system relations, and taxonomies. Bar, line, and scatter plots, ablations, sensitivity analyses, ROC/PR curves, real attention or feature heatmaps, and quantitative or qualitative results belong in code-based or dedicated experiment plotting. Schematic matrices, masks, and token heatmaps inside mechanism figures remain allowed.",
     professionalClosedHint: "Expand 3 specialized figure types",
     professionalOpenHint: "Collapse specialized figure types",
-    canvas: "Paper placement & canvas",
-    paperPlacement: "Paper placement",
+    canvas: "Canvas ratio",
     aspectRatio: "Canvas ratio",
     customRatioWidth: "Ratio width",
     customRatioHeight: "Ratio height",
@@ -969,11 +860,8 @@ export const FIGURE_COPY = {
     customRatioHint:
       "Enter ratio values, not pixels. The ratio is reduced automatically and written into the prompt.",
     canvasHint:
-      "Placement controls final paper size, and ratio is a hard layout constraint. Method Overview defaults to ultra-wide 2:1 but remains editable for the venue template.",
+      "The canvas ratio is a hard layout constraint. Method Overview defaults to ultra-wide 2:1 but remains editable for the venue template.",
     recommended: "Recommended",
-    visualStyle: "Visual style",
-    visualStyleHint:
-      "Visual style changes rendering language only; it does not reset palette, lines, cards, or any other edited control.",
     visualRules: "Visual controls",
     visualRulesHint:
       "The color range is a maximum semantic budget, not a target. Always use the smallest sufficient number.",
@@ -1026,9 +914,7 @@ export const FIGURE_COPY = {
 } as const;
 
 function buildVisualConfiguration(preferences: FigurePreferences) {
-  const placement = FIGURE_PLACEMENTS[preferences.placementId];
   const selectedAspectRatio = getFigureAspectRatio(preferences);
-  const style = FIGURE_STYLES[preferences.styleId];
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
   const accentRange =
@@ -1057,9 +943,8 @@ function buildVisualConfiguration(preferences: FigurePreferences) {
 
 Treat the following settings as the authoritative rendering configuration for this figure.
 
-- Target paper placement: ${placement.label.en}
 - Export aspect ratio: ${selectedAspectRatio}
-- Visual style preset: ${style.compiledValue}
+- Canvas background: pure white
 - Accent palette: ${palette.label.en}; candidate accents ${candidateColors}
 - Preferred prose typeface: ${fontFamily.label}
 - Structural line policy: ${linePolicy}
@@ -1075,21 +960,19 @@ Interpret these settings as follows:
 
 2. The allowed accent-color range is a maximum semantic budget, not a requirement to use every available color. Use the smallest sufficient number.
 
-3. The visual style changes rendering only. It must not change the scientific modules, data flow, labels, formulas, or causal structure.
+3. “No icons” forbids decorative or pictorial icons, but it does not forbid scientific visual representations such as token stacks, matrices, masks, graphs, feature maps, nested bands, gates, selectors, traces, or state diagrams.
 
-4. “No icons” forbids decorative or pictorial icons, but it does not forbid scientific visual representations such as token stacks, matrices, masks, graphs, feature maps, nested bands, gates, selectors, traces, or state diagrams.
+4. “Pure-white cards” applies to container cards. It does not require every scientific object, representation band, token, matrix cell, or semantic marker to be white.
 
-5. “Pure-white cards” applies to container cards. It does not require every scientific object, representation band, token, matrix cell, or semantic marker to be white.
+5. When pale card fills are enabled, use only extremely light semantic tints. Never use gradients, shadows, dark cards, glow, glass effects, or 3D.
 
-6. When pale card fills are enabled, use only extremely light semantic tints. Never use gradients, shadows, dark cards, glow, glass effects, or 3D.
+6. Use the selected prose typeface for ordinary labels. Mathematical expressions may use a compatible clean mathematical typeface when necessary to preserve correct notation.
 
-7. Use the selected prose typeface for ordinary labels. Mathematical expressions may use a compatible clean mathematical typeface when necessary to preserve correct notation.
+7. Structural lines should normally remain dark neutral. When semantic line differentiation is enabled, use colored lines only for a small number of clearly defined information streams; do not create rainbow arrows.
 
-8. Structural lines should normally remain dark neutral. When semantic line differentiation is enabled, use colored lines only for a small number of clearly defined information streams; do not create rainbow arrows.
+8. When a large in-figure title is disabled, retain only necessary panel headings, stage labels, or mechanism names.
 
-9. When a large in-figure title is disabled, retain only necessary panel headings, stage labels, or mechanism names.
-
-10. Every label must remain legible at the selected final paper placement. Remove or reflow secondary content rather than shrinking it into microtext.`;
+9. Every label must remain legible at the selected canvas ratio. Remove or reflow secondary content rather than shrinking it into microtext.`;
 }
 
 export function buildFigurePrompt(
@@ -1109,8 +992,6 @@ export function buildFigurePrompt(
 export function buildFrameworkFigureReconstructionPrompt(
   language: Language,
   layout: FrameworkFigureLayoutPreferences = {
-    placementId:
-      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.placementId,
     aspectRatioId:
       RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
     customAspectWidth:

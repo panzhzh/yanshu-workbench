@@ -140,7 +140,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   assert.doesNotMatch(workflow.rounds[3].prompt, /RGB\(/);
   assert.match(
     workflow.rounds[3].prompt,
-    /Minimal paper linework on a pure-white canvas/,
+    /Canvas background: pure white/,
   );
   assert.match(
     workflow.rounds[3].prompt,
@@ -148,7 +148,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /No decorative or pictorial icons/,
+    /Allow restrained, paper-specific scientific forms/,
   );
   assert.match(
     workflow.rounds[3].prompt,
@@ -183,11 +183,10 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   });
 });
 
-test("framework figure placement and canvas are configuration-driven", () => {
+test("framework figure canvas ratio is configuration-driven", () => {
   const workflow = buildReconstructionWorkflow({
     language: "en",
     frameworkFigure: {
-      placementId: "single-column",
       aspectRatioId: "portrait-3-4",
       customAspectWidth: 3,
       customAspectHeight: 4,
@@ -195,17 +194,11 @@ test("framework figure placement and canvas are configuration-driven", () => {
   });
 
   assert.equal(
-    workflow.config.frameworkFigure.placementId,
-    "single-column",
-  );
-  assert.equal(
     workflow.config.frameworkFigure.aspectRatioId,
     "portrait-3-4",
   );
-  assert.match(
-    workflow.rounds[3].prompt,
-    /Target paper placement: Single column/,
-  );
+  assert.equal("placementId" in workflow.config.frameworkFigure, false);
+  assert.doesNotMatch(workflow.rounds[3].prompt, /paper placement/i);
   assert.match(workflow.rounds[3].prompt, /Export aspect ratio: 3:4/);
   assert.equal(
     (workflow.rounds[3].prompt.match(/3:4/g) ?? []).length,
@@ -271,6 +264,33 @@ test("skill opens one local launch page without an execution-mode question", asy
   assert.match(bridgeReference, /files: \[\]/);
 });
 
+test("paper input detection prefers the current build PDF over archived copies", async () => {
+  const temporaryRoot = await mkdtemp(
+    path.join(tmpdir(), "yanshu-input-detection-test-"),
+  );
+  try {
+    const paperRoot = path.join(temporaryRoot, "paper");
+    const buildRoot = path.join(paperRoot, "build");
+    await mkdir(path.join(buildRoot, "arxiv_compile"), { recursive: true });
+    await writeFile(
+      path.join(paperRoot, "main.tex"),
+      "\\documentclass{article}\\begin{document}Test\\end{document}\n",
+      "utf8",
+    );
+    await writeFile(path.join(buildRoot, "main.pdf"), "current", "utf8");
+    await writeFile(
+      path.join(buildRoot, "arxiv_compile", "main.pdf"),
+      "archived",
+      "utf8",
+    );
+
+    const inputs = await resolvePaperInputs(paperRoot);
+    assert.equal(inputs.pdf, path.join(buildRoot, "main.pdf"));
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
 test("local onboarding page confirms a complete automation config", async () => {
   const temporaryRoot = await mkdtemp(
     path.join(tmpdir(), "yanshu-onboarding-test-"),
@@ -318,6 +338,7 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.equal(bootstrap.model.paperStyles.conference.defaultTargetWords, 4500);
     assert.equal(bootstrap.model.paperStyles.journal.defaultTargetWords, 5000);
     assert.equal(bootstrap.initialWorkflow.styleId, "conference");
+    assert.equal("placements" in bootstrap.model.frameworkFigure, false);
 
     const previewResponse = await fetch(endpoint("/api/preview"), {
       method: "POST",
@@ -358,7 +379,6 @@ test("local onboarding page confirms a complete automation config", async () => 
           unlimitedCoreSections: true,
           includeAppendix: true,
           frameworkFigure: {
-            placementId: "single-column",
             aspectRatioId: "portrait-3-4",
             customAspectWidth: 3,
             customAspectHeight: 4,
@@ -383,7 +403,7 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.equal(config.workflow.styleId, "journal");
     assert.equal(config.workflow.hasWordLimit, false);
     assert.equal(config.workflow.unlimitedCoreSections, false);
-    assert.equal(config.workflow.frameworkFigure.placementId, "single-column");
+    assert.equal("placementId" in config.workflow.frameworkFigure, false);
     assert.equal(config.workflow.chatExecution.reasoningPreference, "high");
 
     const ui = await readFile(
@@ -395,6 +415,7 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.match(ui, /exit-button/);
     assert.match(ui, /copy-all-button/);
     assert.match(ui, /prompt-preview-list/);
+    assert.doesNotMatch(ui, /placement-options/);
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });
   }

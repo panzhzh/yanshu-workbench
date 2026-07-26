@@ -3,7 +3,12 @@
 YanShu is an extensible research-workflow plugin. It is the installable layer
 behind the [YanShu website](https://yanshu-workbench.pages.dev/): the website
 configures a workflow, while the plugin coordinates local materials, visible
-ChatGPT sessions, checkpoints, artifacts, compilation, and recovery.
+ChatGPT sessions, an MCP paper workspace, checkpoints, artifacts, compilation,
+and recovery.
+
+The Cloudflare Pages URL above is the only public website deployment. Saved
+ChatGPT Sites versions and `*.chatgpt.site` URLs are not YanShu release
+targets.
 
 The technical package ID remains `yanshu-workbench` for repository and install
 compatibility. The product shown to users is **YanShu**.
@@ -118,11 +123,33 @@ artifacts, logs, and status are stored under:
 <paper-root>/yanshu-reconstruction/<run-id>/
 ```
 
-Approved `.tex`, `.bib`, `.pdf`, and figure inputs are handed to ChatGPT as
-real files; their contents are not flattened into message text. YanShu prefers
-ChatGPT's visible file chooser and verifies one visible card per approved file.
-On Windows, native file-object clipboard paste remains a fallback. YanShu never
-bypasses login, CAPTCHA, permissions, or confirmation.
+The preferred execution path is the bundled **YanShu Paper Workspace** MCP
+server. It exposes only the selected run and provides focused tools to:
+
+- read the exact round Prompt and approved TeX/BibTeX sources;
+- index TeX figure/table labels, captions, section context, and graphic paths;
+- return PNG/JPEG/WebP/SVG figures as image content;
+- render PDF pages and PDF figures through Poppler, and EPS figures through
+  Ghostscript, so Chat can inspect actual pixels before writing experiments;
+- search PDF text to locate a table, figure, metric, or section before
+  rendering the relevant page;
+- save versioned round artifacts without overwriting the original paper;
+- compile LaTeX in an isolated build directory and return a focused error log.
+
+Start the run-scoped local endpoint with:
+
+```bash
+node scripts/yanshu.mjs mcp-start --run <run-path>
+```
+
+The returned loopback URL is private to the current computer. A compatible
+local plugin host can use the bundled MCP companion directly. External
+`chatgpt.com` needs an authenticated HTTPS MCP connection or supported secure
+tunnel; a loopback URL alone is not remotely reachable. When that connection is
+unavailable, YanShu falls back to handing approved `.tex`, `.bib`, `.pdf`, and
+figure inputs to ChatGPT as real files. It prefers the visible file chooser and
+keeps native Windows file-object clipboard paste as the final fallback. YanShu
+never bypasses login, CAPTCHA, permissions, or confirmation.
 
 ## Developer commands
 
