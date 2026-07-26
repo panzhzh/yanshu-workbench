@@ -24,6 +24,7 @@ import {
 } from "../scripts/lib/mcp-workspace.mjs";
 import {
   createRun,
+  loadRun,
   resolvePaperInputs,
 } from "../scripts/lib/run-store.mjs";
 import {
@@ -47,7 +48,11 @@ async function createFixture() {
   const temporaryRoot = await mkdtemp(
     path.join(tmpdir(), "yanshu-mcp-test-"),
   );
-  const paperRoot = path.join(temporaryRoot, "paper");
+  const paperRoot = path.join(
+    temporaryRoot,
+    "论文 空格",
+    "paper",
+  );
   const figures = path.join(paperRoot, "figures");
   await mkdir(figures, { recursive: true });
   const tex = String.raw`\documentclass{article}
@@ -80,6 +85,7 @@ The result is summarized in Figure~\ref{fig:result} and Table~\ref{tab:main}.
 `;
   await writeFile(path.join(paperRoot, "main.tex"), tex, "utf8");
   await writeFile(path.join(paperRoot, "references.bib"), bib, "utf8");
+  await writeFile(path.join(paperRoot, "main.pdf"), "pdf fixture", "utf8");
   await writeFile(path.join(figures, "result.png"), ONE_PIXEL_PNG);
   const inputs = await resolvePaperInputs(paperRoot);
   const workflow = buildReconstructionWorkflow({
@@ -105,6 +111,14 @@ test("MCP workspace exposes prompts, TeX evidence, and real figure pixels", asyn
       manifest.artifacts.some((artifact) =>
         artifact.roles.includes("primary-tex"),
       ),
+    );
+    assert.ok(
+      manifest.artifacts.some(
+        (artifact) =>
+          artifact.name === "result.png" &&
+          artifact.roles.includes("evidence-figure"),
+      ),
+      "MCP must expose a TeX-referenced source figure even when a compiled PDF is present",
     );
     const prompt = await readTextArtifact({
       runPath: fixture.state.runPath,
@@ -202,6 +216,22 @@ test("MCP writes are scoped, versioned, compiled, rendered, and handed off", asy
       compilation.logTail,
     );
     assert.ok(compilation.compiledPdfArtifactId);
+    const compiledState = await loadRun(fixture.state.runPath);
+    const stagingRecord = JSON.parse(
+      await readFile(
+        path.resolve(
+          compiledState.runPath,
+          compiledState.rounds[0].compilation.staging.manifestPath.replace(
+            /^run\//u,
+            "",
+          ),
+        ),
+        "utf8",
+      ),
+    );
+    assert.equal(stagingRecord.strategy, "ascii-temporary");
+    assert.match(stagingRecord.sourceRunPath, /论文 空格/u);
+    assert.ok(stagingRecord.cleanedAt);
 
     await assert.rejects(
       completeRound({
@@ -255,6 +285,19 @@ test("MCP writes are scoped, versioned, compiled, rendered, and handed off", asy
     });
     assert.equal(completed.completedRound.number, 1);
     assert.equal(completed.nextRound.number, 2);
+    const finalizedState = await loadRun(fixture.state.runPath);
+    assert.equal(finalizedState.validation.status, "passed");
+    assert.equal(
+      finalizedState.rounds[0].checkpoint,
+      "finalized",
+    );
+    assert.match(
+      await readFile(
+        path.join(finalizedState.runPath, "STATUS.md"),
+        "utf8",
+      ),
+      /Round 1:.*completed \/ finalized/u,
+    );
 
     const handoff = await getRoundManifest(
       fixture.state.runPath,
@@ -274,7 +317,13 @@ test("MCP writes are scoped, versioned, compiled, rendered, and handed off", asy
     assert.ok(handoffNames.includes("round_1_references.bib"));
     assert.ok(!handoffNames.includes("references.bib"));
     assert.ok(!handoffNames.includes("main.tex"));
-    assert.ok(!handoffNames.includes("result.png"));
+    assert.ok(
+      handoff.artifacts.some(
+        (artifact) =>
+          artifact.name === "result.png" &&
+          artifact.roles.includes("evidence-figure"),
+      ),
+    );
   } finally {
     await rm(fixture.temporaryRoot, { recursive: true, force: true });
   }
@@ -304,6 +353,9 @@ test("MCP JSON-RPC and HTTP transports advertise bound, focused tools", async ()
       tools[0].inputSchema.properties.runPath,
       undefined,
     );
+    const health = await callTool("yanshu_health", {}, null);
+    assert.equal(health.structuredContent.ready, true);
+    assert.equal(health.structuredContent.runBound, false);
 
     const manifestResult = await callTool(
       "yanshu_get_round_manifest",
@@ -379,7 +431,12 @@ test("plugin manifest ships the YanShu MCP companion", async () => {
   assert.equal(manifest.mcpServers, "./.mcp.json");
   assert.deepEqual(
     mcp.mcpServers["yanshu-paper-workspace"].args,
-    ["./mcp/server.mjs", "--transport", "stdio"],
+    [
+      "./scripts/node-launcher.cjs",
+      "./mcp/server.mjs",
+      "--transport",
+      "stdio",
+    ],
   );
 });
 

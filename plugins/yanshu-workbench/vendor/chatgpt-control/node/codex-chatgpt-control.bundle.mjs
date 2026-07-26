@@ -6562,12 +6562,15 @@ async function messageStatus(env, args = {}) {
   const snapshot = await readWaitDomSnapshot(page).catch(() => void 0) ?? await fallbackWaitSnapshot(page, 0);
   const maxPreviewChars = Math.max(0, args.maxPreviewChars ?? 240);
   const latestText = snapshot.text.length > 0 ? normalizeWhitespace(await fetchLatestAssistantText(page) ?? "") : "";
+  const hasResponseActions = snapshot.hasResponseActions ?? await latestAssistantTurnHasResponseActions(page).catch(() => false);
+  const completionState = latestText.length > 0 && !snapshot.generation.active && !snapshot.generation.stopped && hasResponseActions ? "complete" : completionStateFromGeneration(snapshot.generation, void 0, latestText.length > 0);
   const data = {
     turnCount: snapshot.turnCount,
     assistantTurnCount: snapshot.assistantTurnCount,
-    completionState: completionStateFromGeneration(snapshot.generation, void 0, latestText.length > 0),
+    completionState,
     generationActive: snapshot.generation.active,
-    generationSignals: snapshot.generation.signals
+    generationSignals: snapshot.generation.signals,
+    hasResponseActions
   };
   if (snapshot.latestAssistantTurnIndex !== void 0) data.latestAssistantTurnIndex = snapshot.latestAssistantTurnIndex;
   if (latestText.length > 0) {
@@ -6940,22 +6943,30 @@ import { basename as basename2, join as join2, resolve as resolve3 } from "node:
 
 // src/browser/downloads.ts
 import { copyFile, mkdir as mkdir2, stat as stat2 } from "node:fs/promises";
-import { basename, join, resolve as resolve2 } from "node:path";
+import { basename, isAbsolute, join, resolve as resolve2 } from "node:path";
 async function waitForDownloadFromClick(page, click, destDir, timeoutMs, filenameHint) {
+  if (typeof destDir !== "string" || destDir.trim().length === 0 || !isAbsolute(destDir)) {
+    throw new Error("destDir must be a non-empty absolute directory path.");
+  }
   const absoluteDest = resolve2(destDir);
   await mkdir2(absoluteDest, { recursive: true });
   const downloadPromise = page.waitForEvent?.("download", { timeout: timeoutMs, timeoutMs });
   if (downloadPromise === void 0) {
     throw new Error("The active browser page does not expose download events.");
   }
-  await withTimeout(
-    click(),
-    localGuardTimeout(timeoutMs, 1e4),
-    "Download control click did not complete before the local guard timeout."
-  );
+  try {
+    await withTimeout(
+      click(),
+      localGuardTimeout(timeoutMs, 1e4),
+      "Download control click did not complete before the local guard timeout."
+    );
+  } catch (error) {
+    await downloadPromise.catch(() => void 0);
+    throw error;
+  }
   const download = await downloadPromise;
   const sourcePath = typeof download.path === "function" ? await download.path() : null;
-  const suggestedFilename = filenameHint ?? download.suggestedFilename?.() ?? (sourcePath === null ? void 0 : basename(sourcePath)) ?? `chatgpt-download-${Date.now()}`;
+  const suggestedFilename = download.suggestedFilename?.() ?? filenameHint ?? (sourcePath === null ? void 0 : basename(sourcePath)) ?? `chatgpt-download-${Date.now()}`;
   const targetPath = join(absoluteDest, basename(suggestedFilename));
   if (typeof download.saveAs === "function") {
     await download.saveAs(targetPath);
@@ -9626,6 +9637,8 @@ function collectFilePreflightWarnings(files, warnings) {
 function guessFileType(extension) {
   switch (extension) {
     case ".txt":
+    case ".tex":
+    case ".bib":
       return { mimeType: "text/plain", category: "text" };
     case ".md":
     case ".markdown":
@@ -9673,7 +9686,7 @@ function guessFileType(extension) {
     case ".gz":
       return { mimeType: "application/gzip", category: "archive" };
     default:
-      return { mimeType: guessMimeType(extension), category: "unknown" };
+      return { mimeType: "application/octet-stream", category: "unknown" };
   }
 }
 function isNodeError2(error) {
@@ -10155,7 +10168,7 @@ async function tryGeneratedFilePreviewDownload(page, args) {
     }
     const assistant = assistantMessages.nth?.(selected.assistantIndex) ?? assistantMessages;
     const role = selected.tag === "button" ? "button" : "link";
-    const affordance = assistant.getByRole?.(role, { name: selected.filename, exact: true }) ?? assistant.locator?.(`${selected.tag}[aria-label="${escapeCssAttribute(selected.filename)}"]`);
+    const affordance = selected.tag === "a" && selected.href ? assistant.locator?.(`a[href="${escapeCssAttribute(selected.href)}"]`) ?? assistant.getByRole?.(role, { name: selected.filename, exact: true }) : assistant.getByRole?.(role, { name: selected.filename, exact: true }) ?? assistant.locator?.(`${selected.tag}[aria-label="${escapeCssAttribute(selected.filename)}"]`);
     const affordanceCount = await locatorCountWithTimeout(
       affordance,
       localGuardTimeout(timeoutMs, 5e3),
@@ -10208,14 +10221,31 @@ async function inspectGeneratedFileAffordances(page, timeoutMs) {
           }
           return true;
         };
-        const fileLike = (value) => /^[^\\/\r\n]{1,255}\.[a-z0-9][a-z0-9._-]{0,15}$/i.test(value);
+        const fileLike = (value) => /^[^\\/\r\n]{1,255}\.[a-z0-9][a-z0-9._-]{0,15}(?:\s*\(\d+\))?$/i.test(value);
         const assistants = Array.from(document.querySelectorAll("[data-message-author-role='assistant']"));
-        return assistants.flatMap((assistant, assistantIndex) => Array.from(assistant.querySelectorAll("button[aria-label], a[download], a[href*='/backend-api/files/']")).filter(visible).map((element) => ({
-          assistantIndex,
-          filename: (element.getAttribute("aria-label") ?? element.textContent ?? "").trim(),
-          tag: element.tagName.toLocaleLowerCase(),
-          text: (element.textContent ?? "").trim()
-        })).filter((item) => (item.tag === "button" || item.tag === "a") && fileLike(item.filename) && item.filename === item.text).map(({ assistantIndex: assistantIndex2, filename, tag }) => ({ assistantIndex: assistantIndex2, filename, tag })));
+        return assistants.flatMap((assistant, assistantIndex) => Array.from(assistant.querySelectorAll("button[aria-label], a[download], a[href*='/backend-api/files/']")).filter(visible).map((element) => {
+          const href = element.getAttribute("href") ?? "";
+          let backendFilename = "";
+          try {
+            backendFilename = new URL(href, location.origin).searchParams.get("fn") ?? "";
+          } catch {
+          }
+          const filenameCandidates = [
+            element.getAttribute("download"),
+            backendFilename,
+            element.getAttribute("aria-label"),
+            element.textContent
+          ].map((value) => (value ?? "").trim()).filter(Boolean);
+          const filename = filenameCandidates.find(fileLike) ?? filenameCandidates[0] ?? "";
+          return {
+            assistantIndex,
+            filename,
+            backendFilename,
+            href,
+            tag: element.tagName.toLocaleLowerCase(),
+            text: (element.textContent ?? "").trim()
+          };
+        }).filter((item) => (item.tag === "button" || item.tag === "a") && fileLike(item.filename)).map(({ assistantIndex: assistantIndex2, filename, backendFilename, href, tag }) => ({ assistantIndex: assistantIndex2, filename, backendFilename, href, tag })));
       }),
       timeoutMs,
       "Timed out while inspecting generated-file buttons."
@@ -10234,11 +10264,76 @@ async function inspectGeneratedFileAffordances(page, timeoutMs) {
   while ((match = buttonPattern.exec(html)) !== null) {
     const filename = decodeBasicHtml(match[3] ?? "").trim();
     const text = decodeBasicHtml((match[4] ?? "").replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
-    if (/^[^\\/\r\n]{1,255}\.[a-z0-9][a-z0-9._-]{0,15}$/i.test(filename) && filename === text) {
+    if (/^[^\\/\r\n]{1,255}\.[a-z0-9][a-z0-9._-]{0,15}(?:\s*\(\d+\))?$/i.test(filename) && filename === text) {
       candidates.push({ assistantIndex: 0, filename, tag: (match[1] ?? "button").toLocaleLowerCase() });
     }
   }
   return candidates;
+}
+function normalizeDownloadedArtifactName(value) {
+  let normalized = String(value).trim();
+  let previous;
+  do {
+    previous = normalized;
+    normalized = normalized.replace(/\s*\(\d+\)(?=\.[^.]+$)/u, "").replace(/\s*\(\d+\)$/u, "");
+  } while (normalized !== previous);
+  return normalized.toLocaleLowerCase();
+}
+async function listLatestFiles(env, args = {}) {
+  const boot = await ensurePage(env);
+  if (!boot.ok) return boot;
+  const page = env.page;
+  try {
+    const timeoutMs = args.timeoutMs ?? 3e4;
+    let files2 = await inspectGeneratedFileAffordances(page, localGuardTimeout(timeoutMs, 5e3));
+    if (args.from !== "visible_conversation") {
+      const latestAssistantIndex = Math.max(-1, ...files2.map((item) => item.assistantIndex));
+      files2 = files2.filter((item) => item.assistantIndex === latestAssistantIndex);
+    }
+    return resultOk({
+      assistantTurn: files2.length > 0 ? files2[0].assistantIndex : null,
+      files: files2.map((item) => ({
+        artifactName: item.filename,
+        normalizedArtifactName: normalizeDownloadedArtifactName(item.backendFilename || item.filename),
+        backendFilename: item.backendFilename || null,
+        href: item.href || null,
+        assistantIndex: item.assistantIndex,
+        type: item.filename.toLocaleLowerCase().endsWith(".zip") ? "archive" : "file",
+        downloadable: true
+      }))
+    }, await contextFromPage(page));
+  } catch (error) {
+    return resultError(error instanceof Error ? error : new Error(String(error)), await contextFromPage(page));
+  }
+}
+async function downloadByArtifactName(env, args) {
+  if (typeof args.artifactName !== "string" || args.artifactName.trim().length === 0) {
+    return resultError(new Error("artifactName must be a non-empty filename."));
+  }
+  const listed = await listLatestFiles(env, { from: args.from, timeoutMs: args.timeoutMs });
+  if (!listed.ok) return listed;
+  const expected = normalizeDownloadedArtifactName(args.artifactName);
+  const selected = [...listed.data.files].reverse().find((item) => item.normalizedArtifactName === expected || normalizeDownloadedArtifactName(item.artifactName) === expected);
+  if (selected === void 0) {
+    return {
+      ok: false,
+      status: "unsupported",
+      warnings: [],
+      blocker: {
+        kind: "download_unavailable",
+        code: "download_artifact_name_not_found",
+        message: `No file in the latest assistant turn matched ${JSON.stringify(args.artifactName)}.`,
+        resumable: true
+      },
+      context: listed.context
+    };
+  }
+  return downloadLatestFile(env, {
+    destDir: args.destDir,
+    from: { assistantIndex: selected.assistantIndex },
+    filenamePattern: `^${selected.artifactName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+    timeoutMs: args.timeoutMs
+  });
 }
 function selectGeneratedFileAffordance(candidates, args) {
   let scoped = candidates;
@@ -11464,8 +11559,12 @@ async function executeStep(step, env, previousResults) {
       return downloadLatestArtifact(env, step.args);
     case "files.attach":
       return attachFiles(env, step.args);
+    case "files.listLatest":
+      return listLatestFiles(env, step.args);
     case "files.downloadLatest":
       return downloadLatestFile(env, step.args);
+    case "files.downloadByArtifactName":
+      return downloadByArtifactName(env, step.args);
     case "projects.sources.list":
       return listProjectSources(env, step.args);
     case "projects.sources.planAdd":
@@ -12301,7 +12400,9 @@ var commandRisk = {
   "artifacts.downloadLatest": "medium",
   "files.preflight": "low",
   "files.attach": "medium",
+  "files.listLatest": "low",
   "files.downloadLatest": "medium",
+  "files.downloadByArtifactName": "medium",
   "projects.sources.list": "low",
   "projects.sources.planAdd": "low",
   "projects.sources.add": "medium",
@@ -12414,7 +12515,9 @@ var descriptors = [
   primitive("artifacts.downloadLatest", "Download or save the latest visible generated ChatGPT artifact.", 12e4),
   primitive("files.preflight", "Validate local file paths, size limits, duplicates, zero-byte files, and extension-based MIME/category guesses without opening ChatGPT.", 3e4),
   primitive("files.attach", "Attach absolute local file paths through visible ChatGPT upload controls.", 18e4),
+  primitive("files.listLatest", "List structured downloadable files from the latest assistant turn, including backend filename metadata.", 3e4),
   primitive("files.downloadLatest", "Download the latest visible ChatGPT file affordance.", 12e4),
+  primitive("files.downloadByArtifactName", "Download one named file from the latest assistant turn using structured inventory and the real browser download event.", 12e4),
   primitive("projects.sources.list", "Open or claim a visible ChatGPT Project Sources tab and list source names/statuses without source contents.", 3e4),
   primitive("projects.sources.planAdd", "Dry-run an append-only Project Sources file add from explicit local files without opening ChatGPT.", 3e4),
   primitive("projects.sources.add", "Append explicit local files to a visible ChatGPT Project Sources list after confirmMutation: true.", 18e4),
@@ -12592,7 +12695,9 @@ function primitiveArgs(name) {
   if (name === "artifacts.listLatest") return { kind: "artifact kind; currently image", max: "maximum artifacts to return" };
   if (name === "artifacts.wait") return { kind: "artifact kind; currently image", afterArtifactCount: "baseline artifact count", requireDownload: "wait until a download affordance is visible" };
   if (name === "artifacts.downloadLatest") return { destDir: "download destination directory", prefer: "download_control or visible_image_source" };
+  if (name === "files.listLatest") return { from: "latest_assistant or visible_conversation", timeoutMs: "optional browser timeout" };
   if (name === "files.downloadLatest") return { destDir: "download destination directory", filenamePattern: "optional case-insensitive regular expression for the expected filename", from: "latest_assistant, visible_conversation, or assistantIndex" };
+  if (name === "files.downloadByArtifactName") return { destDir: "absolute download destination directory", artifactName: "canonical expected filename; duplicate download suffixes are normalized", from: "latest_assistant or visible_conversation", timeoutMs: "optional browser timeout" };
   if (name === "response.copy") return { prefer: "clipboard or dom", format: "markdown, normalized_text, visible_text, html, blocks, or all" };
   if (name.startsWith("threads.search")) return { query: "history search query" };
   if (name === "files.preflight") return {
@@ -12682,6 +12787,7 @@ function primitiveExamples(name) {
 function primitiveBlockers(name) {
   if (name === "files.preflight") return ["not_found", "permission", "upload_failed"];
   if (name.startsWith("files.attach")) return ["browser_bridge_unavailable", "login_required", "permission", "upload_failed"];
+  if (name === "files.listLatest") return ["browser_bridge_unavailable", "login_required", "download_unavailable"];
   if (name.startsWith("files.download")) return ["browser_bridge_unavailable", "login_required", "download_unavailable"];
   if (name === "projects.sources.planAdd") return ["not_found", "permission", "upload_failed"];
   if (name.startsWith("projects.sources.")) return ["browser_bridge_unavailable", "login_required", "selector_drift", "confirmation", "permission", "upload_failed"];
@@ -13365,7 +13471,9 @@ function createChatGPT(options = {}) {
     files: {
       preflight: (args) => preflightFiles(env, args),
       attach: (args) => attachFiles(env, args),
-      downloadLatest: (args) => downloadLatestFile(env, args)
+      listLatest: (args) => listLatestFiles(env, args),
+      downloadLatest: (args) => downloadLatestFile(env, args),
+      downloadByArtifactName: (args) => downloadByArtifactName(env, args)
     },
     projects: {
       sources: {
@@ -14096,7 +14204,9 @@ var backendCommands = [
   "artifacts.downloadLatest",
   "files.preflight",
   "files.attach",
+  "files.listLatest",
   "files.downloadLatest",
+  "files.downloadByArtifactName",
   "projects.sources.list",
   "projects.sources.planAdd",
   "projects.sources.add",
@@ -14291,8 +14401,11 @@ function createChatGPTBackendClient(transport) {
       downloadLatest: (args) => request("artifacts.downloadLatest", args)
     },
     files: {
+      preflight: (args) => request("files.preflight", args),
       attach: (args) => request("files.attach", args),
-      downloadLatest: (args) => request("files.downloadLatest", args)
+      listLatest: (args) => request("files.listLatest", args ?? {}),
+      downloadLatest: (args) => request("files.downloadLatest", args),
+      downloadByArtifactName: (args) => request("files.downloadByArtifactName", args)
     },
     modes: {
       set: (args) => request("modes.set", args),

@@ -1,9 +1,16 @@
 #!/usr/bin/env node
 
 import { spawnSync } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import {
+  mkdir,
+  mkdtemp,
+  readFile,
+  rm,
+  writeFile,
+} from "node:fs/promises";
+import { tmpdir } from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import {
   booleanFlag,
   CliError,
@@ -41,6 +48,7 @@ import {
   registerArtifact,
   resolvePaperInputs,
   roundAttachments,
+  saveRun,
   summarizeRun,
 } from "./lib/run-store.mjs";
 import {
@@ -48,10 +56,27 @@ import {
   startMcpSession,
   stopMcpSession,
 } from "./lib/mcp-session.mjs";
-import { workspaceCapabilities } from "./lib/mcp-workspace.mjs";
+import {
+  finalizeRound,
+  workspaceCapabilities,
+} from "./lib/mcp-workspace.mjs";
+import {
+  autoUpdatePlugin,
+  comparePluginVersions,
+  discoverInstalledPluginRoots,
+  discoverMarketplaceSnapshot,
+  refreshMarketplaceSnapshot,
+  relaunchUpdatedRuntime,
+} from "./lib/plugin-update.mjs";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(scriptDirectory, "..");
+const pluginManifest = JSON.parse(
+  await readFile(
+    path.join(pluginRoot, ".codex-plugin", "plugin.json"),
+    "utf8",
+  ),
+);
 
 function help() {
   return {
@@ -74,10 +99,14 @@ function help() {
       "mcp-stop": "Stop the run-scoped YanShu MCP workspace.",
       "chat-plan":
         "Resolve a saved reasoning preference against ChatGPT options currently visible to the user.",
+      "version-handshake":
+        "Compare plugin, workflow, marketplace, and loaded runtime versions; update automatically when required.",
       mark: "Record round status and visible Chat thread metadata.",
       artifact: "Copy one downloaded artifact into a round output directory.",
       "artifact-bundle":
         "Validate and import one round ZIP into its exact TeX, report, and BibTeX artifacts.",
+      "round-finalize":
+        "Import, compile, deterministically validate, and atomically complete one round.",
     },
   };
 }
@@ -110,7 +139,32 @@ async function loadPromptEngine() {
       "missing_runtime",
     );
   }
-  return import(enginePath);
+  return import(pathToFileURL(enginePath).href);
+}
+
+async function probeDynamicImportPaths() {
+  const root = await mkdtemp(path.join(tmpdir(), "yanshu-import-"));
+  try {
+    const directory = path.join(root, "space 中文 path");
+    await mkdir(directory, { recursive: true });
+    const modulePath = path.join(directory, "probe.mjs");
+    await writeFile(modulePath, "export const ready = true;\n", "utf8");
+    const loaded = await import(
+      `${pathToFileURL(modulePath).href}?t=${Date.now()}`
+    );
+    return {
+      ok: loaded.ready === true,
+      modulePath,
+      usedFileUrl: true,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
 }
 
 async function doctor(flags) {
@@ -132,6 +186,7 @@ async function doctor(flags) {
   }
 
   const nodeMajor = Number(process.versions.node.split(".")[0]);
+  const dynamicImportPaths = await probeDynamicImportPaths();
   let promptRuntime;
   try {
     const engine = await loadPromptEngine();
@@ -160,18 +215,24 @@ async function doctor(flags) {
         publishedVersion: null,
         officialUrl: OFFICIAL_RECONSTRUCTION_URL,
       };
+  const marketplaceSnapshot = await discoverMarketplaceSnapshot();
   return {
     ok:
       projectExists &&
       nodeMajor >= 22 &&
       !inputError &&
       promptRuntime.ok &&
+      dynamicImportPaths.ok &&
       promptRelease.ok,
     checks: {
       node: {
         ok: nodeMajor >= 22,
         version: process.versions.node,
         required: ">=22",
+        executable:
+          process.env.YANSHU_RESOLVED_NODE ?? process.execPath,
+        selectedByLauncher:
+          process.env.YANSHU_RESOLVED_NODE !== undefined,
       },
       project: { ok: projectExists, path: project },
       inputs: {
@@ -181,6 +242,19 @@ async function doctor(flags) {
       },
       promptRuntime,
       promptRelease,
+      dynamicImportPaths,
+      versionHandshake: {
+        pluginVersion: pluginManifest.version,
+        workflowVersion: promptRuntime.workflowVersion,
+        publishedWorkflowVersion: promptRelease.publishedVersion,
+        marketplacePluginVersion:
+          marketplaceSnapshot?.pluginVersion ?? null,
+        marketplaceRevision:
+          marketplaceSnapshot?.revision ?? null,
+        status: promptRelease.status,
+        automaticUpdate:
+          "New runs automatically refresh and relaunch an older installed plugin. Resumed runs keep their saved Prompt snapshot.",
+      },
       latex: {
         latexmk: executableAvailable("latexmk"),
         pdflatex: executableAvailable("pdflatex"),
@@ -190,6 +264,15 @@ async function doctor(flags) {
           "A TeX engine is optional at initialization and required only for automatic compilation.",
       },
       chatBridge: bridgeHints(),
+      attachmentFallback: {
+        mimePolicy: {
+          ".tex": "text/plain",
+          ".bib": "text/plain",
+          unknown: "application/octet-stream",
+        },
+        realTransportProbe:
+          "The visible zero-content .tex/.bib attachment probe runs automatically after an MCP handshake fallback.",
+      },
       mcpWorkspace: {
         bundled: true,
         capabilities: workspaceCapabilities(),
@@ -339,19 +422,53 @@ async function init(flags) {
   const promptRelease = await checkPublishedPromptRelease(
     workflow.workflowVersion,
   );
-  if (promptRelease.status === "installed-older") {
-    throw new CliError(
-      "The installed YanShu prompt runtime is older than the official website. Upgrade the plugin before starting a new run.",
-      "plugin_update_required",
-      promptRelease,
-    );
+  const marketplaceRefresh = await refreshMarketplaceSnapshot();
+  const marketplaceSnapshot =
+    marketplaceRefresh.snapshot ??
+    (await discoverMarketplaceSnapshot());
+  const marketplaceRuntimeIsNewer =
+    marketplaceSnapshot?.pluginVersion &&
+    comparePluginVersions(
+      marketplaceSnapshot.pluginVersion,
+      pluginManifest.version,
+    ) > 0;
+  if (
+    promptRelease.status === "installed-older" ||
+    marketplaceRuntimeIsNewer
+  ) {
+    if (process.env.YANSHU_AUTO_UPDATE_ATTEMPTED === "1") {
+      throw new CliError(
+        "YanShu updated automatically, but the refreshed runtime is still older than the available release.",
+        "plugin_auto_update_still_stale",
+        { promptRelease, marketplaceSnapshot },
+      );
+    }
+    const update = await autoUpdatePlugin();
+    return relaunchUpdatedRuntime({
+      pluginRoot: update.installed.root,
+      argv: process.argv.slice(2),
+      loadedSkillVersion: pluginManifest.version,
+    });
   }
+  const installed = await discoverInstalledPluginRoots();
   const state = await createRun({
     projectRoot,
     outputRoot: stringFlag(flags, "output", fileConfig.outputRoot),
     runId: stringFlag(flags, "run-id", fileConfig.runId),
     inputs,
     workflow,
+    runtimeVersions: {
+      pluginVersion: pluginManifest.version,
+      loadedSkillVersion:
+        process.env.YANSHU_LOADED_SKILL_VERSION ??
+        pluginManifest.version,
+      marketplaceVersion:
+        marketplaceSnapshot?.pluginVersion ??
+        installed[0]?.version ??
+        pluginManifest.version,
+      marketplaceRevision:
+        marketplaceSnapshot?.revision ?? null,
+    },
   });
   return {
     ok: true,
@@ -387,6 +504,7 @@ async function next(flags) {
       title: round.title,
       purpose: round.purpose,
       status: round.status,
+      checkpoint: round.checkpoint,
       promptPath: path.join(state.runPath, round.promptPath),
       outputDirectory: path.join(
         state.runPath,
@@ -400,11 +518,13 @@ async function next(flags) {
     mcpWorkspace: {
       available: true,
       startCommand:
-        "Run `mcp-start --run <run-path>` and use its bootstrapPrompt in the visible Chat conversation. If the Chat surface cannot use the YanShu MCP connection, fall back to approvedAttachments.",
+        "Run `mcp-start --run <run-path>`, then perform the zero-sensitive visible MCP handshake. YanShu automatically switches to a verified approvedAttachments fallback when that handshake is unavailable.",
     },
+    execution: state.execution,
+    statusPath: path.join(state.runPath, "STATUS.md"),
     chatExecution: state.config.chatExecution,
     instruction:
-      "Prepare a fresh visible Chat thread before configuration, inspect and resolve reasoning with `chat-plan`, apply it with the YanShu Chat-round protocol, submit to that same prepared thread exactly once, preserve the returned thread URL, and poll/read the same thread after timeouts.",
+      "Use the automatic transfer-mode handshake, prepare a fresh visible Chat thread for this round, resolve reasoning with `chat-plan`, submit exactly once, preserve the returned thread URL, and let the runtime monitor that same assistant turn after heartbeat timeouts.",
   };
 }
 
@@ -454,6 +574,93 @@ async function chatPlan(flags) {
   };
 }
 
+async function versionHandshake(flags) {
+  const engine = await loadPromptEngine();
+  const workflow = engine.buildReconstructionWorkflow({
+    hasWordLimit: false,
+  });
+  const promptRelease = await checkPublishedPromptRelease(
+    workflow.workflowVersion,
+  );
+  const runPath = stringFlag(flags, "run");
+  const run = runPath ? await loadRun(runPath) : null;
+  const marketplaceRefresh = await refreshMarketplaceSnapshot();
+  const marketplaceSnapshot =
+    marketplaceRefresh.snapshot ??
+    (await discoverMarketplaceSnapshot());
+  const marketplaceRuntimeIsNewer =
+    marketplaceSnapshot?.pluginVersion &&
+    comparePluginVersions(
+      marketplaceSnapshot.pluginVersion,
+      pluginManifest.version,
+    ) > 0;
+  if (
+    promptRelease.status === "installed-older" ||
+    marketplaceRuntimeIsNewer
+  ) {
+    if (process.env.YANSHU_AUTO_UPDATE_ATTEMPTED === "1") {
+      throw new CliError(
+        "The automatically refreshed YanShu runtime still does not match the available release.",
+        "plugin_auto_update_still_stale",
+        { promptRelease, marketplaceSnapshot },
+      );
+    }
+    const update = await autoUpdatePlugin();
+    return relaunchUpdatedRuntime({
+      pluginRoot: update.installed.root,
+      argv: process.argv.slice(2),
+      loadedSkillVersion: pluginManifest.version,
+    });
+  }
+  if (run) {
+    run.runtimeVersions = {
+      ...(run.runtimeVersions ?? {}),
+      executionPluginVersion: pluginManifest.version,
+      loadedSkillVersion:
+        process.env.YANSHU_LOADED_SKILL_VERSION ??
+        pluginManifest.version,
+      marketplaceVersion:
+        marketplaceSnapshot?.pluginVersion ??
+        run.runtimeVersions?.marketplaceVersion ??
+        null,
+      marketplaceRevision:
+        marketplaceSnapshot?.revision ??
+        run.runtimeVersions?.marketplaceRevision ??
+        null,
+      lastHandshakeAt: new Date().toISOString(),
+    };
+    await saveRun(run);
+  }
+  return {
+    ok: true,
+    status: promptRelease.status,
+    pluginVersion: pluginManifest.version,
+    loadedSkillVersion:
+      process.env.YANSHU_LOADED_SKILL_VERSION ??
+      pluginManifest.version,
+    marketplacePluginVersion:
+      marketplaceSnapshot?.pluginVersion ?? null,
+    marketplaceRevision:
+      marketplaceSnapshot?.revision ?? null,
+    marketplaceRefresh: {
+      ok: marketplaceRefresh.ok,
+      error:
+        marketplaceRefresh.ok
+          ? null
+          : marketplaceRefresh.error ??
+            marketplaceRefresh.upgrade?.error ??
+            marketplaceRefresh.upgrade?.stderr ??
+            "Marketplace refresh unavailable.",
+    },
+    runtimeWorkflowVersion: workflow.workflowVersion,
+    publishedWorkflowVersion: promptRelease.publishedVersion,
+    runWorkflowVersion: run?.workflowVersion ?? null,
+    resumePolicy: run
+      ? "The compatible execution runtime is current; this run keeps its saved Prompt snapshot."
+      : "A new run will use the current canonical Prompt snapshot.",
+  };
+}
+
 async function mark(flags) {
   const state = await loadRun(requiredFlag(flags, "run"));
   const round = await markRound(
@@ -474,7 +681,10 @@ async function mark(flags) {
         flags,
         "configuration-verification",
       ),
+      assistantTurn: numberFlag(flags, "assistant-turn"),
+      transferMode: stringFlag(flags, "transfer-mode"),
       note: stringFlag(flags, "note"),
+      checkpoint: stringFlag(flags, "checkpoint"),
     },
     booleanFlag(flags, "force", false),
   );
@@ -486,6 +696,7 @@ async function mark(flags) {
       status: round.status,
       chat: round.chat,
       outputs: round.outputs,
+      checkpoint: round.checkpoint,
     },
     run: summarizeRun(state),
   };
@@ -498,6 +709,15 @@ async function artifact(flags) {
     requiredFlag(flags, "round"),
     requiredFlag(flags, "file"),
     booleanFlag(flags, "replace", false),
+    {
+      destinationName: stringFlag(flags, "name"),
+      reason: stringFlag(
+        flags,
+        "reason",
+        "individual ChatGPT artifact import",
+      ),
+      chatTurn: stringFlag(flags, "chat-turn"),
+    },
   );
   return {
     ok: true,
@@ -513,12 +733,33 @@ async function artifactBundle(flags) {
     selector: requiredFlag(flags, "round"),
     bundlePath: requiredFlag(flags, "file"),
     replace: booleanFlag(flags, "replace", false),
+    reason: stringFlag(
+      flags,
+      "reason",
+      "ChatGPT artifact bundle import",
+    ),
+    chatTurn: stringFlag(flags, "chat-turn"),
   });
   return {
     ok: true,
     ...imported,
     run: summarizeRun(state),
   };
+}
+
+async function roundFinalize(flags) {
+  const result = await finalizeRound({
+    runPath: requiredFlag(flags, "run"),
+    round: requiredFlag(flags, "round"),
+    bundlePath: stringFlag(flags, "bundle"),
+    replace: booleanFlag(flags, "replace", false),
+    compile: booleanFlag(flags, "compile", true),
+    texArtifactId: stringFlag(flags, "tex-artifact-id"),
+    reason: stringFlag(flags, "reason", "round finalization"),
+    chatTurn: stringFlag(flags, "chat-turn"),
+    note: stringFlag(flags, "note"),
+  });
+  return { ok: true, ...result };
 }
 
 async function main() {
@@ -560,6 +801,9 @@ async function main() {
     case "chat-plan":
       result = await chatPlan(flags);
       break;
+    case "version-handshake":
+      result = await versionHandshake(flags);
+      break;
     case "mark":
       result = await mark(flags);
       break;
@@ -568,6 +812,9 @@ async function main() {
       break;
     case "artifact-bundle":
       result = await artifactBundle(flags);
+      break;
+    case "round-finalize":
+      result = await roundFinalize(flags);
       break;
     default:
       throw new CliError(`Unknown command: ${command}`);

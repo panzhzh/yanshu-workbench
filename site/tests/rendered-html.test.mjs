@@ -73,11 +73,68 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /搜索功能或页面/);
   assert.doesNotMatch(html, /关于研术台|About YanShu/);
   assert.match(html, /href="\/draft"/);
+  assert.match(html, /href="\/ideas\/discovery"/);
+  assert.match(html, /href="\/ideas\/evaluation"/);
   assert.match(html, /href="\/reconstruction"/);
   assert.match(html, /href="\/reconstruction\/refinement"/);
   assert.match(html, /class="home-module-grid"/);
   assert.doesNotMatch(html, /class="prompt-resize-handle"/);
   assert.doesNotMatch(html, /写作风格|Writing style/);
+});
+
+test("server-renders the evidence-grounded idea-discovery workbench", async () => {
+  const response = await render("/ideas/discovery");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /Idea 查找/);
+  assert.match(html, /先检索和去重，再提出候选 Idea/);
+  assert.match(html, /研究范围/);
+  assert.match(html, /计算机科学（开放）/);
+  assert.match(html, /近 N 年/);
+  assert.match(html, /顶会/);
+  assert.match(html, /顶刊/);
+  assert.match(html, /指定 venue（可选）/);
+  assert.match(html, /指定数据集或数据条件（可选）/);
+  assert.match(html, /追求 SOTA/);
+  assert.match(html, /不把排行榜提升作为必要条件/);
+  assert.match(html, /候选 Idea 数量/);
+  assert.match(html, /平衡探索/);
+  assert.match(html, /Markdown · 中文 \+ English/);
+  assert.match(html, /# 为计算机科学研究发现可验证的 Idea/);
+  assert.match(html, /重点检索近 5 年/);
+  assert.match(html, /最终候选数量：5/);
+  assert.match(html, /最快否证测试/);
+  assert.match(html, /&lt;topic_slug&gt;_idea_discovery_zh\.md/);
+  assert.match(html, /&lt;topic_slug&gt;_idea_discovery_en\.md/);
+  assert.match(html, /不得生成 `\.tex`、PDF、DOCX、BibTeX/);
+  assert.match(html, /class="prompt-card expanded"/);
+  assert.match(html, /class="prompt-resize-handle"/);
+});
+
+test("server-renders the evidence-grounded idea-evaluation workbench", async () => {
+  const response = await render("/ideas/evaluation");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /Idea 评估与优化/);
+  assert.match(html, /近邻论文、竞争格局和执行条件/);
+  assert.match(html, /Idea 描述（必需）/);
+  assert.match(html, /优化自由度/);
+  assert.match(html, /保留核心/);
+  assert.match(html, /允许重构/);
+  assert.match(html, /允许转向/);
+  assert.match(html, /# 评估并优化一个计算机科学研究 Idea/);
+  assert.match(html, /最近邻比较表/);
+  assert.match(html, /禁止补丁式优化/);
+  assert.match(html, /Pursue、Refine、Pivot、Park 或 Stop/);
+  assert.match(html, /&lt;topic_slug&gt;_idea_evaluation_zh\.md/);
+  assert.match(html, /&lt;topic_slug&gt;_idea_evaluation_en\.md/);
+  assert.match(html, /不得生成 `\.tex`、PDF、DOCX、BibTeX/);
+  assert.match(html, /class="prompt-card expanded"/);
+  assert.match(html, /class="prompt-resize-handle"/);
 });
 
 test("server-renders the YanShu reconstruction workbench", async () => {
@@ -793,6 +850,8 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /id:\s*"experiments"/);
   assert.match(navigationConfig, /id:\s*"figures"/);
   assert.match(navigationConfig, /id:\s*"submission"/);
+  assert.match(navigationConfig, /href:\s*"\/ideas\/discovery"/);
+  assert.match(navigationConfig, /href:\s*"\/ideas\/evaluation"/);
   assert.match(navigationConfig, /href:\s*"\/draft"/);
   assert.match(navigationConfig, /href:\s*"\/reconstruction"/);
   assert.match(
@@ -804,11 +863,11 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /href:\s*"\/submission"/);
   assert.equal(
     (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
-    6,
+    8,
   );
   assert.equal(
     (navigationConfig.match(/status:\s*"future",/g) ?? []).length,
-    15,
+    13,
   );
   assert.doesNotMatch(navigationConfig, /关于研术台|About YanShu/);
   assert.match(
@@ -1453,4 +1512,78 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
   assert.match(navigationConfig, /href:\s*"\/draft"/);
   assert.match(homePage, /href="\/draft"/);
   assert.match(homePage, /href="\/reconstruction"/);
+});
+
+test("keeps idea discovery and evaluation evidence-grounded and configuration-driven", async () => {
+  const [
+    ideaConfig,
+    ideaComponent,
+    discoveryPage,
+    evaluationPage,
+    navigationConfig,
+    homePage,
+    styles,
+  ] = await Promise.all([
+    readFile(new URL("../app/ideas/config.ts", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/ideas/IdeaWorkbench.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/ideas/discovery/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/ideas/evaluation/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(new URL("../app/navigation.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/HomePage.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(ideaConfig, /recentYears:\s*5/);
+  assert.match(ideaConfig, /topConferences:\s*true/);
+  assert.match(ideaConfig, /topJournals:\s*true/);
+  assert.match(ideaConfig, /pursueSota:\s*false/);
+  assert.match(ideaConfig, /ideaCount:\s*5/);
+  assert.match(ideaConfig, /noveltyPosture:\s*"balanced"/);
+  assert.match(ideaConfig, /refinementFreedom:\s*"reframe"/);
+  assert.match(ideaConfig, /"general-cs"/);
+  assert.match(ideaConfig, /"computer-vision"/);
+  assert.match(ideaConfig, /"software-engineering"/);
+  assert.match(ideaConfig, /"custom"/);
+  assert.match(ideaConfig, /重点检索近 \$\{preferences\.recentYears\} 年/);
+  assert.match(ideaConfig, /当前子领域公认顶会/);
+  assert.match(ideaConfig, /当前子领域公认顶刊/);
+  assert.match(ideaConfig, /指定公开数据集/);
+  assert.match(ideaConfig, /最快否证测试/);
+  assert.match(ideaConfig, /最近邻比较表/);
+  assert.match(ideaConfig, /禁止补丁式优化/);
+  assert.match(ideaConfig, /Pursue、Refine、Pivot、Park 或 Stop/);
+  assert.match(ideaConfig, /<topic_slug>_idea_discovery_zh\.md/);
+  assert.match(ideaConfig, /<topic_slug>_idea_discovery_en\.md/);
+  assert.match(ideaConfig, /<topic_slug>_idea_evaluation_zh\.md/);
+  assert.match(ideaConfig, /<topic_slug>_idea_evaluation_en\.md/);
+  assert.match(ideaConfig, /不得生成 \\`\.tex\\`、PDF、DOCX、BibTeX/);
+  assert.match(ideaComponent, /buildIdeaPrompt/);
+  assert.match(ideaComponent, /DEFAULT_IDEA_PREFERENCES/);
+  assert.match(ideaComponent, /IDEA_DIRECTION_IDS\.map/);
+  assert.match(ideaComponent, /IDEA_COUNT_OPTIONS\.map/);
+  assert.match(ideaComponent, /NOVELTY_POSTURE_IDS\.map/);
+  assert.match(ideaComponent, /REFINEMENT_FREEDOM_IDS\.map/);
+  assert.match(ideaComponent, /activePage=\{activePage\}/);
+  assert.match(
+    ideaComponent,
+    /<PromptResizeHandle language=\{uiLanguage\}/,
+  );
+  assert.match(ideaComponent, /className="prompt-card/);
+  assert.match(discoveryPage, /mode="discovery"/);
+  assert.match(evaluationPage, /mode="evaluation"/);
+  assert.match(navigationConfig, /href:\s*"\/ideas\/discovery"/);
+  assert.match(navigationConfig, /href:\s*"\/ideas\/evaluation"/);
+  assert.match(homePage, /href:\s*"\/ideas\/discovery"/);
+  assert.match(homePage, /href:\s*"\/ideas\/evaluation"/);
+  assert.match(styles, /\.idea-control-grid/);
+  assert.match(styles, /\.idea-output-card/);
 });

@@ -2,6 +2,8 @@ import type { Language } from "./config";
 
 export type ActivePage =
   | "home"
+  | "idea-discovery"
+  | "idea-evaluation"
   | "draft"
   | "reconstruction"
   | "refinement"
@@ -72,10 +74,19 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "idea-discovery",
         label: { zh: "Idea 查找", en: "Idea Discovery" },
-        status: "future",
+        status: "available",
+        href: "/ideas/discovery",
+        activePage: "idea-discovery",
         keywords: {
-          zh: ["选题", "研究问题", "文献缺口", "灵感"],
-          en: ["topic", "research question", "literature gap", "ideation"],
+          zh: ["选题", "研究问题", "文献缺口", "灵感", "数据集", "SOTA"],
+          en: [
+            "topic",
+            "research question",
+            "literature gap",
+            "ideation",
+            "dataset",
+            "sota",
+          ],
         },
       },
       {
@@ -84,10 +95,19 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
           zh: "Idea 评估与优化",
           en: "Idea Evaluation & Refinement",
         },
-        status: "future",
+        status: "available",
+        href: "/ideas/evaluation",
+        activePage: "idea-evaluation",
         keywords: {
-          zh: ["创新性", "可行性", "研究价值", "优化"],
-          en: ["novelty", "feasibility", "research value", "refinement"],
+          zh: ["创新性", "可行性", "研究价值", "优化", "近邻论文", "SOTA"],
+          en: [
+            "novelty",
+            "feasibility",
+            "research value",
+            "refinement",
+            "nearest work",
+            "sota",
+          ],
         },
       },
       {

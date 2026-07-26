@@ -1,15 +1,17 @@
 # Bundled visible Chat bridge
 
-Use this reference only while executing or diagnosing a YanShu Chat round. The bundled runtime controls the user-visible ChatGPT page; it is not an API client.
+Use this reference only for a live YanShu Chat round. The bridge controls the signed-in visible ChatGPT page; it is not an API client.
 
-## Load the pinned runtime
+## Load the runtime and YanShu protocols
 
-Use the persistent Codex Node runtime that exposes the browser bridge. Resolve the loader from this skill:
+Resolve every URL from the installed skill path:
 
 ```js
+var yanshuSkillUrl =
+  "file:///absolute/path/to/plugins/yanshu-workbench/skills/paper-reconstruction/SKILL.md";
 var yanshuLoaderUrl = new URL(
   "../../vendor/chatgpt-control/import-chatgpt-control.mjs",
-  "file:///absolute/path/to/plugins/yanshu-workbench/skills/paper-reconstruction/SKILL.md"
+  yanshuSkillUrl
 );
 var { importChatGPTControl: importYanShuChatControl } =
   await import(`${yanshuLoaderUrl.href}?t=${Date.now()}`);
@@ -19,162 +21,87 @@ var yanshuChatGPT = createYanShuChatGPT({
   agent: globalThis.agent,
   reporting: { enabled: true, includeContent: false }
 });
+
 var yanshuProtocolUrl = new URL(
   "../../scripts/lib/chat-round-protocol.mjs",
-  "file:///absolute/path/to/plugins/yanshu-workbench/skills/paper-reconstruction/SKILL.md"
+  yanshuSkillUrl
 );
 var {
   openFreshChatRound: openYanShuFreshChatRound,
   inspectFreshChatConfiguration: inspectYanShuFreshChatConfiguration,
   applyChatReasoningSelection: applyYanShuChatReasoningSelection,
-  submitPreparedChatRound: submitYanShuPreparedChatRound
+  submitPreparedChatRound: submitYanShuPreparedChatRound,
+  autoSelectChatTransferMode: autoSelectYanShuTransferMode,
+  waitForChatRound: waitForYanShuChatRound
 } = await import(`${yanshuProtocolUrl.href}?t=${Date.now()}`);
+
+var yanshuArtifactUrl = new URL(
+  "../../scripts/lib/chat-artifact-protocol.mjs",
+  yanshuSkillUrl
+);
+var {
+  listLatestAssistantFiles: listLatestYanShuFiles,
+  downloadAssistantArtifact: downloadYanShuArtifact
+} = await import(`${yanshuArtifactUrl.href}?t=${Date.now()}`);
 ```
 
-If `globalThis.agent` is absent, do not run this import from an ordinary shell and do not invent a hidden browser session. Load the supported Chrome-control runtime when available; otherwise return `browser_bridge_unavailable`.
+If `globalThis.agent` is absent, return `browser_bridge_unavailable`. Do not invent a hidden browser.
 
-## Preflight
+## Run the automatic transport handshake
 
-Run the visible diagnostic before the first paper delivery:
+Open a disposable fresh Chat:
 
 ```js
-var yanshuChatDoctor = await yanshuChatGPT.doctor({
-  check: ["bridge", "login", "download", "clipboard", "modes"]
-});
+var yanshuDiagnosticChat =
+  await openYanShuFreshChatRound(yanshuChatGPT);
+var yanshuTransfer = await autoSelectYanShuTransferMode(
+  yanshuChatGPT,
+  { runPath: absoluteRunPath }
+);
 ```
 
-Stop on a failed required check. YanShu transfers approved `.tex`, `.bib`,
-`.pdf`, and image inputs through its run-scoped MCP paper workspace when the
-visible Chat surface has the YanShu connection. Check the connection before
-testing attachment permissions. The browser attachment route remains a
-fallback and transfers approved inputs as real files without converting their
-contents to message text. Its preferred route is ChatGPT's visible file
-chooser; native Windows file-object paste remains the final fallback.
+The helper first selects YanShu and sends a zero-sensitive health request. If the marker is not returned, it automatically checks local MIME and attaches tiny disposable `.tex` and `.bib` files. It records `mcp` or `attachments` plus the fallback reason. Show `yanshuTransfer.notice` once and continue without asking a question.
 
-The visible file chooser fallback may require:
+If both paths fail, preserve the run and report the exact blocker. Do not repeatedly retry the same permission.
 
-1. `Allow access to file URLs` for the Codex/browser bridge extension in Chrome.
-2. Google Chrome upload permission in Codex settings.
-
-Do not repeatedly retry the same missing permission. If no attachment appears,
-YanShu falls back to the next verified transfer route. If only part of the
-approved list appears, it stops rather than creating duplicates.
-ChatGPT may display a repeated filename with a numeric suffix such as
-`main (1).tex`; YanShu accepts that display alias while preserving the original
-local filename.
-
-## Prepare the round thread
-
-YanShu paper prose always uses Chat. For a round without a recorded thread URL,
-prepare a blank thread before inspecting or changing configuration:
+Create a different fresh Chat for the real round:
 
 ```js
 var yanshuPreparedChat =
   await openYanShuFreshChatRound(yanshuChatGPT);
 ```
 
-This helper calls `experience.open({ experience: "chat" })` and then
-`threads.new()`. A successful `experience.open` by itself is not a new
-conversation and must never authorize configuration changes in the user's
-previously selected chat. Stop before configuration or manuscript delivery if
-`yanshuPreparedChat.ok` is false.
+When resuming, open the exact recorded URL instead of creating a new Chat.
 
-For a round that already records a stable conversation URL, reopen that exact
-thread instead:
+## Configure visible reasoning
+
+Inspect the prepared Chat:
 
 ```js
-var yanshuPreparedChat = await yanshuChatGPT.threads.open({
-  url: recordedThreadUrl
-});
-```
-
-After the target thread is prepared, inspect its visible configuration:
-
-```js
-var yanshuChatCapabilities =
+var yanshuCapabilities =
   await inspectYanShuFreshChatConfiguration(yanshuChatGPT);
 ```
 
-## Resolve and apply capability
-
-Keep the exact intelligence/reasoning candidates in their visible order. Resolve
-the saved YanShu preference before applying anything:
-
-```text
-node <plugin-root>/scripts/yanshu.mjs chat-plan \
-  --run <run-path> \
-  --visible "Medium|High|Extra High|Pro"
-```
-
-The example labels are illustrative only. Pass exactly the labels returned by
-the live inspection. The resolver never assumes a plan or a fixed model name.
-If it reports a fallback, tell the user which visible level will be used before
-submitting the round. Preserve its `pollIntervalMs`: the interval is resolved
-from the level actually selected after fallback, not merely from the requested
-preference.
-
-Apply the returned `selectedLabel` with the YanShu protocol:
+Pass its exact visible reasoning labels to `chat-plan`. Apply the returned selection:
 
 ```js
-var yanshuVisibleReasoningOptions = (
-  yanshuChatCapabilities.data.options.intelligence ??
-  yanshuChatCapabilities.data.options.effort ??
-  []
-).map((option) => option.label);
-var yanshuAppliedConfiguration =
-  await applyYanShuChatReasoningSelection(yanshuChatGPT, {
-    selectedLabel: "<selectedLabel from chat-plan>",
-    visibleOptions: yanshuVisibleReasoningOptions
-  });
+var yanshuApplied = await applyYanShuChatReasoningSelection(
+  yanshuChatGPT,
+  {
+    selectedLabel: yanshuChatPlan.selectedLabel,
+    visibleOptions: exactVisibleReasoningLabels
+  }
+);
 ```
 
-The helper deliberately calls the upstream selector with `strict: false`, then
-classifies the available evidence:
+Continue on `verified` or `click-acknowledged`. An unavailable requested level automatically falls back to the closest lower visible level; notify without pausing.
 
-- `verified`: a visible active-value readback matches the selected label;
-- `click-acknowledged`: the exact option was found and clicked, but ChatGPT's
-  current composer exposes no reliable active-value readback. Continue and
-  record this verification level;
-- a blocker: the option could not be found or clicked, the visible readback
-  explicitly reports a different option, or a fresh thread was not established.
+## Submit once
 
-Do not turn `click-acknowledged` into `selector_drift`. Tell the user once that
-the visible option was accepted but the UI cannot expose a reliable readback,
-then continue. Do stop on explicit contradictory readback.
-
-Before submission, record the prepared round and the returned verification level:
-
-```text
-node <plugin-root>/scripts/yanshu.mjs mark \
-  --run <run-path> \
-  --round <round-number> \
-  --status running \
-  --experience chat \
-  --effort "<selectedLabel from chat-plan>" \
-  --configuration-verification verified|click-acknowledged
-```
-
-Use the latest visible reasoning-capable model family. When a separate model or
-model-version axis is visible, choose its newest reasoning-capable entry only
-when the visible ordering or version is unambiguous. Otherwise keep Chat's
-latest/default reasoning family. Do not infer a subscription plan or hidden
-model identifier from a visible label. Record the visible labels and
-`yanshuAppliedConfiguration.data.verification` only.
-
-## Prefer the MCP round bootstrap
-
-After `init`, start or reuse the run-scoped paper workspace:
-
-```text
-node <plugin-root>/scripts/yanshu.mjs mcp-start \
-  --run <run-path>
-```
-
-If the visible Chat composer exposes the connected **YanShu Paper Workspace**,
-submit the returned `bootstrapPrompt` with no attachments:
+MCP mode:
 
 ```js
-var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
+var submitted = await submitYanShuPreparedChatRound(
   yanshuChatGPT,
   {
     files: [],
@@ -184,21 +111,10 @@ var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
 );
 ```
 
-Do not paste the full generated Prompt or attach the paper again in MCP mode.
-The Chat model calls `yanshu_get_round_manifest`, reads the Prompt and approved
-sources, inspects figures and rendered PDF pages, writes versioned artifacts,
-and compiles through the MCP tools. A loopback-only MCP URL is not evidence
-that an external `chatgpt.com` conversation can use it; the visible Chat must
-actually have the YanShu connection.
-
-## Submit one attachment-fallback round exactly once
-
-Only when the MCP connection is unavailable, read the generated prompt file
-locally and pass its full text with only the approved source paths returned by
-`yanshu next`:
+Attachment mode:
 
 ```js
-var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
+var submitted = await submitYanShuPreparedChatRound(
   yanshuChatGPT,
   {
     files: approvedAbsolutePaths,
@@ -207,117 +123,68 @@ var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
 );
 ```
 
-The helper first uses ChatGPT's visible **Add photos & files** chooser. If its
-visible routes are unavailable on Windows, it can place the approved paths on
-the OS clipboard as a real file-drop list and press `Ctrl+V`. Every route must
-produce one visible attachment card per approved file before the Prompt may be
-submitted. A partial file list stops instead of retrying and creating duplicate
-attachments.
+The attachment helper requires every approved filename to become visible before submission. ChatGPT aliases such as `main (1).tex` are accepted without changing the approved local name. A partial attachment set stops to prevent duplicates.
 
-The helper uses `thread: { type: "current" }` with `existingTab: true`. This is
-intentional: the round already owns the blank configured thread. Do not pass
-`thread: { type: "new" }` here, because that would create a second thread after
-configuration.
+Record the stable `/c/...` URL immediately.
 
-Immediately preserve the returned thread or conversation URL in `run.json` through the `yanshu mark` command. If submission returns a partial result, timeout, or active-generation state, assume the prompt may already be running.
-
-## Wait without resubmitting
-
-Use the `pollIntervalMs` returned by `chat-plan` as the bounded result-check
-window. Medium and High use 60 seconds, Extra High uses 180 seconds, and Pro
-uses 300 seconds. An unrecognized selected label uses the configured 60-second
-safe default. `pollMs` below is only the helper's lightweight in-page
-observation cadence; it is not the round-level result-check interval.
+## Wait using the selected reasoning interval
 
 ```js
-var yanshuRoundStatus = await yanshuChatGPT.messages.status({
-  maxPreviewChars: 500
-});
-var yanshuRoundResult = await yanshuChatGPT.messages.waitAndRead({
-  timeoutMs: yanshuChatPlan.pollIntervalMs,
-  stableMs: 1_500,
-  pollMs: 750,
-  role: "assistant",
-  format: "markdown"
-});
+var yanshuWait = await waitForYanShuChatRound(
+  yanshuChatGPT,
+  { pollIntervalMs: yanshuChatPlan.pollIntervalMs }
+);
 ```
 
-For a recorded conversation URL after restart:
+The normalized state is one of:
+
+- `generating`
+- `completed`
+- `needs_continuation`
+- `blocked`
+- `failed`
+
+Do not expose upstream `partial` as a terminal success. Do not send a continuation solely because one bounded wait ended.
+
+## Inventory and download exact files
+
+Inspect the latest assistant turn first:
 
 ```js
-var yanshuContinuedRound = await yanshuChatGPT.askInThread({
-  thread: { type: "url", url: recordedThreadUrl },
-  existingTab: true,
-  prompt: "Continue from the latest unfinished work without restarting the round.",
-  wait: false,
-  read: false
-});
+var latestFiles = await listLatestYanShuFiles(yanshuChatGPT);
 ```
 
-Send a continuation only when the visible conversation genuinely requires it. Do not use a continuation merely because a local wait timed out.
-
-## Collect exact artifacts
-
-In MCP mode, verify the files registered in `run.json` and do not download a
-second copy from Chat.
-
-In attachment-fallback mode, read `next.artifactBundle`. For Rounds 1, 2, 3,
-and 5 when `artifactBundle.required` is true, download its single ZIP first:
+Download by canonical expected artifact name:
 
 ```js
-var yanshuDownloadedBundle =
-  await yanshuChatGPT.files.downloadLatest({
-    destDir: absoluteRoundOutputDirectory,
-    filenamePattern: artifactBundle.filenamePattern
-  });
+var downloaded = await downloadYanShuArtifact(
+  yanshuChatGPT,
+  {
+    artifactName: exactExpectedName,
+    destDir: absoluteRoundDownloadsDirectory
+  }
+);
 ```
 
-Import it deterministically:
+The helper binds the file to the latest assistant turn, uses backend filename metadata when available, captures the real browser download event, and accepts duplicate browser suffixes only after canonical normalization. Never download directly over an existing canonical output; `round-finalize --replace` owns versioning and atomic replacement.
 
-```text
-node <plugin-root>/scripts/yanshu.mjs artifact-bundle \
-  --run <run-path> \
-  --round <round-number> \
-  --file <downloaded-zip>
-```
+For the Round 4 PNG, the same helper automatically falls back from named-file
+inventory to the latest generated-image artifact. That path uses visible image
+controls, image source data, or the bridge `pageAssets` capability in that
+order. It still requires the requested PNG format and returns the canonical
+artifact name separately for safe registration.
 
-The importer rejects a mismatched archive name, missing or extra entry,
-subdirectory, path traversal, symlink, unsupported compression, invalid CRC,
-oversized content, non-UTF-8 text, or a filename that does not share the
-archive's exact `<base_name>`. Do not manually extract an invalid bundle.
+For a required ZIP, do not copy paper prose or manually extract an invalid archive. If the exact bundle is absent, ask once in the same Chat for that named downloadable bundle.
 
-Round 4 has one PNG and still uses an exact case-insensitive filename
-expression with `files.downloadLatest`, followed by the YanShu `artifact`
-command.
+## Real blockers
 
-If a manuscript round requires a ZIP but does not expose it, ask once in the same
-thread to attach the exact directly downloadable bundle. Only when the visible
-Chat surface cannot create that archive, fall back to exact individual
-downloads for the three named files. A filename mismatch, older artifact,
-image fallback, document-only entity, or missing download is not success.
-Register every accepted compatibility-fallback file with `artifact`.
-
-For a resumed legacy run, `artifactBundle.required` may be false because its
-saved Prompt predates the bundle protocol. Do not rewrite that Prompt or demand
-new filenames. Download and register the exact individual artifacts named by
-the saved round instead.
-
-If Chat returns paper prose only in the conversation, request the named downloadable artifact in the same thread. Do not copy the manuscript through Codex.
-
-## Structured blockers
-
-Preserve and report the runtime's real status for:
+Preserve and report:
 
 - `browser_bridge_unavailable`
 - `login_required`
 - `captcha`
 - `rate_limit`
 - `permission`
-- `needs_confirmation`
-- `selector_drift`
+- explicit contradictory configuration readback
 
-Never convert one of these into a successful round or bypass it with another model surface.
-An absent active-value label after an acknowledged exact configuration click is
-not, by itself, `selector_drift`; the YanShu protocol reports it as
-`click-acknowledged`. Missing options, failed clicks, stale-thread evidence, and
-contradictory readback remain real blockers.
+An acknowledged exact reasoning click without readable active-state text is not a blocker.

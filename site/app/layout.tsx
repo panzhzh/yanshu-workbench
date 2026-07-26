@@ -3,7 +3,7 @@ import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const siteDescription =
-  "面向 CS 研究者的论文初稿、可恢复论文重构、科研绘图与投稿策略工作台。";
+  "面向 CS 研究者的选题发现、Idea 评估、论文写作与重构、科研绘图及投稿策略工作台。";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   applicationName: "研术台",
   keywords: [
     "计算机科学",
+    "科研选题",
+    "Idea 评估",
     "科研写作",
     "论文初稿",
     "论文重构",

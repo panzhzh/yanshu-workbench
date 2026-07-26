@@ -43,6 +43,22 @@ const HOME_COPY = {
     modules: [
       {
         index: "01",
+        title: "Idea 查找",
+        description:
+          "从近年可信文献、数据条件和资源边界中发现并核验候选研究 Idea。",
+        href: "/ideas/discovery",
+        meta: "检索去重 · 最小验证实验",
+      },
+      {
+        index: "02",
+        title: "Idea 评估与优化",
+        description:
+          "用最近邻论文与执行条件压力测试 Idea，并形成一份完整优化稿。",
+        href: "/ideas/evaluation",
+        meta: "证据评估 · Pursue / Pivot / Stop",
+      },
+      {
+        index: "03",
         title: "论文初稿",
         description:
           "实验完成后，基于证据材料生成可编译的英文 LaTeX 初稿。",
@@ -50,7 +66,7 @@ const HOME_COPY = {
         meta: "arXiv 默认 · 顶会官方模板",
       },
       {
-        index: "02",
+        index: "04",
         title: "论文重构",
         description:
           "用可恢复的五轮流程重建科学定位、结构、方法、实验、叙事与框架图。",
@@ -58,7 +74,7 @@ const HOME_COPY = {
         meta: "官网同源 Prompt · 断点恢复",
       },
       {
-        index: "03",
+        index: "05",
         title: "科研绘图",
         description:
           "从论文中生成引言图、方法总览或一张核心机制细节图。",
@@ -66,7 +82,7 @@ const HOME_COPY = {
         meta: "单图任务 · 精确术语",
       },
       {
-        index: "04",
+        index: "06",
         title: "投稿策略",
         description:
           "建立期刊候选池，并核验范围、分区、收录、费用与文章类型。",
@@ -119,6 +135,22 @@ const HOME_COPY = {
     modules: [
       {
         index: "01",
+        title: "Idea discovery",
+        description:
+          "Find and verify candidate research ideas from recent trustworthy literature, data conditions, and resource limits.",
+        href: "/ideas/discovery",
+        meta: "Search and deduplicate · minimum decisive test",
+      },
+      {
+        index: "02",
+        title: "Idea evaluation & refinement",
+        description:
+          "Stress-test an idea against nearest work and execution limits, then produce one coherent optimized version.",
+        href: "/ideas/evaluation",
+        meta: "Evidence review · Pursue / Pivot / Stop",
+      },
+      {
+        index: "03",
         title: "Paper draft",
         description:
           "Turn completed experiments and evidence into a compilable English LaTeX draft.",
@@ -126,7 +158,7 @@ const HOME_COPY = {
         meta: "arXiv default · official venue templates",
       },
       {
-        index: "02",
+        index: "04",
         title: "Paper reconstruction",
         description:
           "Use a resumable five-round workflow to rebuild positioning, structure, methods, experiments, narrative, and the framework figure.",
@@ -134,7 +166,7 @@ const HOME_COPY = {
         meta: "Website-synced prompts · resumable",
       },
       {
-        index: "03",
+        index: "05",
         title: "Research figures",
         description:
           "Generate an Introduction figure, Method Overview, or one decisive Core Mechanism Detail figure.",
@@ -142,7 +174,7 @@ const HOME_COPY = {
         meta: "One image · exact terminology",
       },
       {
-        index: "04",
+        index: "06",
         title: "Submission strategy",
         description:
           "Build and verify a journal pool by scope, rankings, indexing, fees, and article type.",

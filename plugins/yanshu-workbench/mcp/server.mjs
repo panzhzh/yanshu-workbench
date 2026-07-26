@@ -71,6 +71,19 @@ export function toolDefinitions(boundRunPath = null) {
   const requiredRun = runRequired(boundRunPath);
   return [
     {
+      name: "yanshu_health",
+      title: "Check YanShu Connection",
+      description:
+        "Zero-sensitive-data health probe. Confirms that the visible Chat can call YanShu before any manuscript prompt or file is sent.",
+      inputSchema: objectSchema({}),
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: false,
+      },
+    },
+    {
       name: "yanshu_get_round_manifest",
       title: "Open YanShu Round",
       description:
@@ -315,7 +328,7 @@ export function toolDefinitions(boundRunPath = null) {
       name: "yanshu_complete_round",
       title: "Complete YanShu Round",
       description:
-        "Finalize the current round only after the complete TeX, report, complete current BibTeX, and compiled PDF exist (or the Round 4 image exists). Verifies that the BibTeX preserves every prior key and that manuscript TeX compiled successfully, then returns the next round identity for a clean new Chat conversation.",
+        "Transactionally finalize the current round only after compilation and deterministic checks pass. Verifies required files, graphics, citations, BibTeX basename and continuity, appendix policy, Round 4 framework integration, compile diagnostics, and configured canvas/word-budget reporting before marking the round completed.",
       inputSchema: objectSchema(
         {
           ...runProperties,
@@ -370,6 +383,14 @@ function scopeArguments(boundRunPath, args) {
 }
 
 export async function callTool(name, rawArgs = {}, boundRunPath = null) {
+  if (name === "yanshu_health") {
+    return toolText({
+      ready: true,
+      server: SERVER_NAME,
+      version: SERVER_VERSION,
+      runBound: Boolean(boundRunPath),
+    });
+  }
   const args = scopeArguments(boundRunPath, rawArgs ?? {});
   switch (name) {
     case "yanshu_get_round_manifest": {

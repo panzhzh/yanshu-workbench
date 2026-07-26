@@ -10,8 +10,8 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import { CliError } from "./cli.mjs";
 import {
+  commitArtifactsAtomically,
   pathExists,
-  registerArtifact,
 } from "./run-store.mjs";
 import { compareWorkflowVersions } from "./prompt-release.mjs";
 
@@ -50,11 +50,33 @@ function escapeRegex(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+export function normalizeDuplicateDownloadName(value) {
+  let normalized = path.basename(String(value));
+  let previous;
+  do {
+    previous = normalized;
+    normalized = normalized
+      .replace(/\s*\(\d+\)(?=\.[^.]+$)/u, "")
+      .replace(/\s*\(\d+\)$/u, "");
+  } while (normalized !== previous);
+  return normalized;
+}
+
 export function artifactBundleSpec(round, workflowVersion) {
   const entrySuffixes = ROUND_ARTIFACT_SUFFIXES[round.id] ?? null;
   if (!entrySuffixes) {
     return {
       required: false,
+      ...(round.id === "framework-figure"
+        ? {
+            directArtifactName:
+              "<base_name>_round_4_framework_reconstruction.png",
+            directArtifactSuffix:
+              "_round_4_framework_reconstruction.png",
+            filenamePattern:
+              "^.+_round_4_framework_reconstruction(?:\\s*\\(\\d+\\))?\\.png(?:\\s*\\(\\d+\\))?$",
+          }
+        : {}),
       reason:
         round.id === "framework-figure"
           ? "Round 4 delivers one PNG directly."
@@ -79,7 +101,7 @@ export function artifactBundleSpec(round, workflowVersion) {
     required: true,
     archiveName: `<base_name>${archiveSuffix}`,
     archiveSuffix,
-    filenamePattern: `^.+${escapeRegex(archiveSuffix)}$`,
+    filenamePattern: `^.+_round_${round.number}_artifacts(?:\\s*\\(\\d+\\))?\\.zip(?:\\s*\\(\\d+\\))?$`,
     entries: entrySuffixes.map((suffix) => `<base_name>${suffix}`),
   };
 }
@@ -349,7 +371,10 @@ function validateExpectedEntries(
     );
   }
 
-  const archiveName = path.basename(bundlePath);
+  const downloadedArchiveName = path.basename(bundlePath);
+  const archiveName = normalizeDuplicateDownloadName(
+    downloadedArchiveName,
+  );
   if (
     !archiveName
       .toLocaleLowerCase("en-US")
@@ -397,7 +422,11 @@ function validateExpectedEntries(
       );
     }
   }
-  return expectedNames;
+  return {
+    expectedNames,
+    archiveName,
+    downloadedArchiveName,
+  };
 }
 
 export async function importArtifactBundle({
@@ -405,6 +434,8 @@ export async function importArtifactBundle({
   selector,
   bundlePath,
   replace = false,
+  reason = "ChatGPT artifact bundle import",
+  chatTurn = null,
 }) {
   const round = findRound(state, selector);
   const source = path.resolve(bundlePath);
@@ -429,59 +460,49 @@ export async function importArtifactBundle({
   }
 
   const entries = parseZip(await readFile(source));
-  const expectedNames = validateExpectedEntries(
+  const validated = validateExpectedEntries(
     entries,
     round,
     source,
     state.workflowVersion,
   );
-  const outputDirectory = path.join(
-    state.runPath,
-    round.directory,
-    "output",
-  );
-  if (!replace) {
-    for (const name of expectedNames) {
-      if (await pathExists(path.join(outputDirectory, name))) {
-        throw new CliError(
-          `Artifact already exists: ${path.join(outputDirectory, name)}. Pass --replace to overwrite it.`,
-          "artifact_exists",
-        );
-      }
-    }
-  }
 
   const temporaryDirectory = await mkdtemp(
     path.join(tmpdir(), "yanshu-artifact-bundle-"),
   );
   try {
-    const temporaryFiles = [];
+    const transactionFiles = [
+      {
+        sourcePath: source,
+        destinationName: validated.archiveName,
+      },
+    ];
     for (const entry of entries) {
       const temporaryFile = path.join(temporaryDirectory, entry.name);
       await writeFile(temporaryFile, entry.content);
-      temporaryFiles.push(temporaryFile);
+      transactionFiles.push({
+        sourcePath: temporaryFile,
+        destinationName: entry.name,
+      });
     }
 
-    const registeredBundle = await registerArtifact(
+    const transaction = await commitArtifactsAtomically(
       state,
       round.id,
-      source,
-      replace,
+      transactionFiles,
+      {
+        replace,
+        reason,
+        chatTurn,
+      },
     );
-    const registeredArtifacts = [];
-    for (const temporaryFile of temporaryFiles) {
-      registeredArtifacts.push(
-        await registerArtifact(
-          state,
-          round.id,
-          temporaryFile,
-          replace,
-        ),
-      );
-    }
     return {
-      bundle: registeredBundle,
-      artifacts: registeredArtifacts,
+      bundle: transaction.paths[0],
+      artifacts: transaction.paths.slice(1),
+      transactionId: transaction.transactionId,
+      revisions: transaction.revisions,
+      downloadedArchiveName: validated.downloadedArchiveName,
+      canonicalArchiveName: validated.archiveName,
     };
   } finally {
     await rm(temporaryDirectory, { recursive: true, force: true });

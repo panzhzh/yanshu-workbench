@@ -1,8 +1,65 @@
 import { spawn, spawnSync } from "node:child_process";
+import {
+  copyFile,
+  mkdir,
+  mkdtemp,
+  rm,
+} from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 
 const DEFAULT_WSL_DISTRO =
   process.env.YANSHU_WSL_DISTRO?.trim() || "Ubuntu-22.04";
+
+function asciiStagingRoot() {
+  if (process.env.YANSHU_STAGING_ROOT?.trim()) {
+    return path.resolve(process.env.YANSHU_STAGING_ROOT.trim());
+  }
+  if (process.platform === "win32") {
+    const systemRoot = process.env.SystemRoot || "C:\\Windows";
+    return path.join(systemRoot, "Temp");
+  }
+  return "/tmp";
+}
+
+function asciiFileName(value, fallback = "input") {
+  const extension = path.extname(value).replace(/[^a-zA-Z0-9.]/g, "");
+  const stem = path
+    .basename(value, path.extname(value))
+    .normalize("NFKD")
+    .replace(/[^\x20-\x7E]+/g, "")
+    .replace(/[^a-zA-Z0-9._-]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+    .slice(0, 80);
+  return `${stem || fallback}${extension}`;
+}
+
+export async function createAsciiStagingDirectory(
+  prefix = "yanshu-stage-",
+) {
+  const root = asciiStagingRoot();
+  await mkdir(root, { recursive: true });
+  const directory = await mkdtemp(path.join(root, prefix));
+  return {
+    directory,
+    async stageFile(source, preferredName) {
+      const destination = path.join(
+        directory,
+        asciiFileName(preferredName ?? source),
+      );
+      await copyFile(source, destination);
+      return destination;
+    },
+    async copyOut(source, destination) {
+      await mkdir(path.dirname(destination), { recursive: true });
+      await copyFile(source, destination);
+      return destination;
+    },
+    async cleanup() {
+      await rm(directory, { recursive: true, force: true });
+    },
+  };
+}
 
 function commandProbe(command) {
   if (process.platform === "win32") {

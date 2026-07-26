@@ -4,7 +4,7 @@
 
 **面向 CS 研究者的科研方法文档站与交互式工作台**
 
-从实验完成，到论文初稿、结构重构、科研绘图与投稿筛选。
+从研究选题，到论文初稿、结构重构、科研绘图与投稿筛选。
 把关键科研任务整理成可配置、可审计、可直接复制的中英文 Prompt。
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-111111?logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -13,6 +13,8 @@
 [![Cloudflare Pages](https://img.shields.io/badge/Cloudflare-Pages-F38020?logo=cloudflarepages&logoColor=white)](https://pages.cloudflare.com/)
 
 [在线使用](https://yanshu-workbench.pages.dev/) ·
+[Idea 查找](https://yanshu-workbench.pages.dev/ideas/discovery/) ·
+[Idea 评估](https://yanshu-workbench.pages.dev/ideas/evaluation/) ·
 [全文初稿](https://yanshu-workbench.pages.dev/draft/) ·
 [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) ·
 [科学示意图](https://yanshu-workbench.pages.dev/figures/) ·
@@ -52,6 +54,8 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 
 | 模块 | 适用阶段 | 当前能力 |
 | --- | --- | --- |
+| [Idea 查找](https://yanshu-workbench.pages.dev/ideas/discovery/) | 尚未确定选题 | 按方向、近年窗口、顶会/顶刊、数据集、SOTA 目标和资源边界检索；去重并核验最近邻工作后输出中英文 Markdown |
+| [Idea 评估与优化](https://yanshu-workbench.pages.dev/ideas/evaluation/) | 已有初步 Idea | 从新颖性、意义、有效性、可行性、竞争时机与复现条件进行压力测试，并融合生成完整优化稿 |
 | [全文初稿](https://yanshu-workbench.pages.dev/draft/) | 实验已经完成 | 从证据材料生成完整、可编译的英文 LaTeX 初稿；arXiv 默认样式或当届顶会官方模板 |
 | [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
 | [章节精修](https://yanshu-workbench.pages.dev/reconstruction/refinement/) | 需要精修单章或合并实验叙事 | 按 Abstract、Introduction、Related Work、Method、Experiments & Results、Discussion、Conclusion 分别生成章节专用 Prompt |
@@ -74,6 +78,8 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 ## 方法参考
 
 科研绘图的“论文语义拆解 → 结构化英文生图 Prompt → 用户确认后绘制”工作流受 [LigphiDonk/academic-figure-generator](https://github.com/LigphiDonk/academic-figure-generator) 启发。参考项目采用 [MIT License](https://github.com/LigphiDonk/academic-figure-generator/blob/main/LICENSE)；YanShu 没有复制其完整模板或品牌视觉，而是将方法重新组织为适配本站图型、画布、配色、字体和可读性选项的两步配置流程。
+
+Idea 工作台参考了若干许可清晰的开源研究流程：[NoviScl/AI-Researcher](https://github.com/NoviScl/AI-Researcher)（MIT）将相关论文检索、证据驱动生成、去重、提案排序与新颖性过滤拆开；[zjunlp/InnoEval](https://github.com/zjunlp/InnoEval)（MIT）强调多来源取证和清晰度、新颖性、有效性、可行性、意义等多维评估；[andrehuang/research-companion](https://github.com/andrehuang/research-companion)（MIT）提供最快否证、竞争时机与 Pursue / Pivot / Stop 式研究决策；[allenai/codescientist](https://github.com/allenai/codescientist)（Apache-2.0）强调可实施性与最小实验。YanShu 只借鉴工作流思想，Prompt、配置模型、界面和输出合同均为本站重新设计。
 
 ## 安装 YanShu 插件
 
@@ -186,6 +192,7 @@ yanshu-workbench/
 └── site/
     ├── app/
     │   ├── draft/              # 论文初稿配置与 Prompt
+    │   ├── ideas/              # Idea 查找、评估与优化
     │   ├── reconstruction/     # 论文重构入口
     │   ├── figures/            # 科研绘图配置与 Prompt
     │   ├── submission/         # 投稿策略筛选与 Prompt
@@ -198,6 +205,7 @@ yanshu-workbench/
 ## 接下来
 
 - [x] 简洁首页与顶部导航
+- [x] Idea 查找、评估与优化工作台
 - [x] 论文初稿工作台
 - [x] 论文重构工作台
 - [x] 独立科研绘图 Prompt

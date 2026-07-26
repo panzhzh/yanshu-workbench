@@ -15,10 +15,19 @@ import {
   markRound,
   nextRound,
   pathExists,
+  recordRunEvent,
   roundMaterials,
   saveRun,
+  updateRoundCheckpoint,
+  validateRoundDeliverables,
 } from "./run-store.mjs";
+import { importArtifactBundle } from "./artifact-bundle.mjs";
 import {
+  buildFinalManifest,
+  validateRoundConsistency,
+} from "./deliverable-validation.mjs";
+import {
+  createAsciiStagingDirectory,
   runPortableTool,
   toolAvailable,
 } from "./process-tools.mjs";
@@ -129,9 +138,8 @@ function artifactId(state, target) {
 function mimeTypeFor(target) {
   switch (path.extname(target).toLowerCase()) {
     case ".tex":
-      return "application/x-tex";
     case ".bib":
-      return "application/x-bibtex";
+      return "text/plain";
     case ".md":
       return "text/markdown";
     case ".txt":
@@ -237,6 +245,116 @@ async function walkFiles(
   return collected;
 }
 
+function graphicReferencesFromTex(content) {
+  return [
+    ...String(content).matchAll(
+      /\\includegraphics(?:\s*\[[^\]]*\])?\s*\{([^{}]+)\}/giu,
+    ),
+  ].map((match) => match[1].trim());
+}
+
+function graphicPathCandidates(reference, texPath, state) {
+  const portable = reference.replaceAll("/", path.sep);
+  const bases = [
+    path.resolve(path.dirname(texPath), portable),
+    path.resolve(state.projectRoot, portable),
+    state.inputs?.figures
+      ? path.resolve(state.inputs.figures, portable)
+      : null,
+    state.inputs?.figures
+      ? path.resolve(state.inputs.figures, path.basename(portable))
+      : null,
+  ].filter(Boolean);
+  return [
+    ...new Set(
+      bases.flatMap((base) =>
+        path.extname(base)
+          ? [base]
+          : [...FIGURE_EXTENSIONS].map(
+              (extension) => `${base}${extension}`,
+            ),
+      ),
+    ),
+  ];
+}
+
+async function referencedProjectFigures(state, seedTexPaths) {
+  const projectTex = await walkFiles(state.projectRoot, {
+    extensions: new Set([".tex"]),
+    skipRunPath: state.runPath,
+    limit: 256,
+  });
+  const texPaths = [
+    ...new Set(
+      [...seedTexPaths, ...projectTex].map((target) =>
+        path.resolve(target),
+      ),
+    ),
+  ];
+  const figureRoots = [
+    state.inputs?.figures,
+    state.projectRoot,
+  ].filter(Boolean);
+  const inventory = [];
+  for (const root of figureRoots) {
+    await walkFiles(root, {
+      extensions: FIGURE_EXTENSIONS,
+      skipRunPath: state.runPath,
+      limit: 512,
+      collected: inventory,
+    });
+  }
+  const byBasename = new Map();
+  for (const target of inventory) {
+    const key = path.basename(target).toLocaleLowerCase("en-US");
+    const values = byBasename.get(key) ?? [];
+    values.push(target);
+    byBasename.set(key, values);
+  }
+
+  const resolved = new Set();
+  for (const texPath of texPaths) {
+    if (!(await pathExists(texPath))) continue;
+    const content = await readFile(texPath, "utf8");
+    for (const reference of graphicReferencesFromTex(content)) {
+      let found = null;
+      for (const candidate of graphicPathCandidates(
+        reference,
+        texPath,
+        state,
+      )) {
+        if (await pathExists(candidate)) {
+          const info = await stat(candidate);
+          if (info.isFile()) {
+            found = candidate;
+            break;
+          }
+        }
+      }
+      if (!found) {
+        const referenceExtension = path.extname(reference);
+        const names = referenceExtension
+          ? [path.basename(reference)]
+          : [...FIGURE_EXTENSIONS].map(
+              (extension) =>
+                `${path.basename(reference)}${extension}`,
+            );
+        const basenameMatches = names.flatMap(
+          (name) =>
+            byBasename.get(
+              name.toLocaleLowerCase("en-US"),
+            ) ?? [],
+        );
+        if (basenameMatches.length === 1) {
+          [found] = basenameMatches;
+        }
+      }
+      if (found) resolved.add(path.resolve(found));
+    }
+  }
+  return [...resolved];
+}
+
 async function buildManifestInternal(runPath, selector) {
   const state = await loadRun(runPath);
   const round = roundFor(state, selector);
@@ -277,6 +395,19 @@ async function buildManifestInternal(runPath, selector) {
         roundNumber: material.roundNumber,
       });
     }
+  }
+  const seedTexPaths = [...artifacts.values()]
+    .filter((artifact) => artifact.kind === "tex")
+    .map((artifact) => artifact.absolutePath);
+  for (const figure of await referencedProjectFigures(
+    state,
+    seedTexPaths,
+  )) {
+    await add(figure, {
+      source: "original",
+      role: "evidence-figure",
+      roundNumber: null,
+    });
   }
 
   for (const relative of round.outputs ?? []) {
@@ -651,26 +782,33 @@ export async function getEvidenceIndex(runPath, selector) {
 }
 
 async function pdfMetadata(target) {
-  const result = await runPortableTool("pdfinfo", {
-    cwd: path.dirname(target),
-    buildArgs: (mapPath) => [mapPath(target)],
-    timeoutMs: 30_000,
-  });
-  if (!result.ok) {
-    throw new CliError(
-      `Unable to inspect PDF metadata: ${
-        result.error?.message || result.stderr.trim() || "pdfinfo failed"
-      }`,
-      "pdf_tool_failed",
-    );
+  const staging = await createAsciiStagingDirectory("yanshu-pdfinfo-");
+  try {
+    const stagedTarget = await staging.stageFile(target, "paper.pdf");
+    const result = await runPortableTool("pdfinfo", {
+      cwd: staging.directory,
+      buildArgs: (mapPath) => [mapPath(stagedTarget)],
+      timeoutMs: 30_000,
+    });
+    if (!result.ok) {
+      throw new CliError(
+        `Unable to inspect PDF metadata: ${
+          result.error?.message || result.stderr.trim() || "pdfinfo failed"
+        }`,
+        "pdf_tool_failed",
+      );
+    }
+    const pages = Number(result.stdout.match(/^Pages:\s+(\d+)/im)?.[1] ?? 0);
+    return {
+      pages,
+      title: result.stdout.match(/^Title:\s+(.+)$/im)?.[1]?.trim() || null,
+      pageSize:
+        result.stdout.match(/^Page size:\s+(.+)$/im)?.[1]?.trim() || null,
+      usedAsciiStaging: true,
+    };
+  } finally {
+    await staging.cleanup();
   }
-  const pages = Number(result.stdout.match(/^Pages:\s+(\d+)/im)?.[1] ?? 0);
-  return {
-    pages,
-    title: result.stdout.match(/^Title:\s+(.+)$/im)?.[1]?.trim() || null,
-    pageSize:
-      result.stdout.match(/^Page size:\s+(.+)$/im)?.[1]?.trim() || null,
-  };
 }
 
 export async function readPdfText({
@@ -697,26 +835,36 @@ export async function readPdfText({
       `PDF page ${start} exceeds the ${metadata.pages}-page document.`,
     );
   }
-  const result = await runPortableTool("pdftotext", {
-    cwd: path.dirname(artifact.absolutePath),
-    buildArgs: (mapPath) => [
-      "-f",
-      String(start),
-      "-l",
-      String(end),
-      "-layout",
-      mapPath(artifact.absolutePath),
-      "-",
-    ],
-    timeoutMs: 60_000,
-  });
-  if (!result.ok) {
-    throw new CliError(
-      `Unable to extract PDF text: ${
-        result.error?.message || result.stderr.trim() || "pdftotext failed"
-      }`,
-      "pdf_tool_failed",
+  const staging = await createAsciiStagingDirectory("yanshu-pdftext-");
+  let result;
+  try {
+    const stagedPdf = await staging.stageFile(
+      artifact.absolutePath,
+      "paper.pdf",
     );
+    result = await runPortableTool("pdftotext", {
+      cwd: staging.directory,
+      buildArgs: (mapPath) => [
+        "-f",
+        String(start),
+        "-l",
+        String(end),
+        "-layout",
+        mapPath(stagedPdf),
+        "-",
+      ],
+      timeoutMs: 60_000,
+    });
+    if (!result.ok) {
+      throw new CliError(
+        `Unable to extract PDF text: ${
+          result.error?.message || result.stderr.trim() || "pdftotext failed"
+        }`,
+        "pdf_tool_failed",
+      );
+    }
+  } finally {
+    await staging.cleanup();
   }
   const pageTexts = result.stdout.split("\f");
   if (pageTexts.at(-1)?.trim() === "") pageTexts.pop();
@@ -747,18 +895,28 @@ export async function searchPdf({
     throw new CliError(`${artifact.name} is not a PDF artifact.`);
   }
   const metadata = await pdfMetadata(artifact.absolutePath);
-  const result = await runPortableTool("pdftotext", {
-    cwd: path.dirname(artifact.absolutePath),
-    buildArgs: (mapPath) => ["-layout", mapPath(artifact.absolutePath), "-"],
-    timeoutMs: 90_000,
-  });
-  if (!result.ok) {
-    throw new CliError(
-      `Unable to search PDF text: ${
-        result.error?.message || result.stderr.trim() || "pdftotext failed"
-      }`,
-      "pdf_tool_failed",
+  const staging = await createAsciiStagingDirectory("yanshu-pdfsearch-");
+  let result;
+  try {
+    const stagedPdf = await staging.stageFile(
+      artifact.absolutePath,
+      "paper.pdf",
     );
+    result = await runPortableTool("pdftotext", {
+      cwd: staging.directory,
+      buildArgs: (mapPath) => ["-layout", mapPath(stagedPdf), "-"],
+      timeoutMs: 90_000,
+    });
+    if (!result.ok) {
+      throw new CliError(
+        `Unable to search PDF text: ${
+          result.error?.message || result.stderr.trim() || "pdftotext failed"
+        }`,
+        "pdf_tool_failed",
+      );
+    }
+  } finally {
+    await staging.cleanup();
   }
   const needle = query.trim().toLocaleLowerCase();
   const matches = [];
@@ -788,55 +946,74 @@ export async function searchPdf({
 
 async function renderPdfToPng(target, destination, page) {
   await mkdir(path.dirname(destination), { recursive: true });
-  const prefix = destination.slice(0, -path.extname(destination).length);
-  const result = await runPortableTool("pdftoppm", {
-    cwd: path.dirname(target),
-    buildArgs: (mapPath) => [
-      "-f",
-      String(page),
-      "-l",
-      String(page),
-      "-singlefile",
-      "-png",
-      "-r",
-      "144",
-      mapPath(target),
-      mapPath(prefix),
-    ],
-    timeoutMs: 90_000,
-  });
-  if (!result.ok || !(await pathExists(destination))) {
-    throw new CliError(
-      `Unable to render PDF page ${page}: ${
-        result.error?.message || result.stderr.trim() || "pdftoppm failed"
-      }`,
-      "pdf_render_failed",
+  const staging = await createAsciiStagingDirectory("yanshu-pdfrender-");
+  try {
+    const stagedPdf = await staging.stageFile(target, "paper.pdf");
+    const stagedDestination = path.join(staging.directory, "page.png");
+    const prefix = stagedDestination.slice(
+      0,
+      -path.extname(stagedDestination).length,
     );
+    const result = await runPortableTool("pdftoppm", {
+      cwd: staging.directory,
+      buildArgs: (mapPath) => [
+        "-f",
+        String(page),
+        "-l",
+        String(page),
+        "-singlefile",
+        "-png",
+        "-r",
+        "144",
+        mapPath(stagedPdf),
+        mapPath(prefix),
+      ],
+      timeoutMs: 90_000,
+    });
+    if (!result.ok || !(await pathExists(stagedDestination))) {
+      throw new CliError(
+        `Unable to render PDF page ${page}: ${
+          result.error?.message || result.stderr.trim() || "pdftoppm failed"
+        }`,
+        "pdf_render_failed",
+      );
+    }
+    await staging.copyOut(stagedDestination, destination);
+  } finally {
+    await staging.cleanup();
   }
 }
 
 async function renderEpsToPng(target, destination) {
   await mkdir(path.dirname(destination), { recursive: true });
-  const result = await runPortableTool("gs", {
-    cwd: path.dirname(target),
-    buildArgs: (mapPath) => [
-      "-dSAFER",
-      "-dBATCH",
-      "-dNOPAUSE",
-      "-sDEVICE=pngalpha",
-      "-r144",
-      `-sOutputFile=${mapPath(destination)}`,
-      mapPath(target),
-    ],
-    timeoutMs: 90_000,
-  });
-  if (!result.ok || !(await pathExists(destination))) {
-    throw new CliError(
-      `Unable to render EPS figure: ${
-        result.error?.message || result.stderr.trim() || "Ghostscript failed"
-      }`,
-      "figure_render_failed",
-    );
+  const staging = await createAsciiStagingDirectory("yanshu-epsrender-");
+  try {
+    const stagedEps = await staging.stageFile(target, "figure.eps");
+    const stagedDestination = path.join(staging.directory, "figure.png");
+    const result = await runPortableTool("gs", {
+      cwd: staging.directory,
+      buildArgs: (mapPath) => [
+        "-dSAFER",
+        "-dBATCH",
+        "-dNOPAUSE",
+        "-sDEVICE=pngalpha",
+        "-r144",
+        `-sOutputFile=${mapPath(stagedDestination)}`,
+        mapPath(stagedEps),
+      ],
+      timeoutMs: 90_000,
+    });
+    if (!result.ok || !(await pathExists(stagedDestination))) {
+      throw new CliError(
+        `Unable to render EPS figure: ${
+          result.error?.message || result.stderr.trim() || "Ghostscript failed"
+        }`,
+        "figure_render_failed",
+      );
+    }
+    await staging.copyOut(stagedDestination, destination);
+  } finally {
+    await staging.cleanup();
   }
 }
 
@@ -980,9 +1157,11 @@ export async function writeRoundArtifact({
 
   const newHash = sha256(content);
   let previousVersion = null;
+  let previousSha256 = null;
   if (await pathExists(destination)) {
     const current = await readFile(destination);
-    if (sha256(current) === newHash) {
+    previousSha256 = sha256(current);
+    if (previousSha256 === newHash) {
       return {
         changed: false,
         artifactId: artifactId(state, destination),
@@ -1024,8 +1203,29 @@ export async function writeRoundArtifact({
   if (!round.outputs.includes(relativeToRun)) {
     round.outputs.push(relativeToRun);
   }
+  round.checkpoint = "artifact-imported";
+  if (previousVersion) {
+    round.revisions ??= [];
+    round.revisions.push({
+      timestamp: new Date().toISOString(),
+      fileName: relative,
+      previousPath: relativeDisplayPath(state, previousVersion),
+      previousSha256,
+      newSha256: newHash,
+      reason: "MCP complete-artifact replacement",
+      chatTurn: round.chat?.assistantTurn ?? null,
+    });
+  }
   round.updatedAt = new Date().toISOString();
   await saveRun(state);
+  await recordRunEvent(state, "mcp-artifact-write", {
+    round: round.number,
+    fileName: relative,
+    sha256: newHash,
+    previousVersion: previousVersion
+      ? relativeDisplayPath(state, previousVersion)
+      : null,
+  });
   return {
     changed: true,
     artifactId: artifactId(state, destination),
@@ -1128,10 +1328,30 @@ export async function compileRound({
     manifest.round.directory,
   );
   const buildRoot = path.join(roundRoot, "builds", buildId);
-  const workspace = path.join(buildRoot, "workspace");
-  const out = path.join(buildRoot, "out");
+  const staging = await createAsciiStagingDirectory("yanshu-compile-");
+  const workspace = path.join(staging.directory, "workspace");
+  const out = path.join(staging.directory, "out");
+  const stagingManifestPath = path.join(buildRoot, "staging.json");
+  try {
+  await mkdir(buildRoot, { recursive: true });
   await mkdir(workspace, { recursive: true });
   await mkdir(out, { recursive: true });
+  await writeFile(
+    stagingManifestPath,
+    `${JSON.stringify(
+      {
+        strategy: "ascii-temporary",
+        sourceRunPath: manifest.state.runPath,
+        sourceTexPath: selected.absolutePath,
+        stagingDirectory: staging.directory,
+        createdAt: new Date().toISOString(),
+        cleanedAt: null,
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
   await copyCompilationInputs(manifest.state, workspace);
 
   for (const artifact of manifest.artifacts) {
@@ -1213,12 +1433,26 @@ export async function compileRound({
     buildId,
     engine: selectedEngine,
     texArtifactId: selected.id,
+    texPath: relativeDisplayPath(
+      manifest.state,
+      selected.absolutePath,
+    ),
     pdfPath: registeredPdf
       ? relativeDisplayPath(manifest.state, registeredPdf)
       : null,
     logPath: relativeDisplayPath(manifest.state, logPath),
+    staging: {
+      strategy: "ascii-temporary",
+      manifestPath: relativeDisplayPath(
+        manifest.state,
+        stagingManifestPath,
+      ),
+    },
     updatedAt: new Date().toISOString(),
   };
+  manifest.round.checkpoint = success
+    ? "compiled"
+    : "correction-requested";
   manifest.state.validation = {
     status: success ? "passed" : "failed",
     texPath: relativeDisplayPath(manifest.state, selected.absolutePath),
@@ -1226,6 +1460,32 @@ export async function compileRound({
     updatedAt: new Date().toISOString(),
   };
   await saveRun(manifest.state);
+  await writeFile(
+    stagingManifestPath,
+    `${JSON.stringify(
+      {
+        strategy: "ascii-temporary",
+        sourceRunPath: manifest.state.runPath,
+        sourceTexPath: selected.absolutePath,
+        stagingDirectory: staging.directory,
+        createdAt: manifest.round.compilation.updatedAt,
+        cleanedAt: new Date().toISOString(),
+      },
+      null,
+      2,
+    )}\n`,
+    "utf8",
+  );
+  await staging.cleanup();
+  await updateRoundCheckpoint(
+    manifest.state,
+    manifest.round.id,
+    success ? "compiled" : "correction-requested",
+    {
+      compilationStatus: success ? "passed" : "failed",
+      buildId,
+    },
+  );
   return {
     success,
     buildId,
@@ -1241,6 +1501,50 @@ export async function compileRound({
     logPath: relativeDisplayPath(manifest.state, logPath),
     logTail: logTail(combinedLog),
   };
+  } catch (error) {
+    const failedAt = new Date().toISOString();
+    await mkdir(buildRoot, { recursive: true }).catch(() => {});
+    await writeFile(
+      stagingManifestPath,
+      `${JSON.stringify(
+        {
+          strategy: "ascii-temporary",
+          sourceRunPath: manifest.state.runPath,
+          sourceTexPath: selected.absolutePath,
+          stagingDirectory: staging.directory,
+          failedAt,
+          cleanedAt: failedAt,
+          error:
+            error instanceof Error
+              ? error.message
+              : String(error),
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    ).catch(() => {});
+    await staging.cleanup().catch(() => {});
+    try {
+      const failedState = await loadRun(runPath);
+      await updateRoundCheckpoint(
+        failedState,
+        selector,
+        "correction-requested",
+        {
+          compilationStatus: "failed",
+          buildId,
+          error:
+            error instanceof Error
+              ? error.message
+              : String(error),
+        },
+      );
+    } catch {
+      // Preserve the original compilation error.
+    }
+    throw error;
+  }
 }
 
 export async function completeRound({
@@ -1248,48 +1552,153 @@ export async function completeRound({
   round: selector,
   note,
 }) {
-  const state = await loadRun(runPath);
-  const round = roundFor(state, selector);
-  const outputExtensions = new Set(
-    (round.outputs ?? []).map((relative) =>
-      path.extname(relative).toLowerCase(),
-    ),
+  return finalizeRound({
+    runPath,
+    round: selector,
+    compile: false,
+    note,
+  });
+}
+
+async function writeJsonAtomic(target, value) {
+  await mkdir(path.dirname(target), { recursive: true });
+  const temporary = path.join(
+    path.dirname(target),
+    `.${path.basename(target)}.${randomUUID()}.tmp`,
   );
-  if (round.id === "framework-figure") {
-    if (
-      ![".png", ".jpg", ".jpeg", ".webp"].some((extension) =>
-        outputExtensions.has(extension),
-      )
-    ) {
-      throw new CliError(
-        "The framework-figure round cannot complete until a readable image artifact is registered.",
-        "missing_required_artifact",
-      );
+  await writeFile(temporary, `${JSON.stringify(value, null, 2)}\n`, "utf8");
+  await rename(temporary, target);
+}
+
+export async function finalizeRound({
+  runPath,
+  round: selector,
+  bundlePath,
+  replace = false,
+  compile = true,
+  texArtifactId,
+  reason = "round finalization",
+  chatTurn = null,
+  note,
+}) {
+  let state = await loadRun(runPath);
+  let round = roundFor(state, selector);
+  if (bundlePath) {
+    await importArtifactBundle({
+      state,
+      selector: round.id,
+      bundlePath,
+      replace,
+      reason,
+      chatTurn,
+    });
+    state = await loadRun(runPath);
+    round = roundFor(state, selector);
+  }
+
+  if (round.id !== "framework-figure") {
+    if (compile || round.compilation?.status !== "passed") {
+      const compilation = await compileRound({
+        runPath,
+        round: round.id,
+        texArtifactId,
+      });
+      if (!compilation.success) {
+        throw new CliError(
+          "Round compilation failed; the run remains recoverable at correction-requested.",
+          "round_compilation_failed",
+          compilation,
+        );
+      }
+      state = await loadRun(runPath);
+      round = roundFor(state, selector);
     }
-  } else {
-    if (!outputExtensions.has(".tex")) {
-      throw new CliError(
-        "This manuscript round cannot complete until a TeX artifact is saved.",
-        "missing_required_artifact",
-      );
-    }
-    if (round.compilation?.status !== "passed") {
-      throw new CliError(
-        "Compile the current TeX successfully before completing this round.",
-        "compilation_required",
-      );
-    }
+  }
+
+  await validateRoundDeliverables(state, round.id);
+  const validation = await validateRoundConsistency({
+    state,
+    selector: round.id,
+  });
+  const validationId = timestampId();
+  const validationPath = path.join(
+    state.runPath,
+    round.directory,
+    "logs",
+    `validation-${validationId}.json`,
+  );
+  await writeJsonAtomic(validationPath, validation);
+  round.validation = {
+    status: validation.passed ? "passed" : "failed",
+    path: relativeDisplayPath(state, validationPath),
+    checks: validation.checks,
+    updatedAt: new Date().toISOString(),
+  };
+  state.validation = {
+    status: validation.passed ? "passed" : "failed",
+    texPath: round.compilation?.texPath ?? null,
+    logPath: round.compilation?.logPath ?? null,
+    checks: validation.checks,
+    updatedAt: new Date().toISOString(),
+  };
+  await saveRun(state);
+  if (!validation.passed) {
+    await updateRoundCheckpoint(
+      state,
+      round.id,
+      "correction-requested",
+      {
+        validationPath: relativeDisplayPath(state, validationPath),
+        failedChecks: validation.checks
+          .filter((item) => item.status === "failed")
+          .map((item) => item.id),
+      },
+    );
+    throw new CliError(
+      "Deterministic round validation failed; only the affected artifacts should be corrected.",
+      "round_validation_failed",
+      validation,
+    );
+  }
+
+  await updateRoundCheckpoint(state, round.id, "validated", {
+    validationPath: relativeDisplayPath(state, validationPath),
+  });
+  state = await loadRun(runPath);
+  round = roundFor(state, selector);
+  const isFinalRound = state.rounds.every(
+    (candidate) =>
+      candidate.id === round.id ||
+      candidate.status === "completed",
+  );
+  let finalManifestPath = null;
+  if (isFinalRound) {
+    const finalManifest = await buildFinalManifest(state);
+    finalManifestPath = path.join(
+      state.runPath,
+      "final-manifest.json",
+    );
+    await writeJsonAtomic(finalManifestPath, finalManifest);
+    state.finalManifestPath = relativeDisplayPath(
+      state,
+      finalManifestPath,
+    );
+    await saveRun(state);
   }
   await markRound(state, round.id, {
     status: "completed",
+    checkpoint: "finalized",
     note: typeof note === "string" ? note.slice(0, 2_000) : undefined,
   });
+  state = await loadRun(runPath);
+  round = roundFor(state, selector);
   const upcoming = nextRound(state);
   return {
     completedRound: {
       id: round.id,
       number: round.number,
       outputs: round.outputs,
+      validation: round.validation,
     },
     nextRound: upcoming
       ? {
@@ -1299,6 +1708,7 @@ export async function completeRound({
         }
       : null,
     runComplete: upcoming === null,
+    finalManifestPath,
   };
 }
 

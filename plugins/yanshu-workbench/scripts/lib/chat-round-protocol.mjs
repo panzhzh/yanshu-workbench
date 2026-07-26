@@ -1,7 +1,18 @@
 import {
+  mkdtemp,
+  rm,
+  writeFile,
+} from "node:fs/promises";
+import { tmpdir } from "node:os";
+import path from "node:path";
+import {
   classifyVisibleChatLabel,
   normalizeVisibleChatLabel,
 } from "./chat-preferences.mjs";
+import {
+  loadRun,
+  updateExecutionMode,
+} from "./run-store.mjs";
 
 const CHATGPT_CONVERSATION_PATH = /^\/c\/[^/?#]+/i;
 
@@ -240,4 +251,286 @@ export async function submitPreparedChatRound(
     read: false,
     report,
   });
+}
+
+const MCP_HEALTH_MARKER = "YANSHU_MCP_READY";
+
+function resultText(result) {
+  const values = [
+    result?.data?.text,
+    result?.data?.responseText,
+    result?.data?.latestAssistantPreview,
+    result?.data?.markdown,
+    result?.data?.content?.text,
+    result?.outputText,
+    result?.commandOutputText,
+  ].filter((value) => typeof value === "string");
+  return values.join("\n");
+}
+
+export function normalizeChatCompletion(result) {
+  const data = result?.data ?? {};
+  const lowLevel = data.completionState ?? null;
+  const generationActive = data.generationActive === true;
+  let state;
+  if (generationActive || lowLevel === "generating") {
+    state = "generating";
+  } else if (
+    result?.blocker?.kind === "captcha" ||
+    result?.blocker?.kind === "login_required" ||
+    result?.blocker?.kind === "permission" ||
+    result?.status === "blocked"
+  ) {
+    state = "blocked";
+  } else if (
+    result?.ok === true &&
+    (["complete", "completed"].includes(lowLevel) ||
+      (lowLevel === "partial" &&
+        data.hasResponseActions === true))
+  ) {
+    state = "completed";
+  } else if (
+    result?.status === "partial" ||
+    ["partial", "stopped"].includes(lowLevel)
+  ) {
+    state = "needs_continuation";
+  } else if (result?.ok === false) {
+    state = "failed";
+  } else if (result?.ok === true && resultText(result).trim()) {
+    state = "completed";
+  } else {
+    state = "generating";
+  }
+  const preview = resultText(result).trim().slice(0, 500);
+  return {
+    state,
+    generationActive,
+    lowLevelState: lowLevel,
+    assistantTurnCount:
+      data.assistantTurnCount ?? result?.context?.assistantTurnCount ?? null,
+    latestAssistantTurnIndex:
+      data.latestAssistantTurnIndex ?? null,
+    preview,
+    artifacts: data.artifacts ?? [],
+    hasResponseActions:
+      data.hasResponseActions ?? null,
+    blocker: result?.blocker ?? null,
+  };
+}
+
+export async function waitForChatRound(
+  chatgpt,
+  {
+    pollIntervalMs,
+    maxPreviewChars = 500,
+  },
+) {
+  if (!Number.isSafeInteger(pollIntervalMs) || pollIntervalMs <= 0) {
+    throw new TypeError("pollIntervalMs must be a positive integer.");
+  }
+  const initial = await chatgpt.messages.status({ maxPreviewChars });
+  const normalizedInitial = normalizeChatCompletion(initial);
+  if (
+    ["completed", "blocked", "failed"].includes(
+      normalizedInitial.state,
+    ) ||
+    (normalizedInitial.state === "needs_continuation" &&
+      normalizedInitial.lowLevelState === "stopped")
+  ) {
+    return {
+      ok: normalizedInitial.state === "completed",
+      ...normalizedInitial,
+    };
+  }
+  const waited = await chatgpt.messages.waitAndRead({
+    timeoutMs: pollIntervalMs,
+    stableMs: 1_500,
+    pollMs: 750,
+    role: "assistant",
+    format: "markdown",
+    maxChars: maxPreviewChars,
+  });
+  const normalized = normalizeChatCompletion(waited);
+  if (
+    normalized.state === "needs_continuation" &&
+    normalized.lowLevelState === "partial" &&
+    normalized.generationActive === false &&
+    typeof chatgpt.files?.listLatest === "function"
+  ) {
+    const inventory = await chatgpt.files.listLatest({
+      from: "latest_assistant",
+      timeoutMs: Math.min(pollIntervalMs, 30_000),
+    });
+    const files = inventory?.ok
+      ? (inventory.data?.files ?? [])
+      : [];
+    if (files.length > 0) {
+      return {
+        ok: true,
+        ...normalized,
+        state: "completed",
+        artifacts: files,
+        completionEvidence: "stable-assistant-artifact",
+      };
+    }
+  }
+  return {
+    ok: normalized.state === "completed",
+    ...normalized,
+  };
+}
+
+export async function probeVisibleYanShuMcp(chatgpt) {
+  const selected = await chatgpt.tools.select({ tool: "YanShu" });
+  if (!selected?.ok) {
+    return {
+      available: false,
+      reason:
+        selected?.blocker?.code ??
+        selected?.blocker?.kind ??
+        "yanshu_tool_not_visible",
+      selected,
+    };
+  }
+  const asked = await chatgpt.messages.ask({
+    text:
+      "Call yanshu_health now. Do not read any paper file or run manifest. If it returns ready=true, reply exactly YANSHU_MCP_READY.",
+    wait: false,
+    read: false,
+  });
+  if (!asked?.ok) {
+    return {
+      available: false,
+      reason: asked?.blocker?.code ?? "mcp_health_prompt_failed",
+      selected,
+      asked,
+    };
+  }
+  const result = await chatgpt.messages.waitAndRead({
+    timeoutMs: 60_000,
+    stableMs: 1_500,
+    pollMs: 750,
+    role: "assistant",
+    format: "normalized_text",
+    maxChars: 1_000,
+  });
+  const ready = resultText(result).includes(MCP_HEALTH_MARKER);
+  return {
+    available: ready,
+    reason: ready ? null : "visible_mcp_health_unverified",
+    selected,
+    result: {
+      ...normalizeChatCompletion(result),
+      markerObserved: ready,
+    },
+  };
+}
+
+export async function probeRealAttachmentTransport(chatgpt) {
+  const directory = await mkdtemp(
+    path.join(tmpdir(), "yanshu-attachment-probe-"),
+  );
+  try {
+    const tex = path.join(directory, "yanshu-probe.tex");
+    const bib = path.join(directory, "yanshu-probe.bib");
+    await writeFile(
+      tex,
+      "\\documentclass{article}\\begin{document}YanShu probe\\end{document}\n",
+      "utf8",
+    );
+    await writeFile(
+      bib,
+      "@misc{yanshu_probe,title={YanShu Probe}}\n",
+      "utf8",
+    );
+    const preflight = await chatgpt.files.preflight({
+      paths: [tex, bib],
+    });
+    if (!preflight?.ok) {
+      return {
+        available: false,
+        reason:
+          preflight?.blocker?.code ?? "attachment_mime_preflight_failed",
+        preflight,
+      };
+    }
+    const mimeTypes = new Map(
+      (preflight.data?.files ?? []).map((file) => [
+        file.name,
+        file.mimeType,
+      ]),
+    );
+    if (
+      mimeTypes.get("yanshu-probe.tex") !== "text/plain" ||
+      mimeTypes.get("yanshu-probe.bib") !== "text/plain"
+    ) {
+      return {
+        available: false,
+        reason: "attachment_mime_mismatch",
+        preflight,
+      };
+    }
+    const attached = await chatgpt.files.attach({
+      paths: [tex, bib],
+    });
+    return {
+      available: attached?.ok === true,
+      reason: attached?.ok
+        ? null
+        : attached?.blocker?.code ?? "attachment_transport_failed",
+      preflight: {
+        ok: true,
+        files: [...mimeTypes.entries()].map(([name, mimeType]) => ({
+          name,
+          mimeType,
+        })),
+      },
+      attached,
+    };
+  } finally {
+    await rm(directory, { recursive: true, force: true });
+  }
+}
+
+export async function autoSelectChatTransferMode(
+  chatgpt,
+  {
+    runPath,
+  } = {},
+) {
+  const handshake = await probeVisibleYanShuMcp(chatgpt);
+  let attachmentProbe = null;
+  let transferMode = "mcp";
+  let fallbackReason = null;
+  if (!handshake.available) {
+    transferMode = "attachments";
+    fallbackReason = handshake.reason;
+    attachmentProbe = await probeRealAttachmentTransport(chatgpt);
+  }
+
+  if (runPath) {
+    const state = await loadRun(runPath);
+    await updateExecutionMode(state, {
+      transferMode,
+      fallbackReason,
+      mcpHandshake: handshake,
+      attachmentProbe,
+    });
+  }
+
+  const usable =
+    transferMode === "mcp" || attachmentProbe?.available === true;
+  return {
+    ok: usable,
+    transferMode,
+    fallbackReason,
+    notice:
+      transferMode === "mcp"
+        ? "YanShu MCP is available and will be used."
+        : attachmentProbe?.available
+          ? `YanShu MCP is unavailable (${fallbackReason}); verified file attachment fallback will be used automatically.`
+          : `YanShu MCP is unavailable (${fallbackReason}) and the attachment fallback probe failed (${attachmentProbe?.reason ?? "unknown"}).`,
+    mcpHandshake: handshake,
+    attachmentProbe,
+  };
 }

@@ -9,6 +9,7 @@ import {
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
+import { createRequire } from "node:module";
 import {
   buildReconstructionWorkflow,
   getReconstructionConfigurationModel,
@@ -16,10 +17,17 @@ import {
 import { importChatGPTControl } from "../vendor/chatgpt-control/import-chatgpt-control.mjs";
 import {
   applyChatReasoningSelection,
+  autoSelectChatTransferMode,
   inspectFreshChatConfiguration,
+  normalizeChatCompletion,
   openFreshChatRound,
   submitPreparedChatRound,
+  waitForChatRound,
 } from "../scripts/lib/chat-round-protocol.mjs";
+import {
+  downloadAssistantArtifact,
+  normalizeChatArtifactName,
+} from "../scripts/lib/chat-artifact-protocol.mjs";
 import { resolveChatPreference } from "../scripts/lib/chat-preferences.mjs";
 import {
   onboardingStatus,
@@ -28,7 +36,21 @@ import {
 import {
   artifactBundleSpec,
   importArtifactBundle,
+  normalizeDuplicateDownloadName,
 } from "../scripts/lib/artifact-bundle.mjs";
+import {
+  buildFinalManifest,
+  countMainTextWords,
+  extractBibKeys,
+  extractBibliographyStems,
+  extractCiteKeys,
+  extractGraphics,
+  validateRoundConsistency,
+} from "../scripts/lib/deliverable-validation.mjs";
+import {
+  comparePluginVersions,
+  resolveCodexExecutable,
+} from "../scripts/lib/plugin-update.mjs";
 import {
   compareWorkflowVersions,
   inspectPublishedPromptRelease,
@@ -36,13 +58,18 @@ import {
 import {
   createRun,
   inspectBibLibraryContinuity,
+  loadRun,
   markRound,
   nextRound,
   registerArtifact,
   resolvePaperInputs,
   roundAttachments,
+  saveRun,
   summarizeRun,
 } from "../scripts/lib/run-store.mjs";
+
+const require = createRequire(import.meta.url);
+const nodeLauncher = require("../scripts/node-launcher.cjs");
 
 let zipCrcTable;
 
@@ -115,9 +142,53 @@ function storedZip(entries) {
   return Buffer.concat([...localRecords, centralDirectory, end]);
 }
 
+function pngHeader(width, height) {
+  const bytes = Buffer.alloc(24);
+  Buffer.from("89504e470d0a1a0a", "hex").copy(bytes, 0);
+  bytes.writeUInt32BE(width, 16);
+  bytes.writeUInt32BE(height, 20);
+  return bytes;
+}
+
 test("pinned visible Chat bridge bundle loads without external packages", async () => {
   const runtime = await importChatGPTControl({ cacheBust: false });
   assert.equal(typeof runtime.createChatGPT, "function");
+});
+
+test("Node launcher resolves a compatible runtime and plugin entry", () => {
+  const resolved = nodeLauncher.resolveCompatibleNode();
+  assert.ok(resolved.executable);
+  assert.ok(resolved.major >= 22);
+  assert.match(
+    nodeLauncher.resolveEntry("scripts/yanshu.mjs"),
+    /plugins[\\/]yanshu-workbench[\\/]scripts[\\/]yanshu\.mjs$/,
+  );
+});
+
+test("plugin version handshake compares cachebusters and resolves a callable Codex CLI", () => {
+  assert.ok(
+    comparePluginVersions(
+      "0.2.0+codex.20260727120000",
+      "0.2.0+codex.20260726120000",
+    ) > 0,
+  );
+  assert.ok(
+    comparePluginVersions(
+      "0.3.0+codex.20260101000000",
+      "0.2.9+codex.20261231235959",
+    ) > 0,
+  );
+  const calls = [];
+  const resolved = resolveCodexExecutable((executable, args) => {
+    calls.push({ executable, args });
+    return {
+      status: executable === "codex" ? 0 : 1,
+      stdout: "codex-test",
+      stderr: "",
+    };
+  });
+  assert.equal(resolved.executable, "codex");
+  assert.deepEqual(calls.at(-1).args, ["--version"]);
 });
 
 test("visible Chat bridge prefers the verified chooser and keeps native file paste as fallback", async () => {
@@ -140,6 +211,276 @@ test("visible Chat bridge prefers the verified chooser and keeps native file pas
   assert.match(bundle, /route: "already-attached"/);
   assert.doesNotMatch(bundle, /snapshot === void 0\) \{\s*return \{ ready: true \}/);
   assert.doesNotMatch(bundle, /direct-file-input-set/);
+  assert.match(bundle, /case "\.tex":\s*case "\.bib":\s*return \{ mimeType: "text\/plain"/);
+  assert.match(bundle, /files\.listLatest/);
+  assert.match(bundle, /files\.downloadByArtifactName/);
+  assert.match(bundle, /hasResponseActions/);
+  assert.match(bundle, /filenameCandidates\.find\(fileLike\)/);
+  assert.doesNotMatch(bundle, /guessMimeType\(extension\)/);
+});
+
+test("Chat completion semantics normalize ambiguous partial states", async () => {
+  assert.equal(
+    normalizeChatCompletion({
+      ok: false,
+      status: "partial",
+      data: {
+        completionState: "partial",
+        generationActive: false,
+        text: "Draft",
+      },
+    }).state,
+    "needs_continuation",
+  );
+  assert.equal(
+    normalizeChatCompletion({
+      ok: true,
+      data: {
+        completionState: "complete",
+        generationActive: false,
+        text: "Done",
+      },
+    }).state,
+    "completed",
+  );
+  assert.equal(
+    normalizeChatCompletion({
+      ok: true,
+      data: {
+        completionState: "partial",
+        generationActive: false,
+        hasResponseActions: true,
+        latestAssistantPreview: "Stable answer",
+      },
+    }).state,
+    "completed",
+  );
+  const chatgpt = {
+    messages: {
+      status: async () => ({
+        ok: true,
+        data: {
+          completionState: "generating",
+          generationActive: true,
+        },
+      }),
+      waitAndRead: async (args) => ({
+        ok: true,
+        data: {
+          completionState: "complete",
+          generationActive: false,
+          text: "Finished",
+          timeoutMs: args.timeoutMs,
+        },
+      }),
+    },
+  };
+  const waited = await waitForChatRound(chatgpt, {
+    pollIntervalMs: 60_000,
+  });
+  assert.equal(waited.state, "completed");
+  assert.equal(waited.preview, "Finished");
+
+  let waitedAgain = false;
+  const stableChat = {
+    messages: {
+      status: async () => ({
+        ok: true,
+        data: {
+          completionState: "partial",
+          generationActive: false,
+          hasResponseActions: true,
+          latestAssistantPreview: "Artifact ready",
+        },
+      }),
+      waitAndRead: async () => {
+        waitedAgain = true;
+        throw new Error("Stable completed turns should not be re-polled.");
+      },
+    },
+  };
+  const stable = await waitForChatRound(stableChat, {
+    pollIntervalMs: 300_000,
+  });
+  assert.equal(stable.state, "completed");
+  assert.equal(waitedAgain, false);
+});
+
+test("MCP mode selection is automatic and attachment fallback is verified without confirmation", async () => {
+  const mcpChat = {
+    tools: {
+      select: async () => ({ ok: true, data: { selected: "YanShu" } }),
+    },
+    messages: {
+      ask: async () => ({ ok: true }),
+      waitAndRead: async () => ({
+        ok: true,
+        data: {
+          completionState: "complete",
+          generationActive: false,
+          text: "YANSHU_MCP_READY",
+        },
+      }),
+    },
+    files: {
+      preflight: async () => {
+        throw new Error("Attachment fallback should not run in MCP mode.");
+      },
+    },
+  };
+  const mcp = await autoSelectChatTransferMode(mcpChat);
+  assert.equal(mcp.ok, true);
+  assert.equal(mcp.transferMode, "mcp");
+
+  const attachmentChat = {
+    tools: {
+      select: async () => ({
+        ok: false,
+        blocker: { code: "tool_not_visible" },
+      }),
+    },
+    messages: {},
+    files: {
+      preflight: async ({ paths }) => ({
+        ok: true,
+        data: {
+          files: paths.map((target) => ({
+            name: path.basename(target),
+            mimeType: "text/plain",
+          })),
+        },
+      }),
+      attach: async () => ({ ok: true }),
+    },
+  };
+  const attachment = await autoSelectChatTransferMode(attachmentChat);
+  assert.equal(attachment.ok, true);
+  assert.equal(attachment.transferMode, "attachments");
+  assert.equal(attachment.fallbackReason, "tool_not_visible");
+  assert.match(attachment.notice, /automatically/i);
+});
+
+test("structured artifact download normalizes browser duplicate suffixes", async () => {
+  assert.equal(
+    normalizeChatArtifactName("paper_round_5_artifacts (1).zip"),
+    "paper_round_5_artifacts.zip",
+  );
+  assert.equal(
+    normalizeDuplicateDownloadName("paper_round_5_artifacts.zip (2)"),
+    "paper_round_5_artifacts.zip",
+  );
+  const chatgpt = {
+    files: {
+      listLatest: async () => ({
+        ok: true,
+        data: {
+          assistantTurn: 7,
+          files: [
+            {
+              artifactName: "paper_round_5_artifacts (1).zip",
+              normalizedArtifactName: "paper_round_5_artifacts.zip",
+              assistantIndex: 7,
+              type: "archive",
+            },
+          ],
+        },
+      }),
+      downloadByArtifactName: async () => ({
+        ok: true,
+        data: {
+          path: path.join(
+            tmpdir(),
+            "paper_round_5_artifacts (1).zip",
+          ),
+          suggestedFilename: "paper_round_5_artifacts (1).zip",
+          bytes: 10,
+        },
+      }),
+    },
+  };
+  const downloaded = await downloadAssistantArtifact(chatgpt, {
+    artifactName: "paper_round_5_artifacts.zip",
+    destDir: tmpdir(),
+  });
+  assert.equal(downloaded.ok, true);
+  assert.equal(downloaded.assistantTurn, 7);
+});
+
+test("structured artifact download uses the page-assets image fallback for Round 4", async () => {
+  const chatgpt = {
+    files: {
+      listLatest: async () => ({
+        ok: true,
+        data: { assistantTurn: 4, files: [] },
+      }),
+    },
+    artifacts: {
+      listLatest: async () => ({
+        ok: true,
+        data: {
+          artifacts: [
+            {
+              kind: "image",
+              selectorProvenance:
+                "pageAssets image inventory",
+            },
+          ],
+        },
+      }),
+      downloadLatest: async () => ({
+        ok: true,
+        data: {
+          path: path.join(
+            tmpdir(),
+            "generated-image-1.png",
+          ),
+          suggestedFilename: "generated-image-1.png",
+          bytes: 24,
+        },
+      }),
+    },
+  };
+  const downloaded = await downloadAssistantArtifact(chatgpt, {
+    artifactName:
+      "paper_round_4_framework_reconstruction.png",
+    destDir: tmpdir(),
+  });
+  assert.equal(downloaded.ok, true);
+  assert.equal(
+    downloaded.downloadMode,
+    "generated-image-artifact",
+  );
+  assert.equal(
+    downloaded.canonicalArtifactName,
+    "paper_round_4_framework_reconstruction.png",
+  );
+  assert.match(
+    downloaded.selected.selectorProvenance,
+    /pageAssets/,
+  );
+});
+
+test("deterministic TeX helpers find citations, graphics, bibliography, and visual-equivalent words", () => {
+  const tex = String.raw`
+\section{Introduction}
+Prior work~\citep{alpha,beta} motivates the study.
+\includegraphics{figures/overview.png}
+\bibliography{paper_round_5_references}
+\begin{figure}\caption{Example}\end{figure}
+`;
+  assert.deepEqual([...extractCiteKeys(tex)], ["alpha", "beta"]);
+  assert.deepEqual(
+    [...extractBibKeys("@article{alpha, title={A}}\n@inproceedings{beta,title={B}}")],
+    ["alpha", "beta"],
+  );
+  assert.deepEqual(extractGraphics(tex), ["figures/overview.png"]);
+  assert.deepEqual(
+    [...extractBibliographyStems(tex)],
+    ["paper_round_5_references"],
+  );
+  const words = countMainTextWords(tex, 200);
+  assert.equal(words.visualCount, 1);
+  assert.ok(words.totalWords >= 200);
 });
 
 test("attachment verification accepts ChatGPT duplicate suffixes without weakening the original name", async () => {
@@ -324,7 +665,7 @@ test("framework figure canvas ratio is configuration-driven", () => {
   );
 });
 
-test("skill opens one local launch page without an execution-mode question", async () => {
+test("skill uses one local configuration page and a no-intervention recoverable execution protocol", async () => {
   const skill = await readFile(
     new URL("../skills/paper-reconstruction/SKILL.md", import.meta.url),
     "utf8",
@@ -337,55 +678,47 @@ test("skill opens one local launch page without an execution-mode question", asy
     "utf8",
   );
 
-  assert.match(skill, /Mandatory onboarding gate/);
   assert.match(skill, /# Paper Reconstruction/);
-  assert.match(skill, /Ask for the paper directory first/);
-  assert.match(skill, /never select a paper at random/);
-  assert.match(skill, /Local configuration and launch page/);
+  assert.match(skill, /Ask for the paper directory/);
+  assert.match(skill, /Never select randomly/);
+  assert.match(skill, /Runtime and automatic version handshake/);
+  assert.match(skill, /node-launcher\.cjs/);
+  assert.match(skill, /version-handshake/);
+  assert.match(skill, /preserves the Prompt files and `workflowVersion`/);
   assert.match(skill, /configure-start/);
   assert.match(skill, /configure-status/);
   assert.match(
     skill,
-    /do not ask whether the user wants automation or Prompt-only handoff/,
+    /do not ask for another confirmation/,
   );
-  assert.match(
-    skill,
-    /Every configuration change must refresh the five generated Prompts/,
-  );
-  assert.match(skill, /\*\*Start full automation\*\*/);
-  assert.match(skill, /\*\*Exit\*\*/);
-  assert.match(skill, /do not ask the user to type “start”/);
-  assert.match(skill, /Immediately run the visible Chat bridge preflight/);
-  assert.match(skill, /do not display another confirmation summary/);
-  assert.match(skill, /do not run `init`/);
-  assert.match(skill, /--reasoning strongest\|medium\|high\|extra-high\|pro/);
+  assert.match(skill, /Start full automation/);
+  assert.match(skill, /Exit/);
+  assert.match(skill, /STATUS\.md/);
+  assert.match(skill, /Automatic transport selection/);
+  assert.match(skill, /zero-sensitive `yanshu_health`/);
+  assert.match(skill, /Never ask the user to choose or confirm the mode/);
   assert.match(skill, /chat-plan/);
-  assert.match(skill, /Medium and High every 1 minute/);
-  assert.match(skill, /Extra High every 3 minutes/);
-  assert.match(skill, /Pro every 5 minutes/);
-  assert.match(skill, /Never pin a GPT model name/);
-  assert.match(
-    skill,
-    /Never apply a round's Chat configuration inside an unrelated conversation/,
-  );
-  assert.match(skill, /openFreshChatRound/);
+  assert.match(skill, /Medium and High: 60 seconds/);
+  assert.match(skill, /Extra High: 180 seconds/);
+  assert.match(skill, /Pro: 300 seconds/);
   assert.match(skill, /click-acknowledged/);
-  assert.match(skill, /submitPreparedChatRound/);
-  assert.match(skill, /Run-scoped MCP paper workspace/);
+  assert.match(skill, /waitForChatRound/);
   assert.match(skill, /mcp-start/);
   assert.match(skill, /yanshu_get_round_manifest/);
   assert.match(skill, /yanshu_get_evidence_index/);
   assert.match(skill, /yanshu_view_image/);
-  assert.match(skill, /browser attachment transfer only/);
+  assert.match(skill, /round-finalize/);
+  assert.match(skill, /correction-requested/);
+  assert.match(skill, /final-manifest\.json/);
   assert.match(bridgeReference, /openYanShuFreshChatRound/);
   assert.match(bridgeReference, /applyYanShuChatReasoningSelection/);
   assert.match(bridgeReference, /submitYanShuPreparedChatRound/);
-  assert.match(bridgeReference, /thread: \{ type: "current" \}/);
-  assert.match(bridgeReference, /Prefer the MCP round bootstrap/);
+  assert.match(bridgeReference, /autoSelectYanShuTransferMode/);
+  assert.match(bridgeReference, /downloadYanShuArtifact/);
   assert.match(bridgeReference, /files: \[\]/);
   assert.match(
     bridgeReference,
-    /timeoutMs: yanshuChatPlan\.pollIntervalMs/,
+    /pollIntervalMs: yanshuChatPlan\.pollIntervalMs/,
   );
   assert.doesNotMatch(bridgeReference, /timeoutMs: 25_000/);
 });
@@ -1008,6 +1341,14 @@ test("run state is recoverable and attachment-scoped", async () => {
     assert.equal(nextRound(state)?.number, 1);
     assert.equal(summarizeRun(state).progress.completed, 0);
     assert.match(
+      await readFile(path.join(state.runPath, "STATUS.md"), "utf8"),
+      /0\/5 rounds/,
+    );
+    assert.match(
+      await readFile(path.join(state.runPath, "events.jsonl"), "utf8"),
+      /"type":"run-created"/,
+    );
+    assert.match(
       await readFile(
         path.join(
           state.runPath,
@@ -1159,6 +1500,15 @@ test("one validated ZIP imports all fallback Chat artifacts", async () => {
     );
     assert.equal(legacySpec.required, false);
     assert.match(legacySpec.reason, /saved run predates/i);
+    const frameworkSpec = artifactBundleSpec(
+      state.rounds[3],
+      state.workflowVersion,
+    );
+    assert.equal(frameworkSpec.required, false);
+    assert.equal(
+      frameworkSpec.directArtifactSuffix,
+      "_round_4_framework_reconstruction.png",
+    );
     const bundlePath = path.join(
       temporaryRoot,
       "paper_round_2_artifacts.zip",
@@ -1202,6 +1552,262 @@ test("one validated ZIP imports all fallback Chat artifacts", async () => {
       state.rounds[1].outputs.length,
       4,
       "the ZIP and its three exact artifacts are registered",
+    );
+    const replacementPath = path.join(
+      temporaryRoot,
+      "paper_round_2_artifacts (1).zip",
+    );
+    await writeFile(
+      replacementPath,
+      storedZip({
+        "paper_round_2_method_experiments.tex": "revised complete tex",
+        "paper_round_2_report_zh.md": "revised report",
+        "paper_round_2_references.bib": "@article{fixture, title={Revised}}",
+      }),
+    );
+    const replaced = await importArtifactBundle({
+      state,
+      selector: "2",
+      bundlePath: replacementPath,
+      replace: true,
+      reason: "test correction",
+      chatTurn: "assistant-7",
+    });
+    assert.equal(
+      path.basename(replaced.bundle),
+      "paper_round_2_artifacts.zip",
+    );
+    assert.equal(replaced.downloadedArchiveName, path.basename(replacementPath));
+    assert.equal(replaced.revisions.length, 4);
+    assert.ok(
+      replaced.revisions.every(
+        (revision) =>
+          revision.reason === "test correction" &&
+          revision.chatTurn === "assistant-7" &&
+          revision.previousSha256 &&
+          revision.newSha256,
+      ),
+    );
+    assert.equal(
+      await readFile(
+        path.join(
+          state.runPath,
+          state.rounds[1].directory,
+          "output",
+          "paper_round_2_method_experiments.tex",
+        ),
+        "utf8",
+      ),
+      "revised complete tex",
+    );
+    assert.match(
+      await readFile(path.join(state.runPath, "STATUS.md"), "utf8"),
+      /artifact-imported/,
+    );
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
+test("loading a legacy run migrates checkpoints and keeps progress visible beside the paper", async () => {
+  const temporaryRoot = await mkdtemp(
+    path.join(tmpdir(), "yanshu-migration-"),
+  );
+  try {
+    const paperRoot = path.join(
+      temporaryRoot,
+      "论文 空格",
+    );
+    await mkdir(paperRoot, { recursive: true });
+    await writeFile(
+      path.join(paperRoot, "main.tex"),
+      "\\documentclass{article}\\begin{document}Test\\end{document}\n",
+      "utf8",
+    );
+    const workflow = buildReconstructionWorkflow({
+      language: "en",
+      hasWordLimit: false,
+    });
+    const state = await createRun({
+      projectRoot: paperRoot,
+      runId: "legacy-run",
+      inputs: await resolvePaperInputs(paperRoot),
+      workflow,
+    });
+    const statePath = path.join(state.runPath, "run.json");
+    const legacy = JSON.parse(await readFile(statePath, "utf8"));
+    legacy.schemaVersion = 1;
+    delete legacy.execution;
+    delete legacy.runtimeVersions;
+    delete legacy.finalManifestPath;
+    delete legacy.validation.checks;
+    for (const round of legacy.rounds) {
+      delete round.checkpoint;
+      delete round.revisions;
+      delete round.compilation;
+      delete round.validation;
+    }
+    await writeFile(
+      statePath,
+      `${JSON.stringify(legacy, null, 2)}\n`,
+      "utf8",
+    );
+
+    const migrated = await loadRun(state.runPath);
+    assert.equal(migrated.schemaVersion, 2);
+    assert.equal(migrated.rounds[0].checkpoint, "configured");
+    assert.equal(
+      migrated.runtimeVersions.marketplaceRevision,
+      null,
+    );
+    assert.match(
+      await readFile(path.join(state.runPath, "STATUS.md"), "utf8"),
+      /Current round: \*\*1\./,
+    );
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
+test("final manifest records hashes, per-round validation, configuration compliance, and figure dimensions", async () => {
+  const temporaryRoot = await mkdtemp(
+    path.join(tmpdir(), "yanshu-manifest-"),
+  );
+  try {
+    const paperRoot = path.join(
+      temporaryRoot,
+      "论文 with spaces",
+    );
+    const figures = path.join(paperRoot, "figures");
+    await mkdir(figures, { recursive: true });
+    await writeFile(
+      path.join(paperRoot, "main.tex"),
+      "\\documentclass{article}\\begin{document}Input\\end{document}\n",
+      "utf8",
+    );
+    await writeFile(
+      path.join(paperRoot, "references.bib"),
+      "@article{input,title={Input}}\n",
+      "utf8",
+    );
+    await writeFile(
+      path.join(figures, "input.png"),
+      pngHeader(20, 10),
+    );
+    const workflow = buildReconstructionWorkflow({
+      language: "en",
+      hasWordLimit: false,
+      frameworkFigure: {
+        aspectRatioId: "landscape-2-1",
+        customAspectWidth: 2,
+        customAspectHeight: 1,
+      },
+    });
+    const state = await createRun({
+      projectRoot: paperRoot,
+      runId: "manifest-run",
+      inputs: await resolvePaperInputs(paperRoot),
+      workflow,
+      runtimeVersions: {
+        pluginVersion: "0.2.0+codex.20260727120000",
+        loadedSkillVersion: "0.2.0+codex.20260726120000",
+        marketplaceVersion: "0.2.0+codex.20260727120000",
+        marketplaceRevision: "abc123",
+      },
+    });
+    const frameworkSource = path.join(
+      temporaryRoot,
+      "paper_round_4_framework_reconstruction.png",
+    );
+    await writeFile(frameworkSource, pngHeader(2000, 1000));
+    await registerArtifact(
+      state,
+      "4",
+      frameworkSource,
+    );
+
+    const finalArtifacts = {
+      "paper_round_5_final_refinement.tex": String.raw`\documentclass{article}
+\usepackage{graphicx}
+\begin{document}
+\includegraphics{paper_round_4_framework_reconstruction.png}
+\bibliography{paper_round_5_references}
+\end{document}
+`,
+      "paper_round_5_report_zh.md": "# Report\n",
+      "paper_round_5_references.bib":
+        "@article{input,title={Input}}\n",
+      "paper_round_5_final_refinement.pdf": "compiled pdf",
+    };
+    for (const [name, content] of Object.entries(finalArtifacts)) {
+      const source = path.join(temporaryRoot, name);
+      await writeFile(source, content, "utf8");
+      await registerArtifact(state, "5", source);
+    }
+    state.rounds[4].compilation = {
+      status: "passed",
+      engine: "pdflatex",
+      pdfPath: state.rounds[4].outputs.find((value) =>
+        value.endsWith(".pdf"),
+      ),
+      logPath: null,
+    };
+    const frameworkValidation = await validateRoundConsistency({
+      state,
+      selector: "4",
+    });
+    const finalValidation = await validateRoundConsistency({
+      state,
+      selector: "5",
+    });
+    assert.equal(frameworkValidation.passed, true);
+    assert.equal(finalValidation.passed, true);
+    for (const round of state.rounds) {
+      round.status = "completed";
+      round.checkpoint = "finalized";
+      round.validation = {
+        status: "passed",
+        path: null,
+        checks: [],
+      };
+      round.chat = {
+        threadUrl: `https://chatgpt.com/c/round-${round.number}`,
+        model: "latest visible reasoning",
+        effort: "High",
+        assistantTurn: round.number,
+        transferMode: "mcp",
+      };
+    }
+    state.rounds[3].validation.checks =
+      frameworkValidation.checks;
+    state.rounds[4].validation.checks =
+      finalValidation.checks;
+    state.execution = {
+      transferMode: "mcp",
+      fallbackReason: null,
+    };
+    await saveRun(state);
+
+    const manifest = await buildFinalManifest(state);
+    assert.equal(manifest.schemaVersion, 2);
+    assert.equal(manifest.validation.status, "passed");
+    assert.equal(
+      manifest.configurationCompliance.frameworkCanvas.details.width,
+      2000,
+    );
+    assert.equal(
+      manifest.configurationCompliance.mainTextWordBudget.status,
+      "not-applicable",
+    );
+    assert.equal(manifest.inputs.find((item) => item.role === "figures").type, "directory");
+    assert.equal(manifest.runtimeVersions.marketplaceRevision, "abc123");
+    assert.equal(manifest.chats.length, 5);
+    assert.ok(
+      manifest.deliverables.some((item) =>
+        item.path.endsWith(
+          "paper_round_5_final_refinement.pdf",
+        ),
+      ),
     );
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });

@@ -1,11 +1,13 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import {
   access,
+  appendFile,
   copyFile,
   mkdir,
   readFile,
   readdir,
   rename,
+  rm,
   stat,
   writeFile,
 } from "node:fs/promises";
@@ -14,7 +16,7 @@ import { fileURLToPath } from "node:url";
 import { CliError } from "./cli.mjs";
 import { compareWorkflowVersions } from "./prompt-release.mjs";
 
-export const RUN_SCHEMA_VERSION = 1;
+export const RUN_SCHEMA_VERSION = 2;
 export const ROUND_STATUSES = [
   "pending",
   "running",
@@ -22,6 +24,17 @@ export const ROUND_STATUSES = [
   "completed",
   "failed",
   "blocked",
+];
+export const ROUND_CHECKPOINTS = [
+  "configured",
+  "submitted",
+  "generating",
+  "artifact-ready",
+  "artifact-imported",
+  "correction-requested",
+  "compiled",
+  "validated",
+  "finalized",
 ];
 export const CHAT_CONFIGURATION_VERIFICATIONS = [
   "verified",
@@ -173,12 +186,152 @@ async function writeJsonAtomic(target, value) {
   await rename(temporary, target);
 }
 
+function checkpointForLegacyRound(round) {
+  if (round.status === "completed") return "finalized";
+  if (round.compilation?.status === "passed") return "compiled";
+  if ((round.outputs ?? []).length > 0) return "artifact-imported";
+  if (round.status === "waiting") return "generating";
+  if (round.status === "running") return "submitted";
+  return "configured";
+}
+
+function migrateRunState(state) {
+  let changed = false;
+  if (
+    state.schemaVersion !== RUN_SCHEMA_VERSION &&
+    state.schemaVersion !== 1
+  ) {
+    throw new CliError(
+      `Unsupported run schema ${state.schemaVersion}.`,
+      "unsupported_schema",
+    );
+  }
+  if (state.schemaVersion === 1) {
+    state.schemaVersion = RUN_SCHEMA_VERSION;
+    changed = true;
+  }
+  if (!state.execution) {
+    state.execution = {
+      transferMode: "undecided",
+      fallbackReason: null,
+      mcpHandshake: null,
+      attachmentProbe: null,
+      updatedAt: null,
+    };
+    changed = true;
+  }
+  if (!state.runtimeVersions) {
+    state.runtimeVersions = {
+      pluginVersion: null,
+      createdWithPluginVersion: null,
+      executionPluginVersion: null,
+      workflowVersion: state.workflowVersion ?? null,
+      loadedSkillVersion: null,
+      marketplaceVersion: null,
+      marketplaceRevision: null,
+    };
+    changed = true;
+  } else {
+    const runtimeDefaults = {
+      createdWithPluginVersion:
+        state.runtimeVersions.pluginVersion ?? null,
+      executionPluginVersion:
+        state.runtimeVersions.pluginVersion ?? null,
+      marketplaceRevision: null,
+    };
+    for (const [key, value] of Object.entries(runtimeDefaults)) {
+      if (state.runtimeVersions[key] === undefined) {
+        state.runtimeVersions[key] = value;
+        changed = true;
+      }
+    }
+  }
+  if (state.finalManifestPath === undefined) {
+    state.finalManifestPath = null;
+    changed = true;
+  }
+  if (!state.validation) {
+    state.validation = {};
+    changed = true;
+  }
+  if (!Array.isArray(state.validation.checks)) {
+    state.validation.checks = [];
+    changed = true;
+  }
+  for (const round of state.rounds ?? []) {
+    if (!round.checkpoint) {
+      round.checkpoint = checkpointForLegacyRound(round);
+      changed = true;
+    }
+    if (!Array.isArray(round.revisions)) {
+      round.revisions = [];
+      changed = true;
+    }
+    if (round.compilation === undefined) {
+      round.compilation = null;
+      changed = true;
+    }
+    if (round.validation === undefined) {
+      round.validation = null;
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+function visibleStatusMarkdown(state) {
+  const current = nextRound(state);
+  const completed = state.rounds.filter(
+    (round) => round.status === "completed",
+  ).length;
+  const roundLines = state.rounds
+    .map((round) => {
+      const marker = round.status === "completed" ? "x" : " ";
+      return `- [${marker}] Round ${round.number}: ${round.title} — ${round.status} / ${round.checkpoint ?? "configured"}`;
+    })
+    .join("\n");
+  return `# YanShu Progress
+
+Updated: ${state.updatedAt}
+
+- Run: \`${state.runId}\`
+- Overall status: **${state.status}**
+- Progress: **${completed}/${state.rounds.length} rounds**
+- Transfer mode: **${state.execution?.transferMode ?? "undecided"}**
+- Current round: **${
+    current
+      ? `${current.number}. ${current.title} — ${current.checkpoint ?? current.status}`
+      : "Completed"
+  }**
+- Final manifest: ${
+    state.finalManifestPath
+      ? `\`${state.finalManifestPath}\``
+      : "not generated"
+  }
+
+## Rounds
+
+${roundLines}
+
+This file is updated automatically. Detailed machine-readable state remains in \`run.json\`.
+`;
+}
+
+async function writeVisibleStatus(state) {
+  await writeFile(
+    path.join(state.runPath, "STATUS.md"),
+    visibleStatusMarkdown(state),
+    "utf8",
+  );
+}
+
 export async function createRun({
   projectRoot,
   outputRoot,
   runId,
   inputs,
   workflow,
+  runtimeVersions = {},
 }) {
   const resolvedProject = path.resolve(projectRoot);
   const resolvedOutputRoot = path.resolve(
@@ -212,11 +365,15 @@ export async function createRun({
       title: round.title,
       purpose: round.purpose,
       status: "pending",
+      checkpoint: "configured",
       directory: roundName,
       promptPath: relativeToRun(runPath, promptPath),
       sourceTemplate: round.sourceFile,
       chat: null,
       outputs: [],
+      revisions: [],
+      compilation: null,
+      validation: null,
       startedAt: null,
       completedAt: null,
       updatedAt: createdAt,
@@ -236,13 +393,34 @@ export async function createRun({
     runPath,
     inputs,
     config: workflow.config,
+    runtimeVersions: {
+      pluginVersion: runtimeVersions.pluginVersion ?? null,
+      createdWithPluginVersion:
+        runtimeVersions.pluginVersion ?? null,
+      executionPluginVersion:
+        runtimeVersions.pluginVersion ?? null,
+      workflowVersion: workflow.workflowVersion,
+      loadedSkillVersion: runtimeVersions.loadedSkillVersion ?? null,
+      marketplaceVersion: runtimeVersions.marketplaceVersion ?? null,
+      marketplaceRevision:
+        runtimeVersions.marketplaceRevision ?? null,
+    },
+    execution: {
+      transferMode: "undecided",
+      fallbackReason: null,
+      mcpHandshake: null,
+      attachmentProbe: null,
+      updatedAt: null,
+    },
     rounds,
     validation: {
       status: "not-run",
       texPath: null,
       logPath: null,
       updatedAt: null,
+      checks: [],
     },
+    finalManifestPath: null,
   };
 
   await writeJsonAtomic(path.join(runPath, "run.json"), state);
@@ -257,6 +435,12 @@ export async function createRun({
     buildRunReadme(state),
     "utf8",
   );
+  await writeVisibleStatus(state);
+  await recordRunEvent(state, "run-created", {
+    workflow: state.workflow,
+    workflowVersion: state.workflowVersion,
+    runtimeVersions: state.runtimeVersions,
+  });
 
   return state;
 }
@@ -295,17 +479,17 @@ export async function loadRun(runPath) {
     );
   }
   const state = JSON.parse(await readFile(statePath, "utf8"));
-  if (state.schemaVersion !== RUN_SCHEMA_VERSION) {
-    throw new CliError(
-      `Unsupported run schema ${state.schemaVersion}.`,
-      "unsupported_schema",
-    );
-  }
   if (path.resolve(state.runPath) !== resolved) {
     throw new CliError(
       "The run directory does not match run.json. Move recovery is not supported yet.",
       "moved_run",
     );
+  }
+  const migrated = migrateRunState(state);
+  if (migrated) {
+    state.updatedAt = new Date().toISOString();
+    await writeJsonAtomic(statePath, state);
+    await writeVisibleStatus(state);
   }
   return state;
 }
@@ -313,7 +497,26 @@ export async function loadRun(runPath) {
 export async function saveRun(state) {
   state.updatedAt = new Date().toISOString();
   await writeJsonAtomic(path.join(state.runPath, "run.json"), state);
+  await writeVisibleStatus(state);
   return state;
+}
+
+export async function recordRunEvent(
+  state,
+  type,
+  details = {},
+) {
+  const event = {
+    timestamp: new Date().toISOString(),
+    type,
+    details,
+  };
+  await appendFile(
+    path.join(state.runPath, "events.jsonl"),
+    `${JSON.stringify(event)}\n`,
+    "utf8",
+  );
+  return event;
 }
 
 function findRound(state, selector) {
@@ -468,10 +671,28 @@ export async function markRound(state, selector, update, force = false) {
       `Unknown Chat configuration verification: ${update.configurationVerification}.`,
     );
   }
+  if (
+    update.transferMode !== undefined &&
+    !["mcp", "attachments"].includes(update.transferMode)
+  ) {
+    throw new CliError(
+      `Unknown round transfer mode: ${update.transferMode}.`,
+      "invalid_transfer_mode",
+    );
+  }
   if (round.status === "completed" && update.status !== "completed" && !force) {
     throw new CliError(
       `Round ${round.number} is completed. Pass --force to reopen it.`,
       "completed_round",
+    );
+  }
+  if (
+    update.checkpoint !== undefined &&
+    !ROUND_CHECKPOINTS.includes(update.checkpoint)
+  ) {
+    throw new CliError(
+      `Unknown round checkpoint: ${update.checkpoint}.`,
+      "unknown_checkpoint",
     );
   }
   if (update.status === "completed") {
@@ -480,6 +701,13 @@ export async function markRound(state, selector, update, force = false) {
 
   const now = new Date().toISOString();
   round.status = update.status;
+  if (update.checkpoint !== undefined) {
+    round.checkpoint = update.checkpoint;
+  } else if (update.status === "completed") {
+    round.checkpoint = "finalized";
+  } else if (update.status === "waiting") {
+    round.checkpoint = "generating";
+  }
   round.updatedAt = now;
   if (update.status === "running" && !round.startedAt) round.startedAt = now;
   if (update.status === "completed") round.completedAt = now;
@@ -491,7 +719,9 @@ export async function markRound(state, selector, update, force = false) {
     update.experience ||
     update.model ||
     update.effort ||
-    update.configurationVerification
+    update.configurationVerification ||
+    update.assistantTurn !== undefined ||
+    update.transferMode
   ) {
     round.chat = {
       ...(round.chat ?? {}),
@@ -499,6 +729,15 @@ export async function markRound(state, selector, update, force = false) {
       experience: update.experience ?? round.chat?.experience ?? "chat",
       model: update.model ?? round.chat?.model ?? null,
       effort: update.effort ?? round.chat?.effort ?? null,
+      assistantTurn:
+        update.assistantTurn ??
+        round.chat?.assistantTurn ??
+        null,
+      transferMode:
+        update.transferMode ??
+        round.chat?.transferMode ??
+        state.execution?.transferMode ??
+        null,
       configurationVerification:
         update.configurationVerification ??
         round.chat?.configurationVerification ??
@@ -506,17 +745,84 @@ export async function markRound(state, selector, update, force = false) {
     };
   }
 
-  state.status = state.rounds.every(
+  const allCompleted = state.rounds.every(
     (candidate) => candidate.status === "completed",
-  )
-    ? "rounds-completed"
+  );
+  state.status = allCompleted
+    ? state.finalManifestPath
+      ? "completed"
+      : "rounds-completed"
     : state.rounds.some((candidate) => candidate.status === "running")
       ? "running"
       : state.rounds.some((candidate) => candidate.status === "blocked")
         ? "blocked"
         : "ready";
   await saveRun(state);
+  await recordRunEvent(state, "round-status", {
+    round: round.number,
+    status: round.status,
+    checkpoint: round.checkpoint,
+    note: update.note ?? null,
+  });
   return round;
+}
+
+export async function updateRoundCheckpoint(
+  state,
+  selector,
+  checkpoint,
+  details = {},
+) {
+  if (!ROUND_CHECKPOINTS.includes(checkpoint)) {
+    throw new CliError(
+      `Unknown round checkpoint: ${checkpoint}.`,
+      "unknown_checkpoint",
+    );
+  }
+  const round = findRound(state, selector);
+  round.checkpoint = checkpoint;
+  round.updatedAt = new Date().toISOString();
+  if (details.validation !== undefined) {
+    round.validation = details.validation;
+  }
+  await saveRun(state);
+  await recordRunEvent(state, "round-checkpoint", {
+    round: round.number,
+    checkpoint,
+    ...details,
+  });
+  return round;
+}
+
+export async function updateExecutionMode(
+  state,
+  {
+    transferMode,
+    fallbackReason = null,
+    mcpHandshake,
+    attachmentProbe,
+  },
+) {
+  if (
+    transferMode !== undefined &&
+    !["undecided", "mcp", "attachments"].includes(transferMode)
+  ) {
+    throw new CliError(
+      `Unknown transfer mode: ${transferMode}.`,
+      "invalid_transfer_mode",
+    );
+  }
+  state.execution = {
+    ...(state.execution ?? {}),
+    ...(transferMode === undefined ? {} : { transferMode }),
+    fallbackReason,
+    ...(mcpHandshake === undefined ? {} : { mcpHandshake }),
+    ...(attachmentProbe === undefined ? {} : { attachmentProbe }),
+    updatedAt: new Date().toISOString(),
+  };
+  await saveRun(state);
+  await recordRunEvent(state, "transfer-mode", state.execution);
+  return state.execution;
 }
 
 async function collectFiles(target, options = {}, collected = []) {
@@ -749,20 +1055,51 @@ export function nextRound(state) {
   );
 }
 
-export async function registerArtifact(
+export async function sha256File(target) {
+  const content = await readFile(target);
+  return createHash("sha256").update(content).digest("hex");
+}
+
+function safeDestinationName(value) {
+  if (
+    typeof value !== "string" ||
+    !value.trim() ||
+    value !== path.basename(value) ||
+    value === "." ||
+    value === ".."
+  ) {
+    throw new CliError(
+      `Artifact destination must be one filename: ${String(value)}.`,
+      "invalid_artifact_name",
+    );
+  }
+  return value;
+}
+
+function revisionTimestamp(now = new Date()) {
+  return now
+    .toISOString()
+    .replace(/\.\d{3}Z$/, "z")
+    .replaceAll(":", "")
+    .replace("T", "-");
+}
+
+export async function commitArtifactsAtomically(
   state,
   selector,
-  sourcePath,
-  replace = false,
+  files,
+  {
+    replace = false,
+    reason = "artifact import",
+    chatTurn = null,
+  } = {},
 ) {
   const round = findRound(state, selector);
-  const source = path.resolve(sourcePath);
-  if (!(await pathExists(source))) {
-    throw new CliError(`Artifact does not exist: ${source}`, "missing_artifact");
-  }
-  const sourceInfo = await stat(source);
-  if (!sourceInfo.isFile()) {
-    throw new CliError("Only individual artifact files can be registered.");
+  if (!Array.isArray(files) || files.length === 0) {
+    throw new CliError(
+      "At least one artifact is required.",
+      "missing_artifact",
+    );
   }
 
   const outputDirectory = path.join(
@@ -770,24 +1107,203 @@ export async function registerArtifact(
     round.directory,
     "output",
   );
-  const destination = path.join(outputDirectory, path.basename(source));
-  if (
-    source !== destination &&
-    (await pathExists(destination)) &&
-    !replace
-  ) {
-    throw new CliError(
-      `Artifact already exists: ${destination}. Pass --replace to overwrite it.`,
-      "artifact_exists",
+  await mkdir(outputDirectory, { recursive: true });
+  const prepared = [];
+  const names = new Set();
+  for (const item of files) {
+    const source = path.resolve(item.sourcePath);
+    if (!(await pathExists(source))) {
+      throw new CliError(
+        `Artifact does not exist: ${source}`,
+        "missing_artifact",
+      );
+    }
+    const sourceInfo = await stat(source);
+    if (!sourceInfo.isFile()) {
+      throw new CliError(
+        `Only individual artifact files can be registered: ${source}`,
+        "invalid_artifact",
+      );
+    }
+    const destinationName = safeDestinationName(
+      item.destinationName ?? path.basename(source),
     );
+    const normalizedName = destinationName.toLocaleLowerCase("en-US");
+    if (names.has(normalizedName)) {
+      throw new CliError(
+        `Duplicate artifact destination: ${destinationName}.`,
+        "duplicate_artifact",
+      );
+    }
+    names.add(normalizedName);
+    const destination = path.join(outputDirectory, destinationName);
+    const sourceIsDestination = path.resolve(source) === path.resolve(destination);
+    const destinationExists = await pathExists(destination);
+    if (sourceIsDestination && replace) {
+      throw new CliError(
+        "A replacement artifact must be downloaded outside the canonical output path so the previous version can be preserved.",
+        "unsafe_in_place_replace",
+      );
+    }
+    if (destinationExists && !sourceIsDestination && !replace) {
+      throw new CliError(
+        `Artifact already exists: ${destination}. Pass --replace to create a recoverable revision.`,
+        "artifact_exists",
+      );
+    }
+    prepared.push({
+      source,
+      destination,
+      destinationName,
+      sourceIsDestination,
+      destinationExists,
+      newSha256: await sha256File(source),
+    });
   }
-  if (source !== destination) await copyFile(source, destination);
 
-  const relative = relativeToRun(state.runPath, destination);
-  if (!round.outputs.includes(relative)) round.outputs.push(relative);
-  round.updatedAt = new Date().toISOString();
-  await saveRun(state);
-  return destination;
+  const transactionId = randomUUID();
+  const roundRoot = path.join(state.runPath, round.directory);
+  const transactionRoot = path.join(
+    roundRoot,
+    ".transactions",
+    transactionId,
+  );
+  const stagedRoot = path.join(transactionRoot, "staged");
+  try {
+    await mkdir(stagedRoot, { recursive: true });
+    for (const item of prepared) {
+      if (item.sourceIsDestination) continue;
+      item.staged = path.join(stagedRoot, item.destinationName);
+      await copyFile(item.source, item.staged);
+      const stagedSha256 = await sha256File(item.staged);
+      if (stagedSha256 !== item.newSha256) {
+        throw new CliError(
+          `Artifact changed while staging: ${item.source}.`,
+          "artifact_changed_during_import",
+        );
+      }
+    }
+  } catch (error) {
+    await rm(transactionRoot, { recursive: true, force: true }).catch(
+      () => {},
+    );
+    throw error;
+  }
+
+  const snapshot = structuredClone(state);
+  const committed = [];
+  const backups = [];
+  const revisions = [];
+  const revisionRoot = path.join(
+    roundRoot,
+    "revisions",
+    `${revisionTimestamp()}-${transactionId.slice(0, 8)}`,
+  );
+  try {
+    for (const item of prepared) {
+      if (item.sourceIsDestination) {
+        committed.push({
+          destination: item.destination,
+          adoptedExisting: true,
+        });
+        continue;
+      }
+      if (item.destinationExists) {
+        await mkdir(revisionRoot, { recursive: true });
+        const previousSha256 = await sha256File(item.destination);
+        const backup = path.join(revisionRoot, item.destinationName);
+        await rename(item.destination, backup);
+        backups.push({ backup, destination: item.destination });
+        revisions.push({
+          timestamp: new Date().toISOString(),
+          fileName: item.destinationName,
+          previousPath: relativeToRun(state.runPath, backup),
+          previousSha256,
+          newSha256: item.newSha256,
+          reason,
+          chatTurn,
+        });
+      }
+      await rename(item.staged, item.destination);
+      committed.push({
+        destination: item.destination,
+        adoptedExisting: false,
+      });
+    }
+
+    for (const item of committed) {
+      const relative = relativeToRun(state.runPath, item.destination);
+      if (!round.outputs.includes(relative)) round.outputs.push(relative);
+    }
+    round.revisions ??= [];
+    round.revisions.push(...revisions);
+    round.checkpoint = "artifact-imported";
+    round.updatedAt = new Date().toISOString();
+    await saveRun(state);
+    await recordRunEvent(state, "artifact-transaction", {
+      round: round.number,
+      replace,
+      reason,
+      chatTurn,
+      artifacts: prepared.map((item) => ({
+        fileName: item.destinationName,
+        sha256: item.newSha256,
+        adoptedExisting: item.sourceIsDestination,
+      })),
+      revisions,
+    });
+    await rm(transactionRoot, { recursive: true, force: true });
+    return {
+      transactionId,
+      paths: committed.map((item) => item.destination),
+      artifacts: prepared.map((item) => ({
+        path: item.destination,
+        fileName: item.destinationName,
+        sha256: item.newSha256,
+      })),
+      revisions,
+    };
+  } catch (error) {
+    for (const item of committed.reverse()) {
+      if (!item.adoptedExisting) {
+        await rm(item.destination, { force: true }).catch(() => {});
+      }
+    }
+    for (const item of backups.reverse()) {
+      if (await pathExists(item.backup)) {
+        await rename(item.backup, item.destination).catch(() => {});
+      }
+    }
+    for (const key of Object.keys(state)) delete state[key];
+    Object.assign(state, snapshot);
+    await rm(transactionRoot, { recursive: true, force: true }).catch(() => {});
+    throw error;
+  }
+}
+
+export async function registerArtifact(
+  state,
+  selector,
+  sourcePath,
+  replace = false,
+  options = {},
+) {
+  const transaction = await commitArtifactsAtomically(
+    state,
+    selector,
+    [
+      {
+        sourcePath,
+        destinationName: options.destinationName,
+      },
+    ],
+    {
+      replace,
+      reason: options.reason ?? "individual artifact import",
+      chatTurn: options.chatTurn ?? null,
+    },
+  );
+  return transaction.paths[0];
 }
 
 export function summarizeRun(state) {
@@ -811,9 +1327,13 @@ export function summarizeRun(state) {
           number: current.number,
           title: current.title,
           status: current.status,
+          checkpoint: current.checkpoint,
           threadUrl: current.chat?.threadUrl ?? null,
         }
       : null,
+    execution: state.execution,
+    statusPath: path.join(state.runPath, "STATUS.md"),
+    finalManifestPath: state.finalManifestPath,
     validation: state.validation,
   };
 }

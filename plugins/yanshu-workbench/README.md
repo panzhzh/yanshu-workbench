@@ -101,6 +101,13 @@ accepts the exact visible option but its current UI exposes no reliable active
 label, YanShu records `click-acknowledged` and continues; missing clicks, stale
 threads, and explicit contradictory readback remain blockers.
 
+Waiting is owned by the YanShu runtime rather than repeated manual checks:
+Medium and High use 60-second heartbeats, Extra High uses 180 seconds, and Pro
+uses 300 seconds. A heartbeat timeout never resubmits a Prompt. Browser states
+are normalized to `generating`, `completed`, `needs_continuation`, `blocked`,
+or `failed` using generation signals, stable assistant turns, and artifact
+presence.
+
 The website's Paper Reconstruction page can export these settings in a
 `.yanshu.json` file and use them to prefill the same local launch page. Without
 an export, every setting remains available on the local page; YanShu does not
@@ -123,12 +130,18 @@ artifacts, logs, and status are stored under:
 <paper-root>/yanshu-reconstruction/<run-id>/
 ```
 
+`STATUS.md` in that directory is the canonical human-readable progress view.
+`run.json` and `events.jsonl` retain machine-readable checkpoints such as
+`submitted`, `generating`, `artifact-ready`, `artifact-imported`,
+`correction-requested`, `compiled`, `validated`, and `finalized`.
+
 The preferred execution path is the bundled **YanShu Paper Workspace** MCP
 server. It exposes only the selected run and provides focused tools to:
 
 - read the exact round Prompt and approved TeX/BibTeX sources;
 - index TeX figure/table labels, captions, section context, and graphic paths;
-- return PNG/JPEG/WebP/SVG figures as image content;
+- return TeX-referenced PNG/JPEG/WebP/SVG/PDF/EPS figures as image content even
+  when a compiled paper PDF is also present;
 - render PDF pages and PDF figures through Poppler, and EPS figures through
   Ghostscript, so Chat can inspect actual pixels before writing experiments;
 - search PDF text to locate a table, figure, metric, or section before
@@ -139,22 +152,51 @@ server. It exposes only the selected run and provides focused tools to:
 Start the run-scoped local endpoint with:
 
 ```bash
-node scripts/yanshu.mjs mcp-start --run <run-path>
+node scripts/node-launcher.cjs scripts/yanshu.mjs mcp-start --run <run-path>
 ```
 
 The returned loopback URL is private to the current computer. A compatible
 local plugin host can use the bundled MCP companion directly. External
 `chatgpt.com` needs an authenticated HTTPS MCP connection or supported secure
 tunnel; a loopback URL alone is not remotely reachable. When that connection is
-unavailable, YanShu falls back to handing only the latest necessary `.tex`,
+unavailable, YanShu first performs a zero-sensitive visible `yanshu_health`
+handshake, then automatically tests a real two-file `.tex`/`.bib` attachment
+fallback. A successful fallback hands only the latest necessary `.tex`,
 complete current `.bib`, and `.pdf` artifacts to ChatGPT as real files; Round 4 needs no BibTeX,
 and Round 5 adds only the reconstructed PNG. It does not accumulate old reports,
 superseded rounds, or source figures already rendered in the PDF. It prefers
 the visible file chooser and keeps native Windows file-object clipboard paste
 as the final fallback. Text-output rounds return complete TeX, report, and
 current BibTeX files in one validated ZIP for a single download and deterministic
-import. YanShu never bypasses login, CAPTCHA,
-permissions, or confirmation.
+import. Generated files are inventoried by assistant turn and downloaded by
+canonical artifact name through the real browser download event. Browser aliases
+such as `file (1).zip` are normalized only at import.
+
+Imports and replacements are atomic. Superseded artifacts move into visible
+`revisions/` folders with SHA-256, Chat turn, timestamp, and reason. LaTeX and
+PDF tools use an ephemeral ASCII staging directory for Windows paths containing
+spaces or Chinese characters, while logs, staging records, PDFs, and progress
+remain in the paper's YanShu run directory. `round-finalize` imports, compiles,
+checks graphics, citations, BibTeX continuity, appendix policy, word budgets,
+framework integration, and compile diagnostics before completion. The final
+round writes `final-manifest.json` with hashes, Chat URLs, actual reasoning
+labels, transfer mode, validation results, and the revision chain.
+
+YanShu never bypasses login, CAPTCHA, permissions, or confirmation.
+
+## Runtime compatibility and updates
+
+Use the compatibility launcher rather than invoking the ESM entry directly:
+
+```bash
+node scripts/node-launcher.cjs scripts/yanshu.mjs doctor --project <paper-root>
+```
+
+It selects Node 22 or newer, including the bundled Codex runtime on Windows,
+and loads Windows drive paths through `file://` URLs. `version-handshake`
+refreshes a stale marketplace/plugin automatically. New runs use the latest
+Prompt snapshot; resumed runs retain their saved Prompt files and workflow
+version while using the current compatible execution runtime.
 
 ## Developer commands
 

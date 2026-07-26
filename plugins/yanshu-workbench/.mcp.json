@@ -2,7 +2,12 @@
   "mcpServers": {
     "yanshu-paper-workspace": {
       "command": "node",
-      "args": ["./mcp/server.mjs", "--transport", "stdio"],
+      "args": [
+        "./scripts/node-launcher.cjs",
+        "./mcp/server.mjs",
+        "--transport",
+        "stdio"
+      ],
       "cwd": "."
     }
   }

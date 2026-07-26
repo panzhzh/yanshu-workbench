@@ -22,6 +22,19 @@ YanShu applies the following narrowly scoped integration changes:
   duplicates.
 - Upload-permission failures are distinguished from browser/UI transport
   failures so users are not incorrectly asked to change permissions.
+- `.tex` and `.bib` are transferred as `text/plain`; unknown extensions use
+  the safe `application/octet-stream` fallback instead of relying on an
+  unavailable MIME inference helper.
+- Generated files expose a structured latest-assistant inventory before
+  download. Named downloads bind to the assistant turn, prefer the browser's
+  real suggested filename, preserve duplicate suffixes for later
+  normalization, and reject a non-absolute destination.
+- Generated-file links prefer backend `fn` metadata when the visible link uses
+  a generic download label, then click the exact href that produced the
+  inventory entry.
+- An inactive stable assistant turn with visible response actions is reported
+  as complete instead of leaking the browser runtime's ambiguous `partial`
+  label.
 
 These patches do not bypass ChatGPT login, browser permissions, attachment
 limits, or user-visible controls.
