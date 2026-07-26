@@ -16,7 +16,7 @@ Follow the user's conversation language during onboarding and status updates. Pr
 - Never pin a GPT model name in the workflow. Use the latest reasoning-capable model family visible in ChatGPT at execution time.
 - Resolve the saved reasoning preference against the controls actually visible to the signed-in user. Do not infer availability from a subscription name.
 - Keep all browser activity visible and user-directed. Never bypass login, CAPTCHA, confirmation, or upload permissions.
-- Upload only paths returned by the YanShu `next` command. Never upload `.env` files, credentials, private keys, unrelated folders, or unapproved files.
+- Copy, paste, or upload only paths returned by the YanShu `next` command. Never transmit `.env` files, credentials, private keys, unrelated folders, or unapproved files.
 - Never resubmit an original round after a timeout. Preserve the Chat thread URL and poll, wait, read, or continue that same thread.
 - Store every downloaded artifact and status change inside the current YanShu run directory.
 - Never apply a round's Chat configuration inside an unrelated conversation. Prepare a fresh blank Chat thread before inspecting or changing reasoning; `experience.open` alone does not create a new thread.
@@ -41,7 +41,7 @@ This gate is required for every new Paper Reconstruction run. A paper directory 
 2. Run `doctor --project <paper-root>` as a read-only check. If TeX, BibTeX, compiled PDF, and figures are unambiguous, do not ask the user to confirm them again; the local page displays the detected paths. Ask only when an actual ambiguity could change the selected inputs.
 3. As soon as the manuscript root and inputs are unambiguous, follow **Local configuration and launch page** below. Do not ask an execution-surface question and do not collect paper type, length, appendix, figure, Prompt-language, or reasoning choices in chat.
 
-Before the page's automation confirmation, do not run `init`, create a reconstruction directory, upload a file, open a live writing round, or submit a Prompt.
+Before the page's automation confirmation, do not run `init`, create a reconstruction directory, transmit manuscript content, open a live writing round, or submit a Prompt.
 
 ## Local configuration and launch page
 
@@ -73,7 +73,7 @@ Omit an unavailable optional input instead of inventing one. Add `--config <webs
 4. Every configuration change must refresh the five generated Prompts in the page's right rail. Each Prompt supports expand/collapse, independent Chinese/English switching, and copy; the page also supports copy all. This replaces the old Prompt-only execution question: a user who wants manual handoff can copy the Prompts and select **Exit** without creating a run.
 5. The page has exactly two workflow exits:
    - **Start full automation**: confirm the configuration and authorize initialization;
-   - **Exit**: cancel the local session without creating a run or uploading anything.
+   - **Exit**: cancel the local session without creating a run or transmitting anything.
 6. Poll without prompting:
 
 ```text
@@ -82,9 +82,9 @@ node <plugin-root>/scripts/yanshu.mjs configure-status \
 ```
 
 Use bounded waits and concise progress updates. Do not ask the user to report that they clicked the button.
-7. If status becomes `cancelled`, stop cleanly. Do not initialize, upload, or ask for replacement workflow choices.
+7. If status becomes `cancelled`, stop cleanly. Do not initialize, transmit manuscript content, or ask for replacement workflow choices.
 8. The page's **Start full automation** action is the explicit start authorization. When status becomes `confirmed`, use the returned `configPath`; do not display another confirmation summary and do not ask the user to type “start”.
-9. Immediately run the visible Chat bridge preflight from `references/chat-bridge.md`. This is the first point at which upload, download, login, clipboard, and browser permissions are checked.
+9. Immediately run the visible Chat bridge preflight from `references/chat-bridge.md`. This checks the bridge, login, clipboard, Chat configuration, and download path. Do not require the webpage file chooser when native file-copy/paste is available.
 10. If preflight succeeds, run `init --config <configPath>` and proceed directly to Round 1. If preflight returns a real blocker, report only the exact required action. After the user resolves it, repeat preflight and continue with the same confirmed configuration without reopening the page or asking workflow questions.
 
 The page is local infrastructure, not a hosted paper service. Do not replace its loopback URL with a public callback, do not place paper paths in a remote URL, and never expose its one-time token in user-facing summaries or logs.
@@ -110,7 +110,7 @@ Run `init` with:
 - `--figure-ratio-width <number>` and `--figure-ratio-height <number>` for a custom ratio
 - `--reasoning strongest|medium|high|extra-high|pro`
 
-Report the created run directory before uploading anything.
+Report the created run directory before transmitting manuscript content.
 
 The initializer creates `yanshu-reconstruction/<run-id>/` with five round folders, generated prompts, outputs, logs, and `run.json`. It does not modify or copy the original manuscript. Round 4 reconstructs only the Method Overview figure with the shared YanShu figure prompt. The confirmed placement and ratio remain configurable. Its other visual rules remain fixed: minimal paper linework; the Tol Vibrant palette with explicit HEX/RGB references and two-to-four accents selected by Chat according to semantics; Calibri; a pure-white canvas and pure-white module cards; exactly two type-size levels; no large in-figure title; dark-neutral lines by default, with semantic line colors only when needed; and restrained light illustrations or icons only when useful.
 
@@ -165,11 +165,11 @@ Use the bundled runtime from a compatible Codex/Chrome bridge host. It does not 
 For every round:
 
 1. Run `next --run <run-path>`.
-2. Read only the returned prompt and approved attachment list.
+2. Read only the returned prompt and approved source list.
 3. Prepare a fresh blank Chat thread before configuration unless the round already records a thread URL. A successful `experience.open` without `threads.new` is insufficient.
 4. Resolve and apply the saved ChatGPT configuration as described above.
 5. Mark the round `running`, recording the experience, model label, reasoning label, and configuration-verification level. A fresh blank thread may not receive its stable `/c/...` URL until the first message is submitted.
-6. Upload and submit through `submitPreparedChatRound` from `references/chat-bridge.md`. It targets `thread: { type: "current" }` so the configured blank thread is reused; do not request another new thread at submission time.
+6. Submit through `submitPreparedChatRound` from `references/chat-bridge.md`. On Windows it copies the approved files themselves to the native file clipboard and pastes them into ChatGPT, preserving `.tex`, `.bib`, `.pdf`, image, and other real file types. It does not paste file contents as text. The visible webpage file chooser is only a fallback for hosts where native file clipboard paste is unavailable. The helper targets `thread: { type: "current" }` so the configured blank thread is reused; do not request another new thread at submission time.
 7. Immediately record the returned `/c/...` thread URL. If submission returns no stable URL, preserve its partial result and stop instead of guessing a thread.
 8. For long responses, keep the same thread and use bounded waits or status checks. Give the user a concise progress update at least once per minute while actively monitoring.
 9. Download every generated `.tex`, `.bib`, `.md`, PDF, PNG, or other explicit artifact into the round output directory. Register files with the `artifact` command.
@@ -183,7 +183,7 @@ After a round produces TeX:
 
 1. Compile it with the project's existing TeX toolchain in the round output directory or an isolated validation directory.
 2. Treat build logs as diagnostics, not authorization for Codex to rewrite the manuscript.
-3. For a compilation error, upload only the relevant log and affected files to the same Chat thread, then ask Chat to return corrected artifacts.
+3. For a compilation error, copy and paste only the relevant log and affected files into the same Chat thread, then ask Chat to return corrected artifacts.
 4. Register the corrected artifact without overwriting an existing file unless the replacement is explicit and recoverable.
 5. Repeat until the document compiles or the workflow reaches a genuine user-input blocker.
 

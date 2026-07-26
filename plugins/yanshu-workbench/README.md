@@ -67,7 +67,7 @@ framework figure, and ChatGPT reasoning are selected once on that page. The
 right rail rebuilds and displays all five Prompts live, with per-round language,
 expand, and copy controls. **Start full automation** is the sole launch
 authorization. **Exit** closes the setup without creating a reconstruction
-directory or uploading files, so manual users can simply copy the Prompts first.
+directory or transmitting files, so manual users can simply copy the Prompts first.
 
 Once YanShu is accepted into the public directory, installation can use the
 normal **Plugins → search “YanShu” → + → new task** flow described in the
@@ -90,8 +90,8 @@ This keeps the workflow stable when OpenAI changes model or reasoning-level
 names.
 
 Each round explicitly creates a blank Chat thread before changing reasoning or
-uploading files, so YanShu never reconfigures the conversation the user happened
-to have open. A matching visible readback is recorded as `verified`. If ChatGPT
+pasting approved files, so YanShu never reconfigures the conversation the user
+happened to have open. A matching visible readback is recorded as `verified`. If ChatGPT
 accepts the exact visible option but its current UI exposes no reliable active
 label, YanShu records `click-acknowledged` and continues; missing clicks, stale
 threads, and explicit contradictory readback remain blockers.
@@ -118,9 +118,11 @@ artifacts, logs, and status are stored under:
 <paper-root>/yanshu-reconstruction/<run-id>/
 ```
 
-The first real upload may require the user to enable Chrome file-URL access and
-the Codex Chrome upload permission. YanShu never bypasses login, CAPTCHA,
-permissions, or confirmation.
+On Windows, approved `.tex`, `.bib`, `.pdf`, and figure files are copied to the
+native file clipboard and pasted into ChatGPT as real files; their contents are
+not flattened into message text. The visible file chooser remains a fallback
+for other hosts or failed pastes and may require Chrome file-URL access. YanShu
+never bypasses login, CAPTCHA, permissions, or confirmation.
 
 ## Developer commands
 

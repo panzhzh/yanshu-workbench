@@ -7,16 +7,20 @@ YanShu vendors the visible ChatGPT browser-control runtime from:
 - Project: `adamallcock/codex-chatgpt-control`
 - Repository: https://github.com/adamallcock/codex-chatgpt-control
 - Pinned commit: `73c5737f222709e324a1c7ba1637cef9966000ce`
-- Vendored bundle SHA-256: `C30632B45D38A00B648FCF15577D98D9F808ED1A6BBAD09472037F688FCF8F5F`
+- Vendored bundle SHA-256: `DF958256B537CC93CD7EB080F8CE38626DDF74DCC3B7A3027FDFA2EDD544B016`
 - Vendored files:
   - `vendor/chatgpt-control/import-chatgpt-control.mjs`
   - `vendor/chatgpt-control/node/codex-chatgpt-control.bundle.mjs`
-- Local modifications: none
+- Local modifications: see `vendor/chatgpt-control/PATCHES.md`
 - Verification on 2026-07-25:
   - all 471 upstream Node tests passed at the pinned revision;
   - the TypeScript build and bundle completed successfully;
   - `npm audit --omit=dev` reported no runtime vulnerabilities;
   - YanShu's live read-only diagnostic detected the visible Chrome bridge, signed-in ChatGPT session, Chat experience, and configuration graph without submitting a message.
+- YanShu patch verification on 2026-07-26:
+  - the patched bundle passed a Node 22 syntax check and all YanShu plugin tests;
+  - a native Windows file-drop clipboard smoke test preserved all seven approved
+    `defertrace` files, including paths containing Chinese characters and spaces.
 
 The runtime is unofficial prerelease software and is not affiliated with, endorsed by, or sponsored by OpenAI. YanShu pins it deliberately and does not update it automatically.
 

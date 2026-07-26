@@ -37,6 +37,21 @@ test("pinned visible Chat bridge bundle loads without external packages", async 
   assert.equal(typeof runtime.createChatGPT, "function");
 });
 
+test("visible Chat bridge prefers native file paste and keeps chooser fallback current", async () => {
+  const bundle = await readFile(
+    new URL(
+      "../vendor/chatgpt-control/node/codex-chatgpt-control.bundle.mjs",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(bundle, /native-file-clipboard-paste/);
+  assert.match(bundle, /Clipboard\]::SetFileDropList/);
+  assert.match(bundle, /textbox\.press\("Control\+V"/);
+  assert.match(bundle, /div\.__menu-item\[tabindex='0'\]/);
+  assert.doesNotMatch(bundle, /direct-file-input-set/);
+});
+
 test("prompt runtime builds five configuration-driven rounds", () => {
   const workflow = buildReconstructionWorkflow({
     language: "en",

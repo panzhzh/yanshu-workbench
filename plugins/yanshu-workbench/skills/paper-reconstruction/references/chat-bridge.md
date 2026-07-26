@@ -35,20 +35,26 @@ If `globalThis.agent` is absent, do not run this import from an ordinary shell a
 
 ## Preflight
 
-Run the visible diagnostic before the first paper upload:
+Run the visible diagnostic before the first paper delivery:
 
 ```js
 var yanshuChatDoctor = await yanshuChatGPT.doctor({
-  check: ["bridge", "login", "upload", "download", "clipboard"]
+  check: ["bridge", "login", "download", "clipboard", "modes"]
 });
 ```
 
-Stop on a failed check. File uploads require:
+Stop on a failed required check. On Windows, YanShu's default attachment path
+copies the approved file objects to the native file clipboard and pastes them
+into ChatGPT. This preserves real `.tex`, `.bib`, `.pdf`, and image files
+without converting their contents to message text.
+
+The visible file chooser fallback may require:
 
 1. `Allow access to file URLs` for the Codex/browser bridge extension in Chrome.
 2. Google Chrome upload permission in Codex settings.
 
-Do not repeatedly retry the same missing permission.
+Do not repeatedly retry the same missing permission. A file-chooser failure is
+not proof that native file clipboard paste is unavailable.
 
 ## Prepare the round thread
 
@@ -63,7 +69,7 @@ var yanshuPreparedChat =
 This helper calls `experience.open({ experience: "chat" })` and then
 `threads.new()`. A successful `experience.open` by itself is not a new
 conversation and must never authorize configuration changes in the user's
-previously selected chat. Stop before configuration or upload if
+previously selected chat. Stop before configuration or manuscript delivery if
 `yanshuPreparedChat.ok` is false.
 
 For a round that already records a stable conversation URL, reopen that exact
@@ -127,7 +133,7 @@ Do not turn `click-acknowledged` into `selector_drift`. Tell the user once that
 the visible option was accepted but the UI cannot expose a reliable readback,
 then continue. Do stop on explicit contradictory readback.
 
-Before upload, record the prepared round and the returned verification level:
+Before submission, record the prepared round and the returned verification level:
 
 ```text
 node <plugin-root>/scripts/yanshu.mjs mark \
@@ -148,7 +154,8 @@ model identifier from a visible label. Record the visible labels and
 
 ## Submit one round exactly once
 
-Read the generated prompt file locally and pass its full text with only the approved attachment paths returned by `yanshu next`:
+Read the generated prompt file locally and pass its full text with only the
+approved source paths returned by `yanshu next`:
 
 ```js
 var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
@@ -159,6 +166,14 @@ var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
   }
 );
 ```
+
+On Windows, the helper first places the approved paths on the OS clipboard as a
+real file-drop list, focuses the blank ChatGPT composer, and presses `Ctrl+V`.
+It verifies that every approved filename appears before submitting the Prompt.
+If nothing was pasted, it may fall back to ChatGPT's visible file chooser. If
+only part of the file list appears, it stops instead of retrying and creating
+duplicate attachments. Other host platforms currently use the visible chooser
+fallback.
 
 The helper uses `thread: { type: "current" }` with `existingTab: true`. This is
 intentional: the round already owns the blank configured thread. Do not pass

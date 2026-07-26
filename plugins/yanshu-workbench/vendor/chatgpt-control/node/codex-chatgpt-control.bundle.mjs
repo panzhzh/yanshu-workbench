@@ -9513,7 +9513,7 @@ async function attachFiles(env, args) {
     }
     return resultOk(data, await contextFromPage(page), preflight.warnings);
   } catch (error) {
-    if (isUploadBridgeBlocker(error)) {
+    if (isUploadPermissionBlocker(error)) {
       return {
         ok: false,
         status: "blocked",
@@ -9524,6 +9524,34 @@ async function attachFiles(env, args) {
           message: uploadPermissionMessage(error),
           visibleText: uploadPermissionDetails(error),
           remediation: uploadPermissionRemediation(),
+          resumable: true
+        },
+        context: await contextFromPage(page)
+      };
+    }
+    if (isUploadBridgeBlocker(error)) {
+      const message = error instanceof Error ? error.message : String(error);
+      return {
+        ok: false,
+        status: "blocked",
+        warnings: [],
+        blocker: {
+          kind: "upload_failed",
+          code: "upload_transport_unavailable",
+          message: "ChatGPT's current upload controls or Chrome file handoff could not complete. The prompt was not submitted, and this failure does not show that upload permissions are disabled.",
+          visibleText: message,
+          remediation: [
+            {
+              label: "Refresh upload controls",
+              instruction: "Refresh the blank ChatGPT thread and retry once with the current upload-control runtime.",
+              userActionRequired: false
+            },
+            {
+              label: "Manual attachment fallback",
+              instruction: "If the same transport error repeats, attach only the approved files to the already configured blank thread, then resume without reconfiguring or resubmitting.",
+              userActionRequired: true
+            }
+          ],
           resumable: true
         },
         context: await contextFromPage(page)
@@ -9654,9 +9682,6 @@ async function waitForAttachedFilesReady(page, files, timeoutMs) {
     if (!snapshot.processing && allNamesVisible) {
       return { ready: true };
     }
-    if (!snapshot.processing && Date.now() - started >= Math.min(timeoutMs, 1e3)) {
-      return { ready: true };
-    }
     if (snapshot.processingText !== void 0) {
       lastProcessingText = snapshot.processingText;
     }
@@ -9713,9 +9738,9 @@ async function uploadFiles(page, files, timeoutMs) {
   const errors = [];
   const attempts = [
     {
-      name: "visible-chatgpt-file-input",
+      name: "native-file-clipboard-paste",
       run: async () => {
-        await clickFileChooserTarget(page, "#upload-files", paths, timeoutMs, { requireVisible: true });
+        await pasteFilesFromSystemClipboard(page, files, timeoutMs);
       }
     },
     {
@@ -9725,15 +9750,15 @@ async function uploadFiles(page, files, timeoutMs) {
       }
     },
     {
-      name: "generic-add-files-button",
+      name: "chatgpt-file-input",
       run: async () => {
-        await clickFileChooserLocator(page, addFilesButton(page), paths, timeoutMs);
+        await clickFileChooserTarget(page, "#upload-files", paths, timeoutMs, { force: true });
       }
     },
     {
-      name: "direct-file-input-set",
+      name: "generic-add-files-button",
       run: async () => {
-        await setHiddenFileInput(page, files);
+        await clickFileChooserLocator(page, addFilesButton(page), paths, timeoutMs);
       }
     }
   ];
@@ -9742,15 +9767,74 @@ async function uploadFiles(page, files, timeoutMs) {
       await attempt.run();
       return;
     } catch (error) {
-      errors.push(`${attempt.name}: ${error instanceof Error ? error.message : String(error)}`);
+      const message = error instanceof Error ? error.message : String(error);
+      errors.push(`${attempt.name}: ${message}`);
+      if (/attached only part of the approved file list/i.test(message)) {
+        break;
+      }
     }
   }
   throw new Error(`No ChatGPT upload path completed.
 ${errors.join("\n")}`);
 }
+async function pasteFilesFromSystemClipboard(page, files, timeoutMs) {
+  if (typeof process === "undefined" || process.platform !== "win32") {
+    throw new Error("Native file clipboard paste is currently available only on Windows hosts.");
+  }
+  const paths = files.map((file) => file.path);
+  const encodedPaths = Buffer.from(JSON.stringify(paths), "utf8").toString("base64");
+  const clipboardScript = [
+    "$ErrorActionPreference = 'Stop'",
+    "Add-Type -AssemblyName System.Windows.Forms",
+    `$json = [Text.Encoding]::UTF8.GetString([Convert]::FromBase64String('${encodedPaths}'))`,
+    "$paths = ConvertFrom-Json -InputObject $json",
+    "$items = New-Object System.Collections.Specialized.StringCollection",
+    "foreach ($item in $paths) { [void]$items.Add([string]$item) }",
+    "[System.Windows.Forms.Clipboard]::SetFileDropList($items)",
+    "$actual = [System.Windows.Forms.Clipboard]::GetFileDropList()",
+    "if ($actual.Count -ne $items.Count) { throw 'Windows clipboard did not retain the complete file list.' }"
+  ].join("; ");
+  await execFileAsync(
+    "powershell.exe",
+    ["-NoProfile", "-NonInteractive", "-STA", "-Command", clipboardScript],
+    { timeout: Math.min(timeoutMs, 1e4), maxBuffer: 1024 * 1024 }
+  );
+  const textbox = composerTextbox(page);
+  if (await locatorCount(textbox) !== 1) {
+    throw new Error("ChatGPT composer was not uniquely available for file paste.");
+  }
+  if (typeof textbox.press !== "function") {
+    throw new Error("ChatGPT composer does not expose keyboard paste.");
+  }
+  await textbox.click?.({ timeoutMs: Math.min(timeoutMs, 1e4) });
+  await textbox.press("Control+V", { timeoutMs: Math.min(timeoutMs, 1e4) });
+  const pasteState = await waitForPastedFileNames(page, files, Math.min(timeoutMs, 5e3));
+  if (!pasteState.complete) {
+    const visibleNames = pasteState.visibleNames.join(", ");
+    if (pasteState.visibleNames.length > 0) {
+      throw new Error(`Native file clipboard paste attached only part of the approved file list: ${visibleNames}`);
+    }
+    throw new Error("Native file clipboard paste did not produce visible ChatGPT attachments.");
+  }
+}
+async function waitForPastedFileNames(page, files, timeoutMs) {
+  const started = Date.now();
+  let visibleNames = [];
+  while (Date.now() - started < timeoutMs) {
+    const snapshot = await readAttachmentReadiness(page, files).catch(() => void 0);
+    if (snapshot !== void 0) {
+      visibleNames = snapshot.files.filter((file) => file.visible).map((file) => file.name);
+      if (visibleNames.length === files.length) {
+        return { complete: true, visibleNames };
+      }
+    }
+    await page.waitForTimeout?.(150);
+  }
+  return { complete: false, visibleNames };
+}
 async function clickChatGPTAddPhotosMenuItem(page, paths, timeoutMs) {
   const addPhotosFilesText = localeLabels.addPhotosFilesMenuItem[0];
-  const menuItem = requiredLocator(page, "div[role='menuitem']").filter?.({ hasText: addPhotosFilesText });
+  const menuItem = chatGPTAddPhotosMenuItem(page, addPhotosFilesText);
   if (await locatorCount(menuItem) !== 1) {
     const plusButton = requiredLocator(page, "#composer-plus-btn, button[aria-label='Add files and more']");
     if (await locatorCount(plusButton) !== 1) {
@@ -9759,8 +9843,14 @@ async function clickChatGPTAddPhotosMenuItem(page, paths, timeoutMs) {
     await plusButton.click?.({ timeoutMs: Math.min(timeoutMs, 1e4) });
     await page.waitForTimeout?.(250);
   }
-  const refreshedMenuItem = requiredLocator(page, "div[role='menuitem']").filter?.({ hasText: addPhotosFilesText });
+  const refreshedMenuItem = chatGPTAddPhotosMenuItem(page, addPhotosFilesText);
   await clickFileChooserLocator(page, refreshedMenuItem, paths, timeoutMs);
+}
+function chatGPTAddPhotosMenuItem(page, label) {
+  return requiredLocator(
+    page,
+    "div[role='menuitem'], div.__menu-item[tabindex='0']"
+  ).filter?.({ hasText: label });
 }
 async function clickFileChooserTarget(page, selector, paths, timeoutMs, options = {}) {
   const locator = requiredLocator(page, selector);
@@ -9770,9 +9860,9 @@ async function clickFileChooserTarget(page, selector, paths, timeoutMs, options 
   if (options.requireVisible === true && locator.isVisible !== void 0 && !await locator.isVisible({ timeoutMs: 1e3 })) {
     throw new Error(`Upload target is hidden: ${selector}`);
   }
-  await clickFileChooserLocator(page, locator, paths, timeoutMs);
+  await clickFileChooserLocator(page, locator, paths, timeoutMs, options);
 }
-async function clickFileChooserLocator(page, locator, paths, timeoutMs) {
+async function clickFileChooserLocator(page, locator, paths, timeoutMs, options = {}) {
   if (locator === void 0) {
     throw new Error("Upload locator was not available.");
   }
@@ -9784,7 +9874,10 @@ async function clickFileChooserLocator(page, locator, paths, timeoutMs) {
   }
   const chooserPromise = waitForFileChooser(page, timeoutMs);
   try {
-    await locator.click({ timeoutMs: Math.min(timeoutMs, 1e4) });
+    await locator.click({
+      timeoutMs: Math.min(timeoutMs, 1e4),
+      force: options.force === true
+    });
   } catch (error) {
     await chooserPromise.catch(() => void 0);
     throw error;
@@ -10044,17 +10137,6 @@ function escapeCssAttribute(value) {
 function decodeBasicHtml(value) {
   return value.replace(/&quot;/gi, '"').replace(/&#39;|&apos;/gi, "'").replace(/&lt;/gi, "<").replace(/&gt;/gi, ">").replace(/&amp;/gi, "&");
 }
-async function setHiddenFileInput(page, files) {
-  if (page === void 0) {
-    throw new Error("No active page is available for file upload.");
-  }
-  const input = requiredLocator(page, cssSelectors.hiddenFileInputs).last?.() ?? requiredLocator(page, cssSelectors.hiddenFileInputs);
-  if (typeof input.setInputFiles !== "function") {
-    await setFilesViaDomDataTransfer(page, files);
-    return;
-  }
-  await input.setInputFiles(files.map((file) => file.path));
-}
 async function readBrowserInputDiagnostic(page) {
   if (typeof page.evaluate !== "function") {
     return void 0;
@@ -10081,53 +10163,13 @@ async function readBrowserInputDiagnostic(page) {
     };
   });
 }
-async function setFilesViaDomDataTransfer(page, files) {
-  const totalBytes = files.reduce((sum, file) => sum + file.bytes, 0);
-  const maxInlineBytes = 25 * 1024 * 1024;
-  if (totalBytes > maxInlineBytes) {
-    throw new Error(`No file chooser or setInputFiles support is available for large uploads. ${CODEX_UPLOAD_PERMISSION_FIX} ${CHROME_FILE_URL_PERMISSION_FIX}`);
-  }
-  if (typeof page.evaluate !== "function") {
-    throw new Error(`No file chooser, setInputFiles, or page.evaluate support is available for file upload. ${CODEX_UPLOAD_PERMISSION_FIX} ${CHROME_FILE_URL_PERMISSION_FIX}`);
-  }
-  const payload = await Promise.all(files.map(async (file) => ({
-    name: file.name,
-    bytesBase64: (await readFile3(file.path)).toString("base64"),
-    type: guessMimeType(file.name)
-  })));
-  await page.evaluate(
-    async (payload2) => {
-      const input = document.querySelector("#upload-files") || document.querySelector("input[type='file']:not([accept='image/*'])") || document.querySelector("input[type='file']");
-      if (!input) {
-        throw new Error("No ChatGPT file input found in the DOM.");
-      }
-      const dataTransfer = new DataTransfer();
-      for (const item of payload2) {
-        const binary = atob(item.bytesBase64);
-        const bytes = new Uint8Array(binary.length);
-        for (let index = 0; index < binary.length; index += 1) {
-          bytes[index] = binary.charCodeAt(index);
-        }
-        dataTransfer.items.add(new File([bytes], item.name, { type: item.type }));
-      }
-      input.files = dataTransfer.files;
-      input.dispatchEvent(new Event("input", { bubbles: true }));
-      input.dispatchEvent(new Event("change", { bubbles: true }));
-    },
-    payload
-  );
-}
-function guessMimeType(name) {
-  if (/\.txt$/i.test(name)) return "text/plain";
-  if (/\.pdf$/i.test(name)) return "application/pdf";
-  if (/\.csv$/i.test(name)) return "text/csv";
-  if (/\.json$/i.test(name)) return "application/json";
-  if (/\.md$/i.test(name)) return "text/markdown";
-  return "application/octet-stream";
-}
 function isUploadBridgeBlocker(error) {
   const message = error instanceof Error ? error.message : String(error);
-  return /DataTransfer is not a constructor|No file chooser|setInputFiles|Allow access to file URLs|file upload|fileChooser\.setFiles failed|Not allowed|No ChatGPT upload path completed/i.test(message);
+  return /No file chooser|file upload|No ChatGPT upload path completed|native pipe closed/i.test(message);
+}
+function isUploadPermissionBlocker(error) {
+  const message = error instanceof Error ? error.message : String(error);
+  return /fileChooser\.setFiles failed[\s\S]*(?:Not allowed|permission|denied|blocked)|Allow access to file URLs|Browser Use rejected|requested that files not be uploaded|permission denied/i.test(message);
 }
 function uploadPermissionMessage(error) {
   const message = error instanceof Error ? error.message : String(error);
