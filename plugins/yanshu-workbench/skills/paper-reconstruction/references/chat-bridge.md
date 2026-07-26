@@ -43,18 +43,22 @@ var yanshuChatDoctor = await yanshuChatGPT.doctor({
 });
 ```
 
-Stop on a failed required check. On Windows, YanShu's default attachment path
-copies the approved file objects to the native file clipboard and pastes them
-into ChatGPT. This preserves real `.tex`, `.bib`, `.pdf`, and image files
-without converting their contents to message text.
+Stop on a failed required check. YanShu transfers approved `.tex`, `.bib`,
+`.pdf`, and image inputs as real files without converting their contents to
+message text. The preferred route is ChatGPT's visible file chooser; native
+Windows file-object paste remains a fallback.
 
 The visible file chooser fallback may require:
 
 1. `Allow access to file URLs` for the Codex/browser bridge extension in Chrome.
 2. Google Chrome upload permission in Codex settings.
 
-Do not repeatedly retry the same missing permission. A file-chooser failure is
-not proof that native file clipboard paste is unavailable.
+Do not repeatedly retry the same missing permission. If no attachment appears,
+YanShu falls back to the next verified transfer route. If only part of the
+approved list appears, it stops rather than creating duplicates.
+ChatGPT may display a repeated filename with a numeric suffix such as
+`main (1).tex`; YanShu accepts that display alias while preserving the original
+local filename.
 
 ## Prepare the round thread
 
@@ -167,13 +171,12 @@ var yanshuSubmittedRound = await submitYanShuPreparedChatRound(
 );
 ```
 
-On Windows, the helper first places the approved paths on the OS clipboard as a
-real file-drop list, focuses the blank ChatGPT composer, and presses `Ctrl+V`.
-It verifies that every approved filename appears before submitting the Prompt.
-If nothing was pasted, it may fall back to ChatGPT's visible file chooser. If
-only part of the file list appears, it stops instead of retrying and creating
-duplicate attachments. Other host platforms currently use the visible chooser
-fallback.
+The helper first uses ChatGPT's visible **Add photos & files** chooser. If its
+visible routes are unavailable on Windows, it can place the approved paths on
+the OS clipboard as a real file-drop list and press `Ctrl+V`. Every route must
+produce one visible attachment card per approved file before the Prompt may be
+submitted. A partial file list stops instead of retrying and creating duplicate
+attachments.
 
 The helper uses `thread: { type: "current" }` with `existingTab: true`. This is
 intentional: the round already owns the blank configured thread. Do not pass

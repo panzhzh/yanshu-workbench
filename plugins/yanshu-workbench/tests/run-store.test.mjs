@@ -37,7 +37,7 @@ test("pinned visible Chat bridge bundle loads without external packages", async 
   assert.equal(typeof runtime.createChatGPT, "function");
 });
 
-test("visible Chat bridge prefers native file paste and keeps chooser fallback current", async () => {
+test("visible Chat bridge prefers the verified chooser and keeps native file paste as fallback", async () => {
   const bundle = await readFile(
     new URL(
       "../vendor/chatgpt-control/node/codex-chatgpt-control.bundle.mjs",
@@ -46,10 +46,65 @@ test("visible Chat bridge prefers native file paste and keeps chooser fallback c
     "utf8",
   );
   assert.match(bundle, /native-file-clipboard-paste/);
+  assert.ok(
+    bundle.indexOf('name: "add-photos-files-menu-item"') <
+      bundle.indexOf('name: "native-file-clipboard-paste"'),
+  );
   assert.match(bundle, /Clipboard\]::SetFileDropList/);
   assert.match(bundle, /textbox\.press\("Control\+V"/);
   assert.match(bundle, /div\.__menu-item\[tabindex='0'\]/);
+  assert.match(bundle, /route: attempt\.name/);
+  assert.match(bundle, /route: "already-attached"/);
+  assert.doesNotMatch(bundle, /snapshot === void 0\) \{\s*return \{ ready: true \}/);
   assert.doesNotMatch(bundle, /direct-file-input-set/);
+});
+
+test("attachment verification accepts ChatGPT duplicate suffixes without weakening the original name", async () => {
+  const runtime = await importChatGPTControl({ cacheBust: true });
+
+  assert.equal(runtime.attachmentDisplayNameMatches("main.tex", "main.tex"), true);
+  assert.equal(runtime.attachmentDisplayNameMatches("main.tex", "main (1).tex"), true);
+  assert.equal(runtime.attachmentDisplayNameMatches("main.tex", "main(12).tex"), true);
+  assert.equal(runtime.attachmentDisplayNameMatches("main.tex", "main.tex (2)"), true);
+  assert.equal(runtime.attachmentDisplayNameMatches("main (1).tex", "main (1) (2).tex"), true);
+  assert.equal(runtime.attachmentDisplayNameMatches("main.tex", "domain.tex"), false);
+  assert.equal(runtime.attachmentDisplayNameMatches("main.tex", "main.tex.backup"), false);
+});
+
+test("attachment verification consumes visible filename occurrences as a multiset", async () => {
+  const runtime = await importChatGPTControl({ cacheBust: true });
+  const matches = runtime.matchAttachmentDisplayNames(
+    ["main.tex", "main.tex", "references.bib"],
+    ["main.tex · main (1).tex · references (3).bib"],
+  );
+
+  assert.deepEqual(
+    matches.map(({ name, visible }) => ({ name, visible })),
+    [
+      { name: "main.tex", visible: true },
+      { name: "main.tex", visible: true },
+      { name: "references.bib", visible: true },
+    ],
+  );
+  assert.deepEqual(
+    matches.map((match) => match.displayName),
+    ["main.tex", "main (1).tex", "references (3).bib"],
+  );
+
+  assert.deepEqual(
+    runtime.matchAttachmentDisplayNames(
+      ["README.md", "README.md"],
+      ["README.md"],
+    ).map((match) => match.visible),
+    [true, false],
+  );
+  assert.deepEqual(
+    runtime.matchAttachmentDisplayNames(
+      ["README.md", "README.md"],
+      ["README.md", "README.md"],
+    ).map((match) => match.visible),
+    [true, true],
+  );
 });
 
 test("prompt runtime builds five configuration-driven rounds", () => {

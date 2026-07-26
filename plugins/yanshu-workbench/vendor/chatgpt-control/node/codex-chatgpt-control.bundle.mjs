@@ -9470,16 +9470,23 @@ async function attachFiles(env, args) {
       name: file.name,
       bytes: file.bytes
     }));
-    await uploadFiles(page, files, args.timeoutMs ?? 3e4);
+    const transfer = await uploadFiles(page, files, args.timeoutMs ?? 3e4);
     const browserInput = args.includeDiagnostics === true ? await readBrowserInputDiagnostic(page).catch(() => void 0) : void 0;
     await page.waitForTimeout?.(args.timeoutMs === void 0 ? 1e3 : Math.min(args.timeoutMs, 3e3));
     const readiness = await waitForAttachedFilesReady(page, files, args.timeoutMs ?? 3e4);
     if (!readiness.ready) {
+      const verificationUnavailable = readiness.verificationError !== void 0;
       const blocker = {
         kind: "upload_failed",
-        code: "attachment_processing",
-        message: "ChatGPT still appears to be processing the attached file, so the prompt was not submitted.",
-        remediation: [
+        code: verificationUnavailable ? "attachment_verification_unavailable" : "attachment_processing",
+        message: verificationUnavailable ? "YanShu could not verify the visible ChatGPT attachment cards, so the prompt was not submitted." : "ChatGPT still appears to be processing the attached file, so the prompt was not submitted.",
+        remediation: verificationUnavailable ? [
+          {
+            label: "Refresh attachment surface",
+            instruction: "Refresh the blank ChatGPT thread and retry once; do not submit the prompt until all approved attachment cards are visible.",
+            userActionRequired: false
+          }
+        ] : [
           {
             label: "Wait for upload",
             instruction: "Wait until the visible attachment finishes uploading or processing, then retry the askWithFiles call.",
@@ -9495,6 +9502,8 @@ async function attachFiles(env, args) {
       };
       if (readiness.processingText !== void 0) {
         blocker.visibleText = readiness.processingText;
+      } else if (readiness.verificationError !== void 0) {
+        blocker.visibleText = readiness.verificationError;
       }
       return {
         ok: false,
@@ -9506,7 +9515,7 @@ async function attachFiles(env, args) {
     }
     const data = { files };
     if (args.includeDiagnostics === true) {
-      data.diagnostics = { preflight: preflight.data };
+      data.diagnostics = { preflight: preflight.data, transfer };
       if (browserInput !== void 0) {
         data.diagnostics.browserInput = browserInput;
       }
@@ -9673,10 +9682,21 @@ function isNodeError2(error) {
 async function waitForAttachedFilesReady(page, files, timeoutMs) {
   const started = Date.now();
   let lastProcessingText;
+  let lastVerificationError;
   while (Date.now() - started < timeoutMs) {
-    const snapshot = await readAttachmentReadiness(page, files).catch(() => void 0);
+    let snapshot;
+    try {
+      snapshot = await readAttachmentReadiness(page, files);
+      lastVerificationError = void 0;
+    } catch (error) {
+      lastVerificationError = error instanceof Error ? error.message : String(error);
+      await page.waitForTimeout?.(250);
+      continue;
+    }
     if (snapshot === void 0) {
-      return { ready: true };
+      lastVerificationError = "The active page does not expose attachment-state evaluation.";
+      await page.waitForTimeout?.(250);
+      continue;
     }
     const allNamesVisible = snapshot.files.length > 0 && snapshot.files.every((file) => file.visible);
     if (!snapshot.processing && allNamesVisible) {
@@ -9691,21 +9711,82 @@ async function waitForAttachedFilesReady(page, files, timeoutMs) {
   if (lastProcessingText !== void 0) {
     blocked2.processingText = lastProcessingText;
   }
+  if (lastVerificationError !== void 0) {
+    blocked2.verificationError = lastVerificationError;
+  }
   return blocked2;
+}
+function normalizeAttachmentDisplayText(value) {
+  return String(value ?? "").normalize("NFC").toLocaleLowerCase().replace(/\u00a0/g, " ").replace(/\s+/g, " ").trim();
+}
+function attachmentNameMatchPattern(expectedName) {
+  const normalizedName = normalizeAttachmentDisplayText(expectedName);
+  const lastDot = normalizedName.lastIndexOf(".");
+  const hasExtension = lastDot > 0;
+  const stem = hasExtension ? normalizedName.slice(0, lastDot) : normalizedName;
+  const extension = hasExtension ? normalizedName.slice(lastDot) : "";
+  const duplicateSuffix = String.raw`(?:\s*\(\d+\))*`;
+  const filename = `${escapeRegExp3(stem)}${duplicateSuffix}${escapeRegExp3(extension)}${duplicateSuffix}`;
+  return new RegExp(String.raw`(?:^|[^\p{L}\p{N}_.-])(${filename})(?=$|[^\p{L}\p{N}_.-])`, "giu");
+}
+function attachmentDisplayNameMatches(expectedName, displayText) {
+  if (normalizeAttachmentDisplayText(expectedName) === normalizeAttachmentDisplayText(displayText)) {
+    return true;
+  }
+  return attachmentNameMatchPattern(expectedName).test(normalizeAttachmentDisplayText(displayText));
+}
+function matchAttachmentDisplayNames(expectedNames, candidateTexts) {
+  const candidates = candidateTexts.map((candidate) => normalizeAttachmentDisplayText(candidate)).filter((candidate) => candidate.length > 0);
+  const usedRanges = candidates.map(() => []);
+  return expectedNames.map((expectedName) => {
+    for (const [candidateIndex, candidate] of candidates.entries()) {
+      const pattern = attachmentNameMatchPattern(expectedName);
+      for (const match of candidate.matchAll(pattern)) {
+        const displayName = match[1];
+        const start = (match.index ?? 0) + match[0].lastIndexOf(displayName);
+        const end = start + displayName.length;
+        const overlaps = usedRanges[candidateIndex].some((range) => start < range.end && end > range.start);
+        if (overlaps) {
+          continue;
+        }
+        usedRanges[candidateIndex].push({ start, end });
+        return { name: expectedName, visible: true, displayName };
+      }
+    }
+    return { name: expectedName, visible: false };
+  });
 }
 async function readAttachmentReadiness(page, files) {
   if (typeof page.evaluate !== "function") {
     return void 0;
   }
-  return page.evaluate((fileNames) => {
+  const surface = await page.evaluate(() => {
     const visibleText = document.body?.innerText ?? "";
-    const normalize = (value) => value.toLocaleLowerCase();
-    const normalizedVisibleText = normalize(visibleText);
-    const files2 = fileNames.map((name) => ({
-      name,
-      visible: normalizedVisibleText.includes(normalize(name))
-    }));
-    const attachmentSelectors = [
+    const attachmentCardSelectors = [
+      "[role='group'][aria-label][class*='file-tile' i]",
+      "[data-testid*='attachment' i]",
+      "[data-testid*='file-tile' i]",
+      "[class*='attachment-card' i]",
+      "button[aria-label^='Remove file' i]",
+      "button[aria-label*='remove attachment' i]"
+    ].join(", ");
+    const visibleElements = (selector) => Array.from(document.querySelectorAll(selector)).filter((element) => {
+      const style = window.getComputedStyle?.(element);
+      return style?.display !== "none" && style?.visibility !== "hidden" && element.getClientRects().length > 0;
+    });
+    const attachmentCards = Array.from(
+      new Set(visibleElements(attachmentCardSelectors).map((element) => {
+        return element.closest("[role='group'][aria-label][class*='file-tile' i]") ?? element;
+      }))
+    );
+    const attachmentCandidates = attachmentCards.map((element) => [
+      element.getAttribute("aria-label") ?? "",
+      element.getAttribute("title") ?? "",
+      element.getAttribute("data-file-name") ?? "",
+      element.getAttribute("data-filename") ?? "",
+      element.textContent ?? ""
+    ].map((value) => value.trim()).filter((value) => value.length > 0 && value.length <= 2e3).join(" "));
+    const attachmentSurfaceSelectors = [
       "[data-testid*='attachment' i]",
       "[data-testid*='file' i]",
       "[aria-label*='attachment' i]",
@@ -9716,33 +9797,44 @@ async function readAttachmentReadiness(page, files) {
       "[class*='file' i]",
       "[role='progressbar']"
     ].join(", ");
-    const attachmentText = Array.from(document.querySelectorAll(attachmentSelectors)).map((element) => [
-      element.textContent ?? "",
-      element.getAttribute("aria-label") ?? "",
-      element.getAttribute("title") ?? ""
-    ].join(" ")).join(" ");
-    const relevantText = attachmentText.length > 0 ? attachmentText : visibleText;
+    const attachmentSurfaceText = visibleElements(attachmentSurfaceSelectors).flatMap((element) => {
+      return [
+        element.textContent ?? "",
+        element.getAttribute("aria-label") ?? "",
+        element.getAttribute("title") ?? "",
+        element.getAttribute("alt") ?? ""
+      ].map((value) => value.trim()).filter((value) => value.length > 0 && value.length <= 2e3);
+    }).join(" ");
+    const relevantText = attachmentSurfaceText.length > 0 ? attachmentSurfaceText : visibleText;
     const processingMatch = /\b(uploading|processing|attaching|preparing|reading|scanning|analyzing)\b/i.exec(relevantText);
     const snapshot = {
-      files: files2,
+      visibleText,
+      attachmentCandidates,
       processing: processingMatch !== null
     };
     if (processingMatch !== null) {
       snapshot.processingText = relevantText.slice(0, 500);
     }
     return snapshot;
-  }, files.map((file) => file.name));
+  });
+  const expectedNames = files.map((file) => file.name);
+  const structuredFiles = matchAttachmentDisplayNames(expectedNames, surface.attachmentCandidates);
+  const hasStructuredMatch = structuredFiles.some((file) => file.visible);
+  const files2 = hasStructuredMatch ? structuredFiles : matchAttachmentDisplayNames(expectedNames, [surface.visibleText]);
+  const snapshot = {
+    files: files2,
+    processing: surface.processing,
+    attachmentCandidateCount: surface.attachmentCandidates.length
+  };
+  if (surface.processingText !== void 0) {
+    snapshot.processingText = surface.processingText;
+  }
+  return snapshot;
 }
 async function uploadFiles(page, files, timeoutMs) {
   const paths = files.map((file) => file.path);
   const errors = [];
   const attempts = [
-    {
-      name: "native-file-clipboard-paste",
-      run: async () => {
-        await pasteFilesFromSystemClipboard(page, files, timeoutMs);
-      }
-    },
     {
       name: "add-photos-files-menu-item",
       run: async () => {
@@ -9760,19 +9852,60 @@ async function uploadFiles(page, files, timeoutMs) {
       run: async () => {
         await clickFileChooserLocator(page, addFilesButton(page), paths, timeoutMs);
       }
+    },
+    {
+      name: "native-file-clipboard-paste",
+      run: async () => {
+        await pasteFilesFromSystemClipboard(page, files, timeoutMs);
+      }
     }
   ];
   for (const attempt of attempts) {
+    let before;
+    try {
+      before = await readAttachmentReadiness(page, files);
+    } catch (error) {
+      throw new Error(`ChatGPT file upload cannot start because attachment verification is unavailable: ${error instanceof Error ? error.message : String(error)}`);
+    }
+    if (before === void 0) {
+      throw new Error("ChatGPT file upload cannot start because the active page does not expose attachment-state evaluation.");
+    }
+    const beforeVisible = before?.files.filter((file) => file.visible).map((file) => file.name) ?? [];
+    if (beforeVisible.length === files.length) {
+      return {
+        route: "already-attached",
+        evidence: "complete",
+        visibleNames: beforeVisible
+      };
+    }
+    if (beforeVisible.length > 0) {
+      throw new Error(`ChatGPT already contains only part of the approved file list: ${beforeVisible.join(", ")}`);
+    }
+    let transportError;
     try {
       await attempt.run();
-      return;
     } catch (error) {
-      const message = error instanceof Error ? error.message : String(error);
-      errors.push(`${attempt.name}: ${message}`);
-      if (/attached only part of the approved file list/i.test(message)) {
-        break;
-      }
+      transportError = error;
     }
+    const evidence = await waitForAttachmentTransferEvidence(page, files, Math.min(timeoutMs, 8e3));
+    if (evidence.status === "complete" || evidence.status === "started" || evidence.status === "unobservable") {
+      if (evidence.status !== "unobservable") {
+        return {
+          route: attempt.name,
+          evidence: evidence.status,
+          visibleNames: evidence.visibleNames
+        };
+      }
+      throw new Error(`ChatGPT file upload could not be verified, so no further fallback was attempted: ${evidence.error ?? "attachment state unavailable"}`);
+    }
+    if (evidence.status === "partial") {
+      throw new Error(`ChatGPT attached only part of the approved file list: ${evidence.visibleNames.join(", ")}`);
+    }
+    if (transportError !== void 0 && isUploadPermissionBlocker(transportError)) {
+      throw transportError;
+    }
+    const transportMessage = transportError instanceof Error ? transportError.message : transportError === void 0 ? "transport completed but no attachment appeared" : String(transportError);
+    errors.push(`${attempt.name}: ${transportMessage}`);
   }
   throw new Error(`No ChatGPT upload path completed.
 ${errors.join("\n")}`);
@@ -9808,29 +9941,43 @@ async function pasteFilesFromSystemClipboard(page, files, timeoutMs) {
   }
   await textbox.click?.({ timeoutMs: Math.min(timeoutMs, 1e4) });
   await textbox.press("Control+V", { timeoutMs: Math.min(timeoutMs, 1e4) });
-  const pasteState = await waitForPastedFileNames(page, files, Math.min(timeoutMs, 5e3));
-  if (!pasteState.complete) {
-    const visibleNames = pasteState.visibleNames.join(", ");
-    if (pasteState.visibleNames.length > 0) {
-      throw new Error(`Native file clipboard paste attached only part of the approved file list: ${visibleNames}`);
-    }
-    throw new Error("Native file clipboard paste did not produce visible ChatGPT attachments.");
-  }
 }
-async function waitForPastedFileNames(page, files, timeoutMs) {
+async function waitForAttachmentTransferEvidence(page, files, timeoutMs) {
   const started = Date.now();
   let visibleNames = [];
+  let sawProcessing = false;
   while (Date.now() - started < timeoutMs) {
-    const snapshot = await readAttachmentReadiness(page, files).catch(() => void 0);
-    if (snapshot !== void 0) {
-      visibleNames = snapshot.files.filter((file) => file.visible).map((file) => file.name);
-      if (visibleNames.length === files.length) {
-        return { complete: true, visibleNames };
-      }
+    let snapshot;
+    try {
+      snapshot = await readAttachmentReadiness(page, files);
+    } catch (error) {
+      return {
+        status: "unobservable",
+        visibleNames,
+        error: error instanceof Error ? error.message : String(error)
+      };
+    }
+    if (snapshot === void 0) {
+      return {
+        status: "unobservable",
+        visibleNames,
+        error: "The active page does not expose attachment-state evaluation."
+      };
+    }
+    visibleNames = snapshot.files.filter((file) => file.visible).map((file) => file.name);
+    sawProcessing ||= snapshot.processing;
+    if (visibleNames.length === files.length) {
+      return { status: "complete", visibleNames };
     }
     await page.waitForTimeout?.(150);
   }
-  return { complete: false, visibleNames };
+  if (visibleNames.length > 0) {
+    return { status: "partial", visibleNames };
+  }
+  if (sawProcessing) {
+    return { status: "started", visibleNames };
+  }
+  return { status: "none", visibleNames };
 }
 async function clickChatGPTAddPhotosMenuItem(page, paths, timeoutMs) {
   const addPhotosFilesText = localeLabels.addPhotosFilesMenuItem[0];
@@ -10165,7 +10312,7 @@ async function readBrowserInputDiagnostic(page) {
 }
 function isUploadBridgeBlocker(error) {
   const message = error instanceof Error ? error.message : String(error);
-  return /No file chooser|file upload|No ChatGPT upload path completed|native pipe closed/i.test(message);
+  return /No file chooser|file upload|No ChatGPT upload path completed|native pipe closed|attached only part|already contains only part|attachment verification/i.test(message);
 }
 function isUploadPermissionBlocker(error) {
   const message = error instanceof Error ? error.message : String(error);
@@ -13597,7 +13744,7 @@ function runtimeEnv(options) {
   const env = {};
   if (options.agent !== void 0) env.agent = options.agent;
   if (options.browser !== void 0) env.browser = options.browser;
-  if (options.page !== void 0) env.page = options.page;
+  if (options.page !== void 0) env.page = normalizePage(options.page);
   if (options.clipboard !== void 0) env.clipboard = options.clipboard;
   if (options.now !== void 0) env.now = options.now;
   return env;
@@ -14795,6 +14942,7 @@ export {
   ask,
   askInThread,
   askMessage,
+  attachmentDisplayNameMatches,
   assistantMessageNodes,
   attachAskRead,
   attachChatGPTBrowser,
@@ -14865,6 +15013,7 @@ export {
   listPageArtifacts,
   listProjectSources,
   locatorCountWithTimeout,
+  matchAttachmentDisplayNames,
   messageStatus,
   newChatButton,
   newThread,

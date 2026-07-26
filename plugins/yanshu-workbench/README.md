@@ -118,11 +118,11 @@ artifacts, logs, and status are stored under:
 <paper-root>/yanshu-reconstruction/<run-id>/
 ```
 
-On Windows, approved `.tex`, `.bib`, `.pdf`, and figure files are copied to the
-native file clipboard and pasted into ChatGPT as real files; their contents are
-not flattened into message text. The visible file chooser remains a fallback
-for other hosts or failed pastes and may require Chrome file-URL access. YanShu
-never bypasses login, CAPTCHA, permissions, or confirmation.
+Approved `.tex`, `.bib`, `.pdf`, and figure inputs are handed to ChatGPT as
+real files; their contents are not flattened into message text. YanShu prefers
+ChatGPT's visible file chooser and verifies one visible card per approved file.
+On Windows, native file-object clipboard paste remains a fallback. YanShu never
+bypasses login, CAPTCHA, permissions, or confirmation.
 
 ## Developer commands
 
