@@ -21,6 +21,8 @@ import {
   FIGURE_PLACEMENTS,
   FIGURE_FONT_FAMILIES,
   FIGURE_FONT_FAMILY_IDS,
+  FIGURE_PROMPT_GROUP_ORDER,
+  FIGURE_PROMPT_GROUPS,
   FIGURE_PROMPT_ORDER,
   FIGURE_PROMPTS,
   FIGURE_STYLE_IDS,
@@ -36,29 +38,29 @@ type PromptExpansion = Record<FigurePromptId, boolean>;
 type FigurePreferenceMap = Record<FigurePromptId, FigurePreferences>;
 
 const DEFAULT_PROMPT_LANGUAGES: PromptLanguages = {
-  introduction: PRODUCT_CONFIG.defaultPromptLanguage,
-  "method-overview": PRODUCT_CONFIG.defaultPromptLanguage,
-  "technical-detail": PRODUCT_CONFIG.defaultPromptLanguage,
-};
+  ...Object.fromEntries(
+    FIGURE_PROMPT_ORDER.map((promptId) => [
+      promptId,
+      PRODUCT_CONFIG.defaultPromptLanguage,
+    ]),
+  ),
+} as PromptLanguages;
 
 const DEFAULT_PROMPT_EXPANSION: PromptExpansion = {
-  introduction: true,
-  "method-overview": true,
-  "technical-detail": true,
-};
+  ...Object.fromEntries(
+    FIGURE_PROMPT_ORDER.map((promptId) => [promptId, true]),
+  ),
+} as PromptExpansion;
 
 const FONT_SIZE_LEVELS = [2, 3] as const;
 
 function createRecommendedPreferences(): FigurePreferenceMap {
-  return {
-    introduction: { ...FIGURE_TYPE_RECOMMENDATIONS.introduction },
-    "method-overview": {
-      ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"],
-    },
-    "technical-detail": {
-      ...FIGURE_TYPE_RECOMMENDATIONS["technical-detail"],
-    },
-  };
+  return Object.fromEntries(
+    FIGURE_PROMPT_ORDER.map((promptId) => [
+      promptId,
+      { ...FIGURE_TYPE_RECOMMENDATIONS[promptId] },
+    ]),
+  ) as FigurePreferenceMap;
 }
 
 async function writeClipboard(text: string) {
@@ -95,6 +97,7 @@ export default function FigureWorkbench() {
   });
   const [copiedPrompt, setCopiedPrompt] = useState<FigurePromptId | null>(null);
   const [copyError, setCopyError] = useState(false);
+  const [professionalTypesOpen, setProfessionalTypesOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -138,6 +141,13 @@ export default function FigureWorkbench() {
   }
 
   function selectFigurePrompt(promptId: FigurePromptId) {
+    if (
+      FIGURE_PROMPT_GROUPS.professional.promptIds.some(
+        (professionalPromptId) => professionalPromptId === promptId,
+      )
+    ) {
+      setProfessionalTypesOpen(true);
+    }
     if (activePromptId === promptId) return;
     setActivePromptId(promptId);
     setCopiedPrompt(null);
@@ -188,6 +198,30 @@ export default function FigureWorkbench() {
       setCopiedPrompt(null);
       setCopyError(true);
     }
+  }
+
+  function renderFigureTaskButton(promptId: FigurePromptId) {
+    const promptSpec = FIGURE_PROMPTS[promptId];
+    const active = activePromptId === promptId;
+
+    return (
+      <button
+        type="button"
+        role="radio"
+        aria-checked={active}
+        className={active ? "active" : ""}
+        key={promptId}
+        onClick={() => selectFigurePrompt(promptId)}
+      >
+        <span className="figure-task-marker" aria-hidden="true">
+          <i />
+        </span>
+        <span>
+          <strong>{promptSpec.label[uiLanguage]}</strong>
+          <small>{promptSpec.purpose[uiLanguage]}</small>
+        </span>
+      </button>
+    );
   }
 
   return (
@@ -246,40 +280,106 @@ export default function FigureWorkbench() {
             <p>{copy.inputHint}</p>
           </div>
 
+          <aside className="figure-scope-boundary">
+            <strong>{copy.scopeBoundaryTitle}</strong>
+            <p>{copy.scopeBoundaryBody}</p>
+          </aside>
+
           <div className="figure-config-grid">
             <fieldset className="figure-control-card figure-task-control">
               <legend>
                 <span className="control-index">02</span>
                 {copy.figureTasks}
               </legend>
-              <div
-                className="figure-task-list"
-                role="radiogroup"
-                aria-label={copy.figureTasks}
-              >
-                {FIGURE_PROMPT_ORDER.map((promptId) => {
-                  const promptSpec = FIGURE_PROMPTS[promptId];
-                  const active = preferences.promptId === promptId;
+              <div className="figure-intent-selector">
+                <label htmlFor="figure-intent-question">
+                  <strong>{copy.intentQuestion}</strong>
+                  <small>{copy.intentQuestionHint}</small>
+                </label>
+                <select
+                  id="figure-intent-question"
+                  value={activePromptId}
+                  onChange={(event) =>
+                    selectFigurePrompt(
+                      event.target.value as FigurePromptId,
+                    )
+                  }
+                >
+                  {FIGURE_PROMPT_ORDER.map((promptId) => (
+                    <option value={promptId} key={promptId}>
+                      {FIGURE_PROMPTS[promptId].intent[uiLanguage]} —{" "}
+                      {FIGURE_PROMPTS[promptId].label[uiLanguage]}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
+              <div className="figure-task-groups">
+                {FIGURE_PROMPT_GROUP_ORDER.filter(
+                  (groupId) => groupId !== "professional",
+                ).map((groupId) => {
+                  const group = FIGURE_PROMPT_GROUPS[groupId];
                   return (
-                    <button
-                      type="button"
-                      role="radio"
-                      aria-checked={active}
-                      className={active ? "active" : ""}
-                      key={promptId}
-                      onClick={() => selectFigurePrompt(promptId)}
-                    >
-                      <span className="figure-task-marker" aria-hidden="true">
-                        <i />
-                      </span>
-                      <span>
-                        <strong>{promptSpec.label[uiLanguage]}</strong>
-                        <small>{promptSpec.purpose[uiLanguage]}</small>
-                      </span>
-                    </button>
+                    <section className="figure-task-group" key={groupId}>
+                      <div className="figure-task-group-heading">
+                        <strong>{group.label[uiLanguage]}</strong>
+                        <small>{group.description[uiLanguage]}</small>
+                      </div>
+                      <div
+                        className="figure-task-list"
+                        role="radiogroup"
+                        aria-label={group.label[uiLanguage]}
+                      >
+                        {group.promptIds.map((promptId) =>
+                          renderFigureTaskButton(promptId),
+                        )}
+                      </div>
+                    </section>
                   );
                 })}
+
+                <details
+                  className="figure-professional-types"
+                  open={professionalTypesOpen}
+                  onToggle={(event) =>
+                    setProfessionalTypesOpen(event.currentTarget.open)
+                  }
+                >
+                  <summary>
+                    <span>
+                      <strong>
+                        {
+                          FIGURE_PROMPT_GROUPS.professional.label[
+                            uiLanguage
+                          ]
+                        }
+                      </strong>
+                      <small>
+                        {
+                          FIGURE_PROMPT_GROUPS.professional.description[
+                            uiLanguage
+                          ]
+                        }
+                      </small>
+                    </span>
+                    <em>
+                      {professionalTypesOpen
+                        ? copy.professionalOpenHint
+                        : copy.professionalClosedHint}
+                    </em>
+                  </summary>
+                  <div
+                    className="figure-task-list"
+                    role="radiogroup"
+                    aria-label={
+                      FIGURE_PROMPT_GROUPS.professional.label[uiLanguage]
+                    }
+                  >
+                    {FIGURE_PROMPT_GROUPS.professional.promptIds.map(
+                      (promptId) => renderFigureTaskButton(promptId),
+                    )}
+                  </div>
+                </details>
               </div>
               <small>{copy.figureTasksHint}</small>
             </fieldset>

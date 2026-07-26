@@ -218,11 +218,26 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /可选编译稿/);
   assert.match(html, /本站不读取或保存论文/);
   assert.match(html, /引言图/);
+  assert.match(html, /任务定义图/);
   assert.match(html, /方法总览图/);
   assert.match(html, /核心机制细节图/);
+  assert.match(html, /训练–推理图/);
+  assert.match(html, /算法／协议图/);
+  assert.match(html, /数据构建图/);
+  assert.match(html, /系统／部署图/);
+  assert.match(html, /理论／概念关系图/);
+  assert.match(html, /几何／坐标关系图/);
+  assert.match(html, /综述／分类体系图/);
+  assert.match(html, /这张图主要需要回答什么？/);
+  assert.match(html, /核心论文图/);
+  assert.match(html, /过程与系统/);
+  assert.match(html, /更多专业图型/);
+  assert.match(html, /此页负责科学示意图，不负责实验数据图/);
+  assert.match(html, /真实 attention 或 feature heatmap/);
+  assert.match(html, /机制图中的示意 matrix、mask 与 token heatmap 仍可使用/);
   assert.match(html, /极简论文线稿/);
   assert.match(html, /轻插图技术图/);
-  assert.match(html, /三种图型分别保存自己的设置/);
+  assert.match(html, /11 种图型分别保存自己的设置/);
   assert.match(html, /论文占栏与画布/);
   assert.match(html, /单栏/);
   assert.match(html, /跨双栏/);
@@ -730,6 +745,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   const [
     figureConfig,
     figureArchitecture,
+    extendedFigureAdapters,
     figureComponent,
     figurePage,
     navigation,
@@ -741,6 +757,13 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
         "utf8",
       ),
       readFile(
+        new URL(
+          "../app/figures/extendedFigureAdapters.ts",
+          import.meta.url,
+        ),
+        "utf8",
+      ),
+      readFile(
         new URL("../app/figures/FigureWorkbench.tsx", import.meta.url),
         "utf8",
       ),
@@ -749,6 +772,21 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     ]);
 
   assert.match(figureConfig, /promptId:\s*"method-overview"/);
+  for (const promptId of [
+    "introduction",
+    "task-definition",
+    "method-overview",
+    "technical-detail",
+    "training-inference",
+    "algorithm-protocol",
+    "data-construction",
+    "system-deployment",
+    "theory-concept",
+    "geometry-coordinate",
+    "survey-taxonomy",
+  ]) {
+    assert.match(figureConfig, new RegExp(`"${promptId}"|${promptId}:`));
+  }
   assert.match(figureConfig, /placementId:\s*"double-column"/);
   assert.match(figureConfig, /aspectRatioId:\s*"landscape-2-1"/);
   assert.doesNotMatch(
@@ -767,6 +805,18 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(
     figureConfig,
     /"technical-detail":\s*\{[\s\S]*?placementId:\s*"single-column"[\s\S]*?aspectRatioId:\s*"landscape-4-3"[\s\S]*?accentColorRangeId:\s*"1-2"[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
+  );
+  assert.match(
+    figureConfig,
+    /"task-definition":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-3-2"[\s\S]*?styleId:\s*"illustrated-technical"/,
+  );
+  assert.match(
+    figureConfig,
+    /"training-inference":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-2-1"[\s\S]*?lineColorMode:\s*"semantic"/,
+  );
+  assert.match(
+    figureConfig,
+    /"geometry-coordinate":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-3-2"[\s\S]*?allowLightIllustrations:\s*true/,
   );
   assert.match(figureConfig, /ratio:\s*"4:3"/);
   assert.match(figureConfig, /ratio:\s*"3:2"/);
@@ -799,6 +849,12 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /"illustrated-technical"/);
   assert.doesNotMatch(figureConfig, /"structured-technical"|"light-academic"/);
   assert.match(figureConfig, /FIGURE_PROMPT_ORDER/);
+  assert.match(figureConfig, /FIGURE_PROMPT_GROUPS/);
+  assert.match(figureConfig, /核心论文图/);
+  assert.match(figureConfig, /过程与系统/);
+  assert.match(figureConfig, /更多专业图型/);
+  assert.match(figureConfig, /这张图主要需要回答什么？/);
+  assert.match(figureConfig, /不负责实验数据图/);
   assert.match(figureConfig, /buildFigurePrompt/);
   assert.match(
     figureConfig,
@@ -824,6 +880,10 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /Comic Sans MS/);
   assert.match(figureArchitecture, /export const COMMON_BASE/);
   assert.match(figureArchitecture, /export const FIGURE_TYPE_ADAPTERS/);
+  assert.match(
+    figureArchitecture,
+    /\.\.\.EXTENDED_FIGURE_TYPE_ADAPTERS/,
+  );
   assert.match(figureArchitecture, /export const OUTPUT_PROTOCOL/);
   assert.match(figureArchitecture, /逐字符一致/);
   assert.match(figureArchitecture, /主要视觉对象中/);
@@ -833,6 +893,38 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureArchitecture, /2–4 个主要区域/);
   assert.match(figureArchitecture, /3–5 个主要区域/);
   assert.match(figureArchitecture, /1–3 个核心公式/);
+  assert.match(figureArchitecture, /真实性能热图/);
+  assert.match(
+    extendedFigureAdapters,
+    /Task and Problem Formulation Figure/,
+  );
+  assert.match(extendedFigureAdapters, /Training and Inference Figure/);
+  assert.match(
+    extendedFigureAdapters,
+    /Algorithm, Decision, or Protocol Figure/,
+  );
+  assert.match(
+    extendedFigureAdapters,
+    /Data Construction and Annotation Figure/,
+  );
+  assert.match(
+    extendedFigureAdapters,
+    /System and Deployment Architecture Figure/,
+  );
+  assert.match(
+    extendedFigureAdapters,
+    /Theoretical and Conceptual Relation Figure/,
+  );
+  assert.match(
+    extendedFigureAdapters,
+    /Geometry and Coordinate-System Figure/,
+  );
+  assert.match(
+    extendedFigureAdapters,
+    /Survey Taxonomy and Research-Landscape Figure/,
+  );
+  assert.match(extendedFigureAdapters, /HYBRID OR VECTOR RECOMMENDED/);
+  assert.match(extendedFigureAdapters, /VECTOR RECOMMENDED/);
   assert.match(figureArchitecture, /FINAL IMAGE PROMPT/);
   assert.match(figureArchitecture, /VISUAL THESIS/);
   assert.match(figureArchitecture, /COMPOSITION/);
@@ -851,6 +943,9 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureComponent, /buildFigurePrompt\(\s*activePromptId/);
   assert.match(figureComponent, /setPromptLanguages/);
   assert.match(figureComponent, /selectFigurePrompt/);
+  assert.match(figureComponent, /figure-intent-question/);
+  assert.match(figureComponent, /FIGURE_PROMPT_GROUP_ORDER/);
+  assert.match(figureComponent, /figure-professional-types/);
   assert.match(figureComponent, /preferencesByPrompt/);
   assert.match(figureComponent, /createRecommendedPreferences/);
   assert.match(figureComponent, /setActivePromptId\(promptId\)/);
@@ -871,7 +966,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   );
   assert.match(
     figureComponent,
-    /DEFAULT_PROMPT_EXPANSION[\s\S]*?introduction:\s*true[\s\S]*?"method-overview":\s*true[\s\S]*?"technical-detail":\s*true/,
+    /DEFAULT_PROMPT_EXPANSION[\s\S]*?FIGURE_PROMPT_ORDER\.map\(\(promptId\) => \[promptId, true\]\)/,
   );
   assert.match(
     figureComponent,

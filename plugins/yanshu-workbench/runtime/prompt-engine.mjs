@@ -521,6 +521,1178 @@ var UI_COPY = {
   }
 };
 
+// app/figures/extendedFigureAdapters.ts
+var EXTENDED_FIGURE_TYPE_ADAPTERS = {
+  "task-definition": {
+    zh: `# Figure-Type Adapter \u2014 Task and Problem Formulation Figure
+
+\u672C\u6B21\u53EA\u8BBE\u8BA1\u4EFB\u52A1\u5B9A\u4E49\u56FE\u3002
+
+## \u56FE\u7684\u804C\u8D23
+
+\u8FD9\u5F20\u56FE\u5FC5\u987B\u8BA9\u8BFB\u8005\u5728\u4E0D\u8FDB\u5165\u65B9\u6CD5\u5B9E\u73B0\u7684\u60C5\u51B5\u4E0B\u51C6\u786E\u7406\u89E3\uFF1A
+
+1. \u8BBA\u6587\u5904\u7406\u7684\u57FA\u672C\u5BF9\u8C61\u3001\u6837\u672C\u6216\u73AF\u5883\u662F\u4EC0\u4E48\uFF1B
+2. \u6A21\u578B\u80FD\u591F\u89C2\u5BDF\u5230\u4EC0\u4E48\u8F93\u5165\uFF1B
+3. \u9700\u8981\u9884\u6D4B\u3001\u751F\u6210\u3001\u68C0\u7D22\u3001\u63A7\u5236\u6216\u6062\u590D\u4EC0\u4E48\u8F93\u51FA\uFF1B
+4. \u8F93\u5165\u3001\u5B9E\u4F53\u3001\u5173\u7CFB\u3001\u6807\u7B7E\u3001\u72B6\u6001\u6216\u52A8\u4F5C\u4E4B\u95F4\u5982\u4F55\u7EC4\u7EC7\uFF1B
+5. \u8BBA\u6587\u6B63\u5F0F\u5B9A\u4E49\u7684\u4EFB\u52A1\u8FB9\u754C\u548C\u7EA6\u675F\u662F\u4EC0\u4E48\u3002
+
+\u5B83\u4E0D\u662F\u5F15\u8A00\u52A8\u673A\u56FE\uFF0C\u4E5F\u4E0D\u662F\u65B9\u6CD5\u67B6\u6784\u56FE\u3002
+
+## \u8BC1\u636E\u8303\u56F4
+
+\u4F18\u5148\u8BFB\u53D6\uFF1A
+
+- Problem Formulation\uFF1B
+- Task Definition\uFF1B
+- Preliminaries\uFF1B
+- Dataset \u6216 Annotation Schema \u4E2D\u4E0E\u6807\u7B7E\u5B9A\u4E49\u6709\u5173\u7684\u5185\u5BB9\uFF1B
+- Method \u5F00\u5934\u5BF9\u8F93\u5165\u8F93\u51FA\u7684\u6B63\u5F0F\u8BF4\u660E\u3002
+
+Abstract \u548C Introduction \u53EA\u80FD\u7528\u4E8E\u7406\u89E3\u80CC\u666F\uFF0C\u4E0D\u80FD\u4EE3\u66FF\u6B63\u5F0F\u4EFB\u52A1\u5B9A\u4E49\u3002
+
+## \u63A8\u8350\u89C6\u89C9\u8BED\u6CD5
+
+\u6839\u636E\u8BBA\u6587\u771F\u5B9E\u4EFB\u52A1\u9009\u62E9\u4E00\u79CD\u4E3B\u8981\u7ED3\u6784\uFF1A
+
+- representative instance \u2192 structured input \u2192 structured output\uFF1B
+- entities and relations\uFF1B
+- observation \u2192 latent target \u2192 required prediction\uFF1B
+- source modality \u2192 aligned objects \u2192 output schema\uFF1B
+- state \u2192 action \u2192 transition\uFF1B
+- query \u2192 candidate evidence \u2192 target answer\uFF1B
+- nested labels or hierarchical output\uFF1B
+- coordinate frames and target variables\u3002
+
+\u4F18\u5148\u4F7F\u7528\u4E00\u4E2A\u4EE3\u8868\u6027\u6837\u4F8B\u3001\u5173\u7CFB\u56FE\u3001\u7ED3\u6784\u5316 tuple\u3001\u8F93\u51FA schema \u6216\u8F93\u5165\u8F93\u51FA\u6620\u5C04\u3002
+
+\u4E0D\u8981\u4F7F\u7528\u901A\u7528\u7684 Input \u2192 Model \u2192 Output \u4E09\u4E2A\u7A7A\u6846\u3002
+
+## \u5185\u5BB9\u9884\u7B97
+
+\u9ED8\u8BA4\u9650\u5236\u4E3A\uFF1A
+
+- 2\u20134 \u4E2A\u4E3B\u8981\u533A\u57DF\uFF1B
+- 6\u201310 \u4E2A\u4E3B\u8981\u89C6\u89C9\u5BF9\u8C61\uFF1B
+- 8\u201314 \u4E2A\u53EF\u89C1\u6807\u7B7E\uFF1B
+- 0\u20132 \u4E2A\u6B63\u5F0F\u5B9A\u4E49\u6216\u516C\u5F0F\uFF1B
+- 4\u20138 \u6761\u5173\u952E\u5173\u7CFB\uFF1B
+- \u6700\u591A\u4E00\u4E2A\u4EE3\u8868\u6027\u6837\u4F8B\u3002
+
+## \u5FC5\u987B\u5448\u73B0
+
+\u4F18\u5148\u4FDD\u7559\uFF1A
+
+- \u6B63\u5F0F\u8F93\u5165\uFF1B
+- \u6B63\u5F0F\u8F93\u51FA\uFF1B
+- \u6838\u5FC3\u5B9E\u4F53\uFF1B
+- \u8F93\u51FA\u7ED3\u6784\uFF1B
+- \u6807\u7B7E\u6216\u5173\u7CFB\u65B9\u5411\uFF1B
+- \u5DF2\u77E5\u91CF\u3001\u672A\u77E5\u91CF\u6216\u7EA6\u675F\uFF1B
+- \u4E00\u4E2A\u80FD\u5E2E\u52A9\u8BFB\u8005\u7406\u89E3\u4EFB\u52A1\u7684\u4EE3\u8868\u6027\u6620\u5C04\u3002
+
+## \u4E0D\u5F97\u5448\u73B0
+
+- \u73B0\u6709\u65B9\u6CD5\u7684\u5931\u8D25\u6545\u4E8B\uFF1B
+- \u672C\u6587\u65B9\u6CD5\u6A21\u5757\uFF1B
+- backbone\u3001encoder\u3001loss \u6216\u8BAD\u7EC3\u9636\u6BB5\uFF1B
+- \u5B9E\u9A8C\u7ED3\u679C\u548C\u6570\u636E\u7EDF\u8BA1\uFF1B
+- baseline\uFF1B
+- \u4E0D\u5C5E\u4E8E\u4EFB\u52A1\u5B9A\u4E49\u7684\u5B9E\u73B0\u7EC6\u8282\u3002
+
+\u6700\u7EC8\u82F1\u6587\u5236\u56FE Prompt \u63A7\u5236\u5728\u7EA6 450\u2013750 \u4E2A\u82F1\u6587\u8BCD\u3002`,
+    en: `# Figure-Type Adapter \u2014 Task and Problem Formulation Figure
+
+Design only a Task and Problem Formulation figure in this task.
+
+## Figure responsibility
+
+Without entering method implementation, the figure must let the reader understand precisely:
+
+1. what fundamental objects, samples, or environment the paper studies;
+2. what inputs the model can observe;
+3. what output must be predicted, generated, retrieved, controlled, or recovered;
+4. how inputs, entities, relations, labels, states, or actions are organized;
+5. what task boundary and constraints the paper formally defines.
+
+This is neither an Introduction motivation figure nor a method architecture.
+
+## Evidence scope
+
+Prioritize:
+
+- Problem Formulation;
+- Task Definition;
+- Preliminaries;
+- label definitions in the Dataset or Annotation Schema;
+- formal input and output definitions at the start of the Method.
+
+Use the Abstract and Introduction for context only; they cannot replace the formal task definition.
+
+## Recommended visual grammar
+
+Select one primary structure that matches the actual task:
+
+- representative instance \u2192 structured input \u2192 structured output;
+- entities and relations;
+- observation \u2192 latent target \u2192 required prediction;
+- source modality \u2192 aligned objects \u2192 output schema;
+- state \u2192 action \u2192 transition;
+- query \u2192 candidate evidence \u2192 target answer;
+- nested labels or hierarchical output;
+- coordinate frames and target variables.
+
+Prefer one representative instance, relation graph, structured tuple, output schema, or input\u2013output mapping.
+
+Do not use three empty boxes labeled Input \u2192 Model \u2192 Output.
+
+## Content budget
+
+Default limits:
+
+- 2\u20134 principal regions;
+- 6\u201310 principal visual objects;
+- 8\u201314 visible labels;
+- 0\u20132 formal definitions or equations;
+- 4\u20138 key relations;
+- at most one representative instance.
+
+## Required content
+
+Prioritize:
+
+- formal input;
+- formal output;
+- core entities;
+- output structure;
+- label or relation direction;
+- known quantities, unknown quantities, or constraints;
+- one representative mapping that materially clarifies the task.
+
+## Excluded content
+
+Do not include:
+
+- a failure story about existing methods;
+- modules from the proposed method;
+- a backbone, encoder, loss, or training stages;
+- experimental results or dataset statistics;
+- baselines;
+- implementation details outside the task definition.
+
+Keep the final English image-generation prompt to approximately 450\u2013750 words.`
+  },
+  "training-inference": {
+    zh: `# Figure-Type Adapter \u2014 Training and Inference Figure
+
+\u672C\u6B21\u53EA\u8BBE\u8BA1\u8BAD\u7EC3\u2013\u63A8\u7406\u5173\u7CFB\u56FE\u3002
+
+## \u56FE\u7684\u804C\u8D23
+
+\u8FD9\u5F20\u56FE\u5FC5\u987B\u6E05\u695A\u8BF4\u660E\uFF1A
+
+1. \u8BAD\u7EC3\u9636\u6BB5\u63A5\u6536\u54EA\u4E9B\u6570\u636E\u3001\u6807\u7B7E\u6216\u8F85\u52A9\u4FE1\u53F7\uFF1B
+2. \u54EA\u4E9B\u7EC4\u4EF6\u6216\u5206\u652F\u4EC5\u5728\u8BAD\u7EC3\u65F6\u5B58\u5728\uFF1B
+3. \u54EA\u4E9B\u53C2\u6570\u6216\u8868\u793A\u5728\u8BAD\u7EC3\u4E0E\u63A8\u7406\u4E4B\u95F4\u5171\u4EAB\uFF1B
+4. \u54EA\u4E9B\u7EC4\u4EF6\u5728\u8BAD\u7EC3\u540E\u88AB\u51BB\u7ED3\u3001\u5220\u9664\u6216\u4FDD\u7559\uFF1B
+5. \u63A8\u7406\u9636\u6BB5\u7684\u771F\u5B9E\u8F93\u5165\u3001\u8BA1\u7B97\u8DEF\u5F84\u548C\u8F93\u51FA\u662F\u4EC0\u4E48\u3002
+
+\u5B83\u4E0D\u662F\u5B8C\u6574\u65B9\u6CD5\u603B\u89C8\u56FE\uFF0C\u4E0D\u9700\u8981\u91CD\u65B0\u7ED8\u5236\u6240\u6709\u6A21\u5757\u5185\u90E8\u7ED3\u6784\u3002
+
+## \u8BC1\u636E\u8303\u56F4
+
+\u4F18\u5148\u8BFB\u53D6\uFF1A
+
+- Training Objective\uFF1B
+- Optimization\uFF1B
+- Inference\uFF1B
+- Implementation Details \u4E2D\u4E0E\u9636\u6BB5\u5DEE\u5F02\u6709\u5173\u7684\u90E8\u5206\uFF1B
+- Method \u4E2D\u660E\u786E\u6807\u8BB0 training-only\u3001inference-only\u3001frozen \u6216 shared \u7684\u5185\u5BB9\u3002
+
+\u4E0D\u5F97\u6839\u636E\u5E38\u89C1\u8BAD\u7EC3\u8303\u5F0F\u63A8\u6D4B\u4E0D\u5B58\u5728\u7684 teacher\u3001loss\u3001pseudo-label \u6216\u51BB\u7ED3\u8FC7\u7A0B\u3002
+
+## \u63A8\u8350\u89C6\u89C9\u8BED\u6CD5
+
+\u4F18\u5148\u91C7\u7528\uFF1A
+
+- \u4E0A\u65B9 training lane\u3001\u4E0B\u65B9 inference lane\uFF1B
+- \u5DE6\u4FA7\u5171\u4EAB\u6A21\u5757\u3001\u53F3\u4FA7\u9636\u6BB5\u4E13\u5C5E\u5206\u652F\uFF1B
+- \u4E00\u4E2A\u5171\u4EAB\u8BA1\u7B97 rail \u8FDE\u63A5\u4E24\u4E2A\u9636\u6BB5\uFF1B
+- training-only supervision \u4EE5\u660E\u786E\u7684\u8F85\u52A9\u8FDE\u63A5\u8868\u793A\uFF1B
+- \u4ECE trained parameters \u5230 inference path \u7684\u51BB\u7ED3\u6216\u7EE7\u627F\u5173\u7CFB\u3002
+
+\u4E0D\u8981\u628A\u6574\u4E2A\u65B9\u6CD5\u5728\u4E0A\u4E0B\u4E24\u6761\u8F68\u9053\u5B8C\u6574\u590D\u5236\u4E24\u904D\u3002
+
+\u5171\u4EAB\u6A21\u5757\u53EA\u7ED8\u5236\u4E00\u6B21\uFF0C\u5E76\u901A\u8FC7 shared\u3001reused \u6216 frozen connection \u8868\u8FBE\u590D\u7528\u3002
+
+## \u5185\u5BB9\u9884\u7B97
+
+\u9ED8\u8BA4\u9650\u5236\u4E3A\uFF1A
+
+- 2 \u6761\u4E3B\u8F68\u9053\uFF1B
+- 6\u201312 \u4E2A\u4E3B\u8981\u89C6\u89C9\u5BF9\u8C61\uFF1B
+- 10\u201316 \u4E2A\u53EF\u89C1\u6807\u7B7E\uFF1B
+- 0\u20132 \u4E2A\u6838\u5FC3 loss \u6216\u8BAD\u7EC3\u76EE\u6807\uFF1B
+- 6\u201310 \u6761\u5173\u952E\u8FDE\u63A5\uFF1B
+- training-only \u5206\u652F\u4E0D\u8D85\u8FC7\u603B\u9762\u79EF\u7684 30%\u3002
+
+## \u89C6\u89C9\u8BED\u4E49
+
+\u5FC5\u987B\u660E\u786E\u533A\u5206\uFF1A
+
+- trainable\uFF1B
+- frozen\uFF1B
+- training-only\uFF1B
+- inference-only\uFF1B
+- shared\uFF1B
+- discarded after training\u3002
+
+\u8FD9\u4E9B\u533A\u522B\u4E0D\u80FD\u53EA\u4F9D\u8D56\u989C\u8272\uFF0C\u8FD8\u5E94\u901A\u8FC7\u4F4D\u7F6E\u3001\u8FB9\u754C\u3001\u7EBF\u578B\u6216\u76F4\u63A5\u6807\u7B7E\u8868\u8FBE\u3002
+
+## \u4E0D\u5F97\u5448\u73B0
+
+- \u5168\u90E8 Method \u7EC6\u8282\uFF1B
+- \u6BCF\u4E2A loss \u7684\u5B8C\u6574\u63A8\u5BFC\uFF1B
+- \u4F18\u5316\u5668\u3001\u5B66\u4E60\u7387\u548C epoch\uFF1B
+- \u5B9E\u9A8C\u8868\u73B0\uFF1B
+- \u8BAD\u7EC3\u66F2\u7EBF\uFF1B
+- \u4E0E\u8BAD\u7EC3\u2013\u63A8\u7406\u5DEE\u5F02\u65E0\u5173\u7684\u8F85\u52A9\u6A21\u5757\u3002
+
+\u6700\u7EC8\u82F1\u6587\u5236\u56FE Prompt \u63A7\u5236\u5728\u7EA6 500\u2013850 \u4E2A\u82F1\u6587\u8BCD\u3002`,
+    en: `# Figure-Type Adapter \u2014 Training and Inference Figure
+
+Design only a Training and Inference relationship figure in this task.
+
+## Figure responsibility
+
+The figure must make clear:
+
+1. which data, labels, or auxiliary signals enter training;
+2. which components or branches exist only during training;
+3. which parameters or representations are shared between training and inference;
+4. which components are frozen, discarded, or retained after training;
+5. the real input, computation path, and output used during inference.
+
+This is not a complete Method Overview and does not need to redraw the internal structure of every module.
+
+## Evidence scope
+
+Prioritize:
+
+- Training Objective;
+- Optimization;
+- Inference;
+- phase-specific information in Implementation Details;
+- content explicitly marked training-only, inference-only, frozen, or shared in the Method.
+
+Do not infer a teacher, loss, pseudo-label process, or freezing step merely because it is common in similar work.
+
+## Recommended visual grammar
+
+Prefer:
+
+- a training lane above and an inference lane below;
+- shared modules on one side and phase-specific branches on the other;
+- one shared-computation rail connecting both phases;
+- explicit auxiliary connections for training-only supervision;
+- a freezing or inheritance relation from trained parameters to the inference path.
+
+Do not duplicate the entire method once in each lane.
+
+Draw a shared module once and express reuse with a shared, reused, or frozen connection.
+
+## Content budget
+
+Default limits:
+
+- 2 principal lanes;
+- 6\u201312 principal visual objects;
+- 10\u201316 visible labels;
+- 0\u20132 core losses or training objectives;
+- 6\u201310 key connections;
+- training-only branches occupying no more than 30% of the canvas.
+
+## Visual semantics
+
+Clearly distinguish:
+
+- trainable;
+- frozen;
+- training-only;
+- inference-only;
+- shared;
+- discarded after training.
+
+Do not rely on color alone. Also use position, boundaries, line styles, or direct labels.
+
+## Excluded content
+
+Do not include:
+
+- every Method detail;
+- a complete derivation of every loss;
+- optimizer, learning rate, or epoch settings;
+- experimental performance;
+- training curves;
+- auxiliary modules unrelated to the training\u2013inference difference.
+
+Keep the final English image-generation prompt to approximately 500\u2013850 words.`
+  },
+  "algorithm-protocol": {
+    zh: `# Figure-Type Adapter \u2014 Algorithm, Decision, or Protocol Figure
+
+\u672C\u6B21\u53EA\u8BBE\u8BA1\u7B97\u6CD5\u3001\u51B3\u7B56\u6216\u534F\u8BAE\u8FC7\u7A0B\u56FE\u3002
+
+## \u56FE\u7684\u804C\u8D23
+
+\u8FD9\u5F20\u56FE\u5FC5\u987B\u8BF4\u660E\u4E00\u4E2A\u8FC7\u7A0B\u5982\u4F55\u6267\u884C\uFF1A
+
+1. \u521D\u59CB\u72B6\u6001\u3001\u8F93\u5165\u6216\u58F0\u660E\u6761\u4EF6\u662F\u4EC0\u4E48\uFF1B
+2. \u6BCF\u4E00\u6B65\u80FD\u591F\u89C2\u5BDF\u4EC0\u4E48\uFF1B
+3. \u6267\u884C\u4EC0\u4E48\u51B3\u7B56\u3001\u66F4\u65B0\u6216\u53D8\u6362\uFF1B
+4. \u65B0\u72B6\u6001\u5982\u4F55\u53CD\u9988\u5230\u4E0B\u4E00\u6B65\uFF1B
+5. \u4F55\u65F6\u505C\u6B62\u3001\u63A5\u53D7\u3001\u62D2\u7EDD\u3001\u51BB\u7ED3\u6216\u8F93\u51FA\uFF1B
+6. offline preparation \u4E0E online execution \u662F\u5426\u5B58\u5728\u8FB9\u754C\u3002
+
+\u5B83\u4E0D\u662F\u795E\u7ECF\u7F51\u7EDC\u67B6\u6784\u56FE\uFF0C\u4E5F\u4E0D\u662F\u4EE3\u7801\u6D41\u7A0B\u56FE\u3002
+
+## \u9996\u5148\u8BC6\u522B\u8FC7\u7A0B\u7C7B\u578B
+
+\u6839\u636E\u8BBA\u6587\u771F\u5B9E\u7ED3\u6784\u9009\u62E9\uFF1A
+
+- iterative update\uFF1B
+- sequential decision\uFF1B
+- declare\u2013select\u2013freeze\u2013evaluate protocol\uFF1B
+- propose\u2013verify\u2013revise\uFF1B
+- retrieve\u2013rank\u2013decide\uFF1B
+- observe\u2013act\u2013transition\uFF1B
+- initialize\u2013optimize\u2013terminate\uFF1B
+- calibrate\u2013evaluate\u2013correct\uFF1B
+- planning\u2013execution\u2013feedback\u3002
+
+\u53EA\u9009\u62E9\u4E00\u4E2A\u4E3B\u8FC7\u7A0B\u3002
+
+## \u63A8\u8350\u89C6\u89C9\u8BED\u6CD5
+
+\u4F18\u5148\u4F7F\u7528\uFF1A
+
+- \u521D\u59CB\u72B6\u6001\uFF1B
+- \u4E00\u7EC4\u5173\u952E\u72B6\u6001\u5FEB\u7167\uFF1B
+- \u4E00\u4E2A update \u6216 decision \u6838\u5FC3\uFF1B
+- \u4E00\u6761\u771F\u5B9E\u53CD\u9988\u56DE\u8DEF\uFF1B
+- \u4E00\u4E2A stopping or acceptance boundary\uFF1B
+- \u4E00\u4E2A\u6700\u7EC8\u8F93\u51FA\u3002
+
+\u53EA\u6709\u771F\u5B9E\u5FAA\u73AF\u624D\u7ED8\u5236 loop\u3002\u4E0D\u5F97\u4E3A\u4E86\u89C6\u89C9\u590D\u6742\u6027\u6DFB\u52A0\u53CD\u9988\u7BAD\u5934\u3002
+
+\u5BF9\u4E8E protocol \u7C7B\u8BBA\u6587\uFF0C\u5E94\u5F3A\u8C03\u9636\u6BB5\u8FB9\u754C\u3001\u6570\u636E\u9694\u79BB\u3001\u51BB\u7ED3\u65F6\u523B\u548C\u6BD4\u8F83\u5173\u7CFB\uFF0C\u800C\u4E0D\u662F\u628A\u5B83\u753B\u6210 learned model\u3002
+
+## \u5185\u5BB9\u9884\u7B97
+
+\u9ED8\u8BA4\u9650\u5236\u4E3A\uFF1A
+
+- 3\u20136 \u4E2A\u6838\u5FC3\u9636\u6BB5\uFF1B
+- 7\u201312 \u4E2A\u4E3B\u8981\u89C6\u89C9\u5BF9\u8C61\uFF1B
+- 10\u201316 \u4E2A\u53EF\u89C1\u6807\u7B7E\uFF1B
+- 1\u20133 \u4E2A\u66F4\u65B0\u3001\u7EA6\u675F\u6216\u505C\u6B62\u516C\u5F0F\uFF1B
+- \u6700\u591A\u4E00\u4E2A\u4E3B\u5FAA\u73AF\uFF1B
+- 6\u201312 \u6761\u5173\u952E\u8FDE\u63A5\u3002
+
+## \u5FC5\u987B\u5448\u73B0
+
+- state \u6216 process input\uFF1B
+- update / decision\uFF1B
+- observation or evidence\uFF1B
+- stopping or transition condition\uFF1B
+- output\uFF1B
+- \u5FC5\u8981\u7684 offline / online \u8FB9\u754C\u3002
+
+## \u4E0D\u5F97\u5448\u73B0
+
+- \u9010\u884C\u4F2A\u4EE3\u7801\uFF1B
+- \u6240\u6709 if\u2013else\uFF1B
+- \u6BCF\u4E00\u4E2A\u4E2D\u95F4\u53D8\u91CF\uFF1B
+- \u4EE3\u7801\u51FD\u6570\u540D\uFF1B
+- \u8D85\u53C2\u6570\uFF1B
+- \u5B9E\u9A8C\u6027\u80FD\uFF1B
+- \u4E0D\u5B58\u5728\u7684\u8BAD\u7EC3\u8FC7\u7A0B\uFF1B
+- \u5C06\u4E0D\u540C comparator \u6216 variant \u8BEF\u753B\u6210\u8FDE\u7EED\u6267\u884C\u9636\u6BB5\u3002
+
+\u6700\u7EC8\u82F1\u6587\u5236\u56FE Prompt \u63A7\u5236\u5728\u7EA6 550\u2013900 \u4E2A\u82F1\u6587\u8BCD\u3002`,
+    en: `# Figure-Type Adapter \u2014 Algorithm, Decision, or Protocol Figure
+
+Design only an Algorithm, Decision, or Protocol process figure in this task.
+
+## Figure responsibility
+
+The figure must explain how one process executes:
+
+1. its initial state, input, or declared condition;
+2. what can be observed at each step;
+3. what decision, update, or transformation is performed;
+4. how the new state feeds the next step;
+5. when the process stops, accepts, rejects, freezes, or emits an output;
+6. whether an offline-preparation boundary and an online-execution boundary exist.
+
+This is neither a neural-network architecture nor a code flowchart.
+
+## Identify the process type first
+
+Choose the structure supported by the paper:
+
+- iterative update;
+- sequential decision;
+- declare\u2013select\u2013freeze\u2013evaluate protocol;
+- propose\u2013verify\u2013revise;
+- retrieve\u2013rank\u2013decide;
+- observe\u2013act\u2013transition;
+- initialize\u2013optimize\u2013terminate;
+- calibrate\u2013evaluate\u2013correct;
+- planning\u2013execution\u2013feedback.
+
+Choose exactly one principal process.
+
+## Recommended visual grammar
+
+Prefer:
+
+- an initial state;
+- a small set of decisive state snapshots;
+- one update or decision core;
+- one real feedback loop;
+- one stopping or acceptance boundary;
+- one final output.
+
+Draw a loop only when the paper contains a real loop. Never add feedback arrows merely to increase visual complexity.
+
+For a protocol paper, emphasize phase boundaries, data isolation, freezing points, and comparison relations instead of depicting a learned model.
+
+## Content budget
+
+Default limits:
+
+- 3\u20136 core stages;
+- 7\u201312 principal visual objects;
+- 10\u201316 visible labels;
+- 1\u20133 update, constraint, or stopping equations;
+- at most one principal loop;
+- 6\u201312 key connections.
+
+## Required content
+
+Include:
+
+- state or process input;
+- update or decision;
+- observation or evidence;
+- stopping or transition condition;
+- output;
+- necessary offline and online boundaries.
+
+## Excluded content
+
+Do not include:
+
+- line-by-line pseudocode;
+- every if\u2013else branch;
+- every intermediate variable;
+- code function names;
+- hyperparameters;
+- experimental performance;
+- a training process that does not exist;
+- different comparators or variants misrepresented as consecutive execution stages.
+
+Keep the final English image-generation prompt to approximately 550\u2013900 words.`
+  },
+  "data-construction": {
+    zh: `# Figure-Type Adapter \u2014 Data Construction and Annotation Figure
+
+\u672C\u6B21\u53EA\u8BBE\u8BA1\u6570\u636E\u6784\u5EFA\u3001\u6807\u6CE8\u6216\u6570\u636E\u6CBB\u7406\u6D41\u7A0B\u56FE\u3002
+
+## \u56FE\u7684\u804C\u8D23
+
+\u8FD9\u5F20\u56FE\u5FC5\u987B\u8BF4\u660E\uFF1A
+
+1. \u539F\u59CB\u6570\u636E\u6765\u81EA\u54EA\u4E9B\u771F\u5B9E\u6765\u6E90\uFF1B
+2. \u6570\u636E\u7ECF\u5386\u54EA\u4E9B\u7B5B\u9009\u3001\u6E05\u6D17\u3001\u5207\u5206\u6216\u8F6C\u6362\uFF1B
+3. \u6807\u7B7E\u3001\u4F2A\u6807\u7B7E\u6216\u7ED3\u6784\u5316\u6807\u6CE8\u5982\u4F55\u4EA7\u751F\uFF1B
+4. \u4EBA\u5DE5\u4E0E\u81EA\u52A8\u6B65\u9AA4\u5982\u4F55\u914D\u5408\uFF1B
+5. \u8D28\u91CF\u63A7\u5236\u3001\u51B2\u7A81\u5904\u7406\u548C\u53BB\u91CD\u5982\u4F55\u8FDB\u884C\uFF1B
+6. \u6700\u7EC8\u5F62\u6210\u4EC0\u4E48\u6837\u7684\u6570\u636E\u5355\u4F4D\u3001\u6807\u7B7E\u7ED3\u6784\u6216\u53D1\u5E03\u7248\u672C\u3002
+
+\u5B83\u4E0D\u662F\u6570\u636E\u7EDF\u8BA1\u56FE\uFF0C\u4E5F\u4E0D\u662F\u5B9E\u9A8C\u8BBE\u7F6E\u56FE\u3002
+
+## \u63A8\u8350\u89C6\u89C9\u8BED\u6CD5
+
+\u6839\u636E\u771F\u5B9E\u6D41\u7A0B\u9009\u62E9\uFF1A
+
+- source provenance \u2192 filtering funnel \u2192 annotation \u2192 quality control \u2192 release\uFF1B
+- multiple sources \u2192 normalization \u2192 alignment \u2192 merge\uFF1B
+- automatic proposal \u2192 human review \u2192 adjudication\uFF1B
+- raw multimodal item \u2192 synchronized components \u2192 structured sample\uFF1B
+- weak label \u2192 verification \u2192 accepted / rejected branches\u3002
+
+\u4F7F\u7528\u6570\u636E\u8840\u7F18\u3001\u6F0F\u6597\u3001\u5206\u652F\u3001\u6C47\u5408\u3001\u8D28\u91CF\u95E8\u548C\u6700\u7EC8 schema \u8868\u8FBE\u3002
+
+## \u5185\u5BB9\u9884\u7B97
+
+\u9ED8\u8BA4\u9650\u5236\u4E3A\uFF1A
+
+- 4\u20136 \u4E2A\u4E3B\u8981\u9636\u6BB5\uFF1B
+- 8\u201314 \u4E2A\u89C6\u89C9\u5BF9\u8C61\uFF1B
+- 10\u201318 \u4E2A\u53EF\u89C1\u6807\u7B7E\uFF1B
+- 0\u20131 \u4E2A\u5FC5\u8981\u89C4\u5219\u516C\u5F0F\uFF1B
+- 8\u201312 \u6761\u5173\u952E\u8FDE\u63A5\u3002
+
+\u53EA\u6709\u6837\u672C\u6570\u91CF\u672C\u8EAB\u6784\u6210\u6570\u636E\u5B9A\u4E49\u6216\u7248\u672C\u8FB9\u754C\u65F6\uFF0C\u624D\u5141\u8BB8\u5C55\u793A\u5C11\u91CF\u786E\u5B9A\u6570\u91CF\u3002\u4E0D\u5F97\u5C55\u793A\u5B9E\u9A8C\u6027\u80FD\u6570\u5B57\u3002
+
+## \u5FC5\u987B\u533A\u5206
+
+- raw source\uFF1B
+- automatic processing\uFF1B
+- human annotation\uFF1B
+- quality control\uFF1B
+- final sample\uFF1B
+- train / validation / test split\uFF0C\u53EA\u6709\u5176\u5212\u5206\u8FC7\u7A0B\u5C5E\u4E8E\u6570\u636E\u8D21\u732E\u65F6\u624D\u5C55\u793A\u3002
+
+## \u4E0D\u5F97\u5448\u73B0
+
+- \u6A21\u578B\u6027\u80FD\uFF1B
+- \u6570\u636E\u5206\u5E03\u67F1\u72B6\u56FE\uFF1B
+- \u7C7B\u522B\u6BD4\u4F8B\u56FE\uFF1B
+- \u8BAD\u7EC3\u4EE3\u7801\uFF1B
+- \u4E0D\u5C5E\u4E8E\u6784\u5EFA\u8FC7\u7A0B\u7684\u6A21\u578B\u67B6\u6784\uFF1B
+- \u672A\u5728\u8BBA\u6587\u4E2D\u8BF4\u660E\u7684\u6570\u636E\u6765\u6E90\uFF1B
+- \u5C06\u4EBA\u5DE5\u6B65\u9AA4\u4F2A\u88C5\u6210\u5B8C\u5168\u81EA\u52A8\u8FC7\u7A0B\u3002
+
+\u6700\u7EC8\u82F1\u6587\u5236\u56FE Prompt \u63A7\u5236\u5728\u7EA6 500\u2013850 \u4E2A\u82F1\u6587\u8BCD\u3002`,
+    en: `# Figure-Type Adapter \u2014 Data Construction and Annotation Figure
+
+Design only a Data Construction, Annotation, or Data-Governance process figure in this task.
+
+## Figure responsibility
+
+The figure must explain:
+
+1. the real provenance of the raw data;
+2. the filtering, cleaning, splitting, or transformation steps;
+3. how labels, pseudo-labels, or structured annotations are produced;
+4. how human and automatic steps cooperate;
+5. how quality control, conflict resolution, and deduplication work;
+6. the resulting data unit, label structure, or released version.
+
+This is neither a data-statistics plot nor an experimental-setup figure.
+
+## Recommended visual grammar
+
+Select a structure matching the real process:
+
+- source provenance \u2192 filtering funnel \u2192 annotation \u2192 quality control \u2192 release;
+- multiple sources \u2192 normalization \u2192 alignment \u2192 merge;
+- automatic proposal \u2192 human review \u2192 adjudication;
+- raw multimodal item \u2192 synchronized components \u2192 structured sample;
+- weak label \u2192 verification \u2192 accepted / rejected branches.
+
+Use data lineage, funnels, branches, merges, quality gates, and a final schema.
+
+## Content budget
+
+Default limits:
+
+- 4\u20136 principal stages;
+- 8\u201314 visual objects;
+- 10\u201318 visible labels;
+- 0\u20131 necessary rule equation;
+- 8\u201312 key connections.
+
+Show a small number of exact sample counts only when the count itself defines the dataset or a version boundary. Never show experimental performance numbers.
+
+## Required distinctions
+
+Clearly distinguish:
+
+- raw source;
+- automatic processing;
+- human annotation;
+- quality control;
+- final sample;
+- train / validation / test split only when the split procedure is itself a data contribution.
+
+## Excluded content
+
+Do not include:
+
+- model performance;
+- data-distribution bar charts;
+- class-proportion charts;
+- training code;
+- a model architecture unrelated to construction;
+- data sources not documented by the paper;
+- a human step misrepresented as fully automatic.
+
+Keep the final English image-generation prompt to approximately 500\u2013850 words.`
+  },
+  "system-deployment": {
+    zh: `# Figure-Type Adapter \u2014 System and Deployment Architecture Figure
+
+\u672C\u6B21\u53EA\u8BBE\u8BA1\u7CFB\u7EDF\u6216\u90E8\u7F72\u67B6\u6784\u56FE\u3002
+
+## \u56FE\u7684\u804C\u8D23
+
+\u8FD9\u5F20\u56FE\u5FC5\u987B\u8BF4\u660E\uFF1A
+
+1. \u7CFB\u7EDF\u5305\u542B\u54EA\u4E9B\u8FD0\u884C\u5B9E\u4F53\uFF1B
+2. \u5B83\u4EEC\u4F4D\u4E8E\u8BBE\u5907\u7AEF\u3001\u8FB9\u7F18\u7AEF\u3001\u670D\u52A1\u5668\u7AEF\u3001\u4E91\u7AEF\u6216\u5916\u90E8\u670D\u52A1\u4E2D\u7684\u54EA\u91CC\uFF1B
+3. \u4E0D\u540C\u7EC4\u4EF6\u53D1\u9001\u3001\u63A5\u6536\u6216\u5B58\u50A8\u4EC0\u4E48\u4FE1\u606F\uFF1B
+4. offline \u4E0E online \u8FC7\u7A0B\u5982\u4F55\u5206\u79BB\uFF1B
+5. \u54EA\u4E9B\u8FB9\u754C\u6D89\u53CA\u9690\u79C1\u3001\u6743\u9650\u3001\u7F13\u5B58\u3001\u6570\u636E\u5E93\u3001\u5DE5\u5177\u6216\u5916\u90E8 API\uFF1B
+6. \u7528\u6237\u8BF7\u6C42\u5982\u4F55\u5F62\u6210\u6700\u7EC8\u54CD\u5E94\u6216\u51B3\u7B56\u3002
+
+\u5B83\u4E0D\u662F\u65B9\u6CD5\u5185\u90E8\u7B97\u5B50\u56FE\uFF0C\u4E5F\u4E0D\u662F\u4EA7\u54C1\u5BA3\u4F20\u56FE\u3002
+
+## \u63A8\u8350\u89C6\u89C9\u8BED\u6CD5
+
+\u4F18\u5148\u4F7F\u7528\uFF1A
+
+- horizontal or vertical swimlanes\uFF1B
+- client / edge / server / external-service zones\uFF1B
+- agent / tool / memory / environment interactions\uFF1B
+- offline preparation lane and online serving lane\uFF1B
+- request flow and response flow\uFF1B
+- shared service or storage boundary\u3002
+
+\u533A\u57DF\u5FC5\u987B\u7531\u771F\u5B9E\u90E8\u7F72\u8FB9\u754C\u5B9A\u4E49\uFF0C\u800C\u4E0D\u662F\u4E3A\u4E86\u753B\u9762\u6574\u9F50\u968F\u610F\u5206\u7EC4\u3002
+
+## \u5185\u5BB9\u9884\u7B97
+
+\u9ED8\u8BA4\u9650\u5236\u4E3A\uFF1A
+
+- 3\u20135 \u4E2A\u8FD0\u884C\u533A\u57DF\uFF1B
+- 8\u201314 \u4E2A\u4E3B\u8981\u7EC4\u4EF6\uFF1B
+- 12\u201318 \u4E2A\u53EF\u89C1\u6807\u7B7E\uFF1B
+- 8\u201314 \u6761\u6D88\u606F\u6216\u63A7\u5236\u8FDE\u63A5\uFF1B
+- 0\u20131 \u4E2A\u5FC5\u8981\u63A5\u53E3 schema\u3002
+
+## \u8FDE\u63A5\u8BED\u4E49
+
+\u6BCF\u6761\u91CD\u8981\u8FDE\u63A5\u5E94\u660E\u786E\u5C5E\u4E8E\uFF1A
+
+- request\uFF1B
+- data\uFF1B
+- control\uFF1B
+- model update\uFF1B
+- retrieval\uFF1B
+- storage read/write\uFF1B
+- response\u3002
+
+\u4E0D\u8981\u628A\u6240\u6709\u8FDE\u63A5\u90FD\u753B\u6210\u6CA1\u6709\u8BED\u4E49\u7684\u540C\u4E00\u79CD\u6570\u636E\u7BAD\u5934\u3002
+
+## \u4E0D\u5F97\u5448\u73B0
+
+- \u4E0E\u90E8\u7F72\u65E0\u5173\u7684\u5B8C\u6574\u7B97\u6CD5\u5185\u90E8\u7EC6\u8282\uFF1B
+- \u5177\u4F53\u5B9E\u9A8C\u541E\u5410\u91CF\u548C\u5EF6\u8FDF\uFF1B
+- \u672A\u5B9E\u73B0\u7684\u670D\u52A1\uFF1B
+- \u8425\u9500\u5F0F\u4E91\u3001\u673A\u5668\u4EBA\u6216\u7528\u6237\u63D2\u753B\uFF1B
+- \u65E0\u6765\u6E90\u7684\u7F51\u7EDC\u8FDE\u63A5\uFF1B
+- \u5C06 offline training \u9519\u753B\u6210 online serving\u3002
+
+\u6700\u7EC8\u82F1\u6587\u5236\u56FE Prompt \u63A7\u5236\u5728\u7EA6 550\u2013900 \u4E2A\u82F1\u6587\u8BCD\u3002`,
+    en: `# Figure-Type Adapter \u2014 System and Deployment Architecture Figure
+
+Design only a System or Deployment Architecture figure in this task.
+
+## Figure responsibility
+
+The figure must explain:
+
+1. which runtime entities belong to the system;
+2. whether each entity runs on a device, edge node, server, cloud service, or external service;
+3. what information each component sends, receives, or stores;
+4. how offline and online processes are separated;
+5. which boundaries involve privacy, permission, cache, database, tools, or external APIs;
+6. how a user request becomes the final response or decision.
+
+This is neither an internal operator diagram nor a product-marketing illustration.
+
+## Recommended visual grammar
+
+Prefer:
+
+- horizontal or vertical swimlanes;
+- client / edge / server / external-service zones;
+- agent / tool / memory / environment interactions;
+- an offline-preparation lane and an online-serving lane;
+- request flow and response flow;
+- a shared-service or storage boundary.
+
+Define regions by real deployment boundaries, never by arbitrary visual grouping.
+
+## Content budget
+
+Default limits:
+
+- 3\u20135 runtime regions;
+- 8\u201314 principal components;
+- 12\u201318 visible labels;
+- 8\u201314 message or control connections;
+- 0\u20131 necessary interface schema.
+
+## Connection semantics
+
+Classify every important connection as one of:
+
+- request;
+- data;
+- control;
+- model update;
+- retrieval;
+- storage read/write;
+- response.
+
+Do not render every connection as the same unlabeled data arrow.
+
+## Excluded content
+
+Do not include:
+
+- full internal algorithm details unrelated to deployment;
+- experimental throughput or latency;
+- services that were not implemented;
+- marketing-style clouds, robots, or user illustrations;
+- network links without a documented source;
+- offline training misrepresented as online serving.
+
+Keep the final English image-generation prompt to approximately 550\u2013900 words.`
+  },
+  "theory-concept": {
+    zh: `# Figure-Type Adapter \u2014 Theoretical and Conceptual Relation Figure
+
+\u672C\u6B21\u53EA\u8BBE\u8BA1\u7406\u8BBA\u3001\u5F62\u5F0F\u5316\u5B9A\u4E49\u6216\u6982\u5FF5\u5173\u7CFB\u56FE\u3002
+
+## \u56FE\u7684\u804C\u8D23
+
+\u8FD9\u5F20\u56FE\u5FC5\u987B\u5E2E\u52A9\u8BFB\u8005\u7406\u89E3\uFF1A
+
+1. \u8BBA\u6587\u5B9A\u4E49\u4E86\u54EA\u4E9B\u6838\u5FC3\u5BF9\u8C61\uFF1B
+2. \u5BF9\u8C61\u4E4B\u95F4\u5B58\u5728\u4EC0\u4E48\u5305\u542B\u3001\u504F\u5E8F\u3001\u4F9D\u8D56\u3001\u7B49\u4EF7\u3001\u5206\u89E3\u6216\u7EA6\u675F\u5173\u7CFB\uFF1B
+3. \u54EA\u4E9B\u5047\u8BBE\u652F\u6301\u54EA\u4E9B\u547D\u9898\uFF1B
+4. \u54EA\u4E2A\u91CF\u80FD\u591F\u4ECE\u53E6\u4E00\u4E2A\u91CF\u6062\u590D\u6216\u63A8\u5BFC\uFF1B
+5. \u54EA\u4E9B\u6982\u5FF5\u76F8\u4F3C\u4F46\u4E0D\u80FD\u6DF7\u540C\uFF1B
+6. \u8BBA\u6587\u6838\u5FC3\u7ED3\u8BBA\u5728\u5F62\u5F0F\u4F53\u7CFB\u4E2D\u7684\u4F4D\u7F6E\u662F\u4EC0\u4E48\u3002
+
+\u5B83\u4E0D\u662F\u7B97\u6CD5\u6267\u884C\u6D41\u7A0B\uFF0C\u4E5F\u4E0D\u662F Method pipeline\u3002
+
+## \u63A8\u8350\u89C6\u89C9\u8BED\u6CD5
+
+\u6839\u636E\u8BBA\u6587\u771F\u5B9E\u7ED3\u6784\u9009\u62E9\uFF1A
+
+- nested sets\uFF1B
+- partial order\uFF1B
+- dependency DAG\uFF1B
+- assumption \u2192 proposition \u2192 consequence\uFF1B
+- decomposition identity\uFF1B
+- commutative diagram\uFF1B
+- paired concepts with a separating condition\uFF1B
+- hierarchy of admissible classes\uFF1B
+- relation graph\u3002
+
+\u4E0D\u8981\u56E0\u4E3A\u9605\u8BFB\u4E60\u60EF\u5F3A\u884C\u4F7F\u7528\u5DE6\u5230\u53F3\u6D41\u6C34\u7EBF\u3002
+
+## \u5185\u5BB9\u9884\u7B97
+
+\u9ED8\u8BA4\u9650\u5236\u4E3A\uFF1A
+
+- 2\u20135 \u4E2A\u6982\u5FF5\u533A\u57DF\uFF1B
+- 6\u201312 \u4E2A\u6838\u5FC3\u5BF9\u8C61\uFF1B
+- 8\u201316 \u4E2A\u53EF\u89C1\u6807\u7B7E\uFF1B
+- 1\u20133 \u4E2A\u6B63\u5F0F\u516C\u5F0F\uFF1B
+- 5\u201310 \u6761\u7406\u8BBA\u5173\u7CFB\u3002
+
+\u82E5\u6807\u7B7E\u6216\u516C\u5F0F\u66F4\u591A\uFF0C\u6807\u8BB0\u4E3A HYBRID OR VECTOR RECOMMENDED\u3002
+
+## \u5173\u7CFB\u6807\u7B7E
+
+\u5FC5\u987B\u51C6\u786E\u533A\u5206\uFF1A
+
+- subset\uFF1B
+- implication\uFF1B
+- equivalence\uFF1B
+- recoverability\uFF1B
+- decomposition\uFF1B
+- condition\uFF1B
+- comparison\uFF1B
+- causal relation\u3002
+
+\u6CA1\u6709\u8BBA\u6587\u8BC1\u636E\u65F6\u4E0D\u5F97\u628A\u666E\u901A\u5173\u8054\u753B\u6210\u56E0\u679C\u5173\u7CFB\u3002
+
+## \u4E0D\u5F97\u5448\u73B0
+
+- \u8BC1\u660E\u5168\u6587\uFF1B
+- \u957F\u7BC7 theorem \u6587\u5B57\uFF1B
+- \u65B9\u6CD5\u5185\u90E8\u5B9E\u73B0\uFF1B
+- \u5B9E\u9A8C\u7ED3\u679C\uFF1B
+- \u6570\u503C\u4F8B\u5B50\uFF0C\u9664\u975E\u5B83\u662F\u7406\u89E3\u5B9A\u4E49\u4E0D\u53EF\u7F3A\u5C11\u7684\u53CD\u4F8B\uFF1B
+- \u5C06\u96C6\u5408\u5305\u542B\u753B\u6210\u65F6\u95F4\u6267\u884C\u987A\u5E8F\u3002
+
+\u6700\u7EC8\u82F1\u6587\u5236\u56FE Prompt \u63A7\u5236\u5728\u7EA6 450\u2013800 \u4E2A\u82F1\u6587\u8BCD\u3002`,
+    en: `# Figure-Type Adapter \u2014 Theoretical and Conceptual Relation Figure
+
+Design only a Theoretical, Formal-Definition, or Conceptual-Relation figure in this task.
+
+## Figure responsibility
+
+The figure must help the reader understand:
+
+1. which core objects the paper defines;
+2. which inclusion, partial-order, dependency, equivalence, decomposition, or constraint relations connect them;
+3. which assumptions support which propositions;
+4. which quantity can be recovered or derived from another;
+5. which concepts appear similar but must remain distinct;
+6. where the paper\u2019s core conclusion sits in the formal system.
+
+This is neither an algorithm-execution process nor a Method pipeline.
+
+## Recommended visual grammar
+
+Select the structure supported by the paper:
+
+- nested sets;
+- partial order;
+- dependency DAG;
+- assumption \u2192 proposition \u2192 consequence;
+- decomposition identity;
+- commutative diagram;
+- paired concepts with a separating condition;
+- hierarchy of admissible classes;
+- relation graph.
+
+Do not force a left-to-right pipeline merely because it is familiar.
+
+## Content budget
+
+Default limits:
+
+- 2\u20135 conceptual regions;
+- 6\u201312 core objects;
+- 8\u201316 visible labels;
+- 1\u20133 formal equations;
+- 5\u201310 theoretical relations.
+
+If more labels or equations are unavoidable, explicitly mark the design HYBRID OR VECTOR RECOMMENDED.
+
+## Relation labels
+
+Accurately distinguish:
+
+- subset;
+- implication;
+- equivalence;
+- recoverability;
+- decomposition;
+- condition;
+- comparison;
+- causal relation.
+
+Never turn a general association into a causal relation without evidence from the paper.
+
+## Excluded content
+
+Do not include:
+
+- a full proof;
+- long theorem prose;
+- internal method implementation;
+- experimental results;
+- a numerical example unless it is an indispensable counterexample for understanding the definition;
+- set inclusion depicted as temporal execution order.
+
+Keep the final English image-generation prompt to approximately 450\u2013800 words.`
+  },
+  "geometry-coordinate": {
+    zh: `# Figure-Type Adapter \u2014 Geometry and Coordinate-System Figure
+
+\u672C\u6B21\u53EA\u8BBE\u8BA1\u51E0\u4F55\u3001\u5750\u6807\u7CFB\u6216\u7A7A\u95F4\u5173\u7CFB\u56FE\u3002
+
+## \u56FE\u7684\u804C\u8D23
+
+\u8FD9\u5F20\u56FE\u5FC5\u987B\u51C6\u786E\u8BF4\u660E\uFF1A
+
+1. \u5B58\u5728\u54EA\u4E9B\u5750\u6807\u7CFB\u3001\u4F20\u611F\u5668\u6216\u7A7A\u95F4\u5B9E\u4F53\uFF1B
+2. \u6BCF\u4E2A\u91CF\u5728\u54EA\u4E2A\u5750\u6807\u7CFB\u4E2D\u8868\u8FBE\uFF1B
+3. \u5DF2\u77E5\u53D8\u6362\u548C\u672A\u77E5\u53D8\u6362\u5206\u522B\u662F\u4EC0\u4E48\uFF1B
+4. \u70B9\u3001\u5C04\u7EBF\u3001\u56FE\u50CF\u5E73\u9762\u3001\u89C6\u9525\u6216\u70B9\u4E91\u5982\u4F55\u5BF9\u5E94\uFF1B
+5. \u6295\u5F71\u3001\u53CD\u6295\u5F71\u3001\u521A\u4F53\u53D8\u6362\u6216\u8BEF\u5DEE\u5982\u4F55\u5F62\u6210\uFF1B
+6. \u65B9\u6CD5\u6700\u7EC8\u4F30\u8BA1\u6216\u6821\u6B63\u4EC0\u4E48\u51E0\u4F55\u91CF\u3002
+
+\u5B83\u4E0D\u662F\u666E\u901A\u6846\u56FE\u3002
+
+## \u8BC1\u636E\u8303\u56F4
+
+\u4F18\u5148\u8BFB\u53D6\uFF1A
+
+- Problem Formulation\uFF1B
+- Coordinate Convention\uFF1B
+- Calibration Setup\uFF1B
+- Geometry\uFF1B
+- Method \u4E2D\u6B63\u5F0F\u5B9A\u4E49\u5916\u53C2\u3001\u5185\u53C2\u3001\u6295\u5F71\u548C\u65B9\u5411\u7684\u90E8\u5206\u3002
+
+\u82E5\u8BBA\u6587\u6CA1\u6709\u660E\u786E\u8BF4\u660E T_AB \u4E0E T_BA \u7684\u65B9\u5411\uFF0C\u4E14\u65B9\u5411\u4F1A\u6539\u53D8\u56FE\u4E49\uFF0C\u53EA\u63D0\u51FA\u4E00\u4E2A\u5FC5\u8981\u95EE\u9898\uFF0C\u4E0D\u80FD\u81EA\u884C\u63A8\u65AD\u3002
+
+## \u63A8\u8350\u89C6\u89C9\u8BED\u6CD5
+
+\u4F18\u5148\u4F7F\u7528\uFF1A
+
+- labeled coordinate axes\uFF1B
+- camera frustum\uFF1B
+- image plane\uFF1B
+- LiDAR or 3D point set\uFF1B
+- rigid-transform arrow\uFF1B
+- projection rays\uFF1B
+- source and target frames\uFF1B
+- initial misalignment and corrected alignment\uFF1B
+- local zoom-in of projected correspondence\u3002
+
+\u51E0\u4F55\u5BF9\u8C61\u5FC5\u987B\u627F\u62C5\u4E3B\u8981\u8868\u8FBE\uFF0C\u6587\u5B57\u5361\u7247\u53EA\u80FD\u4F5C\u4E3A\u8F85\u52A9\u3002
+
+## \u5185\u5BB9\u9884\u7B97
+
+\u9ED8\u8BA4\u9650\u5236\u4E3A\uFF1A
+
+- 2\u20134 \u4E2A\u7A7A\u95F4\u533A\u57DF\uFF1B
+- 6\u201312 \u4E2A\u51E0\u4F55\u5BF9\u8C61\uFF1B
+- 8\u201315 \u4E2A\u53EF\u89C1\u6807\u7B7E\uFF1B
+- 1\u20133 \u4E2A\u5173\u952E\u53D8\u6362\u6216\u6295\u5F71\u516C\u5F0F\uFF1B
+- 5\u201310 \u6761\u51E0\u4F55\u5173\u7CFB\u3002
+
+## \u5FC5\u987B\u4FDD\u8BC1
+
+- \u5750\u6807\u8F74\u65B9\u5411\u4E00\u81F4\uFF1B
+- transformation source and target \u6E05\u695A\uFF1B
+- known / unknown \u660E\u786E\uFF1B
+- camera\u3001LiDAR\u3001world \u6216 BEV \u5750\u6807\u4E0D\u6DF7\u6DC6\uFF1B
+- \u6295\u5F71\u5173\u7CFB\u548C\u4F30\u8BA1\u76EE\u6807\u53EF\u8FFD\u8E2A\uFF1B
+- \u4E0D\u7528\u900F\u89C6\u6548\u679C\u63A9\u76D6\u51E0\u4F55\u65B9\u5411\u3002
+
+## \u4E0D\u5F97\u5448\u73B0
+
+- \u65E0\u8BC1\u636E\u7684\u771F\u5B9E\u4F20\u611F\u5668\u5916\u89C2\uFF1B
+- \u4E0E\u8BBA\u6587\u4E0D\u4E00\u81F4\u7684\u5B89\u88C5\u4F4D\u7F6E\uFF1B
+- \u9519\u8BEF\u7684\u53D8\u6362\u65B9\u5411\uFF1B
+- \u65E0\u610F\u4E49\u7684 3D \u88C5\u9970\uFF1B
+- \u5B9E\u9A8C\u8BEF\u5DEE\u6570\u5B57\uFF1B
+- \u5B9A\u6027\u6295\u5F71\u7ED3\u679C\uFF1B
+- \u5C06\u8BAD\u7EC3\u7F51\u7EDC\u7ED3\u6784\u585E\u5165\u51E0\u4F55\u8BBE\u7F6E\u56FE\u3002
+
+\u6700\u7EC8\u82F1\u6587\u5236\u56FE Prompt \u63A7\u5236\u5728\u7EA6 500\u2013850 \u4E2A\u82F1\u6587\u8BCD\u3002`,
+    en: `# Figure-Type Adapter \u2014 Geometry and Coordinate-System Figure
+
+Design only a Geometry, Coordinate-System, or Spatial-Relation figure in this task.
+
+## Figure responsibility
+
+The figure must accurately explain:
+
+1. which coordinate frames, sensors, or spatial entities exist;
+2. the frame in which each quantity is expressed;
+3. which transforms are known and which are unknown;
+4. how points, rays, image planes, frustums, or point clouds correspond;
+5. how projection, back-projection, rigid transformation, or geometric error is formed;
+6. which geometric quantity the method ultimately estimates or corrects.
+
+This is not an ordinary block diagram.
+
+## Evidence scope
+
+Prioritize:
+
+- Problem Formulation;
+- Coordinate Convention;
+- Calibration Setup;
+- Geometry;
+- formal definitions of extrinsics, intrinsics, projection, and direction in the Method.
+
+If the paper does not establish the direction of T_AB versus T_BA and that direction changes the figure\u2019s meaning, ask one indispensable clarification question rather than inferring it.
+
+## Recommended visual grammar
+
+Prefer:
+
+- labeled coordinate axes;
+- a camera frustum;
+- an image plane;
+- a LiDAR or 3D point set;
+- a rigid-transform arrow;
+- projection rays;
+- source and target frames;
+- initial misalignment and corrected alignment;
+- a local zoom-in of projected correspondence.
+
+Geometric objects must carry the principal explanation; text cards may only support them.
+
+## Content budget
+
+Default limits:
+
+- 2\u20134 spatial regions;
+- 6\u201312 geometric objects;
+- 8\u201315 visible labels;
+- 1\u20133 key transformation or projection equations;
+- 5\u201310 geometric relations.
+
+## Required guarantees
+
+Ensure:
+
+- consistent coordinate-axis directions;
+- explicit transformation source and target;
+- clear known and unknown quantities;
+- no confusion among camera, LiDAR, world, or BEV frames;
+- traceable projection relations and estimation target;
+- perspective effects never obscure geometric direction.
+
+## Excluded content
+
+Do not include:
+
+- an unsupported realistic sensor appearance;
+- a mounting position inconsistent with the paper;
+- an incorrect transformation direction;
+- meaningless 3D decoration;
+- experimental error numbers;
+- qualitative projection results;
+- a training network architecture inserted into the geometry setup.
+
+Keep the final English image-generation prompt to approximately 500\u2013850 words.`
+  },
+  "survey-taxonomy": {
+    zh: `# Figure-Type Adapter \u2014 Survey Taxonomy and Research-Landscape Figure
+
+\u672C\u6B21\u53EA\u8BBE\u8BA1\u7EFC\u8FF0\u5206\u7C7B\u4F53\u7CFB\u6216\u7814\u7A76\u7248\u56FE\u56FE\u3002
+
+## \u56FE\u7684\u804C\u8D23
+
+\u8FD9\u5F20\u56FE\u5FC5\u987B\u8BF4\u660E\uFF1A
+
+1. \u6587\u732E\u6309\u7167\u54EA\u4E9B\u6838\u5FC3\u7EF4\u5EA6\u7EC4\u7EC7\uFF1B
+2. \u6BCF\u4E2A\u7EF4\u5EA6\u4E0B\u6709\u54EA\u4E9B\u4E92\u65A5\u6216\u53EF\u91CD\u53E0\u7C7B\u522B\uFF1B
+3. \u4E0D\u540C\u7814\u7A76\u8DEF\u7EBF\u5982\u4F55\u5173\u8054\uFF1B
+4. \u54EA\u4E9B\u8F74\u662F\u65B9\u6CD5\u89D2\u8272\u3001\u8BC1\u636E\u6765\u6E90\u3001\u51B3\u7B56\u4F4D\u7F6E\u3001\u76D1\u7763\u5F62\u5F0F\u6216\u8F93\u51FA\u7C7B\u578B\uFF1B
+5. \u5F53\u524D\u7814\u7A76\u7248\u56FE\u4E2D\u6709\u54EA\u4E9B\u660E\u786E\u7A7A\u767D\u6216\u8FDE\u63A5\u4E0D\u8DB3\u3002
+
+\u5B83\u4E0D\u662F PRISMA \u6D41\u7A0B\u56FE\uFF0C\u4E5F\u4E0D\u662F\u8BBA\u6587\u6570\u91CF\u7EDF\u8BA1\u56FE\u3002
+
+## \u8BC1\u636E\u8303\u56F4
+
+\u4EE5\u7EFC\u8FF0\u6B63\u6587\u4E2D\u6B63\u5F0F\u91C7\u7528\u7684 taxonomy\u3001coding framework\u3001role definition \u548C inclusion scope \u4E3A\u51C6\u3002
+
+\u4E0D\u5F97\u6839\u636E\u4E00\u822C\u9886\u57DF\u77E5\u8BC6\u589E\u52A0\u8BBA\u6587\u672A\u91C7\u7528\u7684\u5206\u7C7B\u8F74\u3002
+
+## \u63A8\u8350\u89C6\u89C9\u8BED\u6CD5
+
+\u6839\u636E\u5206\u7C7B\u7ED3\u6784\u9009\u62E9\uFF1A
+
+- hierarchical taxonomy tree\uFF1B
+- two-axis matrix\uFF1B
+- layered research landscape\uFF1B
+- role \u2192 mechanism \u2192 output hierarchy\uFF1B
+- orthogonal dimension map\uFF1B
+- small number of intersecting category bands\u3002
+
+\u5982\u679C\u5206\u7C7B\u8F74\u5F7C\u6B64\u6B63\u4EA4\uFF0C\u4F18\u5148\u4F7F\u7528\u4E8C\u7EF4\u77E9\u9635\uFF0C\u4E0D\u8981\u5F3A\u884C\u753B\u6210\u6811\u3002
+
+\u5982\u679C\u7C7B\u522B\u5141\u8BB8\u91CD\u53E0\uFF0C\u5FC5\u987B\u901A\u8FC7\u4EA4\u53C9\u533A\u57DF\u3001\u5E76\u884C\u6807\u7B7E\u6216\u591A\u8F74\u7ED3\u6784\u8868\u8FBE\uFF0C\u4E0D\u80FD\u4F2A\u88C5\u6210\u4E92\u65A5\u5206\u652F\u3002
+
+## \u5185\u5BB9\u9884\u7B97
+
+\u9ED8\u8BA4\u9650\u5236\u4E3A\uFF1A
+
+- 2\u20134 \u4E2A\u5206\u7C7B\u8F74\uFF1B
+- 8\u201316 \u4E2A\u4E3B\u8981\u7C7B\u522B\uFF1B
+- 12\u201322 \u4E2A\u53EF\u89C1\u6807\u7B7E\uFF1B
+- \u6700\u591A 6 \u4E2A\u4EE3\u8868\u6027\u65B9\u6CD5\u540D\u79F0\uFF1B
+- 0\u20131 \u4E2A\u5F62\u5F0F\u5B9A\u4E49\uFF1B
+- \u4E0D\u5C55\u793A\u8BBA\u6587\u6570\u91CF\uFF0C\u9664\u975E\u6570\u91CF\u672C\u8EAB\u662F\u8BE5\u56FE\u7684\u6838\u5FC3\u76EE\u7684\u3002
+
+\u5F53\u6807\u7B7E\u8D85\u8FC7 18 \u4E2A\u65F6\uFF0C\u9ED8\u8BA4\u6807\u8BB0\u4E3A VECTOR RECOMMENDED\u3002
+
+## \u4E0D\u5F97\u5448\u73B0
+
+- \u4E3B\u7ED3\u679C\u6BD4\u8F83\uFF1B
+- \u5404\u65B9\u6CD5\u6027\u80FD\uFF1B
+- PRISMA \u6570\u91CF\u6D41\u7A0B\uFF1B
+- \u8FC7\u957F\u8BBA\u6587\u5217\u8868\uFF1B
+- \u672A\u5728\u7EFC\u8FF0\u7F16\u7801\u4F53\u7CFB\u4E2D\u4F7F\u7528\u7684\u5206\u7C7B\uFF1B
+- \u5C06\u91CD\u53E0\u7C7B\u522B\u9519\u8BEF\u753B\u6210\u4E92\u65A5\u6811\uFF1B
+- \u7528\u5927\u5C0F\u6216\u989C\u8272\u6697\u793A\u4F18\u52A3\uFF0C\u9664\u975E\u6B63\u6587\u660E\u786E\u652F\u6301\u3002
+
+\u6700\u7EC8\u82F1\u6587\u5236\u56FE Prompt \u63A7\u5236\u5728\u7EA6 500\u2013850 \u4E2A\u82F1\u6587\u8BCD\u3002`,
+    en: `# Figure-Type Adapter \u2014 Survey Taxonomy and Research-Landscape Figure
+
+Design only a Survey Taxonomy or Research-Landscape figure in this task.
+
+## Figure responsibility
+
+The figure must explain:
+
+1. the core dimensions used to organize the literature;
+2. which categories under each dimension are mutually exclusive or overlapping;
+3. how different research paths connect;
+4. which axes encode method role, evidence source, decision location, supervision form, or output type;
+5. which explicit gaps or weak connections exist in the current research landscape.
+
+This is neither a PRISMA flow diagram nor a paper-count statistics plot.
+
+## Evidence scope
+
+Use only the taxonomy, coding framework, role definitions, and inclusion scope formally adopted in the review manuscript.
+
+Do not add a classification axis from general field knowledge if the paper did not use it.
+
+## Recommended visual grammar
+
+Choose according to the classification structure:
+
+- hierarchical taxonomy tree;
+- two-axis matrix;
+- layered research landscape;
+- role \u2192 mechanism \u2192 output hierarchy;
+- orthogonal-dimension map;
+- a small number of intersecting category bands.
+
+If classification axes are orthogonal, prefer a two-dimensional matrix rather than forcing a tree.
+
+If categories overlap, express this through intersections, parallel labels, or a multi-axis structure. Never disguise overlapping categories as mutually exclusive branches.
+
+## Content budget
+
+Default limits:
+
+- 2\u20134 classification axes;
+- 8\u201316 principal categories;
+- 12\u201322 visible labels;
+- at most 6 representative method names;
+- 0\u20131 formal definition;
+- no paper counts unless the count itself is the figure\u2019s primary purpose.
+
+When more than 18 labels are necessary, mark the design VECTOR RECOMMENDED by default.
+
+## Excluded content
+
+Do not include:
+
+- primary-results comparisons;
+- method performance;
+- a PRISMA count flow;
+- an excessively long paper list;
+- categories absent from the review\u2019s coding framework;
+- overlapping categories misrepresented as an exclusive tree;
+- size or color implying superiority unless the manuscript explicitly supports it.
+
+Keep the final English image-generation prompt to approximately 500\u2013850 words.`
+  }
+};
+
 // app/figures/promptArchitecture.ts
 var COMMON_BASE = {
   zh: `# Yanshu Scientific Figure Director \u2014 Common Base
@@ -615,6 +1787,7 @@ Tier C\uFF1A\u79FB\u81F3 caption\u3001\u6B63\u6587\u3001\u8868\u683C\u6216\u53E6
 - \u8BAD\u7EC3\u4E0E\u63A8\u7406\u53EA\u6709\u5728\u5DEE\u5F02\u5F71\u54CD\u65B9\u6CD5\u7406\u89E3\u65F6\u624D\u5206\u5F00\u3002
 - \u516C\u5F0F\u3001\u5F20\u91CF\u7EF4\u5EA6\u548C\u5FAE\u578B\u793A\u4F8B\u53EA\u5728\u8BBA\u6587\u6709\u660E\u786E\u8BC1\u636E\u4E14\u786E\u5B9E\u63D0\u5347\u7406\u89E3\u65F6\u4F7F\u7528\u3002
 - \u4E0D\u6DFB\u52A0\u5B9E\u9A8C\u7ED3\u679C\u3001\u6027\u80FD\u6570\u5B57\u3001\u6570\u636E\u96C6\u7EDF\u8BA1\u3001\u6D88\u878D\u7ED3\u8BBA\u3001\u7814\u7A76\u5F71\u54CD\u6216\u63A8\u5E7F\u6027\u53E3\u53F7\u3002
+- \u67F1\u7EBF\u6563\u70B9\u56FE\u3001\u5B9E\u9A8C\u66F2\u7EBF\u3001\u771F\u5B9E\u6027\u80FD\u70ED\u56FE\u3001\u5B9A\u91CF\u6216\u5B9A\u6027\u7ED3\u679C\u4E0D\u5C5E\u4E8E\u672C\u9875\u4EFB\u52A1\uFF0C\u5E94\u7531\u4EE3\u7801\u751F\u6210\uFF1B\u673A\u5236\u793A\u610F\u4E2D\u7684 matrix\u3001mask\u3001token heatmap \u548C feature map \u4ECD\u53EF\u4F7F\u7528\u3002
 - \u4E0D\u4F7F\u7528\u4E0E\u8BBA\u6587\u65E0\u5173\u7684\u673A\u5668\u4EBA\u3001\u5927\u8111\u3001\u706F\u6CE1\u3001\u706B\u7BAD\u3001\u5956\u676F\u3001\u91D1\u5E01\u3001\u901F\u5EA6\u8868\u6216\u8425\u9500\u63D2\u753B\u3002
 - \u4E0D\u5141\u8BB8\u4EA4\u53C9\u7BAD\u5934\u3001\u6765\u6E90\u4E0D\u660E\u7684\u7BAD\u5934\u3001\u6307\u5411\u7A7A\u767D\u7684\u7BAD\u5934\u6216\u7EAF\u88C5\u9970\u6027\u8FDE\u7EBF\u3002`,
   en: `# Yanshu Scientific Figure Director \u2014 Common Base
@@ -709,6 +1882,7 @@ Do not render every scientific concept as a similarly sized, identically shaped,
 - Separate training and inference only when their difference affects understanding.
 - Use equations, tensor dimensions, and miniature examples only when explicitly supported by the paper and genuinely helpful.
 - Do not add experimental results, performance numbers, dataset statistics, ablation conclusions, research impact, or promotional claims.
+- Bar, line, and scatter plots, experimental curves, real performance heatmaps, and quantitative or qualitative results belong in code-generated figures; schematic matrices, masks, token heatmaps, and feature maps remain allowed.
 - Do not use unrelated robots, brains, lightbulbs, rockets, trophies, coins, speedometers, or marketing illustrations.
 - Do not use crossing arrows, arrows without a source, arrows pointing into empty space, or purely decorative connectors.`
 };
@@ -1468,7 +2642,8 @@ Do not include:
 ## Final English prompt length
 
 Keep the final English image-generation prompt to approximately 500\u2013900 words.`
-  }
+  },
+  ...EXTENDED_FIGURE_TYPE_ADAPTERS
 };
 var OUTPUT_PROTOCOL = {
   zh: (outputFileName) => `# Output and Two-Step Execution Protocol
@@ -1616,6 +2791,19 @@ If the major regions are still composed almost entirely of text cards, redesign 
 };
 
 // app/figures/config.ts
+var FIGURE_PROMPT_ORDER = [
+  "introduction",
+  "task-definition",
+  "method-overview",
+  "technical-detail",
+  "training-inference",
+  "algorithm-protocol",
+  "data-construction",
+  "system-deployment",
+  "theory-concept",
+  "geometry-coordinate",
+  "survey-taxonomy"
+];
 var FIGURE_TYPE_RECOMMENDATIONS = {
   introduction: {
     promptId: "introduction",
@@ -1623,6 +2811,22 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
+    styleId: "illustrated-technical",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: true,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "task-definition": {
+    promptId: "task-definition",
+    placementId: "double-column",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
     styleId: "illustrated-technical",
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
@@ -1664,22 +2868,129 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
     includeLargeTitle: false
+  },
+  "training-inference": {
+    promptId: "training-inference",
+    placementId: "double-column",
+    aspectRatioId: "landscape-2-1",
+    customAspectWidth: 2,
+    customAspectHeight: 1,
+    styleId: "conference-minimal",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "algorithm-protocol": {
+    promptId: "algorithm-protocol",
+    placementId: "double-column",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    styleId: "conference-minimal",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "data-construction": {
+    promptId: "data-construction",
+    placementId: "double-column",
+    aspectRatioId: "landscape-2-1",
+    customAspectWidth: 2,
+    customAspectHeight: 1,
+    styleId: "illustrated-technical",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: true,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "system-deployment": {
+    promptId: "system-deployment",
+    placementId: "double-column",
+    aspectRatioId: "landscape-16-9",
+    customAspectWidth: 16,
+    customAspectHeight: 9,
+    styleId: "conference-minimal",
+    paletteId: "tol-bright",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-4",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "theory-concept": {
+    promptId: "theory-concept",
+    placementId: "single-column",
+    aspectRatioId: "landscape-4-3",
+    customAspectWidth: 4,
+    customAspectHeight: 3,
+    styleId: "conference-minimal",
+    paletteId: "tol-muted",
+    fontFamilyId: "calibri",
+    lineColorMode: "neutral",
+    accentColorRangeId: "1-2",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "geometry-coordinate": {
+    promptId: "geometry-coordinate",
+    placementId: "double-column",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    styleId: "illustrated-technical",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: true,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "survey-taxonomy": {
+    promptId: "survey-taxonomy",
+    placementId: "double-column",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    styleId: "conference-minimal",
+    paletteId: "tol-bright",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-4",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
   }
 };
-var FIGURE_DEFAULT_LAYOUT = {
-  introduction: {
-    placementId: FIGURE_TYPE_RECOMMENDATIONS.introduction.placementId,
-    aspectRatioId: FIGURE_TYPE_RECOMMENDATIONS.introduction.aspectRatioId
-  },
-  "method-overview": {
-    placementId: FIGURE_TYPE_RECOMMENDATIONS["method-overview"].placementId,
-    aspectRatioId: FIGURE_TYPE_RECOMMENDATIONS["method-overview"].aspectRatioId
-  },
-  "technical-detail": {
-    placementId: FIGURE_TYPE_RECOMMENDATIONS["technical-detail"].placementId,
-    aspectRatioId: FIGURE_TYPE_RECOMMENDATIONS["technical-detail"].aspectRatioId
-  }
-};
+var FIGURE_DEFAULT_LAYOUT = Object.fromEntries(
+  FIGURE_PROMPT_ORDER.map((promptId) => [
+    promptId,
+    {
+      placementId: FIGURE_TYPE_RECOMMENDATIONS[promptId].placementId,
+      aspectRatioId: FIGURE_TYPE_RECOMMENDATIONS[promptId].aspectRatioId
+    }
+  ])
+);
 var DEFAULT_FIGURE_PREFERENCES = {
   ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"]
 };
@@ -3897,7 +5208,7 @@ function buildPrompt(template, context) {
 }
 
 // content/prompts/pluginExport.ts
-var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.5";
+var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.6";
 function getReconstructionConfigurationModel() {
   return {
     schemaVersion: 1,

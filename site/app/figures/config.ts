@@ -11,8 +11,32 @@ export type FigureStyleId =
 
 export type FigurePromptId =
   | "introduction"
+  | "task-definition"
   | "method-overview"
-  | "technical-detail";
+  | "technical-detail"
+  | "training-inference"
+  | "algorithm-protocol"
+  | "data-construction"
+  | "system-deployment"
+  | "theory-concept"
+  | "geometry-coordinate"
+  | "survey-taxonomy";
+
+export type FigurePromptGroupId = "core" | "process" | "professional";
+
+export const FIGURE_PROMPT_ORDER: FigurePromptId[] = [
+  "introduction",
+  "task-definition",
+  "method-overview",
+  "technical-detail",
+  "training-inference",
+  "algorithm-protocol",
+  "data-construction",
+  "system-deployment",
+  "theory-concept",
+  "geometry-coordinate",
+  "survey-taxonomy",
+];
 
 export type FigurePlacementId = "single-column" | "double-column";
 
@@ -88,6 +112,22 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     fontSizeLevels: 3,
     includeLargeTitle: false,
   },
+  "task-definition": {
+    promptId: "task-definition",
+    placementId: "double-column",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    styleId: "illustrated-technical",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: true,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false,
+  },
   "method-overview": {
     promptId: "method-overview",
     placementId: "double-column",
@@ -120,26 +160,130 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     fontSizeLevels: 3,
     includeLargeTitle: false,
   },
+  "training-inference": {
+    promptId: "training-inference",
+    placementId: "double-column",
+    aspectRatioId: "landscape-2-1",
+    customAspectWidth: 2,
+    customAspectHeight: 1,
+    styleId: "conference-minimal",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false,
+  },
+  "algorithm-protocol": {
+    promptId: "algorithm-protocol",
+    placementId: "double-column",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    styleId: "conference-minimal",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false,
+  },
+  "data-construction": {
+    promptId: "data-construction",
+    placementId: "double-column",
+    aspectRatioId: "landscape-2-1",
+    customAspectWidth: 2,
+    customAspectHeight: 1,
+    styleId: "illustrated-technical",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: true,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false,
+  },
+  "system-deployment": {
+    promptId: "system-deployment",
+    placementId: "double-column",
+    aspectRatioId: "landscape-16-9",
+    customAspectWidth: 16,
+    customAspectHeight: 9,
+    styleId: "conference-minimal",
+    paletteId: "tol-bright",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-4",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false,
+  },
+  "theory-concept": {
+    promptId: "theory-concept",
+    placementId: "single-column",
+    aspectRatioId: "landscape-4-3",
+    customAspectWidth: 4,
+    customAspectHeight: 3,
+    styleId: "conference-minimal",
+    paletteId: "tol-muted",
+    fontFamilyId: "calibri",
+    lineColorMode: "neutral",
+    accentColorRangeId: "1-2",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false,
+  },
+  "geometry-coordinate": {
+    promptId: "geometry-coordinate",
+    placementId: "double-column",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    styleId: "illustrated-technical",
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-3",
+    allowLightIllustrations: true,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false,
+  },
+  "survey-taxonomy": {
+    promptId: "survey-taxonomy",
+    placementId: "double-column",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    styleId: "conference-minimal",
+    paletteId: "tol-bright",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorRangeId: "2-4",
+    allowLightIllustrations: false,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false,
+  },
 } as const satisfies Record<FigurePromptId, FigurePreferences>;
 
-export const FIGURE_DEFAULT_LAYOUT = {
-  introduction: {
-    placementId: FIGURE_TYPE_RECOMMENDATIONS.introduction.placementId,
-    aspectRatioId: FIGURE_TYPE_RECOMMENDATIONS.introduction.aspectRatioId,
-  },
-  "method-overview": {
-    placementId:
-      FIGURE_TYPE_RECOMMENDATIONS["method-overview"].placementId,
-    aspectRatioId:
-      FIGURE_TYPE_RECOMMENDATIONS["method-overview"].aspectRatioId,
-  },
-  "technical-detail": {
-    placementId:
-      FIGURE_TYPE_RECOMMENDATIONS["technical-detail"].placementId,
-    aspectRatioId:
-      FIGURE_TYPE_RECOMMENDATIONS["technical-detail"].aspectRatioId,
-  },
-} as const satisfies Record<
+export const FIGURE_DEFAULT_LAYOUT = Object.fromEntries(
+  FIGURE_PROMPT_ORDER.map((promptId) => [
+    promptId,
+    {
+      placementId: FIGURE_TYPE_RECOMMENDATIONS[promptId].placementId,
+      aspectRatioId:
+        FIGURE_TYPE_RECOMMENDATIONS[promptId].aspectRatioId,
+    },
+  ]),
+) as Record<
   FigurePromptId,
   {
     placementId: FigurePlacementId;
@@ -485,6 +629,7 @@ export const FIGURE_CARD_FILL_POLICY_IDS = Object.keys(
 interface FigurePromptSpec {
   label: Record<Language, string>;
   purpose: Record<Language, string>;
+  intent: Record<Language, string>;
 }
 
 export const FIGURE_PROMPTS = {
@@ -497,6 +642,24 @@ export const FIGURE_PROMPTS = {
       zh: "呈现现有理解的关键不足，以及本文带来的科学观察或解决原则。",
       en: "Show the decisive limitation in current understanding and the paper’s new observation or solution principle.",
     },
+    intent: {
+      zh: "为什么现有理解或方法不够？",
+      en: "Why is the current understanding or method insufficient?",
+    },
+  },
+  "task-definition": {
+    label: {
+      zh: "任务定义图",
+      en: "Task definition",
+    },
+    purpose: {
+      zh: "形式化说明研究对象、输入输出、实体关系和任务边界。",
+      en: "Formalize the research objects, inputs, outputs, entity relations, and task boundary.",
+    },
+    intent: {
+      zh: "研究任务究竟是什么？",
+      en: "What exactly is the research task?",
+    },
   },
   "method-overview": {
     label: {
@@ -506,6 +669,10 @@ export const FIGURE_PROMPTS = {
     purpose: {
       zh: "建立从输入、共享计算与核心阶段到正式输出的整体心智地图。",
       en: "Build a system-level map from input and shared computation through the core stages to the formal output.",
+    },
+    intent: {
+      zh: "整体方法怎样运行？",
+      en: "How does the overall method run?",
     },
   },
   "technical-detail": {
@@ -517,13 +684,171 @@ export const FIGURE_PROMPTS = {
       zh: "剖开展示一个最关键的新机制内部如何变换、选择、交互或更新。",
       en: "Open up one decisive new mechanism to show how it transforms, selects, interacts, or updates internally.",
     },
+    intent: {
+      zh: "局部核心机制怎样工作？",
+      en: "How does the local core mechanism work?",
+    },
+  },
+  "training-inference": {
+    label: {
+      zh: "训练–推理图",
+      en: "Training–inference",
+    },
+    purpose: {
+      zh: "区分训练专属、推理专属与共享部分，说明参数和信息在两个阶段如何流动。",
+      en: "Separate training-only, inference-only, and shared elements while tracing parameters and information across both phases.",
+    },
+    intent: {
+      zh: "方法怎样训练，又怎样推理？",
+      en: "How is the method trained and then used for inference?",
+    },
+  },
+  "algorithm-protocol": {
+    label: {
+      zh: "算法／协议图",
+      en: "Algorithm / protocol",
+    },
+    purpose: {
+      zh: "说明过程如何初始化、观察、决策、更新、反馈并满足停止条件。",
+      en: "Show how a process initializes, observes, decides, updates, feeds back, and reaches a stopping condition.",
+    },
+    intent: {
+      zh: "过程怎样迭代、决策与停止？",
+      en: "How does the process iterate, decide, and stop?",
+    },
+  },
+  "data-construction": {
+    label: {
+      zh: "数据构建图",
+      en: "Data construction",
+    },
+    purpose: {
+      zh: "呈现数据来源、清洗转换、标注协作、质量控制和最终样本结构。",
+      en: "Trace data provenance, cleaning and transformation, annotation, quality control, and the final sample schema.",
+    },
+    intent: {
+      zh: "数据从哪里来、怎样构建？",
+      en: "Where does the data come from and how is it constructed?",
+    },
+  },
+  "system-deployment": {
+    label: {
+      zh: "系统／部署图",
+      en: "System / deployment",
+    },
+    purpose: {
+      zh: "表达运行实体、部署边界、通信语义，以及离线准备和在线服务的分离。",
+      en: "Map runtime entities, deployment boundaries, communication semantics, and the separation of offline preparation from online serving.",
+    },
+    intent: {
+      zh: "系统在哪里运行、怎样通信？",
+      en: "Where does the system run and how does it communicate?",
+    },
+  },
+  "theory-concept": {
+    label: {
+      zh: "理论／概念关系图",
+      en: "Theory / concept relations",
+    },
+    purpose: {
+      zh: "准确表达形式对象之间的包含、依赖、等价、分解、约束或推导关系。",
+      en: "Represent inclusion, dependency, equivalence, decomposition, constraint, or derivation among formal objects.",
+    },
+    intent: {
+      zh: "形式对象与概念之间是什么关系？",
+      en: "How are the formal objects and concepts related?",
+    },
+  },
+  "geometry-coordinate": {
+    label: {
+      zh: "几何／坐标关系图",
+      en: "Geometry / coordinates",
+    },
+    purpose: {
+      zh: "准确展示坐标系、空间实体、已知与未知变换、投影关系和估计目标。",
+      en: "Show coordinate frames, spatial entities, known and unknown transforms, projections, and the estimation target.",
+    },
+    intent: {
+      zh: "空间、坐标与变换关系是什么？",
+      en: "What are the spatial, coordinate, and transformation relations?",
+    },
+  },
+  "survey-taxonomy": {
+    label: {
+      zh: "综述／分类体系图",
+      en: "Survey / taxonomy",
+    },
+    purpose: {
+      zh: "组织综述中的分类轴、类别关系、研究路线和由正文支持的版图空白。",
+      en: "Organize survey dimensions, category relations, research paths, and evidence-backed gaps in the landscape.",
+    },
+    intent: {
+      zh: "文献应当如何分类与关联？",
+      en: "How should the literature be classified and connected?",
+    },
   },
 } as const satisfies Record<FigurePromptId, FigurePromptSpec>;
 
-export const FIGURE_PROMPT_ORDER: FigurePromptId[] = [
-  "introduction",
-  "method-overview",
-  "technical-detail",
+interface FigurePromptGroupSpec {
+  label: Record<Language, string>;
+  description: Record<Language, string>;
+  promptIds: readonly FigurePromptId[];
+}
+
+export const FIGURE_PROMPT_GROUPS = {
+  core: {
+    label: {
+      zh: "核心论文图",
+      en: "Core paper figures",
+    },
+    description: {
+      zh: "为什么、是什么、整体怎样运行，以及局部怎样工作",
+      en: "Why, what, the overall method, and its local mechanism",
+    },
+    promptIds: [
+      "introduction",
+      "task-definition",
+      "method-overview",
+      "technical-detail",
+    ],
+  },
+  process: {
+    label: {
+      zh: "过程与系统",
+      en: "Processes & systems",
+    },
+    description: {
+      zh: "训练、迭代、数据构建和真实运行边界",
+      en: "Training, iteration, data construction, and runtime boundaries",
+    },
+    promptIds: [
+      "training-inference",
+      "algorithm-protocol",
+      "data-construction",
+      "system-deployment",
+    ],
+  },
+  professional: {
+    label: {
+      zh: "更多专业图型",
+      en: "More specialized figures",
+    },
+    description: {
+      zh: "形式关系、空间几何与综述分类体系",
+      en: "Formal relations, spatial geometry, and survey taxonomies",
+    },
+    promptIds: [
+      "theory-concept",
+      "geometry-coordinate",
+      "survey-taxonomy",
+    ],
+  },
+} as const satisfies Record<FigurePromptGroupId, FigurePromptGroupSpec>;
+
+export const FIGURE_PROMPT_GROUP_ORDER: FigurePromptGroupId[] = [
+  "core",
+  "process",
+  "professional",
 ];
 
 export const FIGURE_COPY = {
@@ -543,7 +868,15 @@ export const FIGURE_COPY = {
       "复制当前 Prompt 后，在同一个 GPT 对话中上传可用论文材料；优先提供 .tex，可附 .pdf。本站不读取或保存论文。",
     figureTasks: "选择绘图 Prompt",
     figureTasksHint:
-      "三种图型分别保存自己的设置；首次切换载入推荐配置，手动修改后再切换不会丢失。",
+      "11 种图型分别保存自己的设置；首次切换载入推荐配置，手动修改后再切换不会丢失。",
+    intentQuestion: "这张图主要需要回答什么？",
+    intentQuestionHint:
+      "选择科学问题后会自动定位到最合适的图型，不会覆盖该图型已经手动修改的设置。",
+    scopeBoundaryTitle: "此页负责科学示意图，不负责实验数据图",
+    scopeBoundaryBody:
+      "适合论文叙事、任务定义、方法机制、系统关系与分类体系。柱线散点图、消融与敏感性、ROC/PR、真实 attention 或 feature heatmap、定量与定性结果应由代码或专用实验绘图工具生成；机制图中的示意 matrix、mask 与 token heatmap 仍可使用。",
+    professionalClosedHint: "展开 3 种专业图型",
+    professionalOpenHint: "收起专业图型",
     canvas: "论文占栏与画布",
     paperPlacement: "论文占栏",
     aspectRatio: "画布比例",
@@ -593,7 +926,7 @@ export const FIGURE_COPY = {
     largeTitleOn: "使用大标题",
     largeTitleOff: "不使用",
     largeTitleOnHint: "仅允许一个来自论文术语的简短标题。",
-    largeTitleOffHint: "三类图的推荐设置；保留必要 panel 标题或机制名称。",
+    largeTitleOffHint: "所有图型的推荐设置；保留必要 panel 标题或机制名称。",
     switchPromptLanguage: "切换说明语言",
     copy: "复制",
     copied: "已复制",
@@ -617,7 +950,16 @@ export const FIGURE_COPY = {
       "After copying the current prompt, upload the available paper materials in the same GPT conversation. Prefer the .tex and optionally attach the .pdf. This site never reads or stores the paper.",
     figureTasks: "Select a figure prompt",
     figureTasksHint:
-      "Each figure type keeps its own settings. Its recommendation loads on first use, and manual changes survive later switches.",
+      "All 11 figure types keep independent settings. Recommendations load on first use, and manual changes survive later switches.",
+    intentQuestion: "What does this figure mainly need to answer?",
+    intentQuestionHint:
+      "Choosing the scientific question locates the best-matched figure type without overwriting any settings already edited for that type.",
+    scopeBoundaryTitle:
+      "This page is for scientific schematics, not experimental data plots",
+    scopeBoundaryBody:
+      "Use it for paper narrative, task definitions, method mechanisms, system relations, and taxonomies. Bar, line, and scatter plots, ablations, sensitivity analyses, ROC/PR curves, real attention or feature heatmaps, and quantitative or qualitative results belong in code-based or dedicated experiment plotting. Schematic matrices, masks, and token heatmaps inside mechanism figures remain allowed.",
+    professionalClosedHint: "Expand 3 specialized figure types",
+    professionalOpenHint: "Collapse specialized figure types",
     canvas: "Paper placement & canvas",
     paperPlacement: "Paper placement",
     aspectRatio: "Canvas ratio",
@@ -672,7 +1014,7 @@ export const FIGURE_COPY = {
     largeTitleOnHint:
       "Allow one short title composed only of terminology from the paper.",
     largeTitleOffHint:
-      "Recommended for all three figure types; retain only necessary panel headings or mechanism names.",
+      "Recommended for every figure type; retain only necessary panel headings or mechanism names.",
     switchPromptLanguage: "Switch instruction language",
     copy: "Copy",
     copied: "Copied",

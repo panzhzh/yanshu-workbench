@@ -23,7 +23,7 @@ import type {
   PromptBuildContext,
 } from "./types";
 
-export const RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.5";
+export const RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.6";
 
 export interface ReconstructionWorkflowInput {
   language?: Language;

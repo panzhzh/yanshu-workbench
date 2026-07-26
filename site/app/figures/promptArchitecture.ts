@@ -1,5 +1,6 @@
 import type { Language } from "../config";
 import type { FigurePromptId } from "./config";
+import { EXTENDED_FIGURE_TYPE_ADAPTERS } from "./extendedFigureAdapters";
 
 type LocalizedPromptBlock = Record<Language, string>;
 
@@ -96,6 +97,7 @@ Tier C：移至 caption、正文、表格或另一张图，包括非核心公式
 - 训练与推理只有在差异影响方法理解时才分开。
 - 公式、张量维度和微型示例只在论文有明确证据且确实提升理解时使用。
 - 不添加实验结果、性能数字、数据集统计、消融结论、研究影响或推广性口号。
+- 柱线散点图、实验曲线、真实性能热图、定量或定性结果不属于本页任务，应由代码生成；机制示意中的 matrix、mask、token heatmap 和 feature map 仍可使用。
 - 不使用与论文无关的机器人、大脑、灯泡、火箭、奖杯、金币、速度表或营销插画。
 - 不允许交叉箭头、来源不明的箭头、指向空白的箭头或纯装饰性连线。`,
   en: `# Yanshu Scientific Figure Director — Common Base
@@ -190,6 +192,7 @@ Do not render every scientific concept as a similarly sized, identically shaped,
 - Separate training and inference only when their difference affects understanding.
 - Use equations, tensor dimensions, and miniature examples only when explicitly supported by the paper and genuinely helpful.
 - Do not add experimental results, performance numbers, dataset statistics, ablation conclusions, research impact, or promotional claims.
+- Bar, line, and scatter plots, experimental curves, real performance heatmaps, and quantitative or qualitative results belong in code-generated figures; schematic matrices, masks, token heatmaps, and feature maps remain allowed.
 - Do not use unrelated robots, brains, lightbulbs, rockets, trophies, coins, speedometers, or marketing illustrations.
 - Do not use crossing arrows, arrows without a source, arrows pointing into empty space, or purely decorative connectors.`,
 } as const satisfies LocalizedPromptBlock;
@@ -951,6 +954,7 @@ Do not include:
 
 Keep the final English image-generation prompt to approximately 500–900 words.`,
   },
+  ...EXTENDED_FIGURE_TYPE_ADAPTERS,
 } as const satisfies Record<FigurePromptId, LocalizedPromptBlock>;
 
 export const OUTPUT_PROTOCOL = {

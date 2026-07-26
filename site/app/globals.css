@@ -1665,6 +1665,31 @@ a {
   line-height: 1.55;
 }
 
+.figure-scope-boundary {
+  display: grid;
+  grid-template-columns: minmax(210px, 0.8fr) minmax(0, 2.2fr);
+  gap: 18px;
+  align-items: start;
+  margin: 0 0 9px;
+  padding: 11px 14px;
+  color: #535f62;
+  background: #fbfaf3;
+  border: 1px solid #ddd8bd;
+  border-radius: 8px;
+}
+
+.figure-scope-boundary strong {
+  color: #4a524f;
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.figure-scope-boundary p {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.55;
+}
+
 .figure-config-grid {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -1719,10 +1744,138 @@ a {
   grid-column: span 12;
 }
 
+.figure-intent-selector {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.78fr) minmax(300px, 1.7fr);
+  gap: 14px;
+  align-items: center;
+  margin-bottom: 12px;
+  padding: 11px 12px;
+  background: #f2f6f3;
+  border: 1px solid #cfd9d5;
+  border-radius: 7px;
+}
+
+.figure-intent-selector label {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.figure-intent-selector label strong {
+  color: var(--ink);
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.figure-intent-selector label small {
+  color: var(--ink-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.figure-intent-selector select {
+  width: 100%;
+  min-width: 0;
+  min-height: 39px;
+  padding: 8px 34px 8px 10px;
+  color: var(--ink);
+  background: #fff;
+  border: 1px solid #b8c7c3;
+  border-radius: 5px;
+  font: inherit;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.figure-intent-selector select:focus {
+  border-color: var(--accent);
+  outline: 2px solid rgb(34 111 109 / 0.13);
+  outline-offset: 1px;
+}
+
+.figure-task-groups {
+  display: grid;
+  gap: 12px;
+}
+
+.figure-task-group {
+  display: grid;
+  gap: 7px;
+}
+
+.figure-task-group-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.figure-task-group-heading strong,
+.figure-professional-types summary strong {
+  color: var(--ink);
+  font-size: 11px;
+  font-weight: 760;
+  line-height: 1.4;
+}
+
+.figure-task-group-heading small,
+.figure-professional-types summary small {
+  color: var(--ink-muted);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .figure-task-list {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 7px;
+}
+
+.figure-professional-types {
+  padding: 0;
+  background: #fafbf9;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+}
+
+.figure-professional-types summary {
+  display: flex;
+  min-height: 46px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 11px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.figure-professional-types summary::-webkit-details-marker {
+  display: none;
+}
+
+.figure-professional-types summary > span {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.figure-professional-types summary em {
+  flex: 0 0 auto;
+  color: var(--accent-strong);
+  font-size: 10px;
+  font-style: normal;
+  font-weight: 720;
+}
+
+.figure-professional-types[open] summary {
+  border-bottom: 1px solid var(--line);
+}
+
+.figure-professional-types > .figure-task-list {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 8px;
 }
 
 .figure-task-list > button,
@@ -3252,6 +3405,11 @@ body.is-resizing-prompt * {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
+  .figure-task-list,
+  .figure-professional-types > .figure-task-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .figure-canvas-options {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -3408,6 +3566,12 @@ body.is-resizing-prompt * {
     align-items: start;
   }
 
+  .figure-scope-boundary,
+  .figure-intent-selector {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
   .figure-input-files {
     width: 100%;
   }
@@ -3438,8 +3602,19 @@ body.is-resizing-prompt * {
     grid-template-columns: 1fr;
   }
 
-  .figure-task-list {
+  .figure-task-list,
+  .figure-professional-types > .figure-task-list {
     grid-template-columns: 1fr;
+  }
+
+  .figure-task-group-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .figure-professional-types summary {
+    align-items: flex-start;
   }
 
   .figure-canvas-options {
