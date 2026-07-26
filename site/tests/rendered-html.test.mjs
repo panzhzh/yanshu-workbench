@@ -55,6 +55,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /全文重构/);
   assert.match(html, /章节精修/);
   assert.match(html, /专项审计/);
+  assert.match(html, /href="\/reconstruction\/audit"/);
   assert.match(html, /版本转换/);
   assert.match(html, /实验方案设计/);
   assert.match(html, /Baseline 与复现/);
@@ -73,6 +74,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.doesNotMatch(html, /关于研术台|About YanShu/);
   assert.match(html, /href="\/draft"/);
   assert.match(html, /href="\/reconstruction"/);
+  assert.match(html, /href="\/reconstruction\/refinement"/);
   assert.match(html, /class="home-module-grid"/);
   assert.doesNotMatch(html, /class="prompt-resize-handle"/);
   assert.doesNotMatch(html, /写作风格|Writing style/);
@@ -179,6 +181,101 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /占位 Prompt|Placeholder prompt/);
   assert.doesNotMatch(html, /后续方法模块|METHOD LIBRARY/);
   assert.doesNotMatch(html, /codex-preview|react-loading-skeleton/i);
+});
+
+test("server-renders the section-refinement workbench", async () => {
+  const response = await render("/reconstruction/refinement");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /章节精修/);
+  assert.match(html, /每个章节使用独立精修合同/);
+  assert.match(html, /class="prompt-resize-handle"/);
+  assert.match(
+    html,
+    /class="content-section prompt-rail refinement-prompt-section"/,
+  );
+  assert.match(html, /完整 \.tex/);
+  assert.match(html, /最新编译 \.pdf/);
+  assert.match(html, /完整 \.bib/);
+  assert.match(html, /figures\/（可选）/);
+  assert.match(html, /缺少 figures\/ 不阻止精修/);
+  assert.doesNotMatch(html, /论文类型/);
+  assert.match(html, /精修章节/);
+  assert.match(html, /Abstract/);
+  assert.match(html, /Introduction/);
+  assert.match(html, /Related Work/);
+  assert.match(html, /Method/);
+  assert.match(html, /Experiments &amp; Results/);
+  assert.match(html, /Discussion/);
+  assert.match(html, /Conclusion/);
+  assert.match(html, /章节专用约束/);
+  assert.match(html, /Results 关键数字/);
+  assert.match(html, /默认建议 2–4 个/);
+  assert.match(html, /Keywords 数量/);
+  assert.match(html, /每个 Keyword 词数/);
+  assert.match(html, /精修范围总量/);
+  assert.match(html, /保持当前长度/);
+  assert.match(html, /自定义区间/);
+  assert.match(html, /普通句子词数/);
+  assert.match(html, /改写强度/);
+  assert.match(html, /深度精修/);
+  assert.match(html, /允许冒号/);
+  assert.doesNotMatch(html, /引用策略/);
+  assert.doesNotMatch(html, /允许 we \/ our/);
+  assert.match(html, /class="prompt-card expanded"/);
+  assert.match(html, /# 精修 摘要/);
+  assert.match(html, /Abstract 必须为一个连续英文段落/);
+  assert.match(html, /整段保留 2–4 个最能支撑核心 claim 的数字/);
+  assert.match(html, /使用 4–5 个高信息量英文关键词/);
+  assert.match(html, /每个关键词 1–2 个词/);
+  assert.match(html, /不鼓励使用本文方法之外的缩写/);
+  assert.match(html, /摘要不使用任何引用/);
+  assert.match(html, /当前精修范围目标为 190–220 个英文单词/);
+  assert.match(html, /普通句子目标为 12–24 个英文单词/);
+  assert.match(html, /冒号只在确有必要/);
+  assert.doesNotMatch(html, /论文类型：/);
+  assert.match(html, /完整、连续、可编译的英文论文/);
+  assert.match(html, /_abstract_refinement_report_zh\.md/);
+});
+
+test("server-renders the multi-select specialized-audit workbench", async () => {
+  const response = await render("/reconstruction/audit");
+  assert.equal(response.status, 200);
+  assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
+
+  const html = await response.text();
+  assert.match(html, /专项审计/);
+  assert.match(html, /一个 Prompt 建立共享证据台账/);
+  assert.match(html, /class="prompt-resize-handle"/);
+  assert.match(html, /完整 \.tex/);
+  assert.match(html, /最新编译 \.pdf/);
+  assert.match(html, /完整 \.bib/);
+  assert.match(html, /figures\/（按需）/);
+  assert.match(html, /专业术语与命名/);
+  assert.match(html, /引用与 BibTeX/);
+  assert.match(html, /数据与数字一致性/);
+  assert.match(html, /图表与交叉引用/);
+  assert.match(html, /Claim–证据对齐/);
+  assert.match(html, /符号、公式与单位/);
+  assert.match(html, /可复现性信息/);
+  assert.match(html, /跨章节重复与错位/);
+  assert.match(html, /已选/);
+  assert.match(html, /全选/);
+  assert.match(html, /清空/);
+  assert.match(html, /只审计，不改稿/);
+  assert.match(html, /审计并安全修复/);
+  assert.match(html, /专项审计 · 4 项/);
+  assert.match(html, /# 论文专项联合审计/);
+  assert.match(html, /\[TERM\] 专业术语与命名/);
+  assert.match(html, /\[BIB\] 引用与 BibTeX/);
+  assert.match(html, /\[DATA\] 数据与数字一致性/);
+  assert.match(html, /\[VIS\] 图表与交叉引用/);
+  assert.doesNotMatch(html, /\[CLAIM\] Claim–证据对齐/);
+  assert.match(html, /同一根因只生成一个稳定问题 ID/);
+  assert.match(html, /Blocker \/ Major \/ Minor/);
+  assert.match(html, /不修改 \.tex、\.bib、图片或 PDF/);
 });
 
 test("server-renders the evidence-led paper-draft workbench", async () => {
@@ -679,15 +776,20 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /id:\s*"submission"/);
   assert.match(navigationConfig, /href:\s*"\/draft"/);
   assert.match(navigationConfig, /href:\s*"\/reconstruction"/);
+  assert.match(
+    navigationConfig,
+    /href:\s*"\/reconstruction\/refinement"/,
+  );
+  assert.match(navigationConfig, /href:\s*"\/reconstruction\/audit"/);
   assert.match(navigationConfig, /href:\s*"\/figures"/);
   assert.match(navigationConfig, /href:\s*"\/submission"/);
   assert.equal(
     (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
-    4,
+    6,
   );
   assert.equal(
     (navigationConfig.match(/status:\s*"future",/g) ?? []).length,
-    17,
+    15,
   );
   assert.doesNotMatch(navigationConfig, /关于研术台|About YanShu/);
   assert.match(
@@ -847,6 +949,154 @@ test("keeps presets and production prompts configuration-driven", async () => {
   await assert.rejects(
     access(new URL("build/sites-vite-plugin.ts", templateRoot)),
   );
+});
+
+test("keeps section-refinement rules and merge controls configuration-driven", async () => {
+  const [config, component, navigation] = await Promise.all([
+    readFile(
+      new URL(
+        "../app/reconstruction/refinement/config.ts",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/reconstruction/refinement/SectionRefinementWorkbench.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+    readFile(new URL("../app/navigation.ts", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(config, /"experiments-results"/);
+  assert.match(config, /"merged-experiments-results-discussion"/);
+  assert.match(config, /label: \{ zh: "实验设置与结果", en: "Setup and Results" \}/);
+  assert.match(config, /仅精修实验设置/);
+  assert.match(config, /仅精修结果/);
+  assert.match(config, /合并实验、结果与 Discussion/);
+  assert.match(config, /局限单列为 Limitations subsection/);
+  assert.match(config, /将局限放入 Discussion 最后一个 subsection/);
+  assert.match(config, /不得复述 Results/);
+  assert.match(config, /Discussion 具体结果数字上限/);
+  assert.match(config, /每个标题为 3–7 个英文单词/);
+  assert.match(config, /relatedCitationMin: 15/);
+  assert.match(config, /relatedCitationMax: 25/);
+  assert.match(config, /subsection 最后一句不超过 18 个英文单词/);
+  assert.match(config, /function abstractContract/);
+  assert.match(config, /abstractKeywordCountMin: 4/);
+  assert.match(config, /abstractKeywordCountMax: 5/);
+  assert.match(config, /abstractKeywordWordsMin: 1/);
+  assert.match(config, /abstractKeywordWordsMax: 2/);
+  assert.match(config, /Abstract 后单列 Keywords/);
+  assert.match(config, /function introductionContract/);
+  assert.match(config, /function relatedWorkContract/);
+  assert.match(config, /function methodContract/);
+  assert.match(config, /function experimentsContract/);
+  assert.match(config, /function resultsContract/);
+  assert.match(config, /function discussionContract/);
+  assert.match(config, /function conclusionContract/);
+  assert.match(config, /figures\/ 不是必需输入/);
+  assert.match(config, /introductionMaxCitationsPerSentence: 4/);
+  assert.match(config, /relatedMaxCitationsPerSentence: 4/);
+  assert.match(config, /introductionContributionCount: 3/);
+  assert.match(config, /introductionContributionWords: 22/);
+  assert.match(config, /introductionContributionStartsWithWe: true/);
+  assert.match(config, /凡陈述既有研究、领域事实、已有能力或他人结论/);
+  assert.match(config, /本文自己的 claim、作者综合判断和贡献句可以不引用/);
+  assert.match(config, /执行日前两年内、与当前论点直接相关的顶会或顶刊论文/);
+  assert.match(config, /逐项核查当前章节每个引用的语义支持关系/);
+  assert.match(config, /methodOverviewMode/);
+  assert.match(config, /methodOverviewMaxWords: 80/);
+  assert.match(config, /methodOverviewParagraphs: 2/);
+  assert.match(config, /methodPseudocodeMaxLines: 12/);
+  assert.match(config, /methodIncludeComplexityAnalysis/);
+  assert.match(config, /每张图或表对应恰好两个主要正文段落/);
+  assert.match(config, /图表本体负责完整数值/);
+  assert.match(config, /允许调整图表顺序/);
+  assert.match(config, /核心证据、不利结果和唯一消融证据不得删除/);
+  assert.match(config, /不得移动 Main Results、核心比较或关键消融图表/);
+  assert.match(config, /上限不是配额/);
+  assert.match(config, /冒号只在确有必要/);
+  assert.match(config, /“允许”不是使用要求/);
+  assert.match(config, /mode: "preserve"[\s\S]*section: \[300, 500\]/);
+  assert.match(config, /experimentalFocus: ExperimentalFocusId = "both"/);
+  assert.match(config, /section: \[800, 1400\]/);
+  assert.match(config, /allowColon:\s*true/);
+  assert.match(config, /allowWe:\s*true/);
+  assert.match(component, /showDiscussionOrganization/);
+  assert.match(component, /showLimitationMode/);
+  assert.match(component, /showVisualEvidence/);
+  assert.match(component, /showCitationMode/);
+  assert.match(component, /showWeToggle/);
+  assert.match(component, /sectionMinWords/);
+  assert.match(component, /paragraphMinWords/);
+  assert.match(component, /sentenceMinWords/);
+  assert.match(component, /visualParagraphsPerItem/);
+  assert.match(component, /abstractKeywordCountMin/);
+  assert.match(component, /abstractKeywordWordsMax/);
+  assert.match(component, /keyNumbersPerParagraphMax/);
+  assert.match(component, /selectExperimentalFocus/);
+  assert.match(component, /allowVisualReorder/);
+  assert.match(component, /methodIncludePseudocode/);
+  assert.doesNotMatch(component, /PaperStyleId/);
+  assert.match(
+    component,
+    /const \[expanded, setExpanded\] = useState\(true\)/,
+  );
+  assert.match(navigation, /href:\s*"\/reconstruction\/refinement"/);
+  assert.match(navigation, /activePage:\s*"refinement"/);
+});
+
+test("keeps specialized audits selectable, coordinated, and evidence-bound", async () => {
+  const [config, component, page, navigation] = await Promise.all([
+    readFile(
+      new URL("../app/reconstruction/audit/config.ts", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/reconstruction/audit/SpecializedAuditWorkbench.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/reconstruction/audit/page.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(new URL("../app/navigation.ts", import.meta.url), "utf8"),
+  ]);
+
+  assert.match(config, /"terminology"/);
+  assert.match(config, /"bibliography"/);
+  assert.match(config, /"data-consistency"/);
+  assert.match(config, /"visual-integrity"/);
+  assert.match(config, /"claim-evidence"/);
+  assert.match(config, /"notation"/);
+  assert.match(config, /"reproducibility"/);
+  assert.match(config, /"cross-section-redundancy"/);
+  assert.match(config, /executionMode: "report-only"/);
+  assert.match(config, /同一根因只生成一个稳定问题 ID/);
+  assert.match(config, /AUD-007 \[DATA\]\[VIS\]\[CLAIM\]/);
+  assert.match(config, /Blocker \/ Major \/ Minor/);
+  assert.match(config, /numeric-claim ledger/);
+  assert.match(config, /孤儿图表/);
+  assert.match(config, /执行日前两年内直接相关的顶会、顶刊论文/);
+  assert.match(config, /不把偏好差异、无证据猜测或纯风格意见包装成问题/);
+  assert.match(config, /buildSpecializedAuditPrompt/);
+  assert.match(component, /role="checkbox"/);
+  assert.match(component, /selectAllAudits/);
+  assert.match(component, /clearAudits/);
+  assert.match(component, /<PromptResizeHandle language=\{uiLanguage\}/);
+  assert.match(
+    component,
+    /const \[expanded, setExpanded\] = useState\(true\)/,
+  );
+  assert.match(page, /<SpecializedAuditWorkbench \/>/);
+  assert.match(navigation, /href:\s*"\/reconstruction\/audit"/);
+  assert.match(navigation, /activePage:\s*"audit"/);
 });
 
 test("keeps research-figure choices and prompt rules configuration-driven", async () => {

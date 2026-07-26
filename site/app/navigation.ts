@@ -4,6 +4,8 @@ export type ActivePage =
   | "home"
   | "draft"
   | "reconstruction"
+  | "refinement"
+  | "audit"
   | "figures"
   | "submission";
 
@@ -131,19 +133,47 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "section-refinement",
         label: { zh: "章节精修", en: "Section Refinement" },
-        status: "future",
+        status: "available",
+        href: "/reconstruction/refinement",
+        activePage: "refinement",
         keywords: {
-          zh: ["章节修改", "局部重写", "语言精修"],
-          en: ["section revision", "local rewrite", "language refinement"],
+          zh: ["章节修改", "局部重写", "语言精修", "摘要", "讨论"],
+          en: [
+            "section revision",
+            "local rewrite",
+            "language refinement",
+            "abstract",
+            "discussion",
+          ],
         },
       },
       {
         id: "targeted-audit",
         label: { zh: "专项审计", en: "Targeted Audits" },
-        status: "future",
+        status: "available",
+        href: "/reconstruction/audit",
+        activePage: "audit",
         keywords: {
-          zh: ["证据", "引用", "术语", "数字", "一致性"],
-          en: ["evidence", "citations", "terminology", "numbers", "consistency"],
+          zh: [
+            "证据",
+            "引用",
+            "BibTeX",
+            "术语",
+            "数字",
+            "图表",
+            "一致性",
+            "可复现性",
+          ],
+          en: [
+            "evidence",
+            "citations",
+            "bibtex",
+            "terminology",
+            "numbers",
+            "visuals",
+            "consistency",
+            "reproducibility",
+          ],
         },
       },
       {

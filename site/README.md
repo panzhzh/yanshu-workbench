@@ -39,6 +39,8 @@ from the same configuration source used by the website.
 - `/` — overview
 - `/draft` — paper draft generation
 - `/reconstruction` — paper reconstruction
+- `/reconstruction/refinement` — section-specific refinement
+- `/reconstruction/audit` — selectable specialized audits
 - `/figures` — research figure prompts
 - `/submission` — venue targeting
 
