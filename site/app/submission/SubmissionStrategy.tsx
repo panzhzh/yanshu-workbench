@@ -111,6 +111,8 @@ export default function SubmissionStrategy() {
         styleDirective: journalStyle.promptDirective[promptLanguage],
         hasWordLimit: false,
         unlimitedCoreSections: false,
+        includeSectionNavigationSentence: false,
+        allowTitleBrandCandidates: false,
         targetWords: journalStyle.defaultTargetWords,
         sectionBudgets: [],
         includeAppendix: false,

@@ -5,62 +5,48 @@ import type {
 
 export const COMMON_PROMPT_BLOCKS = {
   evidence: {
-    zh: `1. 论文事实只能来自当前 .tex、PDF 中可直接读取的内容、当前 .bib，以及可靠外部来源支持的研究背景。
-2. 联网资料只能核验背景、术语、研究缺口、相关工作和 venue 信息，不能替代论文材料推断方法、实验设置、数据或结果。
-3. 不得杜撰数据集、划分、指标、随机种子、硬件、超参数、运行次数、显著性、模块、公式、结果、性能提升或失败案例。
-4. TeX、PDF、图表或正文数字冲突时，不得自行挑选。记录位置与风险，并采用证据最直接、风险最低的处理；无法判断时删除或弱化结论。
-5. 不得把相关性写成因果，把单一设置下的观察写成普适规律，或把未经验证的解释写成既定机制。
-6. 禁止宣传性表述。只有证据充分时才使用具体、克制、可核验的比较语言。
-7. 最终论文不得遗留 TODO、TBD、虚构引用键、未解释占位符或等待作者补充的伪正文。`,
-    en: `1. Manuscript facts may come only from the current .tex, directly inspectable PDF content, the current .bib, and research background supported by reliable external sources.
-2. Web research may verify background, terminology, gaps, related work, and venue information. It must not replace manuscript evidence for methods, settings, data, or results.
-3. Do not invent datasets, splits, metrics, seeds, hardware, hyperparameters, run counts, significance, modules, equations, results, gains, or failure cases.
-4. When TeX, PDF, figures, tables, or prose disagree, do not choose a value arbitrarily. Record the location and risk, then use the most directly supported low-risk treatment. Remove or qualify a claim when the conflict cannot be resolved.
-5. Do not turn correlation into causation, a single-setting observation into a general law, or an untested explanation into a confirmed mechanism.
-6. Avoid promotional language. Use concrete, restrained, verifiable comparisons only when evidence supports them.
-7. The final manuscript must not contain TODO, TBD, invented citation keys, unexplained placeholders, or pseudo-prose awaiting author input.`,
+    zh: `1. 论文事实以当前 .tex、可视核查的 PDF、当前 .bib 为准；联网只核验背景、术语、缺口、相关工作与 venue，不能替代论文材料推断方法、设置、数据或结果。
+2. 不补造数据集、指标、实验设置、模块、公式、统计、结果、提升或失败案例。TeX、PDF、图表与正文冲突时，记录位置与风险；采用证据最直接的低风险表述，无法判断则弱化结论。
+3. 保持 claim 与证据同强度：不把相关性写成因果、局部观察写成普适规律或推断写成已证实机制；比较语言应具体、克制、可核验。
+4. 最终稿不得残留 TODO、TBD、虚构 cite key、未解释占位符或待补伪正文。`,
+    en: `1. Ground manuscript facts in the current .tex, visually inspectable PDF, and current .bib. Use web research only to verify background, terminology, gaps, related work, and venue information—not to infer methods, settings, data, or results.
+2. Invent no datasets, metrics, experimental settings, modules, equations, statistics, results, gains, or failure cases. When TeX, PDF, visuals, and prose conflict, record the location and risk; use the most directly supported low-risk wording and qualify an unresolved claim.
+3. Match claim strength to evidence: do not turn correlation into causation, a local observation into a general law, or inference into a confirmed mechanism. Keep comparisons concrete, restrained, and verifiable.
+4. Leave no TODO, TBD, invented cite key, unexplained placeholder, or pseudo-prose in the final manuscript.`,
   },
   manuscriptProtection: {
-    zh: `1. 沿用当前 .tex 的文档类、宏包、参考文献样式、单双栏、作者信息、自定义命令、图像路径和编译体系。
-2. 只有明确编译错误、重复 label、失效引用或语法错误才允许做最小格式修复，并在报告中说明。
-3. 尽量保留现有 label、ref、cite、公式编号和算法标签；移动内容时同步维护交叉引用。
-4. 不得删除 PDF 中真实存在且承担证据作用的图表。除独立的“重构方法总览框架图”步骤明确要求、且完全基于论文事实生成的 PNG 外，不得生成、虚构或替换图像文件。
-5. 最终输出必须是完整、连续、可继续编辑的英文 .tex，而不是 diff、片段或合并建议。
-6. 中文分析、问题与修改说明只放在中文报告中，不得混入 TeX。`,
-    en: `1. Preserve the current .tex document class, packages, bibliography style, column layout, author block, custom commands, image paths, and compilation system.
-2. Make only minimal format repairs for confirmed compilation errors, duplicate labels, broken references, or syntax errors, and document every repair.
-3. Preserve labels, refs, cites, equation numbers, and algorithm identifiers where possible. Maintain cross-references whenever content moves.
-4. Do not remove figures or tables that exist in the PDF and serve an evidentiary role. Except for the PNG explicitly required by the separate “Reconstruct the Method Overview Figure” step and generated entirely from manuscript facts, do not generate, invent, or replace image files.
-5. The final output must be a complete, continuous, editable English .tex file, not a diff, excerpt, or merge instructions.
-6. Keep Chinese analysis, open questions, and revision notes in the Chinese report, never inside the TeX.`,
+    zh: `1. 沿用当前文档类、宏包、作者块、参考文献样式、自定义命令、单双栏、图像路径和编译体系；只对已确认的编译、语法、重复 label 或失效引用做最小修复并记录。
+2. 尽量保留 label、ref、cite、公式编号和算法标识；移动内容时同步维护交叉引用。
+3. 保留所有承担证据作用的现有图表。除独立框架图步骤要求的、完全基于论文事实生成的 PNG 外，不生成或替换图片。
+4. 交付完整、连续、可编辑的英文 .tex；中文分析与修改说明只进入中文报告。`,
+    en: `1. Preserve the document class, packages, author block, bibliography style, custom commands, column layout, image paths, and build system. Make and report only confirmed minimal repairs to compilation, syntax, duplicate labels, or broken references.
+2. Preserve labels, refs, cites, equation numbers, and algorithm identifiers where possible; maintain cross-references when content moves.
+3. Retain every existing visual that carries evidence. Generate or replace no image except the manuscript-grounded PNG required by the separate framework-figure step.
+4. Deliver a complete, continuous, editable English .tex; keep Chinese analysis and revision notes in the Chinese report.`,
+  },
+  identityGovernance: {
+    zh: `默认保留原标题、方法全称与论文品牌缩写。只有当前配置允许，且现有名称存在误导、越界或明显不自然时，才在中文报告中提出少量候选；自动化流程不得静默写入候选。任何标题或品牌变化都必须由作者明确选择，并记录 high-risk diff（原值、候选、依据、风险与授权状态）。科学主线可以随新证据修正，但每次变化都要记录原因和影响，不得因单轮判断永久冻结。`,
+    en: `Preserve the current title, full method name, and paper-brand acronym by default. Only when the configuration allows it and the current identity is misleading, overbroad, or clearly unnatural may the Chinese report propose a small candidate set; automation must never apply a candidate silently. Any title or brand change requires explicit author selection and a high-risk diff recording the original, candidate, evidence, risk, and authorization status. The scientific throughline may be revised when later evidence warrants it, but every change must record its reason and impact rather than becoming permanently frozen after one round.`,
   },
   cohesiveRevision: {
-    zh: `1. 禁止补丁式修改：不得保留功能冲突或逻辑断裂的原句，再通过段末补一句、括号补充、免责声明或堆叠转折词进行补救。
-2. 先识别当前允许修改范围内的最小完整论证单元——可以是一个句群、一个段落或一个 subsection——再在该单元内整体重组，使问题、claim、证据、解释、边界和过渡自然融合。
-3. 修改后的正文应像一次成稿，读者不应看到“原文 + 修补句”的接缝；删除因重组产生的重复、前后冲突和失去功能的过渡。
-4. 融合式重写不授权扩大修改范围、改变事实与 claim、补造证据或重写本轮明确冻结的内容；只在获准范围内形成完整、连贯的最终表述。`,
-    en: `1. Do not revise by patching. Never retain a functionally conflicting or logically broken sentence and then compensate with an appended sentence, parenthetical qualification, disclaimer, or stack of transition words.
-2. Identify the smallest complete argumentative unit allowed by the current scope—a sentence group, paragraph, or subsection—and recompose that unit so the problem, claim, evidence, interpretation, boundary, and transition are integrated naturally.
-3. The revision must read as a coherent first-pass final text, with no visible seam between “old prose” and a corrective add-on. Remove repetition, contradictions, and transitions that lose their function after recomposition.
-4. Cohesive recomposition does not authorize scope expansion, factual or claim changes, fabricated evidence, or edits to content frozen in this round. Form a complete, continuous final expression only inside the permitted scope.`,
+    zh: `1. 不做“原文 + 修补句”：先确定允许范围内最小的完整论证单元，再整体融合问题、claim、证据、解释、边界与过渡。
+2. 保留准确有力的原表达；只重组确有断裂、冲突或重复的位置，使修改后像一次成稿。
+3. 精修不扩大范围、不改变事实与 claim、不补造证据，也不触碰本轮明确保护的内容。`,
+    en: `1. Do not produce “old prose plus a patch.” Identify the smallest complete argumentative unit in scope, then integrate its problem, claim, evidence, interpretation, boundary, and transition.
+2. Preserve accurate, effective original expression. Recompose only genuine breaks, conflicts, or repetition so the result reads as one coherent draft.
+3. Refinement does not expand scope, change facts or claims, fabricate evidence, or touch content protected in this round.`,
   },
   pdfReview: {
     zh: `完整阅读 PDF，并用页面截图或等价视觉方式检查所有框架图、机制图、实验图、案例图、表格与公式版式。对图检查模块、箭头、输入输出、图例、caption 和正文引用；对表检查行列含义、指标方向、标记、单位、均值/标准差和正文数字。若 TeX 与 PDF 不一致，在报告中给出页码、编号和冲突内容。`,
     en: `Read the complete PDF and visually inspect every framework diagram, mechanism figure, result plot, case figure, table, and rendered equation using page images or an equivalent visual method. For figures, check components, arrows, inputs, outputs, legends, captions, and prose references. For tables, check row and column meanings, metric direction, emphasis marks, units, mean/standard deviation notation, and numbers cited in prose. Report page numbers, identifiers, and exact conflicts whenever TeX and PDF disagree.`,
   },
   citationAndWeb: {
-    zh: `1. 写作前提取当前 .bib 的全部 BibTeX key，并完整保留现有条目；最终 TeX 中每个 cite key 都必须真实存在于本轮输出的完整 .bib。
-2. 本轮输出的 .bib 必须是一份可直接供下一轮和编译继续使用的完整当前文献库，不得只输出增量建议。仅追加已核验且不重复的新条目；若 TeX 引用新增文献，其准确条目必须同时写入该完整 .bib。
-3. 技术事实优先核验原论文、官方论文页、出版社页面、DBLP、Crossref 或作者公开版本。
-4. 优先近三年直接相关工作，同时保留必要的奠基文献；不得用仅关键词相似的文献凑数。
-5. 每条新增文献都要在报告中说明支持的具体论点、使用位置、与原有 .bib 是否重复及加入理由。
-6. 核验标题、作者、年份、venue、DOI 或官方 URL；无法确认的字段宁缺毋滥。除修正已核实的错误外，不得改写现有条目；任何修正都必须在报告中记录。`,
-    en: `1. Extract every BibTeX key from the current .bib before drafting and preserve all existing entries. Every cite key in the final TeX must exist in the complete .bib delivered for this round.
-2. The delivered .bib must be a complete current library that the next round and compiler can use directly, never a delta-only suggestions file. Append only verified, non-duplicate additions. If the TeX cites a newly found work, include its exact verified entry in that complete .bib.
-3. Prefer original papers, official proceedings pages, publisher pages, DBLP, Crossref, or author-hosted versions for technical facts.
-4. Prioritize directly relevant work from the last three years while retaining necessary foundations. Do not pad the bibliography with keyword-only matches.
-5. For each addition, state in the report the exact claim it supports, where it is used, whether it duplicates the input .bib, and why it was added.
-6. Verify title, authors, year, venue, DOI, or official URL. Omit uncertain fields instead of guessing. Do not rewrite existing entries except to correct a verified error, and document every correction in the report.`,
+    zh: `1. 保留当前 .bib 的全部条目；最终每个 cite key 都必须存在于本轮交付的完整当前文献库，不能只交付增量。
+2. 技术事实优先核验原论文、官方论文页、出版社、DBLP、Crossref 或作者公开版本；优先近三年直接相关工作，同时保留必要奠基文献。
+3. 仅追加已核验、非重复且确实支撑论点的条目。新增或修正都在报告中记录支持的 claim、位置、理由与元数据来源；不确定字段留空而非猜测。`,
+    en: `1. Preserve every current .bib entry. Every final cite key must exist in the complete current BibTeX library delivered for this round, never a delta-only file.
+2. Verify technical facts through original papers, official proceedings or publisher pages, DBLP, Crossref, or author versions. Prioritize directly relevant work from the last three years while retaining necessary foundations.
+3. Add only verified, non-duplicate sources that support a real claim. Record each addition or correction, its claim and location, rationale, and metadata source; omit uncertain fields rather than guessing.`,
   },
 } satisfies Record<string, LocalizedText>;
 
@@ -75,12 +61,12 @@ export const PROMPT_TEMPLATES: PromptTemplate[] = [
       en: "Scientific Positioning & Structure",
     },
     purpose: {
-      zh: "确定标题与论文品牌缩写，并建立唯一科学主线、术语体系、Claim–Evidence Map 和章节分工。",
-      en: "Determine the title and paper brand acronym, then establish one scientific throughline, a stable terminology system, a claim–evidence map, and clear section responsibilities.",
+      zh: "审计科学定位，在默认保留论文身份的前提下建立主线、术语体系、Claim–Evidence Map 和章节分工。",
+      en: "Audit the scientific position and, while preserving the paper identity by default, establish the throughline, terminology, claim–evidence map, and section responsibilities.",
     },
     role: {
-      zh: "你是一名熟悉计算机科学顶级会议与高水平期刊评审的资深研究者。本轮是宏观重构轮：把初稿重建为科学问题清晰、术语统一、章节分工合理、证据链完整的论文。",
-      en: "You are a senior researcher familiar with leading computer-science conferences and journals. This is the macro-reconstruction round: rebuild the draft around a clear scientific problem, stable terminology, distinct section functions, and a complete evidence chain.",
+      zh: "你是一名熟悉计算机科学顶级会议与高水平期刊评审的资深研究者。本轮在保留原稿有效论证和优质表达的基础上，完成科学定位与宏观结构的深度精修。",
+      en: "You are a senior researcher familiar with leading computer-science conferences and journals. Deeply refine the scientific position and macro structure while preserving sound arguments and strong original expression.",
     },
     inputs: {
       zh: `- 当前最新完整 .tex
@@ -98,12 +84,12 @@ export const PROMPT_TEMPLATES: PromptTemplate[] = [
     },
     styleBranches: {
       conference: {
-        zh: "会议论文：需要第三层标题时使用 paragraph 而非 subsubsection；paragraph 只命名真实科学单元，普通论述使用连续段落。Related Work 恰好三个单段小节；Method 不单设 Overview；Discussion and Limitations 由三个讨论小节和一个约 100 词的 Limitations 小节组成。",
-        en: "Conference paper: when a third-level heading is needed, use paragraph rather than subsubsection; reserve headings for genuine scientific units and develop ordinary exposition as continuous prose. Give Related Work exactly three one-paragraph subsections, omit a standalone Method Overview, and structure Discussion and Limitations as three discussion subsections plus an approximately 100-word Limitations subsection.",
+        zh: "会议论文采用高密度、claim-first 的写法。需要第三层标题时使用 paragraph；只为独立科学单元设置标题，普通论述保持连续。Related Work 使用三个单段小节；Method 不单设 Overview；Discussion 由模型按证据选择 3–5 个主题小节，Limitations 约 100 词。",
+        en: "Conference prose is compact and claim-first. Use paragraph when a third heading level is genuinely needed, and otherwise keep exposition continuous. Related Work uses three one-paragraph subsections; Method has no standalone Overview; the model selects three to five evidence-driven Discussion topics, followed by an approximately 100-word Limitations subsection.",
       },
       journal: {
-        zh: "期刊论文：目录层级默认止于 subsubsection，其下使用主题句、过渡和自然段，不把叙述功能写成 paragraph 标题。Related Work 恰好三个双段小节；Method 单设恰好两段且不超过 80 词的 Overview，不得复述框架图。",
-        en: "Journal paper: stop the heading hierarchy at subsubsection by default, using topic sentences, transitions, and natural paragraphs below it rather than paragraph headings for discourse functions. Give Related Work exactly three two-paragraph subsections and use a standalone, exactly two-paragraph Method Overview capped at 80 words without narrating the framework figure.",
+        zh: "期刊论文采用累积式、解释充分的写法。目录层级默认止于 subsubsection，叙述功能使用主题句与过渡表达。Related Work 使用三个双段小节；Method 单设两段且不超过 80 词的 Overview；Discussion 由模型按证据选择 3–5 个主题小节。",
+        en: "Journal prose is cumulative and sufficiently explanatory. Stop the heading hierarchy at subsubsection by default and express discourse functions through topic sentences and transitions. Related Work uses three two-paragraph subsections; Method has a two-paragraph Overview capped at 80 words; the model selects three to five evidence-driven Discussion topics.",
       },
     },
     tasks: [
@@ -121,22 +107,22 @@ The core idea must remain meaningful without component names. Do not relabel ord
       },
       {
         heading: {
-          zh: "B. 确定标题与论文品牌缩写",
-          en: "B. Determine the Title and Paper Brand Acronym",
+          zh: "B. 审计标题与论文品牌缩写",
+          en: "B. Audit the Title and Paper Brand Acronym",
         },
         body: {
-          zh: "在完整理解论文并稳定科学定位后，直接确定一个最终英文标题和一个 4–7 个字母的论文品牌缩写并写入 TeX。缩写须与方法全称和核心思想自然对应、便于读写与检索，并核查与当前 .bib、最近邻工作及领域常用名称的明显冲突；不提供标题候选。",
-          en: "After understanding the full manuscript and stabilizing its scientific position, determine exactly one final English title and one 4–7-letter paper brand acronym, then write both into the TeX. The acronym must map naturally to the full method name and core idea, remain readable and searchable, and be checked for obvious conflicts with the current .bib, nearest-neighbor work, and common names in the field. Do not provide title candidates.",
+          zh: "默认保留原标题、方法全称和原缩写，并核查其准确性、自然度与冲突风险。只有当前配置允许且确有误导、越界或明显不自然时，才在中文报告中给出少量候选；不得自动写入 TeX。任何变化都必须由作者明确选择，并附 high-risk diff。",
+          en: "Preserve the current title, full method name, and acronym by default, while auditing accuracy, naturalness, and conflict risk. Only when the configuration permits and the identity is misleading, overbroad, or clearly unnatural may the Chinese report offer a small candidate set. Never apply it to TeX automatically. Any change requires explicit author selection and a high-risk diff.",
         },
       },
       {
         heading: {
-          zh: "C. 冻结唯一术语体系",
-          en: "C. Freeze One Terminology System",
+          zh: "C. 统一术语体系",
+          en: "C. Standardize the Terminology System",
         },
         body: {
-          zh: "确定方法全称与上述论文品牌缩写、问题名称、表示、模块、分支、查询、损失、训练/推理、数据集、指标和实验类型的 canonical term；列出禁用变体与必须区分的相近概念。",
-          en: "Define canonical terms for the full method name and paper brand acronym, problem, representations, components, branches, queries, losses, training/inference, datasets, metrics, and experiment types. List prohibited variants and nearby concepts that must remain distinct.",
+          zh: "以现有方法全称与论文品牌缩写为默认基准，统一问题、表示、模块、分支、查询、损失、训练/推理、数据集、指标和实验类型的 canonical term；列出禁用变体与必须区分的相近概念。",
+          en: "Use the existing full method name and paper brand acronym as the default identity, then define canonical terms for the problem, representations, components, branches, queries, losses, training/inference, datasets, metrics, and experiment types. List prohibited variants and nearby concepts that must remain distinct.",
         },
       },
       {
@@ -145,8 +131,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
           en: "D. Rebuild Section Functions and Argument Order",
         },
         body: {
-          zh: "让 Abstract 概括完整证据链；Introduction 完成背景、缺口、挑战、方法概览和贡献；Related Work 按研究范式与权衡综合；Method 从问题定义进入核心机制；Experiments 先写数据集与实验设置、再写主结果，后续小节按证据安排消融、机制/效率/参数、案例与定性等分析；Discussion 解释机制、范围与限制且不重复实验结果；Conclusion 收束问题、证据和边界。",
-          en: "Make the Abstract summarize the evidence chain; the Introduction establish background, gap, challenges, method overview, and contributions; Related Work synthesize paradigms and trade-offs; Method move from problem definition to core mechanisms; Experiments begin with datasets/setup and main results, then order ablations, mechanism/efficiency/parameter analyses, case studies, and qualitative analyses by evidence; Discussion interpret mechanisms, scope, and limitations without repeating results; and Conclusion close the problem, evidence, and boundaries.",
+          zh: "让 Abstract 概括证据链；Introduction 依次建立背景与缺口、今天仍未解决的挑战、回应这些挑战的核心思想和贡献；Related Work 按范式与权衡综合；Method 与 Experiments 保留全部核心机制、协议和发现，并只为实质科学单元设置标题；Discussion 以 3–5 个证据驱动主题解释机制、范围与局限；Conclusion 收束问题、证据和边界。",
+          en: "Make the Abstract summarize the evidence chain; let the Introduction move from background and gap to challenges still unresolved today, then to the core idea that answers them and the contributions; synthesize Related Work by paradigms and trade-offs; preserve all core mechanisms, protocols, and findings in Method and Experiments while using headings only for substantive scientific units; use three to five evidence-driven Discussion topics; and close the problem, evidence, and boundaries in Conclusion.",
         },
       },
       {
@@ -161,18 +147,18 @@ The core idea must remain meaningful without component names. Do not relabel ord
       },
       {
         heading: {
-          zh: "F. 核验定位并完成宏观重写",
-          en: "F. Verify the Position and Perform the Macro Rewrite",
+          zh: "F. 核验定位并完成宏观重构",
+          en: "F. Verify the Position and Perform the Macro Reconstruction",
         },
         body: {
-          zh: "联网核验研究缺口、最近邻工作和贡献冲突风险。在当前证据范围内完成全稿宏观重写；语言可暂不追求最终精修，但主线、结构、术语和论证顺序必须稳定。",
-          en: "Use web research to verify the gap, nearest-neighbor work, and contribution-overlap risks. Complete the macro rewrite within the available evidence. Sentence-level polish may wait, but the throughline, architecture, terminology, and evidence order must be stable.",
+          zh: "联网核验研究缺口、最近邻工作和贡献冲突风险。在保留原稿有效论证与优质表达的基础上完成全稿宏观重构；语言可暂不追求最终精修，但主线、结构、术语和论证顺序必须清晰。",
+          en: "Use web research to verify the gap, nearest-neighbor work, and contribution-overlap risks. Reconstruct the manuscript at the macro level while preserving sound arguments and strong original expression. Sentence-level polish may wait, but the throughline, architecture, terminology, and evidence order must be clear.",
         },
       },
     ],
     deliverables: {
-      zh: `生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。中文报告至少包含：Scientific Positioning Contract、最终标题与论文品牌缩写及依据、一句话主旨与痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、最终术语表、章节功能与预算表、图表角色、结构操作清单、联网核验、新增或修正文献记录、作者需确认项和下一步交接摘要。`,
-      en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract, final title and paper brand acronym with rationale, one-sentence thesis and pain point, old/new throughline comparison, contribution hierarchy, Claim–Evidence Map, final terminology table, section-function and budget table, visual roles, structural operation log, web verification, added or corrected bibliography records, author-confirmation items, and a self-contained handoff.`,
+      zh: `生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。中文报告至少包含：Scientific Positioning Contract、标题与论文品牌审计（如有候选则附 high-risk diff 和未授权状态）、一句话主旨与痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能与预算表、图表角色、结构操作清单、联网核验、文献记录和下一步交接摘要。`,
+      en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract; title and paper-brand audit, with a high-risk diff and unauthorized status for any candidate; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology table; section functions and budgets; visual roles; structural operations; web verification; bibliography changes; and a self-contained handoff.`,
     },
     fileNames: {
       zh: `<base_name>_round_1_scientific_structure.tex
@@ -185,14 +171,16 @@ The core idea must remain meaningful without component names. Do not relabel ord
     finalChecks: {
       zh: `- 全文围绕一个科学问题和核心思想组织。
 - 每个主要 claim 都有证据位置和边界。
-- 已确定一个最终标题和一个 4–7 个字母的论文品牌缩写。
+- 默认保留原标题与原缩写；任何候选均未被静默写入，并附 high-risk diff。
 - 术语、章节功能与图表角色已稳定。
+- Method 与 Experiments 的核心内容未因篇幅建议或结构整理而压缩。
 - 未改变模板，未添加无证据内容。
 - 已按当前论文风格与附录配置执行。`,
       en: `- The manuscript is organized around one scientific problem and core idea.
 - Every primary claim has an evidence location and boundary.
-- One final title and one 4–7-letter paper brand acronym have been fixed.
+- The original title and acronym were preserved by default; no candidate was silently applied, and every candidate has a high-risk diff.
 - Terminology, section functions, and visual roles are stable.
+- Core Method and Experiments content was not compressed to satisfy a length suggestion or structural cleanup.
 - The template was preserved and no unsupported content was added.
 - The current paper style and appendix configuration were followed.`,
     },
@@ -228,12 +216,12 @@ The core idea must remain meaningful without component names. Do not relabel ord
     },
     styleBranches: {
       conference: {
-        zh: "会议论文：需要第三层标题时使用 paragraph 而非 subsubsection；paragraph 只命名真实科学单元，普通论述使用连续段落。Method 不单设 Overview，在合适位置自然引出总体框架；实验设置内用 paragraph 依次组织 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines。",
-        en: "Conference paper: when a third-level heading is needed, use paragraph rather than subsubsection; reserve headings for genuine scientific units and develop ordinary exposition as continuous prose. Use no standalone Method Overview, introduce the framework naturally where it serves the story, and organize Datasets, Evaluation Metrics, Experimental Configuration, and Baselines with paragraph headings inside experimental setup.",
+        zh: "会议论文采用高密度、claim-first 的写法。目录层级使用 section → subsection → paragraph，但只为独立科学单元设置标题；Method 不单设 Overview，在合适位置自然引出总体框架。实验设置依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines，不要求四者机械成为标题。",
+        en: "Conference prose is compact and claim-first. The available hierarchy is section → subsection → paragraph, but headings are reserved for substantive scientific units. Method has no standalone Overview and introduces the framework where it serves the argument. Experimental setup covers Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order without mechanically turning all four into headings.",
       },
       journal: {
-        zh: "期刊论文：目录层级默认止于 subsubsection；其下使用主题句、过渡和自然段，不把 Design Purpose、Question、Observation 等叙述功能写成 paragraph 标题。Method 单设恰好两段、总计不超过 80 词的 Overview，解释科学逻辑但不复述框架图；实验设置内用 subsubsection 依次组织 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines。",
-        en: "Journal paper: stop the heading hierarchy at subsubsection by default; below it, use topic sentences, transitions, and natural paragraphs rather than paragraph headings such as Design Purpose, Question, or Observation. Method has a standalone Overview of exactly two paragraphs and at most 80 words that explains scientific logic without narrating the figure. Inside experimental setup, use subsubsections for Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in that order.",
+        zh: "期刊论文采用累积式、解释充分的写法。目录层级默认止于 subsubsection；其下使用主题句、过渡和自然段。Method 单设两段、总计不超过 80 词的 Overview，解释科学逻辑但不复述框架图。实验设置依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines，只在内容确实构成独立单元时设置 subsubsection。",
+        en: "Journal prose is cumulative and sufficiently explanatory. Stop the hierarchy at subsubsection by default and use topic sentences and transitions below it. Method has a two-paragraph Overview capped at 80 words that explains the scientific logic without narrating the figure. Experimental setup covers Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order, using subsubsections only for genuinely independent units.",
       },
     },
     tasks: [
@@ -243,10 +231,9 @@ The core idea must remain meaningful without component names. Do not relabel ord
           en: "A. Reconstruct the Method Logic",
         },
         body: {
-          zh: `Method 不得写成说明书、代码文档或操作清单。围绕“问题为什么难 → 现有设计为什么不足 → 为什么需要当前机制 → 机制如何回应问题 → 适用边界”形成融合性的科学故事；不要求每句话机械解释 why。
-按当前论文类型规定处理 Overview，再进入核心机制、目标/训练与推理/复杂度；每个机制自然融合设计动机、计算构造、组件接口、作用与边界。`,
+          zh: `Method 围绕“问题为什么难 → 为什么需要当前机制 → 机制如何回应问题 → 适用边界”形成融合性的科学故事，而不是说明书或组件清单。按论文类型处理 Overview，再进入核心机制、目标、训练与推理；每个机制自然融合动机、计算构造、接口、作用与边界。保留全部核心方法内容，只合并重复表达，并避免为每个模块或叙述功能新增标题。`,
           en: `Method must not read like a manual, code document, or procedural checklist. Build an integrated scientific story around why the problem is difficult, why existing designs fall short, why the mechanism is needed, how it addresses the problem, and where it applies; do not force every sentence to state a why.
-Follow the current paper type's Overview rule before moving through core mechanisms, objective/training, and inference/complexity. Integrate motivation, construction, interfaces, function, and boundaries naturally for each mechanism.`,
+Follow the current paper type's Overview rule before moving through core mechanisms, objectives, training, and inference. Integrate motivation, construction, interfaces, function, and boundaries naturally. Preserve all core Method content, merge only genuine repetition, and do not create a heading for every component or discourse function.`,
         },
       },
       {
@@ -275,10 +262,10 @@ Follow the current paper type's Overview rule before moving through core mechani
           en: "D. Rewrite Setup, Main Results, and Evidence-driven Analyses",
         },
         body: {
-          zh: `第一个小节固定为 Datasets and Experimental Setup，内部必须依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration（服务器/硬件、超参数等）和 Baselines。Evaluation Metrics 单独说明每项指标的定义、方向、单位或尺度、聚合方式及其与任务目标的对应关系；第二个小节固定为 Main Results。后续不绑定第三或第四的固定序号，按真实证据组织 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis 等分析。
-每个实验小节整体应交代所检验的不确定性、决定性证据、合理解释、与 claim 的关系和证据边界，并根据材料自然分布在连续段落中；小标题命名实验、变量或现象，而不重复 Question、Observation、Interpretation 等叙述功能。不逐单元格朗读。每项消融必须对应明确设计问题，不把普通波动写成确定机制。`,
-          en: `Fix Datasets and Experimental Setup as the first subsection, with required Datasets, Evaluation Metrics, Experimental Configuration (including servers/hardware and hyperparameters), and Baselines units in that order. Evaluation Metrics separately defines every metric, its direction, unit or scale, aggregation, and relation to the task objective; fix Main Results as the second subsection. Do not reserve fixed third or fourth positions. Order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, and other analyses by evidence.
-Across each experiment subsection, establish the uncertainty being tested, decisive evidence, warranted interpretation, relation to the claim, and evidence boundary, distributing these functions naturally across continuous prose. Let headings name experiments, variables, or phenomena rather than repeatedly labeling Question, Observation, or Interpretation. Do not narrate every table cell. Tie each ablation to a clear design question and do not present ordinary variation as a confirmed mechanism.`,
+          zh: `以 Datasets and Experimental Setup 开始，依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration（服务器/硬件、超参数等）和 Baselines；这些是内容功能，不要求逐项成为标题。Evaluation Metrics 说明指标定义、方向、尺度、聚合方式及其与任务目标的关系。随后是 Main Results，其他分析按真实证据安排，不绑定固定序号。
+保留全部实验协议、核心结果、不利结果和解释空间。每个实验单元用连续段落交代问题、决定性证据、合理解释、与 claim 的关系和边界；标题只命名真实实验、变量或现象，不把 Question、Observation、Interpretation 等叙述功能升级为标题，也不逐格朗读数字。`,
+          en: `Begin with Datasets and Experimental Setup, covering Datasets, Evaluation Metrics, Experimental Configuration (including servers/hardware and hyperparameters), and Baselines in that order. These are content functions, not mandatory headings. Define metric direction, scale, aggregation, and relation to the task objective. Follow with Main Results and order all further analyses by the available evidence rather than fixed positions.
+Preserve every protocol, core result, unfavorable result, and necessary interpretive context. Each experiment unit uses continuous prose to establish its question, decisive evidence, warranted interpretation, relation to the claim, and boundary. Headings name genuine experiments, variables, or phenomena—not discourse functions such as Question, Observation, or Interpretation—and prose does not narrate cells one by one.`,
         },
       },
       {
@@ -307,12 +294,16 @@ Across each experiment subsection, establish the uncertainty being tested, decis
     finalChecks: {
       zh: `- Method 与 Experiments 完成实质重构而非同义词替换。
 - 所有方法、公式、设置和数字均有当前材料依据。
+- 核心方法内容、实验协议与重要发现未被压缩或删除。
+- 标题层级只对应实质科学单元，未把论文写成标准文档式清单。
 - 现有图、表和公式已视觉核对并与正文对齐。
 - 本步未提前生成或替换总体框架图。
 - Results 不逐项朗读表格，也不提前承担 Discussion 功能。
 - 其他章节只做必要同步。`,
       en: `- Method and Experiments were substantively reconstructed, not synonym-swapped.
 - Every method, equation, setting, and number is grounded in current materials.
+- Core Method content, experimental protocols, and important findings were neither compressed nor deleted.
+- Headings correspond only to substantive scientific units rather than document-style inventory items.
 - Existing figures, tables, and equations were visually checked and aligned with prose.
 - This step did not prematurely generate or replace the overall framework figure.
 - Results neither narrates tables cell by cell nor absorbs the role of Discussion.
@@ -325,16 +316,16 @@ Across each experiment subsection, establish the uncertainty being tested, decis
     number: 3,
     profile: "manuscript",
     title: {
-      zh: "前后叙事从零重构",
-      en: "Narrative Sections from Evidence",
+      zh: "前后叙事深度精修",
+      en: "Deep Narrative Refinement",
     },
     purpose: {
-      zh: "仅以稳定的方法、实验和证据为底稿，从零重写摘要、引言、相关工作、讨论与结论。",
-      en: "Rewrite the abstract, introduction, related work, discussion, and conclusion from stable methods, experiments, and evidence.",
+      zh: "以方法、实验和证据为基准，深度精修摘要、引言、相关工作、讨论与结论，同时保留原稿中准确有力的表达。",
+      en: "Deeply refine the abstract, introduction, related work, discussion, and conclusion against the methods, experiments, and evidence while preserving accurate, effective original expression.",
     },
     role: {
-      zh: "你是一名熟悉计算机科学会议与期刊写作的资深研究者。保持第一步已确定的 Title 不变，把旧 Abstract、Introduction、Related Work、Discussion 和 Conclusion 视为不可复用的措辞，只保留可由 Method、Experiments、图表和可靠引用支持的事实。",
-      en: "You are a senior researcher experienced in computer-science conference and journal writing. Preserve the Title fixed in Step 1. Treat the old Abstract, Introduction, Related Work, Discussion, and Conclusion as unusable wording, retaining only facts supported by Method, Experiments, visuals, and reliable citations.",
+      zh: "你是一名熟悉计算机科学会议与期刊写作的资深研究者。以 Method、Experiments、图表和可靠引用为事实基准，对前后叙事做深度精修；保留原稿中准确、有辨识度且与新主线一致的好表达。",
+      en: "You are a senior researcher experienced in computer-science conference and journal writing. Use Method, Experiments, visuals, and reliable citations as the fact base, deeply refine the narrative sections, and preserve original wording that is accurate, distinctive, and aligned with the scientific throughline.",
     },
     inputs: {
       zh: `- 最新完整 .tex，优先为第二步输出
@@ -345,34 +336,34 @@ Across each experiment subsection, establish the uncertainty being tested, decis
 - The current complete .bib`,
     },
     scope: {
-      zh: "允许完全重写 Abstract、Introduction、Related Work、Discussion 和 Conclusion；不得重新生成或改写第一步已确定的 Title 与论文品牌缩写。Method 与 Experiments 原则上冻结，只修复术语、章节引用、图表引用和与新叙事直接冲突的局部句子。不得改变模板。",
-      en: "You may completely rewrite Abstract, Introduction, Related Work, Discussion, and Conclusion. Do not regenerate or rewrite the Title or paper brand acronym fixed in Step 1. Treat Method and Experiments as frozen except for terminology, section references, visual references, and local sentences that directly conflict with the new narrative. Preserve the template.",
+      zh: "允许重组 Abstract、Introduction、Related Work、Discussion 和 Conclusion 的段落与证据顺序，但默认采用深度精修而非清空重写。标题、方法全称与缩写遵循保留优先和 high-risk diff 规则。Method 与 Experiments 只做必要一致性同步，不压缩核心内容。不得改变模板。",
+      en: "You may reorganize paragraphs and evidence within Abstract, Introduction, Related Work, Discussion, and Conclusion, but default to deep refinement rather than blank-slate rewriting. The title, full method name, and acronym follow preserve-first and high-risk-diff governance. Synchronize Method and Experiments only as needed for consistency and never compress their core content. Preserve the template.",
     },
     styleBranches: {
       conference: {
-        zh: "会议论文：Related Work 恰好三个小节且每小节一个普通段落；Discussion and Limitations 先写三个讨论小节，再写一个约 100 词的 Limitations 小节；讨论不重复结果、不引用实验图表，结果数字最多三个。",
-        en: "Conference paper: Related Work has exactly three subsections with one ordinary paragraph each. Discussion and Limitations uses three discussion subsections followed by an approximately 100-word Limitations subsection; it does not repeat results or cite experimental visuals and uses at most three result values.",
+        zh: "会议论文采用高密度、claim-first 的叙事。Related Work 使用三个单段小节；Discussion 由模型按证据选择 3–5 个主题小节，并用约 100 词的 Limitations 收束；讨论不重复结果、不引用实验图表，结果数字最多三个。",
+        en: "Conference narrative is compact and claim-first. Related Work uses three one-paragraph subsections. The model selects three to five evidence-driven Discussion topics followed by an approximately 100-word Limitations subsection; Discussion does not repeat Results, cite experimental visuals, or use more than three result values.",
       },
       journal: {
-        zh: "期刊论文：Related Work 恰好三个小节且每小节两个普通段落；Discussion 用三个小节独立解释机制、适用范围、局限与未来方向，同样不重复结果或引用实验图表。",
-        en: "Journal paper: Related Work has exactly three subsections with two ordinary paragraphs each. A three-subsection Discussion explains mechanism, scope, limitations, and future directions without repeating results or citing experimental visuals.",
+        zh: "期刊论文采用累积式、解释充分的叙事。Related Work 使用三个双段小节；Discussion 由模型按证据选择 3–5 个主题小节，解释机制、适用范围、局限与未来方向，不重复结果或引用实验图表。",
+        en: "Journal narrative is cumulative and sufficiently explanatory. Related Work uses three two-paragraph subsections. The model selects three to five evidence-driven Discussion topics covering mechanism, scope, limitations, and future directions without repeating Results or citing experimental visuals.",
       },
     },
     tasks: [
       {
         heading: {
-          zh: "A. 抽取并冻结事实底稿",
-          en: "A. Extract and Freeze the Fact Base",
+          zh: "A. 建立事实底稿与保留清单",
+          en: "A. Build the Fact Base and Preservation List",
         },
         body: {
-          zh: "先从 Method、Experiments、图表和 .bib 抽取可安全复用的任务、问题、核心思想、机制、证据和边界。记录第一步已经确定的 Title、方法全称与论文品牌缩写并保持不变。",
-          en: "First extract a safe fact base of task, problem, core idea, mechanisms, evidence, and boundaries from Method, Experiments, visuals, and the .bib. Record and preserve the Title, full method name, and paper brand acronym fixed in Step 1.",
+          zh: "从全文抽取任务、问题、核心思想、机制、证据和边界，同时标记原稿中准确、清晰、有辨识度且值得保留的句子与表达。记录当前 Title、方法全称与论文品牌缩写；除非已有作者授权的 high-risk diff，不得替换。",
+          en: "Extract the task, problem, core idea, mechanisms, evidence, and boundaries from the manuscript, while marking original sentences and expressions that are accurate, clear, distinctive, and worth preserving. Record the current Title, full method name, and paper brand acronym; do not replace them without an author-authorized high-risk diff.",
         },
       },
       {
         heading: {
-          zh: "B. 从零重写 Abstract",
-          en: "B. Rewrite the Abstract from Scratch",
+          zh: "B. 深度精修 Abstract",
+          en: "B. Deeply Refine the Abstract",
         },
         body: {
           zh: "使用一个连续段落完成背景与缺口、方法桥接、核心思想与必要机制、关键实验发现及受证据支持的意义。不得使用引用、公式、脚注或编号；缩写保持克制，不堆叠正文级专有名词，Results 建议只保留 2–4 个最有代表性的结果数字。",
@@ -381,24 +372,24 @@ Across each experiment subsection, establish the uncertainty being tested, decis
       },
       {
         heading: {
-          zh: "C. 从零重写 Introduction 与 Related Work",
-          en: "C. Rewrite Introduction and Related Work from Scratch",
+          zh: "C. 深度精修 Introduction 与 Related Work",
+          en: "C. Deeply Refine Introduction and Related Work",
         },
         body: {
-          zh: `Introduction 依次完成具体任务与现实约束、最相关研究路线与缺口、问题和挑战、方法概览、贡献和论文结构；贡献必须覆盖科学视角、计算实现与实验认识，而非逐模块罗列。
+          zh: `Introduction 使用五个核心段落：P1 进入任务与现实约束；P2 综合相关路线并形成缺口；P3 明确今天仍未解决、且真正决定设计的挑战；P4 回答 P3，给出核心思想、总体机制和设计直觉；P5 用贡献句收束，每条默认以 We 开头并对应真实机制与证据。是否增加独立的论文结构导航句由当前配置决定。P3 只定义未解问题，P4 只解释本文如何回应，避免重复。
 Related Work 恰好三个小节，并按当前论文类型使用单段或双段结构；按研究范式、训练信号、结构假设、效率或泛化权衡综合。每个小节最后用不超过 18 词的无 “we”、无本文方法名总结句收束。先在报告中规划主题和现有 BibTeX key，再写入 TeX；不得逐篇流水账。`,
-          en: `Introduction must establish the concrete task and practical constraints, the closest research lines and gap, the problem and challenges, method overview, contributions, and paper organization. Contributions must cover the scientific perspective, computational realization, and experimental insight rather than list modules.
+          en: `Use five core Introduction paragraphs: P1 enters the task and practical constraints; P2 synthesizes related lines into the gap; P3 states the unresolved challenges that still determine the design today; P4 answers P3 with the core idea, overall mechanism, and design intuition; P5 closes with contribution sentences, each beginning with We by default and aligned with a real mechanism and evidence. Add a separate paper-roadmap sentence only when the current configuration enables it. P3 defines the unresolved problem; P4 explains this paper's response, so they must not repeat each other.
 Related Work has exactly three subsections and follows the current paper type's one- or two-paragraph rule. Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. End each subsection with a synthesis sentence of at most 18 words that uses neither “we” nor the method name. Plan themes and existing BibTeX keys in the report before drafting; do not narrate papers one by one.`,
         },
       },
       {
         heading: {
-          zh: "D. 从零重写 Discussion 与 Conclusion",
-          en: "D. Rewrite Discussion and Conclusion from Scratch",
+          zh: "D. 深度精修 Discussion 与 Conclusion",
+          en: "D. Deeply Refine Discussion and Conclusion",
         },
         body: {
-          zh: "Discussion 区分直接证据、合理推断和未验证机制，承担综合解释而不是重复实验结果；不引用 Experiments 中的表格或图片，结果数字原则上不写且最多三个。按当前论文类型组织讨论与局限。Conclusion 用两个功能明确的段落收束问题/思想/证据，再说明意义/边界/未来方向，不引入新主张。",
-          en: "Discussion distinguishes direct evidence, reasonable inference, and untested mechanisms and provides synthesis rather than repeating experimental results. Do not cite tables or figures from Experiments; preferably use no result values and never more than three. Follow the current paper type's discussion-and-limitations structure. Use two functionally distinct Conclusion paragraphs: first close the problem, idea, and evidence; then state implications, boundaries, and future directions without new claims.",
+          zh: "Discussion 按现有证据组织 3–5 个主题小节，区分直接证据、合理推断和未验证机制，承担综合解释而不是重复实验结果；不引用 Experiments 中的表格或图片，结果数字原则上不写且最多三个。Conclusion 用两个功能明确的段落收束问题、思想、证据、意义与边界，不引入新主张。",
+          en: "Organize Discussion into three to five evidence-driven topic subsections that distinguish direct evidence, reasonable inference, and untested mechanisms, providing synthesis rather than repeating Results. Do not cite experimental tables or figures; preferably use no result values and never more than three. Use two functionally distinct Conclusion paragraphs to close the problem, idea, evidence, implications, and boundaries without new claims.",
         },
       },
       {
@@ -407,14 +398,14 @@ Related Work has exactly three subsections and follows the current paper type's 
           en: "E. Align Global Terminology, Citations, and Facts",
         },
         body: {
-          zh: "检查各叙事章节是否和既定标题、Method、Experiments、图表、贡献点及唯一术语体系完全一致。联网核验 Introduction 与 Related Work 的研究缺口；把核验通过且不重复的新条目追加到完整当前 BibTeX，并在报告中记录。",
-          en: "Verify that the narrative sections align completely with the fixed title, Method, Experiments, visuals, contributions, and canonical terminology system. Use web research to verify the gap in Introduction and Related Work. Append verified, non-duplicate entries to the complete current BibTeX library and record them in the report.",
+          zh: "检查叙事章节是否与当前标题、Method、Experiments、图表、贡献点及术语体系一致。联网核验 Introduction 与 Related Work 的研究缺口；把核验通过且不重复的新条目追加到完整当前 BibTeX，并记录变更。",
+          en: "Verify that narrative sections align with the current title, Method, Experiments, visuals, contributions, and terminology. Use web research to verify the Introduction and Related Work gap; append verified non-duplicate entries to the complete current BibTeX and record each change.",
         },
       },
     ],
     deliverables: {
-      zh: "生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。报告包含事实底稿、既定标题与论文品牌缩写确认、Abstract 功能表、Introduction 功能表、贡献对照、Related Work 主题与文献簇、Discussion 证据/推断/边界表、Conclusion 功能表、术语对齐、联网核验、新增或修正文献记录、重构清单和下一步交接摘要。",
-      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the fact base, confirmation of the fixed title and paper brand acronym, Abstract function table, Introduction function table, contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion function table, terminology alignment, web verification, added or corrected bibliography records, reconstruction log, and next-step handoff.",
+      zh: "生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。报告包含事实底稿、原稿高价值表达保留清单、标题与品牌治理状态、Abstract/Introduction 功能表、贡献对照、Related Work 文献簇、Discussion 证据边界、术语对齐、联网核验、文献变化、精修清单和下一步交接摘要。",
+      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report includes the fact base, preservation list for high-value original expression, title/brand governance state, Abstract and Introduction function maps, contribution comparison, Related Work citation clusters, Discussion evidence boundaries, terminology alignment, web verification, bibliography changes, refinement log, and next-step handoff.",
     },
     fileNames: {
       zh: `<base_name>_round_3_narrative_reconstruction.tex
@@ -425,14 +416,14 @@ Related Work has exactly three subsections and follows the current paper type's 
 <base_name>_round_3_references.bib`,
     },
     finalChecks: {
-      zh: `- 第一步确定的标题与论文品牌缩写保持不变。
-- 前后叙事确实从证据底稿重写，而非沿用旧句。
+      zh: `- 标题与论文品牌遵循保留优先；任何变化均有作者授权和 high-risk diff。
+- 前后叙事完成深度精修，并保留原稿中准确有力的表达。
 - 新叙事与 Method、Experiments 和图表事实一致。
 - 引用 key 全部存在于当前 .bib。
 - 未无必要改写 Method 与 Experiments。
 - 全文符合当前风格与附录配置。`,
-      en: `- The title and paper brand acronym fixed in Step 1 remain unchanged.
-- The narrative sections were genuinely rewritten from the evidence base rather than old sentences.
+      en: `- The title and paper brand follow preserve-first governance; every change has author authorization and a high-risk diff.
+- The narrative sections received deep refinement while preserving accurate, effective original expression.
 - The new narrative matches Method, Experiments, and visual evidence.
 - Every citation key exists in the current .bib.
 - Method and Experiments were not unnecessarily rewritten.
@@ -495,26 +486,28 @@ Related Work has exactly three subsections and follows the current paper type's 
       en: "Full-manuscript Refinement & Final Audit",
     },
     purpose: {
-      zh: "统一语言、术语、数字与 Claim 强度，并模拟严格审稿人完成终审。",
-      en: "Align language, terminology, numbers, and claim strength, then run a strict reviewer-style final audit.",
+      zh: "统一语言、术语、数字与 Claim 强度，并以原稿为基线完成质量回归终审。",
+      en: "Align language, terminology, numbers, and claim strength, then complete a source-aware quality-regression audit.",
     },
     role: {
-      zh: "你是一名严格的 CS 终稿编辑、方法审稿人、实验审计者和 LaTeX 质量检查者。前四步已经稳定科学主线、正文结构与总体框架图，本步把全文提升到投稿级一致性。",
-      en: "You are a strict CS final editor, method reviewer, experiment auditor, and LaTeX quality checker. The scientific throughline, manuscript structure, and overall framework figure are stable after four steps; this step raises the manuscript to submission-level consistency.",
+      zh: "你是一名严格的 CS 终稿编辑、方法审稿人、实验审计者和 LaTeX 质量检查者。本步以最新稿为主要对象、以重构前原稿为质量基线，进行精修、微调和投稿级终审。",
+      en: "You are a strict CS final editor, method reviewer, experiment auditor, and LaTeX quality checker. Treat the latest manuscript as the working draft and the pre-reconstruction manuscript as the quality baseline for refinement, local adjustment, and final audit.",
     },
     inputs: {
       zh: `- 最新完整 .tex，优先为第三步输出
 - 与其一致的 PDF
 - 当前完整 .bib
-- 第四步重构的总体框架图 PNG`,
+- 第四步重构的总体框架图 PNG
+- 重构前的原始 .tex 与原始 PDF，用于质量回归对照`,
       en: `- The newest complete .tex, preferably the Step 3 output
 - Its matching PDF
 - The current complete .bib
-- The overall-framework PNG reconstructed in Step 4`,
+- The overall-framework PNG reconstructed in Step 4
+- The original pre-reconstruction .tex and PDF for quality-regression comparison`,
     },
     scope: {
-      zh: "允许句子级和局部段落级精修、合并冗余、调整局部顺序、改善过渡、降低过强 claim 和压缩重复。原则上不再改变科学问题、核心思想、方法结构、实验设计与已确定章节功能；严重科学或数字错误必须修正并标为重大修正。",
-      en: "You may refine sentences and local paragraphs, merge redundancy, adjust local order, improve transitions, qualify strong claims, and compress repetition. Do not normally change the scientific problem, core idea, method structure, experiment design, or established section functions. Correct serious scientific or numeric errors and mark them as major final-audit revisions.",
+      zh: "允许句子级与局部段落级精修、去除真实重复、改善过渡并校准 claim。默认不再大幅重构；每项修改都应融合进完整段落，而不是叠加补丁。严重事实或数字错误必须修正并标为重大修正。",
+      en: "Refine sentences and local paragraphs, remove genuine redundancy, improve transitions, and calibrate claims. Avoid another broad reconstruction by default, and integrate every change into coherent prose rather than layering patches. Correct serious factual or numeric errors and mark them as major revisions.",
     },
     tasks: [
       {
@@ -534,7 +527,7 @@ Related Work has exactly three subsections and follows the current paper type's 
         },
         body: {
           zh: "建立最终 Terminology Consistency Table，落实 canonical term、既定论文品牌缩写、首次定义、禁用变体、冗余缩写和必须区分的概念。检查标题、摘要、正文、图、表、caption、公式和算法是否完全一致。",
-          en: "Create the final Terminology Consistency Table and enforce canonical terms, the fixed paper brand acronym, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct. Verify consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms.",
+          en: "Create the final Terminology Consistency Table covering canonical terms, the current author-approved paper-brand acronym, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct. Verify consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms.",
         },
       },
       {
@@ -571,10 +564,20 @@ Cross-check numbers, absolute/relative gains, metric direction, means/standard d
 Attack novelty, differentiation, mechanism necessity, experiment coverage, fair comparison, parameter selection, conclusion scope, and honest limitations from a strict reviewer's perspective. Keep experimental gaps that prose cannot solve as explicit risks.`,
         },
       },
+      {
+        heading: {
+          zh: "F. 原稿质量回归门",
+          en: "F. Source-aware Quality Regression Gate",
+        },
+        body: {
+          zh: "逐节对照重构前原稿与当前稿，检查是否丢失高价值表达或实验发现、结果解释是否被过度压缩、标题是否更准确且有辨识度、第四轮新框架图是否比旧图更清楚地表达科学主线。只对确认退化的位置做局部融合式修复；保持术语、语气与写作手法一致，并在报告中记录保留、恢复和不恢复的理由。",
+          en: "Compare the current manuscript with the pre-reconstruction source section by section. Check for lost high-value expression or experimental findings, overcompressed result interpretation, whether the title remains accurate and distinctive, and whether the new framework figure communicates the scientific throughline more clearly than the old one. Repair only confirmed regressions through localized cohesive edits, preserve terminology and authorial style, and report what was retained, restored, or intentionally not restored.",
+        },
+      },
     ],
     deliverables: {
-      zh: "生成完整英文 .tex、中文终审报告和完整最终 BibTeX 文献库。报告包含重大修正、术语与缩写表、Cross-Section Redundancy Matrix、Claim–Evidence 表、数字与统计审计、引用审计、图表公式算法与 LaTeX 审计、审稿人攻击测试、不可通过文字解决的风险、新增或修正文献记录、修改清单和投稿目标检索交接摘要。",
-      en: "Create a complete English .tex, a Chinese final-audit report, and a complete final BibTeX library. The report must include major revisions, terminology and acronym tables, Cross-Section Redundancy Matrix, Claim–Evidence audit, numeric/statistical audit, citation audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks that prose cannot solve, added or corrected bibliography records, revision log, and the submission-targeting handoff.",
+      zh: "生成完整英文 .tex、中文终审报告和完整最终 BibTeX 文献库。报告包含重大修正、术语与缩写、跨章节冗余、Claim–Evidence、数字与统计、引用与 LaTeX、审稿人攻击测试、原稿质量回归表、不可通过文字解决的风险、修改清单和投稿目标检索交接摘要。",
+      en: "Create a complete English .tex, a Chinese final-audit report, and a complete final BibTeX library. The report includes major revisions; terminology and acronyms; cross-section redundancy; Claim–Evidence, numeric/statistical, citation, and LaTeX audits; reviewer attack test; source-aware quality-regression table; risks prose cannot solve; revision log; and submission-targeting handoff.",
     },
     fileNames: {
       zh: `<base_name>_round_5_final_refinement.tex
@@ -588,12 +591,16 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
       zh: `- 全文完成实质精修而非拼写检查。
 - 术语、缩写、符号、数字、引用和 Claim 强度逐项核验。
 - Results 与 Discussion、Abstract 与 Conclusion 不再重复。
-- 未改变模板和已冻结科学结构。
+- 已与原稿逐节对照，高价值表达、实验发现和必要结果解释未发生无声退化。
+- 新框架图相对旧图的科学表达增益已核验；若未改善，已明确记录。
+- 未改变模板，所有修复均为局部融合式精修。
 - 无法用文字解决的风险已诚实保留。`,
       en: `- The manuscript received substantive refinement, not a spelling-only pass.
 - Terminology, acronyms, notation, numbers, citations, and claim strength were individually verified.
 - Results/Discussion and Abstract/Conclusion no longer duplicate one another.
-- The template and frozen scientific structure were preserved.
+- Section-by-section comparison found no silent loss of high-value expression, experimental findings, or necessary result interpretation.
+- The new framework figure's scientific communication was compared with the old one and any lack of improvement is recorded.
+- The template was preserved and every repair remained localized and cohesive.
 - Risks that prose cannot solve remain explicitly documented.`,
     },
   },

@@ -29,6 +29,8 @@ export interface ReconstructionWorkflowInput {
   styleId?: PaperStyleId;
   hasWordLimit?: boolean;
   unlimitedCoreSections?: boolean;
+  includeSectionNavigationSentence?: boolean;
+  allowTitleBrandCandidates?: boolean;
   targetWords?: number;
   sectionBudgets?: Record<string, number>;
   includeAppendix?: boolean;
@@ -53,6 +55,8 @@ export function getReconstructionConfigurationModel() {
           plannerSummary: style.plannerSummary,
           defaultTargetWords: style.defaultTargetWords,
           defaultAppendix: style.defaultAppendix,
+          defaultIncludeSectionNavigationSentence:
+            style.defaultIncludeSectionNavigationSentence,
           sections: style.sections.map((section) => ({
             id: section.id,
             label: section.label,
@@ -114,7 +118,15 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
   }
   const style = PRODUCT_CONFIG.paperStyles[styleId];
   const hasWordLimit = input.hasWordLimit ?? true;
-  const unlimitedCoreSections = input.unlimitedCoreSections ?? false;
+  const unlimitedCoreSections =
+    input.unlimitedCoreSections ??
+    PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections;
+  const includeSectionNavigationSentence =
+    input.includeSectionNavigationSentence ??
+    style.defaultIncludeSectionNavigationSentence;
+  const allowTitleBrandCandidates =
+    input.allowTitleBrandCandidates ??
+    PRODUCT_CONFIG.titleBrand.defaultAllowCandidates;
   if (
     input.targetWords !== undefined &&
     !Number.isFinite(input.targetWords)
@@ -238,6 +250,8 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     style,
     hasWordLimit,
     unlimitedCoreSections,
+    includeSectionNavigationSentence,
+    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
@@ -257,6 +271,8 @@ export function buildReconstructionWorkflow(
     style,
     hasWordLimit,
     unlimitedCoreSections,
+    includeSectionNavigationSentence,
+    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets,
     includeAppendix,
@@ -272,6 +288,8 @@ export function buildReconstructionWorkflow(
     styleDirective: style.promptDirective[promptLanguage],
     hasWordLimit,
     unlimitedCoreSections,
+    includeSectionNavigationSentence,
+    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets: style.sections.map((section) => ({
       id: section.id,
@@ -303,6 +321,8 @@ export function buildReconstructionWorkflow(
       styleId,
       hasWordLimit,
       unlimitedCoreSections,
+      includeSectionNavigationSentence,
+      allowTitleBrandCandidates,
       targetWords,
       sectionBudgets,
       includeAppendix,

@@ -373,9 +373,59 @@ export default function FigureWorkbench() {
               <small>{copy.figureTasksHint}</small>
             </fieldset>
 
-            <fieldset className="figure-control-card figure-canvas-control">
+            <fieldset className="figure-control-card figure-execution-control">
               <legend>
                 <span className="control-index">03</span>
+                {copy.executionMode}
+              </legend>
+              <div
+                className="figure-execution-options"
+                role="radiogroup"
+                aria-label={copy.executionMode}
+              >
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={preferences.executionMode === "direct"}
+                  className={
+                    preferences.executionMode === "direct" ? "active" : ""
+                  }
+                  onClick={() =>
+                    updatePreferences((current) => ({
+                      ...current,
+                      executionMode: "direct",
+                    }))
+                  }
+                >
+                  <strong>{copy.executionDirect}</strong>
+                  <small>{copy.executionDirectHint}</small>
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={preferences.executionMode === "prompt-first"}
+                  className={
+                    preferences.executionMode === "prompt-first"
+                      ? "active"
+                      : ""
+                  }
+                  onClick={() =>
+                    updatePreferences((current) => ({
+                      ...current,
+                      executionMode: "prompt-first",
+                    }))
+                  }
+                >
+                  <strong>{copy.executionPromptFirst}</strong>
+                  <small>{copy.executionPromptFirstHint}</small>
+                </button>
+              </div>
+              <small>{copy.executionHint}</small>
+            </fieldset>
+
+            <fieldset className="figure-control-card figure-canvas-control">
+              <legend>
+                <span className="control-index">04</span>
                 {copy.canvas}
               </legend>
               <div className="figure-layout-groups">
@@ -499,7 +549,7 @@ export default function FigureWorkbench() {
 
             <fieldset className="figure-control-card figure-visual-rules-control">
               <legend>
-                <span className="control-index">04</span>
+                <span className="control-index">05</span>
                 {copy.visualRules}
               </legend>
               <div className="figure-visual-rules-grid">

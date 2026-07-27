@@ -70,6 +70,7 @@ type SingleNumericPreferenceKey =
 
 type TogglePreferenceKey =
   | "introductionContributionStartsWithWe"
+  | "introductionIncludeNavigationSentence"
   | "methodIncludePseudocode"
   | "methodIncludeComplexityAnalysis"
   | "allowVisualReorder"
@@ -441,10 +442,14 @@ export default function SectionRefinementWorkbench() {
               1,
             )}
           </div>
-          <div className="refinement-language-switches single">
+          <div className="refinement-language-switches">
             {renderSpecializedToggle(
               copy.contributionStartsWithWe,
               "introductionContributionStartsWithWe",
+            )}
+            {renderSpecializedToggle(
+              copy.introductionNavigation,
+              "introductionIncludeNavigationSentence",
             )}
           </div>
           <div className="refinement-contract-note">

@@ -23,6 +23,12 @@ const LABELS = {
     targetType: "投稿类型",
     appendix: "附录",
     styleDirective: "写作侧重",
+    introductionRoadmap: "Introduction 纯章节导航句",
+    titleBrandCandidates: "标题与品牌候选",
+    included: "保留一条简洁导航句",
+    omitted: "不写纯章节导航句",
+    candidatesAllowed: "仅在报告中允许候选，等待作者明确选择",
+    preserveIdentity: "保留原标题与原缩写",
     openAccess: "是否 OA",
     apc: "是否有 APC",
     apcRange: "APC 范围",
@@ -40,24 +46,25 @@ const LABELS = {
     inputs: "## 本轮输入",
     evidence: "## 证据与事实规则",
     manuscriptProtection: "## TeX 与格式保护",
-    cohesiveRevision: "## 融合式重写规则",
+    identityGovernance: "## 标题、品牌与科学主线治理",
+    cohesiveRevision: "## 融合式精修规则",
     pdfReview: "## PDF 深度阅读",
     citationAndWeb: "## 引用与联网核验",
     scope: "## 本轮边界",
     styleBranch: "### 当前类型的执行重点",
-    length: "## 正文与章节预算",
-    mainTextTarget: "正文目标",
+    length: "## 建议正文与章节篇幅",
+    mainTextTarget: "建议正文目标",
     unlimited: "不限",
     countingScope:
       `计词范围为 Abstract 至 Conclusion。标题、作者信息、关键词、公式、算法、参考文献、附录和补充材料不计入；图注与表格单元格不逐词统计，每张表格或图片按 ${WORD_COUNT_POLICY.visualWordEquivalent} 词计入所在章节及正文总数`,
     sectionBudgets: "章节预算",
     recommendedRange: "推荐范围",
     lengthInstruction:
-      "以上预算是正式目标。若当前步骤另设临时上限，以该步骤的规则完成阶段性重构，但后续仍须回到正式目标；不得用删减关键定义、实验协议或局限来机械凑数。",
+      "以上是强工作建议而非 venue 官方硬上限。应尽量落在建议范围内，但科学完整性、实验协议与真实局限优先；若本步骤另设临时上浮范围，只用于阶段性结构调整。",
     flexibleLengthInstruction:
-      "仅标有数字预算的章节必须达标；“不限”不等于任意扩写，Method 与 Experiments and Results 仍须按科学完整性与证据需要展开并删除重复。",
+      "仅为标有数字的章节提供建议范围；Method 与 Experiments and Results 按科学完整性和证据需要展开，保留核心内容并删除真实重复。",
     tasks: "## 本轮任务",
-    detailedConstraints: "## 原始模板详细约束",
+    detailedConstraints: "## 本轮专用规则",
     deliverables: "## 输出与文件要求",
     targetingDeliverables: "## 输出要求",
     fileNames: "### 文件名",
@@ -75,6 +82,13 @@ const LABELS = {
     targetType: "Submission type",
     appendix: "Appendix",
     styleDirective: "Writing emphasis",
+    introductionRoadmap: "Pure Introduction roadmap sentence",
+    titleBrandCandidates: "Title and brand candidates",
+    included: "Include one concise roadmap sentence",
+    omitted: "Omit a pure roadmap sentence",
+    candidatesAllowed:
+      "Candidates may appear in the report only, pending explicit author selection",
+    preserveIdentity: "Preserve the current title and acronym",
     openAccess: "OA",
     apc: "APC charged",
     apcRange: "APC range",
@@ -92,24 +106,25 @@ const LABELS = {
     inputs: "## Inputs for This Round",
     evidence: "## Evidence and Fact Rules",
     manuscriptProtection: "## TeX and Format Protection",
-    cohesiveRevision: "## Cohesive Revision Rule",
+    identityGovernance: "## Title, Brand, and Scientific-throughline Governance",
+    cohesiveRevision: "## Cohesive Refinement Rule",
     pdfReview: "## Deep PDF Review",
     citationAndWeb: "## Citations and Web Verification",
     scope: "## Scope of This Round",
     styleBranch: "### Execution Priorities for the Current Type",
-    length: "## Main-text and Section Budgets",
-    mainTextTarget: "Main-text target",
+    length: "## Suggested Main-text and Section Lengths",
+    mainTextTarget: "Suggested main-text target",
     unlimited: "Unlimited",
     countingScope:
       `Count content from Abstract through Conclusion. Exclude the title, authors, keywords, equations, algorithms, references, appendix, and supplementary material. Do not count captions or table cells word by word; count each table or figure as ${WORD_COUNT_POLICY.visualWordEquivalent} words toward its section and the main-text total`,
     sectionBudgets: "Section budgets",
     recommendedRange: "recommended range",
     lengthInstruction:
-      "These budgets are the formal target. If this step defines a temporary ceiling, follow that step-specific rule for the interim reconstruction and return to the formal target later. Never hit a number by removing essential definitions, experimental protocols, or limitations.",
+      "Treat these as strong working recommendations rather than official venue hard caps. Stay near them when possible, but preserve scientific completeness, experimental protocols, and genuine limitations. Any step-specific temporary allowance serves only interim structural work.",
     flexibleLengthInstruction:
-      "Only sections with numeric budgets must meet a range. “Unlimited” does not permit arbitrary expansion: develop Method and Experiments & Results only as scientific completeness and evidence require, and remove repetition.",
+      "Numeric sections receive suggested ranges only. Develop Method and Experiments & Results as scientific completeness and evidence require, preserve core content, and remove genuine repetition.",
     tasks: "## Tasks for This Round",
-    detailedConstraints: "## Detailed Constraints from the Source Template",
+    detailedConstraints: "## Round-specific Rules",
     deliverables: "## Output and File Requirements",
     targetingDeliverables: "## Output Requirements",
     fileNames: "### File Names",
@@ -198,6 +213,28 @@ function buildConfiguration(
     ...(template.showStyleDirective === false
       ? []
       : [field(labels.styleDirective, context.styleDirective)]),
+    ...(["scientific-positioning", "narrative-reconstruction"].includes(
+      template.id,
+    )
+      ? [
+          field(
+            labels.introductionRoadmap,
+            context.includeSectionNavigationSentence
+              ? labels.included
+              : labels.omitted,
+          ),
+        ]
+      : []),
+    ...(template.id === "scientific-positioning"
+      ? [
+          field(
+            labels.titleBrandCandidates,
+            context.allowTitleBrandCandidates
+              ? labels.candidatesAllowed
+              : labels.preserveIdentity,
+          ),
+        ]
+      : []),
     ...(context.hasWordLimit && context.unlimitedCoreSections
       ? [field(labels.lengthMode, labels.flexibleCoreMode)]
       : []),
@@ -445,6 +482,14 @@ function buildDetailedCore(
     );
   }
 
+  for (const fragment of constraints.inlinePreferenceConstraints ?? []) {
+    const enabled = context[fragment.contextKey];
+    core = core.replaceAll(
+      `{{${fragment.marker}}}`,
+      fragment.branches[enabled ? "enabled" : "disabled"][context.language],
+    );
+  }
+
   for (const fragment of constraints.inlineWordLimits ?? []) {
     const activeFragment = context.unlimitedCoreSections
       ? (fragment.flexibleCore ?? fragment.standard)
@@ -482,7 +527,10 @@ export function buildPrompt(
     task.body[language],
     "",
   ]);
-  const styleBranch = template.styleBranches?.[context.styleId]?.[language];
+  const styleBranch =
+    template.profile === "targeting"
+      ? template.styleBranches?.[context.styleId]?.[language]
+      : undefined;
   const lengthBudget =
     template.profile === "manuscript" &&
     template.showLengthBudget !== false
@@ -526,6 +574,9 @@ export function buildPrompt(
       ? [
           labels.manuscriptProtection,
           common.manuscriptProtection[language],
+          "",
+          labels.identityGovernance,
+          common.identityGovernance[language],
           "",
           labels.cohesiveRevision,
           common.cohesiveRevision[language],

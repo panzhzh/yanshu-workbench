@@ -34,7 +34,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
   assert.match(html, /五轮重构，支持断点继续/);
-  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.9/);
+  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.12/);
   assert.match(html, /同一份 Prompt/);
   assert.match(html, /最小材料链/);
   assert.match(html, /一次交接/);
@@ -103,8 +103,9 @@ test("server-renders the evidence-grounded idea-discovery workbench", async () =
   assert.match(html, /平衡探索/);
   assert.match(html, /Markdown · 中文 \+ English/);
   assert.match(html, /# 为计算机科学研究发现可验证的 Idea/);
-  assert.match(html, /重点检索近 5 年/);
-  assert.match(html, /最终候选数量：5/);
+  assert.match(html, /重点检索近 2 年/);
+  assert.match(html, /最终候选数量：2/);
+  assert.match(html, /默认优先检索与当前问题直接相关的公认顶会论文/);
   assert.match(html, /最快否证测试/);
   assert.match(html, /&lt;topic_slug&gt;_idea_discovery_zh\.md/);
   assert.match(html, /&lt;topic_slug&gt;_idea_discovery_en\.md/);
@@ -127,6 +128,11 @@ test("server-renders the evidence-grounded idea-evaluation workbench", async () 
   assert.match(html, /允许重构/);
   assert.match(html, /允许转向/);
   assert.match(html, /# 评估并优化一个计算机科学研究 Idea/);
+  assert.match(html, /重点检索近 5 年/);
+  assert.match(
+    html,
+    /优化自由度：保留原 Idea 的核心研究问题和核心机制/,
+  );
   assert.match(html, /最近邻比较表/);
   assert.match(html, /禁止补丁式优化/);
   assert.match(html, /Pursue、Refine、Pivot、Park 或 Stop/);
@@ -150,12 +156,13 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /class="workflow-section content-section prompt-rail"/);
   assert.match(html, /会议/);
   assert.match(html, /期刊/);
-  assert.match(html, /限制正文字数/);
-  assert.match(html, /附录不计入正文，每张表格或图片按 200 词计入/);
+  assert.match(html, /建议正文字数/);
+  assert.match(html, /提供建议字数/);
+  assert.match(html, /附录不计入正文，每张表格或图片按 200 词折算/);
   assert.match(html, /总体框架图/);
   assert.match(html, /画布比例/);
   assert.match(html, /Tol 鲜明色系/);
-  assert.match(html, /2–3 个强调色为上限/);
+  assert.match(html, /从 2–4 种强调色中选择最少够用数量/);
   assert.match(html, /Calibri/);
   assert.match(html, /可按需使用与论文对象直接对应的简化科学图形/);
   assert.doesNotMatch(html, /论文占栏/);
@@ -169,6 +176,8 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /发生回退时先明确提示/);
   assert.match(html, /正文与章节预算/);
   assert.match(html, /不限制方法和实验的字数/);
+  assert.match(html, /Introduction 纯章节导航句/);
+  assert.match(html, /默认保留原标题与缩写/);
   assert.match(html, /每张表格或图片按 200 词计入/);
   assert.match(html, /导出桌面配置/);
   assert.match(html, /class="codex-launch-guide"/);
@@ -189,28 +198,28 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /投稿目标检索与官网核验/);
   assert.match(html, /Scientific Positioning Contract/);
   assert.match(html, /论文标题与品牌缩写/);
-  assert.match(html, /4–7 个拉丁字母/);
-  assert.match(html, /不提供候选标题/);
+  assert.doesNotMatch(html, /4–7 个拉丁字母/);
+  assert.match(html, /默认保留原标题、方法全称和现有缩写/);
+  assert.match(html, /high-risk diff/);
   assert.match(
     html,
-    /会议论文需要第三层标题时使用 paragraph 而非 subsubsection/,
+    /会议论文采用高密度、claim-first 的写法/,
   );
   assert.match(
     html,
-    /标题只命名真实科学对象、机制、实验设置或分析主题/,
+    /标题只对应独立科学单元/,
   );
   assert.match(html, /Related Work：恰好三个 subsection，每个小节恰好一个普通段落/);
-  assert.match(html, /不单设 Overview subsection/);
-  assert.match(html, /三个承担综合解释、适用范围与科学意义的 discussion subsection/);
-  assert.match(html, /最后单列一个 Limitations subsection/);
-  assert.match(html, /具体结果数字最多保留三个/);
+  assert.match(html, /Method：不单设 Overview/);
+  assert.match(html, /选择 3–5 个承担综合解释、适用范围与科学意义的 discussion subsection/);
+  assert.match(html, /最后单列 Limitations/);
+  assert.match(html, /具体结果数字最多三个/);
   assert.match(html, /Evaluation Metrics/);
   assert.match(html, /Experimental Configuration/);
-  assert.match(html, /## 融合式重写规则/);
-  assert.match(html, /禁止补丁式修改/);
-  assert.match(html, /本步骤临时上限与附录分流规则/);
-  assert.match(html, /临时上限为 5,400 词/);
-  assert.match(html, /Experiments and Results 的现有内容不得精简、删除、弱化或移入附录/);
+  assert.match(html, /## 融合式精修规则/);
+  assert.match(html, /不做“原文 \+ 修补句”/);
+  assert.match(html, /方法与实验不限字数模式/);
+  assert.match(html, /Method 与 Experiments and Results 必须按科学完整性和证据需要充分保留/);
   assert.match(html, /当前配置只允许、并不要求使用附录/);
   assert.match(html, /_round_1_artifacts\.zip/);
   assert.match(html, /完整当前 BibTeX 文献库/);
@@ -218,12 +227,12 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /_round_1_bib_suggestions\.bib/);
   assert.match(
     html,
-    /data-reconstruction-workflow-version="2026\.07\.9"/,
+    /data-reconstruction-workflow-version="2026\.07\.12"/,
   );
   assert.match(html, /满足当前适用的总量与章节预算，不得使用附录/);
   assert.match(
     html,
-    /## 正文与章节预算[\s\S]*### 本步骤临时上限与附录分流规则[\s\S]*## 本轮任务/,
+    /## 建议正文与章节篇幅[\s\S]*### 方法与实验不限字数模式[\s\S]*## 本轮任务/,
   );
   assert.doesNotMatch(html, /证据基线与初稿审计|Evidence Baseline/);
   assert.doesNotMatch(html, /## 使用方式|## 独立运行规则/);
@@ -296,8 +305,8 @@ test("server-renders the section-refinement workbench", async () => {
   assert.match(html, /普通句子目标为 12–24 个英文单词/);
   assert.match(html, /冒号只在确有必要/);
   assert.match(html, /## 融合式精修/);
-  assert.match(html, /禁止补丁式修改/);
-  assert.match(html, /最小完整论证单元/);
+  assert.match(html, /不做“原文 \+ 修补句”/);
+  assert.match(html, /最小的完整论证单元/);
   assert.doesNotMatch(html, /论文类型：/);
   assert.match(html, /完整、连续、可编译的英文论文/);
   assert.match(html, /_abstract_refinement_report_zh\.md/);
@@ -500,25 +509,33 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /不使用/);
   assert.match(html, /方法总览图/);
   assert.match(html, /整体心智地图/);
+  assert.match(html, /执行方式/);
+  assert.match(html, /直接绘图/);
+  assert.match(html, /先看英文 Prompt/);
   assert.match(html, /class="prompt-card expanded"/);
   assert.match(html, /aria-expanded="true"/);
-  assert.match(html, /Yanshu Scientific Figure Director — Common Base/);
-  assert.match(html, /Figure-Type Adapter — Method Overview Figure/);
-  assert.match(html, /User-Selected Visual Configuration/);
-  assert.match(html, /Output and Two-Step Execution Protocol/);
-  assert.match(html, /本轮不要生成图片/);
-  assert.match(html, /FINAL IMAGE PROMPT/);
-  assert.match(html, /VISUAL THESIS/);
-  assert.match(html, /COMPOSITION/);
-  assert.match(html, /SCIENTIFIC VISUAL OBJECTS/);
-  assert.match(html, /FLOW AND RELATIONSHIPS/);
-  assert.match(html, /STYLE SPECIFICATION/);
-  assert.match(html, /EXACT TEXT AND MATH/);
-  assert.match(html, /NEGATIVE CONSTRAINTS/);
-  assert.match(html, /输入“开始绘图”生成这张图/);
-  assert.match(html, /Generate after confirmation/);
+  assert.match(html, /计算机科学论文的科研配图专家/);
+  assert.match(html, /联网核查/);
+  assert.match(html, /本次绘制方法总览图/);
+  assert.match(html, /视觉设置：2:1 画布/);
+  assert.match(html, /使用 2–4 种强调色/);
+  assert.match(html, /执行方式：直接绘图/);
+  assert.match(html, /不要输出该 Prompt/);
+  assert.match(
+    html,
+    /若我同时提供现有框架图，请先概括其构图、配色、线条、字体与整体视觉语言/,
+  );
+  assert.match(html, /适合论文排版的超高清科研配图/);
   assert.doesNotMatch(html, /RGB\(/);
   assert.doesNotMatch(html, /TWO-STEP FIGURE PROMPT|两步制图 Prompt/);
+  assert.doesNotMatch(
+    html,
+    /Yanshu Scientific Figure Director|User-Selected Visual Configuration|Output and Two-Step Execution Protocol/,
+  );
+  assert.doesNotMatch(
+    html,
+    /VISUAL THESIS|SCIENTIFIC VISUAL OBJECTS|EXACT TEXT AND MATH|NEGATIVE CONSTRAINTS/,
+  );
   assert.doesNotMatch(html, /class="figure-prompt-summary"|class="prompt-number"/);
   assert.doesNotMatch(
     html,
@@ -612,17 +629,19 @@ test("keeps presets and production prompts configuration-driven", async () => {
     /section → subsection → subsubsection → paragraph/,
   );
   assert.match(config, /三个小节，每小节一个普通段落/);
-  assert.match(config, /约 100 词的局限小节/);
+  assert.match(config, /由论文内容决定 3–5 个讨论与局限主题/);
   assert.match(config, /defaultMode:\s*"target"/);
   assert.match(config, /defaultAppendix:\s*true/);
   assert.match(config, /defaultAppendix:\s*false/);
-  assert.match(config, /wordLimitOff:\s*"无特殊规定"/);
+  assert.match(config, /wordLimitOff:\s*"不设篇幅建议"/);
   assert.match(config, /appendixOn:\s*"允许附录"/);
   assert.doesNotMatch(config, /workflowTitle|五步重构工作流/);
   assert.match(config, /resizePromptRail:\s*"拖动调整 Prompt 栏宽度"/);
   assert.match(config, /resetPromptRail:\s*"双击恢复为 40%"/);
   assert.match(config, /满足当前适用的总量与章节预算时不得使用/);
-  assert.match(config, /defaultUnlimitedCoreSections:\s*false/);
+  assert.match(config, /defaultUnlimitedCoreSections:\s*true/);
+  assert.match(config, /defaultIncludeSectionNavigationSentence:\s*false/);
+  assert.match(config, /defaultIncludeSectionNavigationSentence:\s*true/);
   assert.match(config, /chatExecution:\s*\{/);
   assert.match(config, /chatLatestVisibleModel:\s*"最新可用推理模型"/);
   assert.match(config, /chatPollingInterval:\s*"结果检查间隔"/);
@@ -675,8 +694,8 @@ test("keeps presets and production prompts configuration-driven", async () => {
     /<base_name>_round_4_framework_reconstruction\.png/,
   );
   assert.match(templates, /cohesiveRevision/);
-  assert.match(templates, /禁止补丁式修改/);
-  assert.match(templates, /最小完整论证单元/);
+  assert.match(templates, /不做“原文 \+ 修补句”/);
+  assert.match(templates, /最小的完整论证单元/);
   assert.match(
     templates,
     /Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines/,
@@ -747,9 +766,11 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(originalPrompts, /会议论文不得单设 `Overview` 小节/);
   assert.match(originalPrompts, /期刊论文必须单设 `Overview`，恰好两个普通段落且总计不超过 80 词/);
-  assert.match(originalPrompts, /后续小节不绑定第三或第四的固定序号/);
-  assert.match(originalPrompts, /\\paragraph\{Evaluation Metrics\}/);
-  assert.match(originalPrompts, /\\paragraph\{Experimental Configuration\}/);
+  assert.match(originalPrompts, /后续小节按真实证据安排/);
+  assert.match(originalPrompts, /四项必须依次覆盖，但不是四个强制标题/);
+  assert.match(originalPrompts, /避免标准文档式层级/);
+  assert.match(originalPrompts, /原稿高价值表达保留清单/);
+  assert.match(originalPrompts, /Quality Regression Table/);
   assert.match(
     originalPrompts,
     /Question、Observation、Interpretation 等叙述功能/,
@@ -768,7 +789,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(originalPrompts, /ultra-wide `2:1`/);
   assert.doesNotMatch(originalPrompts, /double-column|paper placement/);
-  assert.match(originalPrompts, /`2–3`[\s\S]*?accent budget/);
+  assert.match(originalPrompts, /`2–4`[\s\S]*?accent range/);
   assert.doesNotMatch(originalPrompts, /RGB\(/);
   assert.match(originalPrompts, /Calibri prose labels/);
   assert.match(originalPrompts, /pure-white canvas/);
@@ -778,7 +799,16 @@ test("keeps presets and production prompts configuration-driven", async () => {
     originalPrompts,
     /<base_name>_round_4_framework_reconstruction\.png/,
   );
-  assert.match(originalPrompts, /三个承担综合解释、适用范围与科学意义的 discussion/);
+  assert.match(originalPrompts, /closely related[\s\S]*?top-venue figures/);
+  assert.match(
+    originalPrompts,
+    /defaults to direct ultra-high-resolution generation after sufficient/,
+  );
+  assert.doesNotMatch(
+    originalPrompts,
+    /two-step confirmation protocol/,
+  );
+  assert.match(originalPrompts, /选择 3–5 个 discussion/);
   assert.match(originalPrompts, /不得引用 Experiments 中的表格或图片/);
   assert.doesNotMatch(originalPrompts, /第四个必须为 `Ablation Studies`/);
   assert.doesNotMatch(originalPrompts, /^# 第\d+轮：/m);
@@ -966,11 +996,11 @@ test("keeps presets and production prompts configuration-driven", async () => {
     /\{\{narrative_related_work_word_limits\}\}/,
   );
   assert.match(constraints, /现有图表与正文接口审计/);
-  assert.match(constraints, /不绑定第三或第四的固定序号/);
-  assert.match(constraints, /具体结果数字最多保留三个/);
+  assert.match(constraints, /后续分析按证据安排/);
+  assert.match(constraints, /具体结果数字最多三个/);
   assert.match(
     builder,
-    /仅标有数字预算的章节必须达标/,
+    /仅为标有数字的章节提供建议范围/,
   );
   assert.match(constraints, /只允许、并不要求使用附录/);
   assert.match(
@@ -982,8 +1012,8 @@ test("keeps presets and production prompts configuration-driven", async () => {
     constraints,
     /Datasets → Evaluation Metrics → Experimental Configuration → Baselines/,
   );
-  assert.match(constraints, /\\paragraph\{Evaluation Metrics\}/);
-  assert.match(constraints, /\\subsubsection\{Evaluation Metrics\}/);
+  assert.match(constraints, /不必机械成为四个标题/);
+  assert.match(constraints, /只在内容确实构成独立科学单元时使用 subsubsection/);
   assert.doesNotMatch(constraints, /"evidence-audit"/);
   assert.match(submission, /DEFAULT_SUBMISSION_PREFERENCES/);
   assert.match(submission, /SUBMISSION_PROMPT_TEMPLATE/);
@@ -1093,6 +1123,9 @@ test("keeps section-refinement rules and merge controls configuration-driven", a
   assert.match(config, /introductionContributionCount: 3/);
   assert.match(config, /introductionContributionWords: 22/);
   assert.match(config, /introductionContributionStartsWithWe: true/);
+  assert.match(config, /introductionIncludeNavigationSentence: false/);
+  assert.match(config, /P3：最小充分界定问题/);
+  assert.match(config, /P4：直接回答 P3/);
   assert.match(config, /凡陈述既有研究、领域事实、已有能力或他人结论/);
   assert.match(config, /本文自己的 claim、作者综合判断和贡献句可以不引用/);
   assert.match(config, /执行日前两年内、与当前论点直接相关的顶会或顶刊论文/);
@@ -1102,7 +1135,11 @@ test("keeps section-refinement rules and merge controls configuration-driven", a
   assert.match(config, /methodOverviewParagraphs: 2/);
   assert.match(config, /methodPseudocodeMaxLines: 12/);
   assert.match(config, /methodIncludeComplexityAnalysis/);
-  assert.match(config, /每张图或表对应恰好两个主要正文段落/);
+  assert.match(config, /标题只对应实质科学单元/);
+  assert.match(config, /选择 3–5 个主题小节/);
+  assert.match(config, /重要图表可用两个主要正文段落/);
+  assert.match(config, /visualParagraphMaxWords: 150/);
+  assert.match(config, /按证据重要性调节篇幅/);
   assert.match(config, /图表本体负责完整数值/);
   assert.match(config, /允许调整图表顺序/);
   assert.match(config, /核心证据、不利结果和唯一消融证据不得删除/);
@@ -1258,15 +1295,15 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.doesNotMatch(figureConfig, /technicalFigureCount|TechnicalFigureCount/);
   assert.match(
     figureConfig,
-    /introduction:\s*\{[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?accentColorRangeId:\s*"2-3"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"semantic-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /introduction:\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?accentColorRangeId:\s*"2-4"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"semantic-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
-    /"method-overview":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-2-1"[\s\S]*?accentColorRangeId:\s*"2-3"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /"method-overview":\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-2-1"[\s\S]*?accentColorRangeId:\s*"2-4"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
-    /"technical-detail":\s*\{[\s\S]*?aspectRatioId:\s*"landscape-4-3"[\s\S]*?accentColorRangeId:\s*"1-2"[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /"technical-detail":\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-4-3"[\s\S]*?accentColorRangeId:\s*"2-4"[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
@@ -1295,8 +1332,14 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /greatestCommonDivisor/);
   assert.match(figureConfig, /输入任意宽高比例/);
   assert.match(figureConfig, /lineColorMode:\s*"neutral"/);
-  assert.match(figureConfig, /accentColorRangeId:\s*"1-2"/);
-  assert.match(figureConfig, /accentColorRangeId:\s*"2-3"/);
+  assert.equal(
+    (figureConfig.match(/accentColorRangeId:\s*"2-4"/g) ?? []).length,
+    11,
+  );
+  assert.equal(
+    (figureConfig.match(/executionMode:\s*"direct"/g) ?? []).length,
+    11,
+  );
   assert.match(figureConfig, /allowLightIllustrations:\s*false/);
   assert.match(figureConfig, /cardFillPolicyId:\s*"key-regions"/);
   assert.match(figureConfig, /cardFillPolicyId:\s*"semantic-regions"/);
@@ -1318,19 +1361,16 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /buildFigurePrompt/);
   assert.match(
     figureConfig,
-    /COMMON_BASE\[language\][\s\S]*?FIGURE_TYPE_ADAPTERS\[promptId\]\[language\][\s\S]*?buildVisualConfiguration\(preferences\)[\s\S]*?OUTPUT_PROTOCOL\[language\]/,
+    /COMMON_BASE\[language\]\(FIGURE_PROMPTS\[promptId\]\.label\[language\]\)[\s\S]*?FIGURE_TYPE_ADAPTERS\[promptId\]\[language\][\s\S]*?buildVisualConfiguration\(preferences, language\)[\s\S]*?OUTPUT_PROTOCOL\[language\]/,
   );
-  assert.match(figureConfig, /User-Selected Visual Configuration/);
-  assert.match(figureConfig, /Canvas background: pure white/);
+  assert.match(figureConfig, /视觉设置：/);
+  assert.match(figureConfig, /canvas on pure white/);
   assert.doesNotMatch(
     figureConfig,
-    /Target paper placement|Visual style preset/,
+    /Target paper placement|Visual style preset|User-Selected Visual Configuration/,
   );
-  assert.match(figureConfig, /maximum semantic budget, not a target/);
   assert.match(figureConfig, /1\.00 : 1\.22 : 1\.50/);
-  assert.match(figureConfig, /No decorative or pictorial icons/);
-  assert.match(figureConfig, /Pure-white cards/);
-  assert.match(figureConfig, /Remove or reflow secondary content/);
+  assert.match(figureConfig, /no decorative icons/);
   assert.match(figureConfig, /FIGURE_COLOR_PALETTES/);
   assert.match(figureConfig, /"tol-vibrant"/);
   assert.match(figureConfig, /"tol-bright"/);
@@ -1351,59 +1391,36 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   );
   assert.match(figureArchitecture, /export const OUTPUT_PROTOCOL/);
   assert.match(figureArchitecture, /逐字符一致/);
-  assert.match(figureArchitecture, /主要视觉对象中/);
-  assert.match(figureArchitecture, /conventional assumption → hidden failure/);
-  assert.match(figureArchitecture, /evaluation protocol/);
-  assert.match(figureArchitecture, /exploded operator anatomy/);
-  assert.match(figureArchitecture, /2–4 个主要区域/);
-  assert.match(figureArchitecture, /3–5 个主要区域/);
-  assert.match(figureArchitecture, /1–3 个核心公式/);
-  assert.match(figureArchitecture, /真实性能热图/);
+  assert.match(figureArchitecture, /联网核查/);
+  assert.match(figureArchitecture, /2–4 点总结/);
   assert.match(
-    extendedFigureAdapters,
-    /Task and Problem Formulation Figure/,
+    figureArchitecture,
+    /若我同时提供现有框架图，请先概括其构图、配色、线条、字体与整体视觉语言/,
   );
-  assert.match(extendedFigureAdapters, /Training and Inference Figure/);
-  assert.match(
-    extendedFigureAdapters,
-    /Algorithm, Decision, or Protocol Figure/,
-  );
-  assert.match(
-    extendedFigureAdapters,
-    /Data Construction and Annotation Figure/,
-  );
-  assert.match(
-    extendedFigureAdapters,
-    /System and Deployment Architecture Figure/,
-  );
-  assert.match(
-    extendedFigureAdapters,
-    /Theoretical and Conceptual Relation Figure/,
-  );
-  assert.match(
-    extendedFigureAdapters,
-    /Geometry and Coordinate-System Figure/,
-  );
-  assert.match(
-    extendedFigureAdapters,
-    /Survey Taxonomy and Research-Landscape Figure/,
-  );
-  assert.match(extendedFigureAdapters, /HYBRID OR VECTOR RECOMMENDED/);
-  assert.match(extendedFigureAdapters, /VECTOR RECOMMENDED/);
+  assert.match(figureArchitecture, /唯一主旨和主要阅读路径/);
+  assert.match(figureArchitecture, /不要把整张图画成文字卡片/);
+  assert.match(figureArchitecture, /容器嵌套不超过两层/);
+  assert.match(figureArchitecture, /执行方式：直接绘图/);
+  assert.match(figureArchitecture, /executionMode === "direct"/);
+  assert.match(extendedFigureAdapters, /本次绘制任务定义图/);
+  assert.match(extendedFigureAdapters, /本次绘制训练–推理图/);
+  assert.match(extendedFigureAdapters, /本次绘制算法／协议图/);
+  assert.match(extendedFigureAdapters, /本次绘制数据构建图/);
+  assert.match(extendedFigureAdapters, /本次绘制系统／部署图/);
+  assert.match(extendedFigureAdapters, /本次绘制理论／概念关系图/);
+  assert.match(extendedFigureAdapters, /本次绘制几何／坐标关系图/);
+  assert.match(extendedFigureAdapters, /本次绘制综述／分类体系图/);
   assert.match(figureArchitecture, /FINAL IMAGE PROMPT/);
-  assert.match(figureArchitecture, /VISUAL THESIS/);
-  assert.match(figureArchitecture, /COMPOSITION/);
-  assert.match(figureArchitecture, /SCIENTIFIC VISUAL OBJECTS/);
-  assert.match(figureArchitecture, /FLOW AND RELATIONSHIPS/);
-  assert.match(figureArchitecture, /STYLE SPECIFICATION/);
-  assert.match(figureArchitecture, /EXACT TEXT AND MATH/);
-  assert.match(figureArchitecture, /NEGATIVE CONSTRAINTS/);
-  assert.match(figureArchitecture, /输入“开始绘图”生成这张图/);
-  assert.match(figureArchitecture, /Then stop/);
+  assert.match(figureArchitecture, /REFERENCE STYLE SUMMARY/);
+  assert.match(figureArchitecture, /等待我输入“开始绘图”/);
+  assert.match(
+    figureArchitecture,
+    /render an ultra-high-resolution scientific figure with crisp details and legible text for publication/,
+  );
   assert.doesNotMatch(figureArchitecture, /RGB\(/);
   assert.doesNotMatch(
     figureArchitecture,
-    /材料足够时直接生成最终图片|## 直接生成|## Generate directly/,
+    /Yanshu Scientific Figure Director|Content budget|NEGATIVE CONSTRAINTS|EXACT TEXT AND MATH/,
   );
   assert.match(figureComponent, /buildFigurePrompt\(\s*activePromptId/);
   assert.match(figureComponent, /setPromptLanguages/);
@@ -1422,6 +1439,8 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   );
   assert.match(figureComponent, /role="radiogroup"/);
   assert.match(figureComponent, /role="radio"/);
+  assert.match(figureComponent, /preferences\.executionMode === "direct"/);
+  assert.match(figureComponent, /executionMode: "prompt-first"/);
   assert.doesNotMatch(figureComponent, /FIGURE_PLACEMENT_IDS|placementId/);
   assert.match(figureComponent, /FIGURE_ASPECT_RATIO_IDS\.map/);
   assert.match(figureComponent, /getFigureAspectRatio\(preferences\)/);
@@ -1542,18 +1561,28 @@ test("keeps idea discovery and evaluation evidence-grounded and configuration-dr
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
+  assert.match(
+    ideaConfig,
+    /discovery:\s*\{[\s\S]*?recentYears:\s*2[\s\S]*?ideaCount:\s*2/,
+  );
+  assert.match(
+    ideaConfig,
+    /evaluation:\s*\{[\s\S]*?\.\.\.BASE_IDEA_PREFERENCES/,
+  );
   assert.match(ideaConfig, /recentYears:\s*5/);
   assert.match(ideaConfig, /topConferences:\s*true/);
   assert.match(ideaConfig, /topJournals:\s*true/);
   assert.match(ideaConfig, /pursueSota:\s*false/);
   assert.match(ideaConfig, /ideaCount:\s*5/);
   assert.match(ideaConfig, /noveltyPosture:\s*"balanced"/);
-  assert.match(ideaConfig, /refinementFreedom:\s*"reframe"/);
+  assert.match(ideaConfig, /refinementFreedom:\s*"preserve"/);
+  assert.match(ideaConfig, /IDEA_COUNT_OPTIONS = \[2, 3, 5, 8\]/);
   assert.match(ideaConfig, /"general-cs"/);
   assert.match(ideaConfig, /"computer-vision"/);
   assert.match(ideaConfig, /"software-engineering"/);
   assert.match(ideaConfig, /"custom"/);
   assert.match(ideaConfig, /重点检索近 \$\{preferences\.recentYears\} 年/);
+  assert.match(ideaConfig, /默认优先检索与当前问题直接相关的公认顶会论文/);
   assert.match(ideaConfig, /当前子领域公认顶会/);
   assert.match(ideaConfig, /当前子领域公认顶刊/);
   assert.match(ideaConfig, /指定公开数据集/);
@@ -1567,7 +1596,7 @@ test("keeps idea discovery and evaluation evidence-grounded and configuration-dr
   assert.match(ideaConfig, /<topic_slug>_idea_evaluation_en\.md/);
   assert.match(ideaConfig, /不得生成 \\`\.tex\\`、PDF、DOCX、BibTeX/);
   assert.match(ideaComponent, /buildIdeaPrompt/);
-  assert.match(ideaComponent, /DEFAULT_IDEA_PREFERENCES/);
+  assert.match(ideaComponent, /getDefaultIdeaPreferences/);
   assert.match(ideaComponent, /IDEA_DIRECTION_IDS\.map/);
   assert.match(ideaComponent, /IDEA_COUNT_OPTIONS\.map/);
   assert.match(ideaComponent, /NOVELTY_POSTURE_IDS\.map/);

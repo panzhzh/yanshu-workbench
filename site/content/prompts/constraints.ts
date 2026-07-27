@@ -14,9 +14,21 @@ export interface InlineStyleConstraint {
   branches: Record<PaperStyleId, LocalizedText>;
 }
 
+export interface InlinePreferenceConstraint {
+  marker: string;
+  contextKey:
+    | "includeSectionNavigationSentence"
+    | "allowTitleBrandCandidates";
+  branches: {
+    enabled: LocalizedText;
+    disabled: LocalizedText;
+  };
+}
+
 export interface PromptConstraintSet {
   core: LocalizedText;
   inlineStyleConstraints?: InlineStyleConstraint[];
+  inlinePreferenceConstraints?: InlinePreferenceConstraint[];
   inlineWordLimits?: InlineWordLimitConstraint[];
   wordLimit?: LocalizedText;
   flexibleCoreWordLimit?: LocalizedText;
@@ -82,26 +94,24 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 ### 论文标题与品牌缩写
 
-- 在完成全文理解与科学定位后，直接确定一个最终英文标题并写入 TeX，不提供候选标题；
-- 标题使用标题式大小写，最多一个冒号，不以句号结尾；准确表达任务、核心思想和适用范围，不使用无证据的性能、优先性或宣传性主张；
-- 除非论文范围确实依赖某个数据集，否则标题不写数据集名称；
-- 直接确定一个 4–7 个拉丁字母的论文品牌缩写，并与方法全称、核心思想自然对应；优先可读、可发音、易检索，不得为凑字母强造反向缩写；
-- 核查该缩写是否与当前 .bib、最近邻工作或本领域常见方法明显冲突；一经确定，全文只使用这一品牌缩写。
+- 默认保留原标题、方法全称和现有缩写；核查其准确性、自然度、检索性及与最近邻工作的冲突风险；
+- 自动化流程不得静默替换论文身份。任何候选都只能写入中文报告，必须附 high-risk diff（原值、候选、依据、风险与授权状态）；
+{{title_brand_strategy}}
 {{title_word_limits}}
 
 ### 唯一术语体系
 
-- 冻结方法全称和上述论文品牌缩写；
-- 冻结科学问题名称及核心表示、模块、分支、查询、损失、训练和推理术语；
-- 冻结数据集、指标、比较设置和实验类型名称；
+- 以现有方法全称和论文品牌缩写为默认身份；
+- 统一科学问题、核心表示、模块、分支、查询、损失、训练和推理术语；
+- 统一数据集、指标、比较设置和实验类型名称；
 - 列出禁止继续使用的冗余同义词；
 - 列出相近但必须区分、不能合并的概念。
 
 ### 章节功能与固定结构
 
 {{scientific_document_hierarchy}}
-- Abstract：本轮只形成与主线一致的临时版本，第三步将从零重写；
-- Introduction：恰好六个连续段落，P1–P6 依次承担背景与任务、相关路线与缺口、问题与挑战、方法概览、三点贡献、论文结构；不得改成七段或八段；
+- Abstract：形成与主线一致的工作版本，后续仍以深度精修为主；
+{{scientific_introduction_structure}}
 {{scientific_related_work_structure}}
 {{scientific_method_structure}}
 {{scientific_experiment_structure}}
@@ -112,12 +122,13 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 - 为框架图、机制图、主结果表、消融表、效率/稳健性/案例图分别指定所支持的核心思想、机制、claim 或边界；
 - caption 和正文必须解释图表，而非只提到图表；
-- 允许重排章节和段落、合并重复小节、删除偏离主线内容、重写开头与主题句、重构贡献、调整 Method/Experiments 分工并建立独立 Discussion；
+- 允许重排章节和段落、合并真实重复、精修开头与主题句、重构贡献、调整 Method/Experiments 分工并建立必要的 Discussion；
+- Method 与 Experiments 的核心机制、实验协议、主结果、不利结果和必要解释不得因篇幅建议或结构整理而压缩；
 - 不得更换模板，不得用新模块或新实验填补证据缺口。
 
 ### 中文报告固定清单
 
-报告必须包含：Scientific Positioning Contract、最终标题与论文品牌缩写及其依据、一句话论文主旨、一句话核心痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、最终术语表、章节功能表、图表角色表、删除/合并/移动/新增清单、联网核验、作者需确认项和下一步交接摘要。`,
+报告必须包含：Scientific Positioning Contract、标题与论文品牌审计及 high-risk diff（如有）、一句话论文主旨、一句话核心痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能表、图表角色表、结构操作、联网核验、作者需确认项和下一步交接摘要。`,
       en: `### The Scientific Positioning Contract Must Answer Every Item
 
 1. Task: the concrete task, inputs, outputs, and applicable boundary;
@@ -131,26 +142,24 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 ### Paper Title and Brand Acronym
 
-- After understanding the complete manuscript and fixing its scientific position, determine exactly one final English title and write it into the TeX; do not return title candidates;
-- Use title case, at most one colon, and no final period. State the task, core idea, and applicable scope accurately without unsupported performance, priority, or promotional claims;
-- Do not name a dataset unless the manuscript's scope genuinely depends on it;
-- Determine one 4–7-letter paper brand acronym that maps naturally to the full method name and core idea. Prefer a readable, pronounceable, searchable form and never force a backronym merely to fit desired letters;
-- Check for obvious conflicts with the current .bib, nearest-neighbor work, and common method names in the field. Once selected, use only this brand acronym throughout.
+- Preserve the current title, full method name, and acronym by default; audit their accuracy, naturalness, searchability, and collision risk against nearest-neighbor work;
+- Automation must never replace the paper identity silently. Any candidate belongs only in the Chinese report and requires a high-risk diff covering the original, candidate, evidence, risk, and authorization state;
+{{title_brand_strategy}}
 {{title_word_limits}}
 
 ### One Terminology System
 
-- Freeze the full method name and the paper brand acronym defined above;
-- Freeze the scientific-problem name and terminology for representations, components, branches, queries, losses, training, and inference;
-- Freeze names for datasets, metrics, comparison settings, and experiment types;
+- Treat the existing full method name and paper brand acronym as the default identity;
+- Standardize terminology for the scientific problem, representations, components, branches, queries, losses, training, and inference;
+- Standardize names for datasets, metrics, comparison settings, and experiment types;
 - List redundant synonyms that must no longer appear;
 - List nearby concepts that must remain distinct and cannot be merged.
 
 ### Section Functions and Fixed Structure
 
 {{scientific_document_hierarchy}}
-- Abstract: create only a throughline-consistent temporary version; Step 3 rewrites it from scratch;
-- Introduction: exactly six consecutive paragraphs. P1–P6 cover background/task, research lines/gap, problem/challenges, method overview, three contributions, and paper organization. Do not create seven or eight paragraphs;
+- Abstract: create a throughline-consistent working version for later deep refinement;
+{{scientific_introduction_structure}}
 {{scientific_related_work_structure}}
 {{scientific_method_structure}}
 {{scientific_experiment_structure}}
@@ -161,24 +170,25 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 - Assign framework figures, mechanism figures, main-results tables, ablation tables, and efficiency/robustness/case visuals to the core idea, mechanism, claim, or boundary they support;
 - Captions and prose must explain visuals rather than merely mention them;
-- You may reorder sections and paragraphs, merge repeated subsections, delete off-throughline content, rewrite openings and topic sentences, rebuild contributions, revise the Method/Experiments division, and create a standalone Discussion;
+- You may reorder sections and paragraphs, merge genuine repetition, refine openings and topic sentences, rebuild contributions, revise the Method/Experiments division, and create a necessary Discussion;
+- Never compress core mechanisms, experimental protocols, main or unfavorable results, or necessary interpretation merely to satisfy a length suggestion or structural cleanup;
 - Do not change the template or fill evidence gaps with new components or experiments.
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Scientific Positioning Contract, the final title and paper brand acronym with rationale, one-sentence thesis, one-sentence core pain point, old/new throughline comparison, contribution hierarchy, Claim–Evidence Map, final terminology table, section-function table, visual-role table, deletion/merge/move/addition log, web verification, author-confirmation items, and next-step handoff.`,
+The report must contain the Scientific Positioning Contract; title and paper-brand audit with any high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology and section-function tables; visual roles; structural operations; web verification; author-confirmation items; and next-step handoff.`,
     },
     inlineStyleConstraints: [
       {
         marker: "scientific_document_hierarchy",
         branches: {
           conference: {
-            zh: "- 会议论文需要第三层标题时使用 paragraph 而非 subsubsection；paragraph 标题只命名真实科学对象、机制、实验设置或分析主题，普通论述以主题句、过渡和连续段落展开；",
-            en: "- In a conference paper, use paragraph rather than subsubsection when a third-level heading is genuinely needed. Let paragraph headings name scientific objects, mechanisms, experimental settings, or analysis themes, while ordinary exposition develops through topic sentences, transitions, and continuous prose;",
+            zh: "- 会议论文采用高密度、claim-first 的写法；可用层级为 section → subsection → paragraph，但标题只对应独立科学单元，普通论述保持连续；",
+            en: "- Conference prose is compact and claim-first. The available hierarchy is section → subsection → paragraph, but headings correspond only to independent scientific units and ordinary exposition remains continuous;",
           },
           journal: {
-            zh: "- 期刊论文目录层级默认止于 subsubsection；其下用主题句、过渡和自然段组织连续论证，不把 Question、Observation、Design Purpose、Scope 等叙述功能升级为 paragraph 标题；",
-            en: "- In a journal paper, stop the heading hierarchy at subsubsection by default. Below it, build a continuous argument with topic sentences, transitions, and natural paragraphs rather than promoting discourse functions such as Question, Observation, Design Purpose, or Scope into paragraph headings;",
+            zh: "- 期刊论文采用累积式、解释充分的写法；目录层级默认止于 subsubsection，其下用主题句、过渡和自然段组织连续论证；",
+            en: "- Journal prose is cumulative and sufficiently explanatory. Stop the hierarchy at subsubsection by default and organize lower-level reasoning through topic sentences, transitions, and natural paragraphs;",
           },
         },
       },
@@ -199,12 +209,12 @@ The report must contain the Scientific Positioning Contract, the final title and
         marker: "scientific_method_structure",
         branches: {
           conference: {
-            zh: "- Method：通常形成 5–6 个接口清晰的 subsection，包含 Problem Definition、2–3 个核心机制以及目标/训练/推理/复杂度说明；不单设 Overview subsection，应在最合适的位置自然引出总体框架；不得写成说明书，而要围绕 why 形成融合性的科学故事，不要求每句话机械解释 why；不得增加无证据公式、模块或算法；",
-            en: "- Method: normally five to six clearly interfaced subsections covering Problem Definition, two to three core mechanisms, and objective/training/inference/complexity. Do not create a standalone Overview subsection; introduce the overall framework naturally where it best serves the argument. Build an integrated scientific story around why rather than a manual, without forcing every sentence to state a why. Add no unsupported equation, component, or algorithm;",
+            zh: "- Method：不单设 Overview，在合适位置自然引出总体框架；围绕 why 融合动机、计算构造、接口与边界。小节数量由真实科学单元决定，不为每个模块或叙述功能新增标题；",
+            en: "- Method: use no standalone Overview and introduce the framework where it serves the argument. Integrate motivation, computation, interfaces, and boundaries around why. Let genuine scientific units determine subsection count rather than creating a heading per component or discourse function;",
           },
           journal: {
-            zh: "- Method：通常形成 5–6 个接口清晰的 subsection，包含 Problem Definition、独立 Overview、2–3 个核心机制以及目标/训练/推理/复杂度说明；Overview 恰好两个普通段落，不得逐项复述框架图；不得写成说明书，而要围绕 why 形成融合性的科学故事，不要求每句话机械解释 why；不得增加无证据公式、模块或算法；\n{{scientific_overview_word_limits}}",
-            en: "- Method: normally five to six clearly interfaced subsections covering Problem Definition, a standalone Overview, two to three core mechanisms, and objective/training/inference/complexity. Overview contains exactly two ordinary paragraphs and must not narrate the framework figure item by item. Build an integrated scientific story around why rather than a manual, without forcing every sentence to state a why. Add no unsupported equation, component, or algorithm;\n{{scientific_overview_word_limits}}",
+            zh: "- Method：设置两个普通段落的独立 Overview，但不逐项复述框架图；围绕 why 融合动机、计算构造、接口与边界。小节数量由真实科学单元决定，不为每个模块或叙述功能新增标题；\n{{scientific_overview_word_limits}}",
+            en: "- Method: use a two-paragraph standalone Overview without narrating the framework figure item by item. Integrate motivation, computation, interfaces, and boundaries around why. Let genuine scientific units determine subsection count rather than creating a heading per component or discourse function;\n{{scientific_overview_word_limits}}",
           },
         },
       },
@@ -212,12 +222,12 @@ The report must contain the Scientific Positioning Contract, the final title and
         marker: "scientific_experiment_structure",
         branches: {
           conference: {
-            zh: "- Experiments and Results：第一小节必须为 Datasets and Experimental Setup，并依次以 paragraph 设置 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines；第二小节必须为 Main Results。后续小节不绑定固定序号，按真实证据安排 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析；",
-            en: "- Experiments and Results: the first subsection must be Datasets and Experimental Setup, containing Datasets, Evaluation Metrics, Experimental Configuration, and Baselines as paragraph headings in that order; the second must be Main Results. Do not bind later subsections to fixed positions; order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by evidence;",
+            zh: "- Experiments and Results：先在 Datasets and Experimental Setup 中依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines，再进入 Main Results；四项是内容功能，不要求机械成为 paragraph。后续分析按证据安排，标题只命名真实实验、变量或现象；",
+            en: "- Experiments and Results: cover Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order within Datasets and Experimental Setup, then move to Main Results. These are content functions, not mandatory paragraph headings. Order later analyses by evidence and let headings name genuine experiments, variables, or phenomena;",
           },
           journal: {
-            zh: "- Experiments and Results：第一小节必须为 Datasets and Experimental Setup，并依次以 subsubsection 设置 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines；第二小节必须为 Main Results。后续小节不绑定固定序号，按真实证据安排 Ablation Studies、机制/效率/参数、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析；",
-            en: "- Experiments and Results: the first subsection must be Datasets and Experimental Setup, containing Datasets, Evaluation Metrics, Experimental Configuration, and Baselines as subsubsections in that order; the second must be Main Results. Do not bind later subsections to fixed positions; order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by evidence;",
+            zh: "- Experiments and Results：先在 Datasets and Experimental Setup 中依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines，再进入 Main Results；只在内容确实构成独立单元时设置 subsubsection。后续分析按证据安排；",
+            en: "- Experiments and Results: cover Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order within Datasets and Experimental Setup, then move to Main Results. Use subsubsections only for genuinely independent units and order later analyses by evidence;",
           },
         },
       },
@@ -225,12 +235,42 @@ The report must contain the Scientific Positioning Contract, the final title and
         marker: "scientific_discussion_structure",
         branches: {
           conference: {
-            zh: "- Discussion and Limitations：先安排三个承担综合解释、适用范围与科学意义的 discussion subsection，最后单列一个 Limitations subsection。不得复述实验结果，不引用 Experiments 中的表格或图片；具体结果数字最多保留三个，不写数字也可以；\n{{scientific_limitations_word_limits}}",
-            en: "- Discussion and Limitations: use three discussion subsections for synthesis, scope, and scientific implications, followed by a separate Limitations subsection. Do not repeat experimental results or cite tables or figures from Experiments; retain at most three specific result values, and using none is acceptable;\n{{scientific_limitations_word_limits}}",
+            zh: "- Discussion and Limitations：由模型按证据选择 3–5 个承担综合解释、适用范围与科学意义的 discussion subsection，最后单列 Limitations。Discussion 不复述结果、不引用实验图表，具体结果数字最多三个；\n{{scientific_limitations_word_limits}}",
+            en: "- Discussion and Limitations: let the model select three to five evidence-driven discussion subsections for synthesis, scope, and scientific implications, followed by Limitations. Discussion does not repeat Results or cite experimental visuals and uses at most three result values;\n{{scientific_limitations_word_limits}}",
           },
           journal: {
-            zh: "- Discussion：独立成节并恰好包含 Mechanistic Interpretation、Scope and Implications、Limitations and Future Directions 三个 subsection；不得复述实验结果，不引用 Experiments 中的表格或图片；具体结果数字最多保留三个，不写数字也可以；",
-            en: "- Discussion: a standalone section with exactly three subsections—Mechanistic Interpretation, Scope and Implications, and Limitations and Future Directions. Do not repeat experimental results or cite tables or figures from Experiments; retain at most three specific result values, and using none is acceptable;",
+            zh: "- Discussion：独立成节，由模型按证据选择 3–5 个主题小节，覆盖机制解释、适用范围、意义与局限；不复述结果、不引用实验图表，具体结果数字最多三个；",
+            en: "- Discussion: use a standalone section with three to five evidence-driven topic subsections covering mechanism, scope, implications, and limitations. Do not repeat Results or cite experimental visuals, and use at most three result values;",
+          },
+        },
+      },
+    ],
+    inlinePreferenceConstraints: [
+      {
+        marker: "title_brand_strategy",
+        contextKey: "allowTitleBrandCandidates",
+        branches: {
+          enabled: {
+            zh: "- 仅当现有标题或缩写存在误导、越界或明显不自然时，才在报告中提供少量候选；候选品牌缩写为 4–7 个拉丁字母。在作者明确选择前，TeX 继续使用原值。",
+            en: "- Only when the current title or acronym is misleading, overbroad, or clearly unnatural may the report offer a small candidate set; a candidate paper-brand acronym uses four to seven Latin letters. TeX retains the original until the author explicitly selects a change.",
+          },
+          disabled: {
+            zh: "- 当前配置不允许候选：保持原标题、方法全称和缩写；发现风险时只在报告中说明，不生成替代名称。",
+            en: "- Candidates are disabled: preserve the current title, full method name, and acronym. Report risks without generating replacement names.",
+          },
+        },
+      },
+      {
+        marker: "scientific_introduction_structure",
+        contextKey: "includeSectionNavigationSentence",
+        branches: {
+          enabled: {
+            zh: "- Introduction：使用五个核心段落。P1 背景与任务；P2 相关路线与缺口；P3 明确今天仍未解决且决定设计的挑战；P4 回答 P3，给出核心思想、总体机制与直觉；P5 给出三条贡献，每条默认以 We 开头并对应真实机制与证据。末尾增加一句纯章节导航句；",
+            en: "- Introduction: use five core paragraphs. P1 covers background/task; P2 research lines/gap; P3 the challenges still unresolved today that determine the design; P4 answers P3 with the core idea, overall mechanism, and intuition; P5 gives three contributions, each beginning with We by default and tied to a real mechanism and evidence. End with one pure paper-roadmap sentence;",
+          },
+          disabled: {
+            zh: "- Introduction：使用五个核心段落。P1 背景与任务；P2 相关路线与缺口；P3 明确今天仍未解决且决定设计的挑战；P4 回答 P3，给出核心思想、总体机制与直觉；P5 给出三条贡献，每条默认以 We 开头并对应真实机制与证据。不写纯章节导航句；",
+            en: "- Introduction: use five core paragraphs. P1 covers background/task; P2 research lines/gap; P3 the challenges still unresolved today that determine the design; P4 answers P3 with the core idea, overall mechanism, and intuition; P5 gives three contributions, each beginning with We by default and tied to a real mechanism and evidence. Omit a pure paper-roadmap sentence;",
           },
         },
       },
@@ -314,13 +354,14 @@ The report must contain the Scientific Positioning Contract, the final title and
 
 ### Experiments 的固定结构约束
 
-1. 第一个 subsection 必须为 Datasets and Experimental Setup，第二个必须为 Main Results；后续小节不绑定第三或第四的固定序号，应根据证据组织 Ablation Studies、机制/效率/参数分析、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析。Ablation Studies 应在材料支持时保留；没有真实案例或消融证据时不得虚构，并须在报告中登记缺口。
+1. 先用 Datasets and Experimental Setup 建立可复现条件，再由 Main Results 回答主要 claim；后续小节按真实证据组织 Ablation Studies、机制/效率/参数分析、Case Studies and Qualitative Analysis、稳健性、敏感性、泛化或错误分析。
 2. {{experiment_setup_structure}}
-3. Datasets and Experimental Setup 必须按 Datasets → Evaluation Metrics → Experimental Configuration → Baselines 组织。Datasets 说明数据来源、划分、规模和任务输入输出；Evaluation Metrics 独立说明每项指标的定义、方向、单位或尺度、聚合方式以及为何能够衡量当前任务；Experimental Configuration 只写材料能够确认的实现细节、随机种子、运行次数、早停、服务器/硬件和超参数；Baselines 说明基线家族、版本、来源与公平比较原则。不得默认写入统计显著性或未证实的公平条件。
+3. Datasets and Experimental Setup 按 Datasets → Evaluation Metrics → Experimental Configuration → Baselines 覆盖四项功能；它们不必机械成为四个标题。只写材料能够确认的来源、划分、指标、配置和公平比较条件。
 4. Main Results 按“总体观察 → 与强基线比较 → 跨数据集/指标稳定性 → 证据边界”组织，只选择关键数字，不逐单元格朗读。
 5. 每个消融、替换或敏感性设置都必须对应明确设计问题；区分模块必要性、参数选择和训练技巧；没有多随机种子或统计支持时不得把小幅波动解释成确定规律。
-6. 每个实验小节整体应让读者明白本节检验的不确定性、决定性证据、合理解释、与核心 claim 的关系以及边界或例外。根据证据把这些功能自然分布在连续段落中，不要求每段重复同一顺序；小标题应命名实验、变量或现象，而不是 Question、Observation、Interpretation 等叙述功能。不得重复全部数字、每句都以 Table/Figure 开头、用 higher is better 式空话、提前写 Discussion 的普遍意义或用 significant 表示普通数值差异。
-7. 对每张实验图检查 caption 是否解释变量、设置、均值或误差带，图例与术语是否一致，数值是否与表格冲突，正文是否解释趋势，以及视觉证据是否真的支持 claim。
+6. 每个实验小节用连续段落说明研究问题、决定性证据、合理解释、与核心 claim 的关系和边界。标题只命名真实实验、变量或现象；根据证据密度决定层级，不为每张图表或叙述功能新增标题。
+7. 保留全部实验设置、核心结果、不利结果和必要解释；只删除真实重复，不因篇幅建议压缩证据链。
+8. 对每张实验图检查 caption、图例、数值与正文解释是否一致，以及视觉证据是否真的支持 claim。
 {{experiments_word_limits}}
 
 ### 中文报告固定清单
@@ -340,13 +381,14 @@ The report must contain the Scientific Positioning Contract, the final title and
 
 ### Fixed Constraints for Experiments
 
-1. The first subsection must be Datasets and Experimental Setup and the second Main Results. Do not bind later content to fixed third or fourth positions; order supported Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by evidence. Retain Ablation Studies when the materials support it. Never invent case or ablation evidence; record a missing evidence type as a gap.
+1. Establish reproducible conditions in Datasets and Experimental Setup, then let Main Results answer the primary claims. Order later Ablation Studies, mechanism/efficiency/parameter analyses, Case Studies and Qualitative Analysis, robustness, sensitivity, generalization, or error analysis by the available evidence.
 2. {{experiment_setup_structure}}
-3. Organize Datasets and Experimental Setup as Datasets → Evaluation Metrics → Experimental Configuration → Baselines. Datasets covers sources, splits, sizes, and task inputs/outputs. Evaluation Metrics independently defines every metric, its direction, unit or scale, aggregation, and why it measures the current task. Experimental Configuration contains only confirmed implementation details, seeds, run counts, early stopping, servers/hardware, and hyperparameters. Baselines covers families, versions, provenance, and fair-comparison principles. Do not assume significance tests or unverified fairness conditions.
+3. Cover Datasets → Evaluation Metrics → Experimental Configuration → Baselines in that order within Datasets and Experimental Setup. They are four content functions, not mandatory headings. Include only verified sources, splits, metrics, configurations, and fairness conditions.
 4. Organize Main Results as overall observation → comparison with strong baselines → consistency across datasets/metrics → evidence boundary. Select only decisive numbers and do not narrate every cell.
 5. Every removal, replacement, or sensitivity setting must answer a clear design question. Separate component necessity, parameter choice, and training tricks. Without multiple seeds or statistical support, do not turn small variation into a deterministic rule.
-6. Across each experiment subsection, make clear the uncertainty being tested, decisive evidence, warranted interpretation, relation to the core claim, and boundary or exception. Distribute these functions naturally across continuous prose rather than repeating one sequence in every paragraph. Let headings name experiments, variables, or phenomena rather than discourse functions such as Question, Observation, or Interpretation. Do not repeat every number, begin every sentence with Table/Figure, use "higher is better" filler, move broad Discussion claims into Results, or use "significant" for ordinary numerical differences.
-7. For every experimental figure, check whether the caption explains variables, settings, means, or error bands; whether legend terminology is consistent; whether values conflict with tables; whether prose interprets the trend; and whether the visual actually supports the claim.
+6. Use continuous prose in each experiment subsection to establish the research question, decisive evidence, warranted interpretation, relation to the core claim, and boundary. Let headings name genuine experiments, variables, or phenomena; let evidence density determine hierarchy rather than adding a heading for each visual or discourse function.
+7. Preserve all settings, core and unfavorable results, and necessary interpretation. Remove only genuine repetition and never compress the evidence chain for a length suggestion.
+8. For every experimental figure, verify that caption, legend, values, and prose interpretation agree and that the visual supports the claim.
 {{experiments_word_limits}}
 
 ### Fixed Chinese-report Checklist
@@ -358,8 +400,8 @@ The report must contain the Method logic map, old/new Method subsection comparis
         marker: "method_document_hierarchy",
         branches: {
           conference: {
-            zh: "会议论文需要第三层标题时使用 paragraph 而非 subsubsection；paragraph 标题只命名真实科学单元，普通论述以连续段落展开。方法结构按科学逻辑而非代码类名组织。",
-            en: "In a conference paper, use paragraph rather than subsubsection when a third-level heading is genuinely needed. Reserve paragraph headings for named scientific units and develop ordinary exposition as continuous prose. Organize Method by scientific logic rather than code class names.",
+            zh: "会议论文使用 section → subsection → paragraph；标题只对应真实科学单元，普通论述保持连续。方法结构按科学逻辑而非代码类名组织。",
+            en: "Conference papers use section → subsection → paragraph. Headings correspond only to genuine scientific units and ordinary exposition remains continuous. Organize Method by scientific logic rather than code class names.",
           },
           journal: {
             zh: "期刊论文目录层级默认止于 subsubsection；其下以主题句、过渡和自然段形成连续论证，不把叙述功能写成 paragraph 标题。方法结构按科学逻辑而非代码类名组织。",
@@ -384,12 +426,12 @@ The report must contain the Method logic map, old/new Method subsection comparis
         marker: "experiment_setup_structure",
         branches: {
           conference: {
-            zh: "在 \\subsection{Datasets and Experimental Setup} 内依次设置 \\paragraph{Datasets}、\\paragraph{Evaluation Metrics}、\\paragraph{Experimental Configuration} 和 \\paragraph{Baselines} 四个承担真实内容分类的标题；其他内容优先并入连续正文，只有出现新的、可命名的科学单元时才增加 paragraph。",
-            en: "Inside \\subsection{Datasets and Experimental Setup}, use \\paragraph{Datasets}, \\paragraph{Evaluation Metrics}, \\paragraph{Experimental Configuration}, and \\paragraph{Baselines} in that order as genuine content categories. Integrate other material into continuous prose unless it forms a distinct, nameable scientific unit that warrants another paragraph heading.",
+            zh: "在 \\subsection{Datasets and Experimental Setup} 内依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines。根据内容密度决定是否使用 paragraph；不得为了四项对称而强制增加标题。",
+            en: "Inside \\subsection{Datasets and Experimental Setup}, cover Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order. Use paragraph headings only when content density warrants them; do not force four symmetric headings.",
           },
           journal: {
-            zh: "在 \\subsection{Datasets and Experimental Setup} 内依次设置 \\subsubsection{Datasets}、\\subsubsection{Evaluation Metrics}、\\subsubsection{Experimental Configuration} 和 \\subsubsection{Baselines}；每个 subsubsection 内以连续正文组织内容，只有出现新的、可命名的科学单元时才增加同级标题。",
-            en: "Inside \\subsection{Datasets and Experimental Setup}, use \\subsubsection{Datasets}, \\subsubsection{Evaluation Metrics}, \\subsubsection{Experimental Configuration}, and \\subsubsection{Baselines} in that order. Develop each subsubsection as continuous prose and add another peer heading only for a distinct, nameable scientific unit.",
+            zh: "在 \\subsection{Datasets and Experimental Setup} 内依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines。只在内容确实构成独立科学单元时使用 subsubsection，避免标准文档式层级。",
+            en: "Inside \\subsection{Datasets and Experimental Setup}, cover Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order. Use subsubsections only for genuinely independent scientific units and avoid document-style over-structuring.",
           },
         },
       },
@@ -428,7 +470,13 @@ The report must contain the Method logic map, old/new Method subsection comparis
   },
   "narrative-reconstruction": {
     core: {
-      zh: `### Abstract 的固定结构
+      zh: `### 深度精修原则
+
+- 先建立事实底稿与原稿高价值表达保留清单；准确、清晰、有辨识度且与证据一致的原句应保留或轻调；
+- 只重组存在逻辑断裂、重复、证据错位或表达不清的部分，不以“焕新”为目的清空重写；
+- 每项改动必须融合进段落论证，保持术语、语气和写作手法一致。
+
+### Abstract 的固定结构
 
 - 必须是一个连续英文段落，不含引用、公式、脚注、编号或换行；
 - Background：1–2 句，具体说明任务、场景和当前限制；
@@ -441,16 +489,16 @@ The report must contain the Method logic map, old/new Method subsection comparis
 - Keywords 行可使用本文方法缩写，并包含 3–5 个高信息量英文术语。
 {{abstract_word_limits}}
 
-### Introduction 的固定六段结构
+### Introduction 的核心结构
 
-- 不设置任何子节，恰好六个连续段落，不得改成七段或八段；
+- 不设置任何子节，使用五个核心段落；
 - P1 背景与动机：直接进入任务、场景和现实约束，明确说明该问题在当前研究与实际环境中仍然存在，而不是只回顾历史缺口；可使用 6–10 个当前 .bib key，每句最多 3 个；
 - P2 最相关路线与缺口：每条路线先概括再说明在本文目标维度上的限制，可使用 4–8 个当前 key；
-- P3 问题设定与挑战：最小充分描述输入、输出、约束和目标，不使用公式，明确 2–4 个与 P1/P2 对齐的挑战，可选 3–6 个 key；
-- P4 方法概览与设计直觉：第一句必须以 "To ..." 开头并首次引入方法全称与既定论文品牌缩写；从核心思想到 2–3 个必要机制，每个机制对应 P3 挑战，可使用 0–4 个 key；
-- P5 贡献与意义：Introduction 中唯一允许使用条目的段落，恰好三点；分别覆盖科学问题或建模视角、计算机制或关键性质、实验发现或可推广认识；不写具体数值，不使用 cite，不得把三个普通模块分别包装成三项贡献；
-- P6 论文结构：使用现有 Section ref，只说明组织，不重复章节内容，不使用 cite；
-- Introduction 中 we 最多出现六次；P1–P4 可引用，P5–P6 禁止引用；所有 key 必须存在于当前 .bib。
+- P3 未解问题与挑战：最小充分描述输入、输出、约束和目标，只说明今天仍未解决且真正决定设计的 2–4 个挑战；
+- P4 本文回应：直接回答 P3，介绍核心思想、总体机制与设计直觉；不得再次扩写缺口或重复挑战；
+- P5 贡献与意义：恰好三条单句贡献，每条默认以 We 开头，分别对应真实机制与现有证据；不写具体结果数字或 cite；
+{{narrative_introduction_roadmap}}
+- P1–P4 可引用，P5 不引用；所有 key 必须存在于当前 .bib。
 {{introduction_word_limits}}
 
 ### Related Work 的固定结构
@@ -475,8 +523,14 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### 中文报告固定清单
 
-报告必须包含：从 Method/Experiments 抽取的事实底稿、Abstract 句子功能表、Introduction P1–P6 功能表、三点贡献旧/新对照、Related Work 主题与文献簇、Discussion 的证据/推断/边界表、Conclusion 两段功能表、术语对齐、联网核验、实际重构清单和下一步交接摘要。`,
-      en: `### Fixed Structure for the Abstract
+报告必须包含：事实底稿、原稿高价值表达保留清单、Abstract 句子功能表、Introduction 核心段落功能表、三点贡献旧/新对照、Related Work 主题与文献簇、Discussion 的证据/推断/边界表、Conclusion 两段功能表、术语对齐、联网核验、实际精修清单和下一步交接摘要。`,
+      en: `### Deep-refinement Principle
+
+- Build both a fact base and a preservation list for high-value original expression. Retain or lightly edit original sentences that are accurate, clear, distinctive, and evidence-aligned;
+- Reorganize only where logic breaks, repetition, evidence misalignment, or unclear expression warrants it. Do not erase prose merely to make it look new;
+- Integrate every change into the paragraph's argument while keeping terminology, tone, and writing style consistent.
+
+### Fixed Structure for the Abstract
 
 - Use one continuous English paragraph with no citations, equations, footnotes, numbering, or line breaks;
 - Background: one to two sentences that concretely state the task, setting, and current limitation;
@@ -489,16 +543,16 @@ The report must contain the Method logic map, old/new Method subsection comparis
 - The Keywords line may use the method acronym and must contain three to five high-information English terms.
 {{abstract_word_limits}}
 
-### Fixed Six-paragraph Structure for Introduction
+### Core Structure for Introduction
 
-- Use no subsection and exactly six consecutive paragraphs; never seven or eight;
+- Use no subsection and five core paragraphs;
 - P1 Background and motivation: enter the task, setting, and practical constraints directly, and explicitly establish that the problem still exists in today's research and practical landscape rather than merely recounting a historical gap. It may use six to ten current .bib keys, with no more than three per sentence;
 - P2 Closest research lines and gap: summarize each line before stating its specific limitation for this paper's objective. It may use four to eight current keys;
-- P3 Problem setup and challenges: describe inputs, outputs, constraints, and objective minimally without equations; define two to four challenges aligned with P1/P2; optionally use three to six keys;
-- P4 Method overview and intuition: the first sentence must begin with "To ..." and introduce the full method name and fixed paper brand acronym for the first time; move from the core idea to two or three necessary mechanisms, each answering a P3 challenge; use zero to four keys;
-- P5 Contributions and significance: the only Introduction paragraph that may use a list, with exactly three items covering the scientific problem/modeling view, computational mechanism/key property, and experimental finding/generalizable insight. Use no specific result value or cite, and do not relabel three ordinary modules as three contributions;
-- P6 Paper organization: use existing Section refs, describe organization only, repeat no section content, and use no cite;
-- Use "we" no more than six times in Introduction. P1–P4 may cite; P5–P6 may not. Every key must exist in the current .bib.
+- P3 Unresolved problem and challenges: describe inputs, outputs, constraints, and objective minimally, focusing only on two to four challenges that still remain today and genuinely determine the design;
+- P4 This paper's response: answer P3 directly with the core idea, overall mechanism, and design intuition; do not expand the gap again or repeat the challenges;
+- P5 Contributions and significance: exactly three one-sentence contributions, each beginning with We by default and tied to a real mechanism and existing evidence. Use no specific result value or cite;
+{{narrative_introduction_roadmap}}
+- P1–P4 may cite; P5 does not. Every key must exist in the current .bib.
 {{introduction_word_limits}}
 
 ### Fixed Structure for Related Work
@@ -523,7 +577,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the fact base extracted from Method/Experiments, Abstract sentence-function table, Introduction P1–P6 function table, old/new three-contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion two-paragraph function table, terminology alignment, web verification, actual reconstruction log, and next-step handoff.`,
+The report must contain the fact base, preservation list for high-value original expression, Abstract sentence-function table, Introduction core-paragraph map, old/new three-contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion two-paragraph map, terminology alignment, web verification, actual refinement log, and next-step handoff.`,
     },
     inlineStyleConstraints: [
       {
@@ -543,12 +597,28 @@ The report must contain the fact base extracted from Method/Experiments, Abstrac
         marker: "narrative_discussion_structure",
         branches: {
           conference: {
-            zh: "- 会议论文的 Discussion and Limitations 先设置三个承担综合解释、适用范围与科学意义的 discussion subsection，最后单列一个 Limitations subsection；前三个小节各包含一个或两个普通段落，Limitations 聚焦真实边界而不重复结果；\n{{narrative_limitations_word_limits}}",
-            en: "- A conference paper uses three discussion subsections for synthesis, scope, and scientific implications, followed by a separate Limitations subsection. Each of the first three contains one or two ordinary paragraphs; Limitations focuses on real boundaries without repeating results;\n{{narrative_limitations_word_limits}}",
+            zh: "- 会议论文的 Discussion and Limitations 由模型按证据选择 3–5 个 discussion subsection，承担综合解释、适用范围与科学意义，最后单列 Limitations；\n{{narrative_limitations_word_limits}}",
+            en: "- In a conference paper, let the model select three to five evidence-driven Discussion subsections for synthesis, scope, and scientific implications, followed by a separate Limitations subsection;\n{{narrative_limitations_word_limits}}",
           },
           journal: {
-            zh: "- 期刊论文的 Discussion 恰好三个 subsection：Mechanistic Interpretation、Scope and Implications、Limitations and Future Directions；每个小节包含一个或两个普通段落；",
-            en: "- A journal paper's Discussion has exactly three subsections—Mechanistic Interpretation, Scope and Implications, and Limitations and Future Directions—with one or two ordinary paragraphs in each;",
+            zh: "- 期刊论文的 Discussion 由模型按证据选择 3–5 个主题小节，覆盖机制解释、适用范围、意义、局限与未来方向；",
+            en: "- In a journal paper, let the model select three to five evidence-driven topic subsections covering mechanism, scope, implications, limitations, and future directions;",
+          },
+        },
+      },
+    ],
+    inlinePreferenceConstraints: [
+      {
+        marker: "narrative_introduction_roadmap",
+        contextKey: "includeSectionNavigationSentence",
+        branches: {
+          enabled: {
+            zh: "- 在 P5 后增加一句简短的纯章节导航句，只说明论文组织，不重复章节内容，也不使用 cite；",
+            en: "- After P5, add one concise pure paper-roadmap sentence that states organization only, repeats no section content, and uses no cite;",
+          },
+          disabled: {
+            zh: "- 不写纯章节导航句；以贡献段自然结束 Introduction；",
+            en: "- Omit a pure paper-roadmap sentence and close Introduction naturally with the contribution paragraph;",
           },
         },
       },
@@ -564,8 +634,8 @@ The report must contain the fact base extracted from Method/Experiments, Abstrac
       {
         marker: "introduction_word_limits",
         standard: {
-          zh: `- 启用字数限制时，Introduction 总计 {{introduction_min}}–{{introduction_max}} 词，每句不超过 25 词；P1 为 {{intro_p1_min}}–{{intro_p1_max}} 词，P2 为 {{intro_p2_min}}–{{intro_p2_max}} 词，P3 为 {{intro_p3_min}}–{{intro_p3_max}} 词，P4 为 {{intro_p4_min}}–{{intro_p4_max}} 词，P5 为 {{intro_p5_min}}–{{intro_p5_max}} 词，P6 为 {{intro_p6_min}}–{{intro_p6_max}} 词；P5 的三点贡献每点 15–25 词。`,
-          en: `- When a word limit is enabled, Introduction totals {{introduction_min}}–{{introduction_max}} words with no sentence over 25 words. P1 contains {{intro_p1_min}}–{{intro_p1_max}} words; P2 {{intro_p2_min}}–{{intro_p2_max}}; P3 {{intro_p3_min}}–{{intro_p3_max}}; P4 {{intro_p4_min}}–{{intro_p4_max}}; P5 {{intro_p5_min}}–{{intro_p5_max}}; and P6 {{intro_p6_min}}–{{intro_p6_max}}. Each of P5's three contribution items contains 15–25 words.`,
+          zh: `- 启用建议字数时，Introduction 总计 {{introduction_min}}–{{introduction_max}} 词，每句不超过 25 词；P1–P4 依次为 {{intro_p1_min}}–{{intro_p1_max}}、{{intro_p2_min}}–{{intro_p2_max}}、{{intro_p3_min}}–{{intro_p3_max}}、{{intro_p4_min}}–{{intro_p4_max}} 词；P5 约 {{intro_p5_min}}–{{intro_p5_max}} 词，每条贡献 15–25 词。导航句不作为独立段落。`,
+          en: `- When suggested lengths are enabled, Introduction totals {{introduction_min}}–{{introduction_max}} words with no sentence over 25 words. P1–P4 contain {{intro_p1_min}}–{{intro_p1_max}}, {{intro_p2_min}}–{{intro_p2_max}}, {{intro_p3_min}}–{{intro_p3_max}}, and {{intro_p4_min}}–{{intro_p4_max}} words; P5 contains approximately {{intro_p5_min}}–{{intro_p5_max}} words, with 15–25 words per contribution. A roadmap sentence is not a separate paragraph.`,
         },
       },
       {
@@ -642,9 +712,16 @@ The report must contain the fact base extracted from Method/Experiments, Abstrac
 
 逐项攻击并处理：科学新意是否只是模块拼接、核心思想是否区别于现有工作、机制是否有必要性解释、实验是否支持全部贡献、是否缺少关键消融或公平比较、参数是否在测试集上选择、结论是否超出证据、Discussion/Limitations 是否诚实、标题和摘要是否过度包装。无法通过文字修复的实验缺口必须保留在报告中。
 
+### 原稿质量回归门
+
+- 以重构前原始 .tex、PDF 和旧框架图为基线，逐节比较当前稿；
+- 检查高价值句子或实验发现是否消失、结果解释是否被过度压缩、当前标题是否仍准确且有辨识度、新框架图是否更清楚地表达科学主线；
+- 只修复确认发生退化的位置，并把修复融合进原段落；其他内容保持不变；
+- 输出 Quality Regression Table，记录检查项、原稿价值、当前状态、处理和依据，同时核验全文术语与写作手法一致。
+
 ### 中文报告固定清单
 
-报告必须包含：终审摘要与重大修正、Terminology Consistency Table、缩写首次定义与冗余缩写表、Cross-Section Redundancy Matrix、Claim–Evidence 表、数字统计表、引用键与语义支持审计、图表/公式/算法/LaTeX 审计、审稿人攻击测试、无法通过文字解决的风险、联网核验与完整最终 BibTeX 的新增/修正记录、逐章节修改清单和投稿目标检索交接摘要。`,
+报告必须包含：终审摘要与重大修正、Terminology Consistency Table、Cross-Section Redundancy Matrix、Claim–Evidence 表、数字与引用审计、图表/公式/算法/LaTeX 审计、审稿人攻击测试、Quality Regression Table、无法通过文字解决的风险、逐章节修改清单和投稿目标检索交接摘要。`,
       en: `### Sentence-by-sentence Language Checks
 
 - Grammar, articles, singular/plural form, subject–verb agreement, tense, and voice;
@@ -659,7 +736,7 @@ The report must contain the fact base extracted from Method/Experiments, Abstrac
 
 ### Terminology, Acronym, and Cross-section Function Governance
 
-- Build the final Terminology Consistency Table covering canonical terms, the full method name and fixed paper brand acronym, component/representation/query/branch/loss/data/metric terminology, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct;
+- Build the final Terminology Consistency Table covering canonical terms, the full method name and current author-approved paper-brand acronym, component/representation/query/branch/loss/data/metric terminology, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct;
 - Check complete consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms;
 - Check whether Abstract copies Introduction; Introduction reveals excessive method detail or numbers; Related Work repeats Introduction or narrates papers; Method Overview repeats mechanism subsections; Experiments reads tables cell by cell; Discussion repeats Results; Conclusion copies Abstract; the three contributions align with Method/Experiments/Conclusion; and the same limitation appears repeatedly;
 - Return a Cross-Section Redundancy Matrix explaining every deletion, merge, or retention.
@@ -687,9 +764,16 @@ Delete, narrow, or explicitly qualify any under-supported claim.
 
 Attack and address whether the novelty is only module assembly, the core idea is distinguished from prior work, mechanisms have necessity arguments, experiments support every contribution, decisive ablations or fair comparisons are missing, parameters were chosen on test data, conclusions exceed evidence, Discussion/Limitations are honest, and title/abstract overpackage the work. Keep experimental gaps that prose cannot repair in the report.
 
+### Source-aware Quality Regression Gate
+
+- Use the original pre-reconstruction .tex, PDF, and old framework figure as the baseline for section-by-section comparison;
+- Check for lost high-value sentences or experimental findings, overcompressed result interpretation, whether the current title remains accurate and distinctive, and whether the new framework figure communicates the scientific throughline more clearly;
+- Repair only confirmed regressions and integrate each repair into its paragraph. Keep all unrelated content unchanged;
+- Return a Quality Regression Table recording the check, source value, current state, action, and rationale, while verifying consistent terminology and writing style throughout.
+
 ### Fixed Chinese-report Checklist
 
-The report must contain the final-audit summary and major revisions, Terminology Consistency Table, first-definition and redundant-acronym table, Cross-Section Redundancy Matrix, Claim–Evidence table, numeric/statistical table, citation-key and semantic-support audit, visual/equation/algorithm/LaTeX audit, reviewer attack test, risks prose cannot solve, web verification and the addition/correction log for the complete final BibTeX library, section-by-section revision log, and the submission-targeting handoff.`,
+The report must contain the final-audit summary and major revisions, Terminology Consistency Table, Cross-Section Redundancy Matrix, Claim–Evidence table, numeric and citation audits, visual/equation/algorithm/LaTeX audit, reviewer attack test, Quality Regression Table, risks prose cannot solve, section-by-section revision log, and submission-targeting handoff.`,
     },
   },
   "venue-targeting": {

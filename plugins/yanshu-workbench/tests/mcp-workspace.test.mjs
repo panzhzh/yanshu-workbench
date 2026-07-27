@@ -126,7 +126,7 @@ test("MCP workspace exposes prompts, TeX evidence, and real figure pixels", asyn
       artifactId: manifest.promptArtifactId,
       maxChars: 2_000,
     });
-    assert.match(prompt.content, /macro-reconstruction|科学定位/);
+    assert.match(prompt.content, /scientific position and macro structure/);
 
     const evidence = await getEvidenceIndex(
       fixture.state.runPath,

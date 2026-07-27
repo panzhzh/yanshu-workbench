@@ -111,7 +111,7 @@ export const IDEA_DIRECTIONS: Record<IdeaDirectionId, IdeaDirection> = {
   },
 };
 
-export const IDEA_COUNT_OPTIONS = [3, 5, 8] as const;
+export const IDEA_COUNT_OPTIONS = [2, 3, 5, 8] as const;
 export type IdeaCount = (typeof IDEA_COUNT_OPTIONS)[number];
 
 export const NOVELTY_POSTURE_IDS = [
@@ -215,7 +215,7 @@ export interface IdeaPreferences {
   additionalCriteria: string;
 }
 
-export const DEFAULT_IDEA_PREFERENCES: IdeaPreferences = {
+const BASE_IDEA_PREFERENCES: IdeaPreferences = {
   directionId: "general-cs",
   focus: "",
   seed: "",
@@ -228,9 +228,29 @@ export const DEFAULT_IDEA_PREFERENCES: IdeaPreferences = {
   resourceConstraints: "",
   ideaCount: 5,
   noveltyPosture: "balanced",
-  refinementFreedom: "reframe",
+  refinementFreedom: "preserve",
   additionalCriteria: "",
 };
+
+export const DEFAULT_IDEA_PREFERENCES_BY_MODE: Record<
+  IdeaWorkbenchMode,
+  IdeaPreferences
+> = {
+  discovery: {
+    ...BASE_IDEA_PREFERENCES,
+    recentYears: 2,
+    ideaCount: 2,
+  },
+  evaluation: {
+    ...BASE_IDEA_PREFERENCES,
+  },
+};
+
+export function getDefaultIdeaPreferences(
+  mode: IdeaWorkbenchMode,
+): IdeaPreferences {
+  return { ...DEFAULT_IDEA_PREFERENCES_BY_MODE[mode] };
+}
 
 const SHARED_COPY = {
   zh: {
@@ -512,7 +532,7 @@ function discoveryPrompt(
 
 ## 检索与证据规则
 1. 先确认执行当天日期，并围绕任务、假设、方法、数据集、指标和失败现象设计多组检索式。重点检索近 ${preferences.recentYears} 年论文；只有不可替代的奠基工作才可超出窗口并单独标记。
-2. “顶会/顶刊”必须按当前子领域识别并简要说明选择依据，不得把任意 venue 自称为顶级。优先使用官方 proceedings、OpenReview、出版社页面、arXiv 原文、项目主页和官方代码仓库。
+2. “顶会/顶刊”必须按当前子领域识别并简要说明选择依据，不得把任意 venue 自称为顶级。默认优先检索与当前问题直接相关的公认顶会论文，再以顶刊和必要的奠基工作补足证据；优先使用官方 proceedings、OpenReview、出版社页面、arXiv 原文、项目主页和官方代码仓库。
 3. 每篇实质性相关工作须核验标题、作者、年份、venue 和稳定链接。无法核验的信息不得补写；预印本与正式发表版本须区分。
 4. 不得把“没有搜到”写成“从未有人研究”。只能报告在明确检索范围内未发现高度重合工作，并列出检索边界与不确定性。
 5. 若指定公开数据集，核验其官方来源、许可或访问条件、任务定义、划分、常用指标、泄漏风险和当前强基线。若是私有或未公开数据，只把用户提供的信息视为条件，不伪造外部事实。
@@ -567,7 +587,7 @@ You are a rigorous CS research strategist. Do not brainstorm from keywords. Buil
 
 ## Search and evidence rules
 1. Establish the actual execution date. Design multiple queries around the task, assumptions, methods, datasets, metrics, and failure phenomena. Focus on the most recent ${preferences.recentYears} years; label indispensable older foundational work separately.
-2. Identify major conferences and journals for the selected subfield and briefly justify the choice. Never call an arbitrary venue “top.” Prefer official proceedings, OpenReview, publisher pages, original arXiv records, project pages, and official code repositories.
+2. Identify major conferences and journals for the selected subfield and briefly justify the choice. Never call an arbitrary venue “top.” By default, search established top-conference papers directly related to the problem first, then use top journals and indispensable foundational work to complete the evidence. Prefer official proceedings, OpenReview, publisher pages, original arXiv records, project pages, and official code repositories.
 3. Verify the title, authors, year, venue, and stable link for every materially relevant paper. Do not fill missing metadata. Distinguish preprints from formally published versions.
 4. Never turn “not found” into “never studied.” Report only that no close match was found within a documented search scope, and state the coverage limits and uncertainty.
 5. For a named public dataset, verify its official source, license or access conditions, task definition, split, common metrics, leakage risks, and current strong baselines. Treat private or unpublished data only as a user-supplied condition.

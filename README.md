@@ -54,13 +54,13 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 
 | 模块 | 适用阶段 | 当前能力 |
 | --- | --- | --- |
-| [Idea 查找](https://yanshu-workbench.pages.dev/ideas/discovery/) | 尚未确定选题 | 按方向、近年窗口、顶会/顶刊、数据集、SOTA 目标和资源边界检索；去重并核验最近邻工作后输出中英文 Markdown |
-| [Idea 评估与优化](https://yanshu-workbench.pages.dev/ideas/evaluation/) | 已有初步 Idea | 从新颖性、意义、有效性、可行性、竞争时机与复现条件进行压力测试，并融合生成完整优化稿 |
+| [Idea 查找](https://yanshu-workbench.pages.dev/ideas/discovery/) | 尚未确定选题 | 默认优先检索近 2 年顶会论文并生成 2 个候选；支持自定义时间窗、venue、数据集、SOTA 目标和资源边界，最终输出中英文 Markdown |
+| [Idea 评估与优化](https://yanshu-workbench.pages.dev/ideas/evaluation/) | 已有初步 Idea | 从新颖性、意义、有效性、可行性、竞争时机与复现条件进行压力测试；默认保留核心问题与机制并融合优化 |
 | [全文初稿](https://yanshu-workbench.pages.dev/draft/) | 实验已经完成 | 从证据材料生成完整、可编译的英文 LaTeX 初稿；arXiv 默认样式或当届顶会官方模板 |
 | [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
 | [章节精修](https://yanshu-workbench.pages.dev/reconstruction/refinement/) | 需要精修单章或合并实验叙事 | 按 Abstract、Introduction、Related Work、Method、Experiments & Results、Discussion、Conclusion 分别生成章节专用 Prompt |
 | [专项审计](https://yanshu-workbench.pages.dev/reconstruction/audit/) | 论文接近终稿 | 可组合审计术语、引用与 BibTeX、数据、图表、Claim–证据、符号、可复现性和跨章节重复 |
-| [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；先生成结构化英文生图 Prompt，确认后再绘制单图 |
+| [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；参考同类论文和已有框架图风格，充分推敲后生成超高清单图，也可先查看英文生图 Prompt |
 | [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/ESCI 动态筛选与官网核验 |
 | YanShu 插件 | 需要全链路执行 | 通过 **Paper Reconstruction** 创建可恢复的五轮目录，保存 Chat 会话与产物状态；当前为开发者预览 |
 

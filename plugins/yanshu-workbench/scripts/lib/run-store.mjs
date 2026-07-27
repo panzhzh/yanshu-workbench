@@ -1013,6 +1013,16 @@ export async function roundMaterials(state, selector) {
   });
 
   if (round.id === "final-refinement") {
+    add(state.inputs.tex, {
+      source: "original",
+      roles: ["original-tex", "quality-regression-baseline"],
+      roundNumber: null,
+    });
+    add(state.inputs.pdf, {
+      source: "original",
+      roles: ["original-pdf", "quality-regression-baseline"],
+      roundNumber: null,
+    });
     const frameworkFigure = await latestCompletedOutput(
       state,
       round.number,

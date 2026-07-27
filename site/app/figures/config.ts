@@ -45,6 +45,7 @@ export type FigureAspectRatioId =
 
 export type FigureLineColorMode = "neutral" | "semantic";
 export type FigureAccentColorRangeId = "1-2" | "2-3" | "2-4" | "3-4";
+export type FigureExecutionMode = "direct" | "prompt-first";
 export type FigureCardFillPolicyId =
   | "white"
   | "key-regions"
@@ -63,6 +64,7 @@ export type FigureFontFamilyId =
 
 export interface FigurePreferences {
   promptId: FigurePromptId;
+  executionMode: FigureExecutionMode;
   aspectRatioId: FigureAspectRatioId;
   customAspectWidth: number;
   customAspectHeight: number;
@@ -89,13 +91,14 @@ export interface FrameworkFigureLayoutPreferences {
 export const FIGURE_TYPE_RECOMMENDATIONS = {
   introduction: {
     promptId: "introduction",
+    executionMode: "direct",
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-3",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -103,13 +106,14 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "task-definition": {
     promptId: "task-definition",
+    executionMode: "direct",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-3",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -117,13 +121,14 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "method-overview": {
     promptId: "method-overview",
+    executionMode: "direct",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "2-3",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: true,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -131,13 +136,14 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "technical-detail": {
     promptId: "technical-detail",
+    executionMode: "direct",
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "1-2",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -145,13 +151,14 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "training-inference": {
     promptId: "training-inference",
+    executionMode: "direct",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-3",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -159,13 +166,14 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "algorithm-protocol": {
     promptId: "algorithm-protocol",
+    executionMode: "direct",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-3",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -173,13 +181,14 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "data-construction": {
     promptId: "data-construction",
+    executionMode: "direct",
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-3",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -187,6 +196,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "system-deployment": {
     promptId: "system-deployment",
+    executionMode: "direct",
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
@@ -201,13 +211,14 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "theory-concept": {
     promptId: "theory-concept",
+    executionMode: "direct",
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
     paletteId: "tol-muted",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "1-2",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -215,13 +226,14 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "geometry-coordinate": {
     promptId: "geometry-coordinate",
+    executionMode: "direct",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-3",
+    accentColorRangeId: "2-4",
     allowLightIllustrations: true,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -229,6 +241,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   },
   "survey-taxonomy": {
     promptId: "survey-taxonomy",
+    executionMode: "direct",
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -752,8 +765,8 @@ export const FIGURE_COPY = {
     eyebrow: "RESEARCH FIGURES",
     title: "科研绘图",
     subtitle:
-      "先从论文证据提炼一份视觉导演级英文 Prompt；确认后再生成一张图。",
-    preset: "论文取证 → 图型语义 → 视觉配置 → 确认生成",
+      "先参考同类顶会与顶刊图片，再依据论文证据生成高清科研配图。",
+    preset: "同类图参考 → 论文取证 → 单图生成",
     reset: "恢复当前图型推荐配置",
     resetHint:
       "只恢复当前图型的推荐占栏、比例与视觉设置；其他图型中已修改的设置会保留。",
@@ -765,6 +778,14 @@ export const FIGURE_COPY = {
     figureTasks: "选择绘图 Prompt",
     figureTasksHint:
       "11 种图型分别保存自己的设置；首次切换载入推荐配置，手动修改后再切换不会丢失。",
+    executionMode: "执行方式",
+    executionDirect: "直接绘图",
+    executionDirectHint:
+      "默认。内部完成风格总结与英文生图 Prompt，充分推敲后生成高清图片。",
+    executionPromptFirst: "先看英文 Prompt",
+    executionPromptFirstHint:
+      "先输出简短参考总结和英文生图 Prompt，等你输入“开始绘图”。",
+    executionHint: "两种方式使用同一份图型与视觉配置。",
     intentQuestion: "这张图主要需要回答什么？",
     intentQuestionHint:
       "选择科学问题后会自动定位到最合适的图型，不会覆盖该图型已经手动修改的设置。",
@@ -830,8 +851,8 @@ export const FIGURE_COPY = {
     eyebrow: "RESEARCH FIGURES",
     title: "Research figures",
     subtitle:
-      "First distill a visual-director-grade English prompt from paper evidence; generate one figure only after confirmation.",
-    preset: "Paper evidence → figure semantics → visual controls → confirm",
+      "Reference comparable top-venue figures, then create a high-resolution scientific figure from the paper evidence.",
+    preset: "Figure references → paper evidence → one figure",
     reset: "Restore this figure’s recommendations",
     resetHint:
       "Restores only the current figure type’s recommended placement, ratio, and visual settings. Changes saved for other figure types remain intact.",
@@ -843,6 +864,14 @@ export const FIGURE_COPY = {
     figureTasks: "Select a figure prompt",
     figureTasksHint:
       "All 11 figure types keep independent settings. Recommendations load on first use, and manual changes survive later switches.",
+    executionMode: "Execution",
+    executionDirect: "Draw directly",
+    executionDirectHint:
+      "Default. Build the reference summary and English image prompt internally, then render a high-resolution figure after careful consideration.",
+    executionPromptFirst: "Review prompt first",
+    executionPromptFirstHint:
+      "Show a short reference summary and the English image prompt, then wait for “Start drawing”.",
+    executionHint: "Both modes use the same figure-type and visual settings.",
     intentQuestion: "What does this figure mainly need to answer?",
     intentQuestionHint:
       "Choosing the scientific question locates the best-matched figure type without overwriting any settings already edited for that type.",
@@ -913,7 +942,10 @@ export const FIGURE_COPY = {
   },
 } as const;
 
-function buildVisualConfiguration(preferences: FigurePreferences) {
+function buildVisualConfiguration(
+  preferences: FigurePreferences,
+  language: Language,
+) {
   const selectedAspectRatio = getFigureAspectRatio(preferences);
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
@@ -926,53 +958,44 @@ function buildVisualConfiguration(preferences: FigurePreferences) {
     .join(", ");
   const linePolicy =
     preferences.lineColorMode === "semantic"
-      ? "Dark-neutral structural lines by default; accent-colored lines only for a small number of clearly defined information streams"
-      : "One dark-neutral color for borders, arrows, and connectors; distinguish semantics with shape, line style, or direct labels";
+      ? language === "zh"
+        ? "结构线以深色中性线为主，少量信息流可按语义着色"
+        : "mostly dark-neutral structural lines, with semantic colors only for a few information flows"
+      : language === "zh"
+        ? "边框、箭头和连接线统一使用深色中性线"
+        : "one dark-neutral color for borders, arrows, and connectors";
   const iconPolicy = preferences.allowLightIllustrations
-    ? "Allow restrained, paper-specific scientific forms and semantic icons; no character cartoons, mascots, or promotional imagery"
-    : "No decorative or pictorial icons; scientific representations such as tokens, matrices, masks, graphs, feature maps, gates, selectors, traces, and state diagrams remain allowed";
+    ? language === "zh"
+      ? "可使用与论文对象直接相关的轻量科学图形或图标"
+      : "paper-specific lightweight scientific forms or icons are allowed"
+    : language === "zh"
+      ? "不使用装饰图标，但可使用 matrix、token、graph 等科学表示"
+      : "no decorative icons; scientific forms such as matrices, tokens, and graphs remain allowed";
   const typeHierarchy =
     preferences.fontSizeLevels === 2
-      ? "Two levels at 1.00 : 1.30 for labels/body and headings"
-      : "Three levels at 1.00 : 1.22 : 1.50 for labels, subheadings, and main headings";
+      ? language === "zh"
+        ? "2 级字号，比例约 1.00 : 1.30"
+        : "2 type-size levels at about 1.00 : 1.30"
+      : language === "zh"
+        ? "3 级字号，比例约 1.00 : 1.22 : 1.50"
+        : "3 type-size levels at about 1.00 : 1.22 : 1.50";
   const titlePolicy = preferences.includeLargeTitle
-    ? "Allow one short in-figure title using only terminology from the paper"
-    : "No large in-figure title; retain only necessary panel headings, stage labels, or mechanism names";
+    ? language === "zh"
+      ? "允许一个来自论文术语的简短图内标题"
+      : "allow one short in-figure title drawn from the paper terminology"
+    : language === "zh"
+      ? "不使用图内大标题"
+      : "no large in-figure title";
+  const cardPolicy =
+    language === "zh"
+      ? cardFillPolicy.label.zh
+      : cardFillPolicy.label.en;
 
-  return `# User-Selected Visual Configuration
+  if (language === "zh") {
+    return `视觉设置：${selectedAspectRatio} 画布，纯白背景；从 ${palette.label.zh}（${candidateColors}）中使用 ${accentRange.label} 种强调色；${linePolicy}；字体 ${fontFamily.label}，${typeHierarchy}，文字使用黑色或近黑色；容器底色采用“${cardPolicy}”；${iconPolicy}；${titlePolicy}。`;
+  }
 
-Treat the following settings as the authoritative rendering configuration for this figure.
-
-- Export aspect ratio: ${selectedAspectRatio}
-- Canvas background: pure white
-- Accent palette: ${palette.label.en}; candidate accents ${candidateColors}
-- Preferred prose typeface: ${fontFamily.label}
-- Structural line policy: ${linePolicy}
-- Allowed accent-color range: ${accentRange.label}; this is a maximum semantic budget, not a target
-- Technical illustrations and icons: ${iconPolicy}
-- Container-card fill policy: ${cardFillPolicy.compiledValue}
-- Type hierarchy: ${typeHierarchy}
-- Large in-figure title: ${titlePolicy}
-
-Interpret these settings as follows:
-
-1. The aspect ratio is a hard layout constraint. Compose directly for this ratio and do not describe a different ratio elsewhere.
-
-2. The allowed accent-color range is a maximum semantic budget, not a requirement to use every available color. Use the smallest sufficient number.
-
-3. “No icons” forbids decorative or pictorial icons, but it does not forbid scientific visual representations such as token stacks, matrices, masks, graphs, feature maps, nested bands, gates, selectors, traces, or state diagrams.
-
-4. “Pure-white cards” applies to container cards. It does not require every scientific object, representation band, token, matrix cell, or semantic marker to be white.
-
-5. When pale card fills are enabled, use only extremely light semantic tints. Never use gradients, shadows, dark cards, glow, glass effects, or 3D.
-
-6. Use the selected prose typeface for ordinary labels. Mathematical expressions may use a compatible clean mathematical typeface when necessary to preserve correct notation.
-
-7. Structural lines should normally remain dark neutral. When semantic line differentiation is enabled, use colored lines only for a small number of clearly defined information streams; do not create rainbow arrows.
-
-8. When a large in-figure title is disabled, retain only necessary panel headings, stage labels, or mechanism names.
-
-9. Every label must remain legible at the selected canvas ratio. Remove or reflow secondary content rather than shrinking it into microtext.`;
+  return `Visual settings: ${selectedAspectRatio} canvas on pure white; use ${accentRange.label} accent colors from ${palette.label.en} (${candidateColors}); ${linePolicy}; ${fontFamily.label}, ${typeHierarchy}, with black or near-black text; container fill policy: ${cardPolicy}; ${iconPolicy}; ${titlePolicy}.`;
 }
 
 export function buildFigurePrompt(
@@ -982,10 +1005,13 @@ export function buildFigurePrompt(
   options: FigurePromptBuildOptions = {},
 ) {
   return [
-    COMMON_BASE[language],
+    COMMON_BASE[language](FIGURE_PROMPTS[promptId].label[language]),
     FIGURE_TYPE_ADAPTERS[promptId][language],
-    buildVisualConfiguration(preferences),
-    OUTPUT_PROTOCOL[language](options.outputFileName),
+    buildVisualConfiguration(preferences, language),
+    OUTPUT_PROTOCOL[language]({
+      executionMode: preferences.executionMode,
+      outputFileName: options.outputFileName,
+    }),
   ].join("\n\n");
 }
 

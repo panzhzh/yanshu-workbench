@@ -26,6 +26,7 @@ export interface PaperStylePreset {
   description: LocalizedText;
   defaultTargetWords: number;
   defaultAppendix: boolean;
+  defaultIncludeSectionNavigationSentence: boolean;
   appendixRule: {
     enabled: LocalizedText;
     disabled: LocalizedText;
@@ -45,12 +46,15 @@ export const PRODUCT_CONFIG = {
   defaultPaperStyle: "conference" as PaperStyleId,
   wordCount: {
     defaultMode: "target" as const,
-    defaultUnlimitedCoreSections: false,
+    defaultUnlimitedCoreSections: true,
     unlimitedSectionIds: WORD_COUNT_POLICY.unlimitedCoreSectionIds,
     visualWordEquivalent: WORD_COUNT_POLICY.visualWordEquivalent,
     min: 2000,
     max: 20000,
     step: 100,
+  },
+  titleBrand: {
+    defaultAllowCandidates: false,
   },
   chatExecution: {
     default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
@@ -68,11 +72,12 @@ export const PRODUCT_CONFIG = {
         en: "Conference",
       },
       description: {
-        zh: "面向篇幅紧凑、贡献密度高的会议论文，强调问题、方法与实验结论的快速闭环。",
-        en: "For compact conference papers with dense contributions and a fast problem–method–evidence loop.",
+        zh: "高密度、claim-first：段落功能集中、过渡简短，优先保留核心机制与决定性证据。",
+        en: "Dense and claim-first, with focused paragraphs, short transitions, and priority given to core mechanisms and decisive evidence.",
       },
       defaultTargetWords: 4500,
       defaultAppendix: true,
+      defaultIncludeSectionNavigationSentence: false,
       appendixRule: {
         enabled: {
           zh: "允许附录，但正文满足当前适用的总量与章节预算时不得使用；仅在受限章节仍超额且逐项确认内容非主线必需后，才可移入附录。附录不计入正文字数且字数不限。",
@@ -84,8 +89,8 @@ export const PRODUCT_CONFIG = {
         },
       },
       structureNote: {
-        zh: "目录第三层采用 paragraph 而非 subsubsection；paragraph 标题只命名真实科学单元，普通论述使用连续段落。Related Work 每小节单段，Method 不单设 Overview。",
-        en: "Use paragraph rather than subsubsection for third-level headings, reserving headings for genuine scientific units and writing ordinary exposition as continuous prose. Keep one paragraph per Related Work subsection and no standalone Method Overview.",
+        zh: "只为内容充足且科学上独立的单元设置标题；第三层需要标题时使用 paragraph。Related Work 每小节单段，Method 不单设 Overview。",
+        en: "Create headings only for scientifically distinct units with enough substance; use paragraph when a third level is genuinely needed. Keep one paragraph per Related Work subsection and no standalone Method Overview.",
       },
       emphasisNote: {
         zh: "优先保证贡献辨识度、基线公平性、消融实验和可复现细节。",
@@ -96,8 +101,8 @@ export const PRODUCT_CONFIG = {
         en: "Use paragraph rather than subsubsection for third-level headings; 480-word Introduction, 10% Discussion & Limitations, 200-word Conclusion, and no standalone Method Overview.",
       },
       promptDirective: {
-        zh: "采用紧凑的问题—方法—证据闭环；需要第三层标题时使用 paragraph 而非 subsubsection，并让标题命名科学内容而不是 Question、Observation 等叙述功能。普通论述以自然连续段落展开。Related Work 每个小节只写一个普通段落，Method 不单设 Overview，并优先保证必要机制、公平比较、关键消融和可复现信息。",
-        en: "Use a compact problem–method–evidence loop. When a third-level heading is needed, use paragraph rather than subsubsection and name scientific content rather than discourse functions such as Question or Observation. Develop ordinary exposition as natural continuous prose. Keep one ordinary paragraph per Related Work subsection, omit a standalone Method Overview, and prioritize necessary mechanisms, fair comparisons, decisive ablations, and reproducibility.",
+        zh: "采用高密度、claim-first 的会议写法：尽早建立问题—方法—证据闭环，每段承担一个主要论证功能，过渡简短但自然。只为内容充足且科学上独立的单元设置标题；普通论述、局部动机和逐图解释保留在连续正文中。Related Work 每小节单段，Method 不单设 Overview；不以压缩核心 Method 或 Experiments and Results 换取表面简洁。",
+        en: "Use a dense, claim-first conference style: establish the problem–method–evidence loop early, give each paragraph one main argumentative function, and keep transitions brief but natural. Create a heading only for a scientifically distinct unit with enough substance; keep local motivation and per-visual interpretation in continuous prose. Use one paragraph per Related Work subsection and no standalone Method Overview. Never obtain superficial brevity by compressing core Method or Experiments & Results content.",
       },
       sections: [
         {
@@ -155,8 +160,8 @@ export const PRODUCT_CONFIG = {
           label: { zh: "讨论与局限", en: "Discussion & Limitations" },
           shortLabel: { zh: "讨论", en: "Discussion" },
           description: {
-            zh: "三个讨论小节加一个约 100 词的局限小节，不复述实验结果。",
-            en: "Three discussion subsections plus an approximately 100-word Limitations subsection, without repeating results.",
+            zh: "由论文内容决定 3–5 个讨论与局限主题，不复述实验结果。",
+            en: "Let the paper determine three to five discussion-and-limitation themes without repeating results.",
           },
           ratio: 0.1,
         },
@@ -183,11 +188,12 @@ export const PRODUCT_CONFIG = {
         en: "Journal",
       },
       description: {
-        zh: "面向论证充分、文献定位完整的期刊论文，强调研究脉络、方法细节与讨论深度。",
-        en: "For fully argued journal articles with broader positioning, detailed methods, and deeper discussion.",
+        zh: "累积论证、解释充分：扩展研究脉络、机制理由与适用边界，同时保持克制和证据密度。",
+        en: "Cumulative and explanatory, with fuller positioning, mechanism rationale, and scope boundaries while remaining restrained and evidence-dense.",
       },
       defaultTargetWords: 5000,
       defaultAppendix: false,
+      defaultIncludeSectionNavigationSentence: true,
       appendixRule: {
         enabled: {
           zh: "允许附录，但正文满足当前适用的总量与章节预算时不得使用；只有受限章节仍超额且逐项确认内容不影响复现、结论判断与科学主线时，才可移入附录。附录不计入正文字数且字数不限。",
@@ -199,8 +205,8 @@ export const PRODUCT_CONFIG = {
         },
       },
       structureNote: {
-        zh: "目录层级默认止于 subsubsection，不使用 paragraph 标题；普通段落依靠主题句与过渡形成连续论证。Method 单设不超过 80 词的双段 Overview。",
-        en: "Stop the heading hierarchy at subsubsection by default and develop ordinary paragraphs through topic sentences and transitions rather than paragraph headings. Use a standalone two-paragraph Method Overview capped at 80 words.",
+        zh: "目录层级通常止于 subsubsection，但只有内容充足且科学上独立时才增加标题。Method 单设不超过 80 词的双段 Overview。",
+        en: "Usually stop at subsubsection, but add a heading only for a scientifically distinct unit with enough substance. Use a standalone two-paragraph Method Overview capped at 80 words.",
       },
       emphasisNote: {
         zh: "优先保证理论与经验论证的完整性、方法透明度和对既有研究的累积贡献。",
@@ -211,8 +217,8 @@ export const PRODUCT_CONFIG = {
         en: "Stop the heading hierarchy at subsubsection by default; retain a two-paragraph Overview and deepen positioning, methods, and discussion.",
       },
       promptDirective: {
-        zh: "采用更完整的累积论证，目录层级默认止于 subsubsection；其下用主题句、过渡和自然段组织内容，不把 Question、Observation、Design Purpose 等叙述功能写成 paragraph 标题。Method 单设两个普通段落且不超过 80 词的 Overview，不复述框架图，并扩展研究定位、方法透明度、稳健性与独立讨论。",
-        en: "Use a fuller cumulative argument and stop the heading hierarchy at subsubsection by default. Organize lower-level content with topic sentences, transitions, and natural prose instead of paragraph headings labeled by discourse functions such as Question, Observation, or Design Purpose. Give Method a standalone two-paragraph Overview capped at 80 words without narrating the framework figure, and deepen positioning, transparency, robustness, and discussion.",
+        zh: "采用累积论证型期刊写法：给予研究脉络、机制理由、证据边界和综合讨论充分空间，并用清楚过渡连接段落。目录通常止于 subsubsection，但只为内容充足且科学上独立的单元增加标题；局部动机和逐图解释留在正文。Method 单设两个普通段落且不超过 80 词的 Overview，不复述框架图；不压缩核心 Method 或 Experiments and Results。",
+        en: "Use a cumulative journal style with sufficient space for positioning, mechanism rationale, evidence boundaries, and synthesis, connected by clear paragraph transitions. Usually stop at subsubsection, but create a heading only for a scientifically distinct unit with enough substance; keep local motivation and per-visual interpretation in prose. Give Method a standalone two-paragraph Overview capped at 80 words without narrating the framework figure, and do not compress core Method or Experiments & Results content.",
       },
       sections: [
         {
@@ -304,19 +310,29 @@ export const UI_COPY = {
     comingSoon: "即将推出",
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "论文重构",
-    subtitle: "选择论文类型、正文字数限制与附录规则，再使用五步真实 Prompt 完成重构。",
+    subtitle: "选择论文类型、建议正文篇幅与附录规则，再使用五步 Prompt 完成深度精修。",
     generalPreset: "通用产品预设 · 非 venue 官方要求",
     language: "网站语言",
     chinese: "中文",
     english: "English",
     paperStyle: "论文风格",
-    targetWords: "正文字数限制",
+    targetWords: "建议正文字数",
     targetWordsHint:
-      "开启后显示 06；附录不计入正文，每张表格或图片按 200 词计入。",
-    wordLimitOn: "限制正文字数",
-    wordLimitOff: "无特殊规定",
+      "开启后显示建议章节预算；附录不计入正文，每张表格或图片按 200 词折算。",
+    wordLimitOn: "提供建议字数",
+    wordLimitOff: "不设篇幅建议",
     noWordLimitHint:
-      "关闭后不显示 06，五步 Prompt 也不包含正文总数或章节预算。",
+      "关闭后不显示章节预算，五步 Prompt 也不包含正文总数或章节篇幅建议。",
+    introNavigation: "Introduction 纯章节导航句",
+    introNavigationOn: "保留一条简洁导航句",
+    introNavigationOff: "不写纯章节导航句",
+    introNavigationHint:
+      "会议默认关闭，期刊默认开启；只说明章节组织，不重复各节内容。",
+    titleBrandCandidates: "标题与品牌候选",
+    titleBrandCandidatesOn: "允许在报告中提出候选",
+    titleBrandCandidatesOff: "默认保留原标题与缩写",
+    titleBrandCandidatesHint:
+      "候选不会被自动写入论文；任何变更都必须由作者明确选择，并生成 high-risk diff。",
     words: "词",
     appendix: "附录设置",
     appendixOn: "允许附录",
@@ -326,7 +342,7 @@ export const UI_COPY = {
     frameworkCustomWidth: "宽",
     frameworkCustomHeight: "高",
     frameworkFixedRules:
-      "其余规则采用方法总览推荐配置：纯白画布；Tol 鲜明色系，2–3 个强调色为上限且取最少够用数量；Calibri；关键区域极浅底色；三级字号；无大标题；深色中性线；可按需使用与论文对象直接对应的简化科学图形，不使用人物漫画、吉祥物或营销插画。",
+      "其余规则采用方法总览推荐配置：纯白画布；Tol 鲜明色系，按语义从 2–4 种强调色中选择最少够用数量；Calibri；关键区域极浅底色；三级字号；无大标题；深色中性线；可按需使用与论文对象直接对应的简化科学图形，不使用人物漫画、吉祥物或营销插画。",
     chatExecution: "ChatGPT 执行",
     chatModelPolicy: "模型策略",
     chatLatestVisibleModel: "最新可用推理模型",
@@ -343,14 +359,14 @@ export const UI_COPY = {
     resetDefaults: "恢复默认配置",
     resetHint:
       "重置论文类型、正文字数模式、附录、框架图、ChatGPT 推理偏好和章节预算；保留当前语言。",
-    plannerTitle: "正文与章节预算",
+    plannerTitle: "建议正文与章节预算",
     plannerBody:
-      "设置正文与章节预算；可单独取消方法和实验的字数限制。",
-    targetTotal: "正文总字数",
+      "设置建议篇幅；方法和实验默认不设字数范围。",
+    targetTotal: "建议正文总字数",
     unlimitedMainText: "正文总数不限",
     limitedSectionsTotal: "受限章节合计",
     unlimitedCoreSections: "不限制方法和实验的字数",
-    unlimitedCoreSectionsHint: "开启后正文不设总字数，只限制其他章节。",
+    unlimitedCoreSectionsHint: "开启后正文不设总数，仅为其他章节提供建议范围。",
     unlimitedSection: "不限",
     visualCountingRule:
       `计词规则：每张表格或图片按 ${WORD_COUNT_POLICY.visualWordEquivalent} 词计入所在章节及正文总数。`,
@@ -394,19 +410,29 @@ export const UI_COPY = {
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "Paper reconstruction",
     subtitle:
-      "Choose the paper type, main-text limit, appendix rule, and overview layout, then reconstruct the manuscript with five production prompts.",
+      "Choose the paper type, suggested main-text length, appendix rule, and overview layout, then deeply refine the manuscript with five prompts.",
     generalPreset: "General product preset · not an official venue rule",
     language: "Site language",
     chinese: "中文",
     english: "English",
     paperStyle: "Paper style",
-    targetWords: "Main-text word limit",
+    targetWords: "Suggested main-text length",
     targetWordsHint:
-      "When enabled, section 06 appears. The appendix is excluded; each table or figure counts as 200 words.",
-    wordLimitOn: "Apply a word limit",
-    wordLimitOff: "No special limit",
+      "When enabled, suggested section budgets appear. The appendix is excluded; each table or figure counts as 200 words.",
+    wordLimitOn: "Provide a length target",
+    wordLimitOff: "No length recommendation",
     noWordLimitHint:
-      "When disabled, section 06 is hidden and all five prompts omit the main-text total and section budgets.",
+      "When disabled, section budgets are hidden and all five prompts omit main-text and section-length recommendations.",
+    introNavigation: "Pure Introduction roadmap sentence",
+    introNavigationOn: "Include one concise roadmap sentence",
+    introNavigationOff: "No pure roadmap sentence",
+    introNavigationHint:
+      "Off by default for conferences and on for journals; it states organization only and does not summarize sections.",
+    titleBrandCandidates: "Title and brand candidates",
+    titleBrandCandidatesOn: "Allow candidates in the report",
+    titleBrandCandidatesOff: "Preserve the current title and acronym",
+    titleBrandCandidatesHint:
+      "Candidates are never applied automatically. Any change requires explicit author selection and a high-risk diff.",
     words: "words",
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
@@ -416,7 +442,7 @@ export const UI_COPY = {
     frameworkCustomWidth: "Width",
     frameworkCustomHeight: "Height",
     frameworkFixedRules:
-      "All other controls use the Method Overview recommendation: a pure-white canvas; Tol Vibrant with at most 2–3 accents and the smallest sufficient number; Calibri; extremely pale fills for key regions; three type-size levels; no large title; dark-neutral lines; restrained paper-specific scientific forms when useful, with no character cartoons, mascots, or marketing illustration.",
+      "All other controls use the Method Overview recommendation: a pure-white canvas; Tol Vibrant with the smallest sufficient set from a 2–4 accent range; Calibri; extremely pale fills for key regions; three type-size levels; no large title; dark-neutral lines; restrained paper-specific scientific forms when useful, with no character cartoons, mascots, or marketing illustration.",
     chatExecution: "ChatGPT execution",
     chatModelPolicy: "Model policy",
     chatLatestVisibleModel: "Latest available reasoning model",
@@ -433,15 +459,15 @@ export const UI_COPY = {
     resetDefaults: "Restore defaults",
     resetHint:
       "Resets paper type, length mode, appendix, framework figure, ChatGPT reasoning preference, and section budgets while keeping the current language.",
-    plannerTitle: "Main-text and section budgets",
+    plannerTitle: "Suggested main-text and section lengths",
     plannerBody:
-      "Set main-text and section budgets, with an independent unlimited mode for Method and Experiments.",
-    targetTotal: "Main-text total",
+      "Set suggested lengths; Method and Experiments are unlimited by default.",
+    targetTotal: "Suggested main-text total",
     unlimitedMainText: "No main-text total",
     limitedSectionsTotal: "Limited sections",
     unlimitedCoreSections: "Do not limit Method or Experiments",
     unlimitedCoreSectionsHint:
-      "When enabled, there is no main-text total; only the other sections are limited.",
+      "When enabled, there is no main-text total and only the other sections receive suggested ranges.",
     unlimitedSection: "Unlimited",
     visualCountingRule:
       `Counting rule: each table or figure counts as ${WORD_COUNT_POLICY.visualWordEquivalent} words toward its section and the main-text total.`,

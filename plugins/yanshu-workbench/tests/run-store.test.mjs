@@ -538,10 +538,11 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     hasWordLimit: true,
     targetWords: 4500,
     includeAppendix: true,
+    unlimitedCoreSections: false,
   });
 
   assert.equal(workflow.rounds.length, 5);
-  assert.equal(workflow.workflowVersion, "2026.07.9");
+  assert.equal(workflow.workflowVersion, "2026.07.12");
   assert.deepEqual(
     workflow.rounds.map((round) => round.number),
     [1, 2, 3, 4, 5],
@@ -550,7 +551,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   assert.match(workflow.rounds[0].prompt, /Appendix allowed/);
   assert.match(
     workflow.rounds[0].prompt,
-    /use paragraph rather than subsubsection when a third-level heading is genuinely needed/,
+    /Conference prose is compact and claim-first/,
   );
   assert.match(
     workflow.rounds[0].prompt,
@@ -566,56 +567,58 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   );
   assert.match(
     workflow.rounds[1].prompt,
-    /Distribute these functions naturally across continuous prose/,
+    /Preserve every protocol, core result, unfavorable result/,
   );
   assert.match(
     workflow.rounds[1].prompt,
     /never turn its column labels into repeated TeX headings/,
   );
   assert.equal(workflow.rounds[3].id, "framework-figure");
-  assert.match(workflow.rounds[3].prompt, /Export aspect ratio: 2:1/);
+  assert.match(workflow.rounds[3].prompt, /Visual settings: 2:1 canvas on pure white/);
   assert.match(
     workflow.rounds[3].prompt,
-    /Allowed accent-color range: 2–3; this is a maximum semantic budget/,
+    /use 2–4 accent colors from Tol Vibrant · blue–orange/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /candidate accents #0077BB, #EE7733, #009988/,
+    /#0077BB, #EE7733, #009988, #CC3311/,
   );
   assert.doesNotMatch(workflow.rounds[3].prompt, /RGB\(/);
   assert.match(
     workflow.rounds[3].prompt,
-    /Canvas background: pure white/,
+    /one dark-neutral color for borders, arrows, and connectors/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /Preferred prose typeface: Calibri/,
+    /Calibri, 3 type-size levels/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /Allow restrained, paper-specific scientific forms/,
+    /paper-specific lightweight scientific forms or icons are allowed/,
   );
-  assert.match(
-    workflow.rounds[3].prompt,
-    /One dark-neutral color for borders, arrows, and connectors/,
-  );
-  assert.match(workflow.rounds[3].prompt, /No large in-figure title/);
+  assert.match(workflow.rounds[3].prompt, /no large in-figure title/);
   assert.match(
     workflow.rounds[3].prompt,
     /<base_name>_round_4_framework_reconstruction\.png/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /# Output and Two-Step Execution Protocol/,
+    /Execution mode: draw directly/,
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /Do not generate an image in the current response/,
+    /Do not print that prompt or wait for confirmation/,
   );
-  assert.match(workflow.rounds[3].prompt, /FINAL IMAGE PROMPT/);
-  assert.match(workflow.rounds[3].prompt, /SCIENTIFIC VISUAL OBJECTS/);
-  assert.match(workflow.rounds[3].prompt, /EXACT TEXT AND MATH/);
-  assert.match(workflow.rounds[3].prompt, /Start drawing/);
+  assert.match(
+    workflow.rounds[3].prompt,
+    /render an ultra-high-resolution scientific figure with crisp details and legible text for publication/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /If I also provide an existing framework figure, first summarize its composition, palette, line work, typography, and overall visual language/,
+  );
+  assert.doesNotMatch(workflow.rounds[3].prompt, /FINAL IMAGE PROMPT/);
+  assert.doesNotMatch(workflow.rounds[3].prompt, /Start drawing/);
   assert.equal(
     (workflow.rounds[3].prompt.match(/2:1/g) ?? []).length,
     1,
@@ -658,7 +661,7 @@ test("framework figure canvas ratio is configuration-driven", () => {
   );
   assert.equal("placementId" in workflow.config.frameworkFigure, false);
   assert.doesNotMatch(workflow.rounds[3].prompt, /paper placement/i);
-  assert.match(workflow.rounds[3].prompt, /Export aspect ratio: 3:4/);
+  assert.match(workflow.rounds[3].prompt, /Visual settings: 3:4 canvas/);
   assert.equal(
     (workflow.rounds[3].prompt.match(/3:4/g) ?? []).length,
     1,
@@ -1305,6 +1308,7 @@ test("custom budgets must match the configured total", () => {
         hasWordLimit: true,
         targetWords: 4500,
         sectionBudgets: { abstract: 999 },
+        unlimitedCoreSections: false,
       }),
     /Section budgets total/,
   );
@@ -1357,7 +1361,7 @@ test("run state is recoverable and attachment-scoped", async () => {
         ),
         "utf8",
       ),
-      /科学定位/,
+      /Scientific Positioning Contract/,
     );
 
     const attachments = await roundAttachments(state, "scientific-positioning");
@@ -1450,6 +1454,8 @@ test("run state is recoverable and attachment-scoped", async () => {
         .map((item) => path.basename(item))
         .sort(),
       [
+        "main.pdf",
+        "main.tex",
         "paper_round_3_narrative_reconstruction.pdf",
         "paper_round_3_narrative_reconstruction.tex",
         "paper_round_3_references.bib",

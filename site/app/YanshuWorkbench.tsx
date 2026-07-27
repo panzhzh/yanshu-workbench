@@ -123,6 +123,12 @@ export default function YanshuWorkbench() {
   const [styleId, setStyleId] = useState<PaperStyleId>(
     PRODUCT_CONFIG.defaultPaperStyle,
   );
+  const [
+    includeSectionNavigationSentence,
+    setIncludeSectionNavigationSentence,
+  ] = useState(defaultStyle.defaultIncludeSectionNavigationSentence);
+  const [allowTitleBrandCandidates, setAllowTitleBrandCandidates] =
+    useState<boolean>(PRODUCT_CONFIG.titleBrand.defaultAllowCandidates);
   const [targetWords, setTargetWords] = useState(
     defaultStyle.defaultTargetWords,
   );
@@ -218,6 +224,8 @@ export default function YanshuWorkbench() {
             styleId,
             styleLabel: style.label[language],
             styleDirective: style.promptDirective[language],
+            includeSectionNavigationSentence,
+            allowTitleBrandCandidates,
             targetWords,
             hasWordLimit,
             unlimitedCoreSections,
@@ -240,6 +248,8 @@ export default function YanshuWorkbench() {
     [
       promptLanguages,
       styleId,
+      includeSectionNavigationSentence,
+      allowTitleBrandCandidates,
       targetWords,
       hasWordLimit,
       unlimitedCoreSections,
@@ -301,6 +311,9 @@ export default function YanshuWorkbench() {
   function changeStyle(nextStyleId: PaperStyleId) {
     const nextStyle = PRODUCT_CONFIG.paperStyles[nextStyleId];
     setStyleId(nextStyleId);
+    setIncludeSectionNavigationSentence(
+      nextStyle.defaultIncludeSectionNavigationSentence,
+    );
     setTargetWords(nextStyle.defaultTargetWords);
     setUnlimitedCoreSections(
       PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections,
@@ -368,6 +381,12 @@ export default function YanshuWorkbench() {
     const nextStyle =
       PRODUCT_CONFIG.paperStyles[PRODUCT_CONFIG.defaultPaperStyle];
     setStyleId(PRODUCT_CONFIG.defaultPaperStyle);
+    setIncludeSectionNavigationSentence(
+      nextStyle.defaultIncludeSectionNavigationSentence,
+    );
+    setAllowTitleBrandCandidates(
+      PRODUCT_CONFIG.titleBrand.defaultAllowCandidates,
+    );
     setTargetWords(nextStyle.defaultTargetWords);
     setHasWordLimit(PRODUCT_CONFIG.wordCount.defaultMode === "target");
     setUnlimitedCoreSections(
@@ -404,6 +423,8 @@ export default function YanshuWorkbench() {
           language: primaryPromptLanguage,
           roundLanguages: promptLanguages,
           styleId,
+          includeSectionNavigationSentence,
+          allowTitleBrandCandidates,
           hasWordLimit,
           unlimitedCoreSections,
           targetWords,
@@ -572,6 +593,59 @@ export default function YanshuWorkbench() {
                 })}
               </div>
               <small>{style.description[uiLanguage]}</small>
+              <div className="style-preset-options">
+                <button
+                  className={`compact-switch ${
+                    includeSectionNavigationSentence ? "active" : ""
+                  }`}
+                  type="button"
+                  role="switch"
+                  aria-checked={includeSectionNavigationSentence}
+                  onClick={() => {
+                    setIncludeSectionNavigationSentence((current) => !current);
+                    setCopied(null);
+                  }}
+                >
+                  <span className="switch-track" aria-hidden="true">
+                    <span />
+                  </span>
+                  <span>
+                    <strong>
+                      {includeSectionNavigationSentence
+                        ? copy.introNavigationOn
+                        : copy.introNavigationOff}
+                    </strong>
+                    <small>{copy.introNavigation}</small>
+                  </span>
+                </button>
+                <button
+                  className={`compact-switch ${
+                    allowTitleBrandCandidates ? "active" : ""
+                  }`}
+                  type="button"
+                  role="switch"
+                  aria-checked={allowTitleBrandCandidates}
+                  onClick={() => {
+                    setAllowTitleBrandCandidates((current) => !current);
+                    setCopied(null);
+                  }}
+                >
+                  <span className="switch-track" aria-hidden="true">
+                    <span />
+                  </span>
+                  <span>
+                    <strong>
+                      {allowTitleBrandCandidates
+                        ? copy.titleBrandCandidatesOn
+                        : copy.titleBrandCandidatesOff}
+                    </strong>
+                    <small>{copy.titleBrandCandidates}</small>
+                  </span>
+                </button>
+              </div>
+              <p className="style-preset-hint">
+                {copy.introNavigationHint} {copy.titleBrandCandidatesHint}
+              </p>
             </div>
 
             <div className="config-control target-control">

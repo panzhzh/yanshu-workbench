@@ -79,6 +79,7 @@ export interface SectionRefinementPreferences {
   introductionContributionCount: number;
   introductionContributionWords: number;
   introductionContributionStartsWithWe: boolean;
+  introductionIncludeNavigationSentence: boolean;
   relatedCitationMin: number;
   relatedCitationMax: number;
   relatedMaxCitationsPerSentence: number;
@@ -131,8 +132,8 @@ export const REFINEMENT_SECTIONS: Record<
       en: "Rebuild the path from problem and gap to challenges, core idea, and contributions.",
     },
     contractSummary: {
-      zh: "固定六段；独立控制引用论文数、贡献数量、单条词数与 We 开头规则。",
-      en: "Exactly six paragraphs with dedicated controls for cited papers, contribution count, item length, and We openings.",
+      zh: "五个核心段落；独立控制引用、贡献写法与纯章节导航句。",
+      en: "Five core paragraphs with dedicated controls for citations, contribution form, and an optional pure paper roadmap.",
     },
   },
   "related-work": {
@@ -263,10 +264,10 @@ export const REWRITE_DEPTHS = {
     },
   },
   "from-scratch": {
-    label: { zh: "从零重写", en: "Rewrite from scratch" },
+    label: { zh: "证据重组", en: "Evidence-led recomposition" },
     description: {
-      zh: "从已核验事实底稿重写所选范围，不沿用原句，也不重新发明内容。",
-      en: "Rewrite the scope from the verified fact base without reusing sentences or reinventing content.",
+      zh: "在事实与原稿优质表达清单上重组所选范围；仅替换确有问题的表达。",
+      en: "Recompose the scope from verified facts and a preservation list of strong original expression, replacing only wording that genuinely fails.",
     },
   },
 } as const satisfies Record<
@@ -456,13 +457,14 @@ const DEFAULT_SPECIALIZED_VALUES = {
   introductionContributionCount: 3,
   introductionContributionWords: 22,
   introductionContributionStartsWithWe: true,
+  introductionIncludeNavigationSentence: false,
   relatedCitationMin: 15,
   relatedCitationMax: 25,
   relatedMaxCitationsPerSentence: 4,
   relatedParagraphsPerSubsection: 1 as RelatedWorkParagraphs,
   visualParagraphsPerItem: 2 as ParagraphsPerVisual,
   visualParagraphMinWords: 70,
-  visualParagraphMaxWords: 120,
+  visualParagraphMaxWords: 150,
   keyNumbersPerParagraphMin: 0,
   keyNumbersPerParagraphMax: 4,
   discussionMaxSpecificNumbers: 3,
@@ -557,8 +559,11 @@ export const REFINEMENT_COPY = {
     contributionCount: "贡献数量",
     contributionWords: "每条约",
     contributionStartsWithWe: "每条以 We 开头",
+    introductionNavigation: "纯章节导航句",
+    introductionNavigationOn: "包含",
+    introductionNavigationOff: "不包含",
     contributionRuleText:
-      "每条贡献始终只写一句。无论是否以 We 开头，Introduction 其他位置都不得滥用第一人称。",
+      "每条贡献只写一句。P3 只界定今天仍未解决的挑战，P4 直接回答这些挑战；导航句只说明论文组织，不承担新论证。",
     relatedParagraphs: "每个 subsection 段落数",
     oneParagraph: "1 段",
     twoParagraphs: "2 段",
@@ -571,7 +576,7 @@ export const REFINEMENT_COPY = {
     visualParagraphLength: "图表对应段落词数",
     keyNumbersPerParagraph: "每段关键数字",
     visualRuleText:
-      "图表与 caption 承载完整证据；正文只选择支持当前判断的最少数字并解释意义，禁止逐格复述。",
+      "70–150 词是单段建议范围。Main Results 与决定性证据可接近上限，常规或辅助证据宜更短；按图表重要性分配篇幅，而不是平均铺开。",
     visualOperations: "图表结构权限",
     allowVisualReorder: "允许调整图表顺序",
     allowVisualDeletion: "允许删除图表",
@@ -582,7 +587,7 @@ export const REFINEMENT_COPY = {
     discussionRuleText:
       "Discussion 不引用实验图表，也不复述 Results；不写具体结果数字完全可以。",
     methodRuleText:
-      "围绕设计动机、必要机制、接口和边界讲清 why，不写成组件说明书。",
+      "围绕设计动机、必要机制、接口和边界讲清 why；标题只对应实质科学单元，不为每个模块新增层级。",
     methodStructure: "Method 结构与算法表达",
     methodOverview: "独立 Method Overview",
     overviewPreserve: "保持现状",
@@ -675,8 +680,11 @@ export const REFINEMENT_COPY = {
     contributionCount: "Number of contributions",
     contributionWords: "Words per item",
     contributionStartsWithWe: "Begin each with We",
+    introductionNavigation: "Pure paper-roadmap sentence",
+    introductionNavigationOn: "Include",
+    introductionNavigationOff: "Omit",
     contributionRuleText:
-      "Each contribution is always one sentence. Regardless of the opening choice, first person must not be overused elsewhere in Introduction.",
+      "Each contribution is one sentence. P3 defines only the challenges that remain today; P4 answers them directly. A roadmap sentence states organization only and carries no new argument.",
     relatedParagraphs: "Paragraphs per subsection",
     oneParagraph: "1 paragraph",
     twoParagraphs: "2 paragraphs",
@@ -689,7 +697,7 @@ export const REFINEMENT_COPY = {
     visualParagraphLength: "Words per visual paragraph",
     keyNumbersPerParagraph: "Key values per paragraph",
     visualRuleText:
-      "The visual and caption carry complete evidence; prose selects only claim-relevant values and explains meaning—never narrate cells mechanically.",
+      "The 70–150-word range applies per paragraph. Main Results and decisive evidence may approach the upper end; routine or supporting evidence should be shorter. Allocate prose by evidential importance rather than evenly.",
     visualOperations: "Visual-structure permissions",
     allowVisualReorder: "Allow visual reordering",
     allowVisualDeletion: "Allow visual deletion",
@@ -700,7 +708,7 @@ export const REFINEMENT_COPY = {
     discussionRuleText:
       "Discussion neither cites experimental visuals nor repeats Results; using no specific result value is acceptable.",
     methodRuleText:
-      "Explain motivation, necessary mechanisms, interfaces, and boundaries as a why-driven story—not a component manual.",
+      "Explain motivation, necessary mechanisms, interfaces, and boundaries as a why-driven story. Use headings only for substantive scientific units, not every component.",
     methodStructure: "Method structure and algorithm expression",
     methodOverview: "Standalone Method Overview",
     overviewPreserve: "Preserve current",
@@ -954,24 +962,30 @@ function introductionContract(
     preferences.introductionContributionStartsWithWe
       ? "Each sentence must begin with `We`; only these contribution sentences may use first-person plural"
       : "Use no we, our, or us in the contribution sentences, and begin them with precise inanimate subjects";
+  const navigationZh = preferences.introductionIncludeNavigationSentence
+    ? "- 在 P5 后增加一句简短的纯章节导航句，只说明论文组织，不重复章节内容，也不使用引用；该句不是独立段落。"
+    : "- 不写纯章节导航句，以贡献段自然结束 Introduction。";
+  const navigationEn = preferences.introductionIncludeNavigationSentence
+    ? "- After P5, add one concise pure paper-roadmap sentence that states organization only, repeats no section content, and uses no citation. It is not a separate paragraph."
+    : "- Omit a pure paper-roadmap sentence and close Introduction naturally with the contribution paragraph.";
   return language === "zh"
-    ? `- 使用恰好六个连续普通段落，不增加内部小标题。
+    ? `- 使用五个核心连续普通段落，不增加内部小标题。
 - P1：直接进入任务、场景和现实约束，明确说明该问题在今天仍然存在。
 - P2：综合最相关研究路线及共同假设，形成当前缺口；不得逐篇罗列。
-- P3：给出问题设定和 2–3 个真正决定设计的挑战。
-- P4：介绍核心思想、总体机制和设计直觉，不展开公式、实现步骤或实验数字。
+- P3：最小充分界定问题，并明确今天仍未解决、且真正决定设计的 2–3 个挑战；不在这里提前介绍本文方案。
+- P4：直接回答 P3，介绍核心思想、总体机制和设计直觉；不重复缺口或挑战，不展开公式、实现步骤或实验数字。
 - P5：恰好 ${preferences.introductionContributionCount} 条贡献句。每条只用一句，目标约 ${preferences.introductionContributionWords} 词（建议 ${contributionMinWords}–${contributionMaxWords} 词）；${contributionOpeningZh}。每条贡献分别对应 Method 中的真实机制与 Experiments/Results 中的现有证据。
-- P6：只用简短论文结构说明收束。
+${navigationZh}
 - 整节目标引用 ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重后的真实论文；每句最多承载 ${preferences.introductionMaxCitationsPerSentence} 篇。凡陈述既有研究、领域事实、已有能力或他人结论，必须就近使用能够直接支持该句的引用；只有本文自己的 claim、作者综合判断和贡献句可以不引用，但这些内容必须由 Method 或 Results 建立，且不得把外部观点伪装成作者总结。
 - 默认允许联网补充真实文献，原则上优先执行日前两年内直接相关的顶会或顶刊论文；不可替代的奠基工作可以更早。新增文献必须核验原文和元数据，并写入本轮交付的完整 .bib。
 - 不得把贡献写成模块清单，不得用 best、novel、significant 等宣传词代替可核验内容。`
-    : `- Use exactly six consecutive ordinary paragraphs with no internal heading.
+    : `- Use five core consecutive ordinary paragraphs with no internal heading.
 - P1: enter the task, setting, and real-world constraint directly and make clear that the problem still exists today.
 - P2: synthesize the closest research lines and shared assumptions into the current gap rather than listing papers.
-- P3: state the problem setting and two or three challenges that genuinely determine the design.
-- P4: introduce the core idea, overall mechanism, and design intuition without equations, implementation steps, or result values.
+- P3: define the problem minimally and state two or three challenges that remain unresolved today and genuinely determine the design; do not introduce this paper's solution here.
+- P4: answer P3 directly with the core idea, overall mechanism, and design intuition. Do not repeat the gap or challenges, and do not expand equations, implementation steps, or result values.
 - P5: give exactly ${preferences.introductionContributionCount} contribution sentences. Each is one approximately ${preferences.introductionContributionWords}-word sentence (target ${contributionMinWords}–${contributionMaxWords} words). ${contributionOpeningEn}. Align every contribution with a real Method mechanism and existing Experiments/Results evidence.
-- P6: close with only a concise paper roadmap.
+${navigationEn}
 - Cite ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct authentic papers across the section, with at most ${preferences.introductionMaxCitationsPerSentence} papers attached to one sentence. Every statement about prior research, field facts, existing capabilities, or others' conclusions needs a nearby source that directly supports it. Only the paper's own claims, author synthesis, and contribution sentences may remain uncited, and these must be established by Method or Results; never disguise an external position as author synthesis.
 - Verified web additions are enabled by default. As a rule, prioritize directly relevant top-conference or top-journal papers from the two years preceding execution; older work is acceptable for irreplaceable foundations. Verify full text and metadata, and add every new source to the complete delivered .bib.
 - Do not turn contributions into a component inventory or replace verifiable content with promotional terms such as best, novel, or significant.`;
@@ -1037,6 +1051,7 @@ function methodContract(
   return language === "zh"
     ? `- Method 不得写成论文说明书、代码文档或组件清单。围绕“为什么问题困难、为什么需要当前机制、机制如何回应问题、边界是什么”融合讲故事；不要求每句话机械解释 why。
 - 只保留论文真实定义的机制、公式、目标、训练与推理流程，不为叙事完整发明模块、符号或依赖。
+- 保留全部核心机制、必要公式、接口与训练/推理差异；只合并真实重复，不因篇幅或结构整齐而压缩。
 - 每个核心机制自然融合设计动机、计算构造、上下游接口、作用和适用边界，而不是先罗列名称再逐项解释。
 ${overviewZh}
 ${pseudocodeZh}
@@ -1045,6 +1060,7 @@ ${complexityZh}
 - 只在真实科学单元需要时保留标题。Question、Observation、Design Purpose、Motivation 等段落功能默认用主题句表达，不升级为标题。`
     : `- Method must not read like a paper manual, code document, or component inventory. Integrate why the problem is difficult, why the mechanism is needed, how it addresses the problem, and where it applies without forcing every sentence to state a why.
 - Retain only mechanisms, equations, objectives, training, and inference procedures actually defined by the paper. Never invent a module, symbol, or dependency to complete the narrative.
+- Preserve every core mechanism, necessary equation, interface, and training/inference distinction. Merge only genuine repetition and never compress content for length or structural symmetry.
 - Integrate motivation, computational construction, upstream/downstream interfaces, function, and scope for each core mechanism rather than listing names and explaining them serially.
 ${overviewEn}
 ${pseudocodeEn}
@@ -1060,18 +1076,20 @@ function visualEvidenceProtocol(
   const paragraphProtocol =
     preferences.visualParagraphsPerItem === 1
       ? language === "zh"
-        ? `- 每张图或表对应恰好一个主要正文段落，目标 ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} 词。该段依次完成研究问题/比较目的、必要读取方式、${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} 个决定性数字、克制解释与适用边界。`
-        : `- Assign exactly one primary prose paragraph of ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words to each figure or table. It covers the research question/comparison purpose, only the reading guidance needed, ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} decisive values, restrained interpretation, and the applicable boundary.`
+        ? `- 每张图或表通常对应一个主要正文段落，建议 ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} 词。该段融合研究问题、最小必要证据、${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} 个决定性数字、克制解释与适用边界。`
+        : `- Assign each figure or table one primary prose paragraph in most cases, targeting ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words. Integrate the research question, minimum necessary evidence, ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} decisive values, restrained interpretation, and applicable boundary.`
       : language === "zh"
-        ? `- 每张图或表对应恰好两个主要正文段落，每段目标 ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} 词。第一段建立研究问题、比较条件、指标方向和主要证据模式，并只选择 ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} 个决定性数字；第二段解释该模式意味着什么、可能的机制/权衡/异常与适用边界，原则上不重复第一段数字。`
-        : `- Assign exactly two primary prose paragraphs of ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words each to every figure or table. Paragraph 1 establishes the research question, comparison conditions, metric direction, and primary evidence pattern, selecting only ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} decisive values. Paragraph 2 explains what the pattern means, plausible mechanism/trade-off/anomaly, and scope, normally without repeating Paragraph 1 values.`;
+        ? `- 重要图表可用两个主要正文段落，每段建议 ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} 词。第一段建立问题、比较条件与主要证据模式，并选择 ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} 个决定性数字；第二段解释意义、机制/权衡/异常与边界，原则上不重复第一段数字。`
+        : `- Important visuals may use two primary prose paragraphs, each targeting ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words. Paragraph 1 establishes the question, comparison conditions, and primary evidence pattern with ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} decisive values. Paragraph 2 explains implications, mechanism/trade-off/anomaly, and scope, normally without repeating Paragraph 1 values.`;
   return language === "zh"
     ? `${paragraphProtocol}
+- 按证据重要性调节篇幅：Main Results、决定性消融或直接支撑主要 claim 的图表可接近区间上限；常规诊断、补充对比和辅助证据应更短。不得平均分配字数。
 - 图表本体负责完整数值、视觉比较和结构关系；caption 负责对象、条件、指标与图例的自足说明；正文负责提出判断、选择最小证据并解释意义。三者各司其职，不机械复述 caption、坐标轴、表格单元格或全部数字。
 - “每张图或表对应段落”指主要解释单元，不要求每次提及 label 都新建段落。只有多张图表回答同一个不可分割的问题时才允许联合分析，并在报告中说明。
 - 每个正文数字都必须可追溯到对应图表或已核验统计；不得通过省略负面结果制造更强叙事，也不得把相关性改写为因果。
 - 若 0 个数字已足以表达稳定趋势，可以不写数字；上限不是配额。`
     : `${paragraphProtocol}
+- Allocate prose by evidential importance: Main Results, decisive ablations, and visuals directly supporting primary claims may approach the upper end; routine diagnostics, supplementary comparisons, and supporting evidence should be shorter. Do not distribute words evenly.
 - The visual carries complete values, visual comparisons, and structural relations; the caption supplies self-contained objects, conditions, metrics, and legend; prose makes the claim, selects minimum evidence, and explains meaning. Keep these roles distinct and do not restate captions, axes, cells, or all values mechanically.
 - “Paragraphs per figure/table” means the primary interpretive unit, not a new paragraph for every label mention. Joint analysis is allowed only when multiple visuals answer one inseparable question, and the report must explain that choice.
 - Every prose value must trace to the corresponding visual or verified statistic. Do not create a stronger story by omitting unfavorable evidence or rewrite correlation as causation.
@@ -1108,13 +1126,13 @@ function visualOperationProtocol(
 
 function experimentsContract(language: Language) {
   return language === "zh"
-    ? `- 完整保留现有实验设置、比较协议、实验量与不利结果；不得精简、删除、弱化，或凭领域常识补齐缺失信息。
-- Datasets and Experimental Setup 必须按 Datasets → Evaluation Metrics → Experimental Configuration → Baselines 组织四个功能单元。Evaluation Metrics 独立说明每项指标的定义、方向、单位或尺度、聚合方式及其与任务目标的对应关系；其他单元只在证据真实需要时保留。
+    ? `- 完整保留现有实验设置、比较协议、实验量与不利结果；只合并真实重复。
+- Datasets and Experimental Setup 按 Datasets → Evaluation Metrics → Experimental Configuration → Baselines 覆盖四个功能单元。它们不必机械成为四个标题；只在内容构成独立科学单元时增加层级。Evaluation Metrics 说明定义、方向、尺度、聚合方式及其与任务目标的关系。
 - 数据划分、指标方向、随机种子、运行次数、服务器、软件版本、超参数和 baseline 公平性只能来自现有证据。
 - 不把 Experiments 写成配置清单：解释每项关键设置服务于哪个研究问题、公平性要求或复现需求。
 - 图表、caption、正文数字、单位、best/second-best 标记和显著性必须逐项一致。`
-    : `- Preserve every existing setting, comparison protocol, experiment, and unfavorable result. Do not compress, delete, weaken, or fill gaps from field convention.
-- Organize Datasets and Experimental Setup as Datasets → Evaluation Metrics → Experimental Configuration → Baselines. Evaluation Metrics independently defines every metric, its direction, unit or scale, aggregation, and relation to the task objective. Keep other units only when supported evidence genuinely needs them.
+    : `- Preserve every existing setting, comparison protocol, experiment, and unfavorable result, merging only genuine repetition.
+- Cover Datasets → Evaluation Metrics → Experimental Configuration → Baselines in that order within Datasets and Experimental Setup. They are content functions rather than mandatory headings; add hierarchy only for a substantive scientific unit. Evaluation Metrics defines direction, scale, aggregation, and relation to the task objective.
 - Dataset splits, metric directions, seeds, run counts, servers, software versions, hyperparameters, and baseline fairness may come only from existing evidence.
 - Do not turn Experiments into a configuration inventory: explain which research question, fairness requirement, or reproducibility need each important choice serves.
 - Keep visuals, captions, prose values, units, best/second-best marks, and significance statements exactly consistent.`;
@@ -1140,6 +1158,7 @@ function discussionContract(
 ) {
   return language === "zh"
     ? `- Discussion 必须提供综合分析，不得复述 Results、重新讲解实验流程，或逐项解释图表。
+- 由模型根据证据选择 3–5 个主题小节，覆盖最值得讨论的机制、权衡、适用范围、异常与局限；不为数量对称拆分同一论点。
 - 不引用 Experiments/Results 中的表格或图片；整节最多保留 ${preferences.discussionMaxSpecificNumbers} 个具体结果数字，不写任何具体数字也可以。
 - 明确区分直接证据、合理推断和尚未验证的机制解释。
 - 解释为什么观察可能成立、在哪些条件下成立、对研究问题意味着什么，以及不能推广到哪里。
@@ -1147,6 +1166,7 @@ function discussionContract(
 - 外部引用只服务于机制解释、范围比较或外部有效性，不用文献掩盖本文证据不足。
 ${limitationDirective(preferences, "zh")}`
     : `- Discussion must provide synthesis rather than repeat Results, re-explain experimental procedures, or narrate visuals.
+- Let the model select three to five evidence-driven topic subsections covering the most important mechanisms, trade-offs, scope, anomalies, and limitations; do not split one argument merely for symmetry.
 - Do not cite tables or figures from Experiments/Results. Retain at most ${preferences.discussionMaxSpecificNumbers} specific result values across the section; using none is acceptable.
 - Distinguish direct evidence, reasonable inference, and mechanisms that remain untested.
 - Explain why an observation may hold, under which conditions, what it means for the research problem, and where it cannot generalize.
@@ -1275,8 +1295,8 @@ function specializedConfiguration(
   if (preferences.sectionId === "introduction") {
     lines.push(
       language === "zh"
-        ? `- Introduction 引用：${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重论文；单句最多 ${preferences.introductionMaxCitationsPerSentence} 篇\n- Contributions：${preferences.introductionContributionCount} 条，每条约 ${preferences.introductionContributionWords} 词，${preferences.introductionContributionStartsWithWe ? "以 We 开头" : "不以 We 开头"}`
-        : `- Introduction citations: ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct papers; at most ${preferences.introductionMaxCitationsPerSentence} per sentence\n- Contributions: ${preferences.introductionContributionCount}, approximately ${preferences.introductionContributionWords} words each, ${preferences.introductionContributionStartsWithWe ? "beginning with We" : "not beginning with We"}`,
+        ? `- Introduction 引用：${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重论文；单句最多 ${preferences.introductionMaxCitationsPerSentence} 篇\n- Contributions：${preferences.introductionContributionCount} 条，每条约 ${preferences.introductionContributionWords} 词，${preferences.introductionContributionStartsWithWe ? "以 We 开头" : "不以 We 开头"}\n- 纯章节导航句：${preferences.introductionIncludeNavigationSentence ? "包含" : "不包含"}`
+        : `- Introduction citations: ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct papers; at most ${preferences.introductionMaxCitationsPerSentence} per sentence\n- Contributions: ${preferences.introductionContributionCount}, approximately ${preferences.introductionContributionWords} words each, ${preferences.introductionContributionStartsWithWe ? "beginning with We" : "not beginning with We"}\n- Pure paper-roadmap sentence: ${preferences.introductionIncludeNavigationSentence ? "included" : "omitted"}`,
     );
   }
   if (preferences.sectionId === "related-work") {
@@ -1394,10 +1414,8 @@ ${COMMON_PROMPT_BLOCKS.evidence.zh}
 ${COMMON_PROMPT_BLOCKS.manuscriptProtection.zh}
 
 补充边界：
-- 除当前精修范围以及合并所必需的标题、label、ref、cite 和相邻过渡同步外，其他章节保持原样；
-- 不得借“精修”改变论文主张、发明贡献、补造实验、隐藏不利结果，或把缺失证据改写成确定事实；
-- 术语、论文品牌缩写、变量、数据集、指标、数字和单位必须与全文一致；
-- 发现跨章节事实冲突时不得擅自选择；采用风险最低的正文处理并在报告中精确定位。
+- 只修改当前范围及合并所必需的标题、label/ref/cite、图表引用与相邻过渡；其他内容保持原样。
+- 保持全文事实、claim、术语、缩写、变量、数据集、指标、数字和单位一致；跨章节冲突采用最低风险处理并在报告中定位，不用文字掩盖证据缺口或不利结果。
 
 ## PDF 深度阅读
 ${COMMON_PROMPT_BLOCKS.pdfReview.zh}
@@ -1407,7 +1425,7 @@ ${sectionContract(preferences, "zh")}
 
 ## 改写强度
 ${REWRITE_DEPTHS[preferences.rewriteDepth].description.zh}
-无论强度如何，都必须保留真实事实、证据边界、公式语义、引用关系和必要交叉引用。从零重写不等于重新发明内容。
+无论强度如何，都要保留真实事实、证据边界、公式语义、引用关系和原稿中准确有力的表达。
 
 ## 融合式精修
 ${COMMON_PROMPT_BLOCKS.cohesiveRevision.zh}
@@ -1421,12 +1439,10 @@ ${expressionDirective(preferences, "zh")}
 ${citation}
 
 ## 执行方式
-1. 在内部提取当前范围的事实、claim、证据、术语、引用、图表和交叉引用，不输出冗长计划；
-2. 按该章节独立合同诊断段落功能、重复、证据错位和逻辑断裂；
-3. 直接重写并替换目标范围；章节合并时先保持 Experiments、Results 与 Discussion 的功能边界；
-4. 只对标题、label/ref/cite、图表引用和相邻过渡做必要最小同步；
-5. 编译完整论文，检查引用、交叉引用、浮动体、公式和编码错误；
-6. 逐句检查语法、长度、时态、主语、指代、数字密度、引用密度和证据强度。
+1. 内部建立当前范围的事实—claim—证据与交叉引用表，诊断功能重复、证据错位和逻辑断裂，不输出冗长计划；
+2. 按独立合同直接精修目标范围；合并章节时仍区分 Experiments、Results 与 Discussion 的段落功能；
+3. 仅做必要的标题、label/ref/cite、图表引用和相邻过渡同步；
+4. 编译全文，并逐句检查语言、数字、引用、证据强度、交叉引用、浮动体、公式和编码。
 
 ## 输出要求
 直接交付：
@@ -1467,10 +1483,8 @@ ${COMMON_PROMPT_BLOCKS.evidence.en}
 ${COMMON_PROMPT_BLOCKS.manuscriptProtection.en}
 
 Additional boundaries:
-- Keep every other section unchanged except for heading, label, ref, cite, and adjacent-transition synchronization strictly required by the configured scope or merge;
-- Do not use refinement to change claims, invent a contribution, fabricate an experiment, hide an unfavorable result, or rewrite missing evidence as fact;
-- Keep terminology, the paper-brand acronym, variables, datasets, metrics, values, and units consistent across the manuscript;
-- If sections conflict factually, do not choose silently. Use the lowest-risk wording and locate the conflict precisely in the report.
+- Change only the configured scope and the heading, label/ref/cite, visual-reference, or adjacent-transition synchronization strictly required by a merge; preserve everything else.
+- Keep facts, claims, terminology, acronyms, variables, datasets, metrics, values, and units consistent. Treat cross-section conflicts with the lowest-risk wording and locate them in the report; do not hide evidence gaps or unfavorable results.
 
 ## Deep PDF Review
 ${COMMON_PROMPT_BLOCKS.pdfReview.en}
@@ -1480,7 +1494,7 @@ ${sectionContract(preferences, "en")}
 
 ## Revision Depth
 ${REWRITE_DEPTHS[preferences.rewriteDepth].description.en}
-At every depth, preserve verified facts, evidence boundaries, equation semantics, citation relations, and necessary cross-references. Rewriting from scratch never means reinventing content.
+At every depth, preserve verified facts, evidence boundaries, equation semantics, citation relations, and accurate, effective original expression.
 
 ## Cohesive Refinement
 ${COMMON_PROMPT_BLOCKS.cohesiveRevision.en}
@@ -1494,12 +1508,10 @@ ${expressionDirective(preferences, "en")}
 ${citation}
 
 ## Execution
-1. Internally extract facts, claims, evidence, terminology, citations, visuals, and cross-references for the scope; do not output a long plan;
-2. Diagnose paragraph functions, repetition, evidence misalignment, and logical breaks under this section's independent contract;
-3. Rewrite and replace the scope directly; for a merge, retain distinct Experiments, Results, and Discussion functions;
-4. Make only the minimum necessary heading, label/ref/cite, visual-reference, and adjacent-transition synchronization;
-5. Compile the complete paper and check citations, cross-references, floats, equations, and encoding;
-6. Audit every revised sentence for grammar, length, tense, subject, reference, numeric density, citation density, and evidence strength.
+1. Internally map facts, claims, evidence, and cross-references for the scope; diagnose functional repetition, evidence misalignment, and logical breaks without outputting a long plan.
+2. Refine the scope directly under its independent contract; retain distinct Experiments, Results, and Discussion paragraph functions when merging.
+3. Synchronize only necessary headings, label/ref/cite links, visual references, and adjacent transitions.
+4. Compile the complete paper, then audit language, values, citations, evidence strength, cross-references, floats, equations, and encoding.
 
 ## Deliverables
 Deliver directly:

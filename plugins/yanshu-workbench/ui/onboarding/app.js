@@ -8,11 +8,17 @@ const COPY = {
     loading: "正在载入本地配置模型…",
     paperType: "论文类型",
     paperTypeHint: "会议与期刊会使用不同的结构、篇幅侧重和写作规则。",
-    lengthTitle: "正文与章节预算",
-    lengthHint: "正文不包含附录；每张表格或图片按 200 词计入正文预算。",
-    useWordLimit: "限制正文字数",
-    useWordLimitHint: "关闭后，不向五轮 Prompt 注入任何正文或章节字数限制。",
-    targetWords: "目标正文字数",
+    introductionRoadmap: "Introduction 纯章节导航句",
+    introductionRoadmapHint:
+      "会议默认关闭，期刊默认开启；只说明论文组织，不重复章节内容。",
+    titleBrandCandidates: "允许标题与品牌候选",
+    titleBrandCandidatesHint:
+      "默认关闭；候选只进入报告，必须经作者确认和 high-risk diff 后才能应用。",
+    lengthTitle: "建议正文与章节篇幅",
+    lengthHint: "正文不包含附录；每张表格或图片按 200 词计入建议篇幅。",
+    useWordLimit: "提供建议正文字数",
+    useWordLimitHint: "关闭后，不向五轮 Prompt 注入任何正文或章节篇幅建议。",
+    targetWords: "建议正文字数",
     targetWordsHint: "修改后，章节预算会按当前论文类型重新计算。",
     words: "词",
     unlimitedCore: "方法与实验不受字数限制",
@@ -22,7 +28,7 @@ const COPY = {
     sectionBudgetsHint: "默认展开，可直接修改；受限模式下总和必须一致。",
     unlimited: "不限",
     budgetMatch: "预算一致",
-    budgetMismatch: "章节总和与目标正文字数不一致。",
+    budgetMismatch: "章节总和与建议正文字数不一致。",
     appendixTitle: "附录",
     appendixHint: "附录不计入正文字数且字数不限。",
     allowAppendix: "允许附录",
@@ -77,7 +83,7 @@ const COPY = {
     submitFailed: "配置未能提交，请检查下面的提示后重试。",
     submitting: "正在确认…",
     summaryPaperType: "论文类型",
-    summaryLength: "正文限制",
+    summaryLength: "正文建议",
     summaryAppendix: "附录",
     summaryFigure: "框架图",
     summaryLanguage: "Prompt",
@@ -102,13 +108,19 @@ const COPY = {
     paperType: "Paper type",
     paperTypeHint:
       "Conference and journal papers use different structures, length emphases, and writing rules.",
-    lengthTitle: "Main text and section budgets",
+    introductionRoadmap: "Pure Introduction roadmap sentence",
+    introductionRoadmapHint:
+      "Off by default for conferences and on for journals; it states organization only.",
+    titleBrandCandidates: "Allow title and brand candidates",
+    titleBrandCandidatesHint:
+      "Off by default. Candidates stay in the report until author approval and a high-risk diff.",
+    lengthTitle: "Suggested main-text and section lengths",
     lengthHint:
-      "The main text excludes the appendix; each table or figure counts as 200 words.",
-    useWordLimit: "Limit main-text length",
+      "The main text excludes the appendix; each table or figure counts as 200 words toward the suggestion.",
+    useWordLimit: "Provide a suggested main-text length",
     useWordLimitHint:
-      "When disabled, no main-text or section word constraints enter the five prompts.",
-    targetWords: "Target main-text words",
+      "When disabled, no main-text or section-length suggestions enter the five prompts.",
+    targetWords: "Suggested main-text words",
     targetWordsHint:
       "Changing this value recalculates section budgets for the paper type.",
     words: "words",
@@ -121,7 +133,7 @@ const COPY = {
     unlimited: "Unlimited",
     budgetMatch: "Budgets match",
     budgetMismatch:
-      "The section total does not match the target main-text length.",
+      "The section total does not match the suggested main-text length.",
     appendixTitle: "Appendix",
     appendixHint:
       "The appendix is excluded from the main-text count and has no word limit.",
@@ -179,7 +191,7 @@ const COPY = {
       "The configuration could not be submitted. Review the message below and retry.",
     submitting: "Confirming…",
     summaryPaperType: "Paper type",
-    summaryLength: "Main text",
+    summaryLength: "Main-text suggestion",
     summaryAppendix: "Appendix",
     summaryFigure: "Framework figure",
     summaryLanguage: "Prompt",
@@ -207,6 +219,12 @@ const elements = {
   paperPath: document.querySelector("#paper-path"),
   inputList: document.querySelector("#input-list"),
   styleOptions: document.querySelector("#style-options"),
+  introductionRoadmapToggle: document.querySelector(
+    "#introduction-roadmap-toggle",
+  ),
+  titleBrandCandidatesToggle: document.querySelector(
+    "#title-brand-candidates-toggle",
+  ),
   wordLimitToggle: document.querySelector("#word-limit-toggle"),
   wordLimitPanel: document.querySelector("#word-limit-panel"),
   targetWords: document.querySelector("#target-words"),
@@ -522,6 +540,8 @@ function renderStyles() {
           workflow.styleId = style.id;
           workflow.targetWords = style.defaultTargetWords;
           workflow.includeAppendix = style.defaultAppendix;
+          workflow.includeSectionNavigationSentence =
+            style.defaultIncludeSectionNavigationSentence;
           workflow.sectionBudgets = allocateWords(
             workflow.targetWords,
             style.sections,
@@ -531,6 +551,10 @@ function renderStyles() {
       }),
     );
   });
+  elements.introductionRoadmapToggle.checked =
+    workflow.includeSectionNavigationSentence;
+  elements.titleBrandCandidatesToggle.checked =
+    workflow.allowTitleBrandCandidates;
 }
 
 function budgetIsUnlimited(sectionId) {
@@ -827,6 +851,18 @@ function bindEvents() {
     workflow.hasWordLimit = elements.wordLimitToggle.checked;
     if (!workflow.hasWordLimit) workflow.unlimitedCoreSections = false;
     renderWordLimit();
+    renderSummary();
+    schedulePromptPreview();
+  });
+  elements.introductionRoadmapToggle.addEventListener("change", () => {
+    workflow.includeSectionNavigationSentence =
+      elements.introductionRoadmapToggle.checked;
+    renderSummary();
+    schedulePromptPreview();
+  });
+  elements.titleBrandCandidatesToggle.addEventListener("change", () => {
+    workflow.allowTitleBrandCandidates =
+      elements.titleBrandCandidatesToggle.checked;
     renderSummary();
     schedulePromptPreview();
   });

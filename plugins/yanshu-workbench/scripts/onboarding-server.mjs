@@ -92,6 +92,9 @@ function localizedSelection(config, model) {
     targetWords: config.hasWordLimit ? config.targetWords : null,
     unlimitedCoreSections:
       config.hasWordLimit && config.unlimitedCoreSections,
+    includeSectionNavigationSentence:
+      config.includeSectionNavigationSentence,
+    allowTitleBrandCandidates: config.allowTitleBrandCandidates,
     includeAppendix: config.includeAppendix,
     promptLanguage: config.language,
     figureRatio: ratioLabel,

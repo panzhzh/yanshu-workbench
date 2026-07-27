@@ -60,6 +60,8 @@ export interface PromptBuildContext {
   styleId: PaperStyleId;
   styleLabel: string;
   styleDirective: string;
+  includeSectionNavigationSentence: boolean;
+  allowTitleBrandCandidates: boolean;
   hasWordLimit: boolean;
   unlimitedCoreSections: boolean;
   targetWords: number;

@@ -1295,6 +1295,27 @@ a {
   gap: 8px;
 }
 
+.style-preset-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px;
+  margin-top: 12px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+
+.style-preset-hint {
+  margin: 8px 0 0;
+  color: var(--ink-muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.style-control > small {
+  margin-top: 10px;
+  padding-top: 0;
+}
+
 .style-options button {
   display: flex;
   min-height: 42px;
@@ -2120,10 +2141,55 @@ a {
 }
 
 .figure-task-control,
+.figure-execution-control,
 .figure-canvas-control,
 .figure-visual-rules-control {
   min-height: 0;
   grid-column: span 12;
+}
+
+.figure-execution-options {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.figure-execution-options > button {
+  display: flex;
+  min-width: 0;
+  min-height: 68px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  padding: 11px 12px;
+  color: var(--ink-soft);
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.figure-execution-options > button:hover {
+  color: var(--ink);
+  border-color: #a9b9b6;
+}
+
+.figure-execution-options > button.active {
+  color: var(--accent-strong);
+  background: #f1f6f3;
+  border-color: #9fb9b2;
+}
+
+.figure-execution-options strong {
+  color: inherit;
+  font-size: 11px;
+}
+
+.figure-execution-options small {
+  color: var(--ink-muted);
+  font-size: 11px;
+  line-height: 1.45;
 }
 
 .figure-intent-selector {
@@ -4916,6 +4982,7 @@ body.is-resizing-prompt * {
   }
 
   .figure-task-control,
+  .figure-execution-control,
   .figure-canvas-control,
   .figure-visual-rules-control {
     min-height: 0;
@@ -5124,6 +5191,7 @@ body.is-resizing-prompt * {
   }
 
   .figure-task-control,
+  .figure-execution-control,
   .figure-canvas-control,
   .figure-visual-rules-control {
     min-height: 0;
@@ -5138,6 +5206,10 @@ body.is-resizing-prompt * {
 
   .figure-task-list,
   .figure-professional-types > .figure-task-list {
+    grid-template-columns: 1fr;
+  }
+
+  .figure-execution-options {
     grid-template-columns: 1fr;
   }
 

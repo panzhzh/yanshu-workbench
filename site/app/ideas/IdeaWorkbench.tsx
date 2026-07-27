@@ -6,7 +6,7 @@ import PromptResizeHandle from "../PromptResizeHandle";
 import SiteNavigation from "../SiteNavigation";
 import {
   buildIdeaPrompt,
-  DEFAULT_IDEA_PREFERENCES,
+  getDefaultIdeaPreferences,
   getIdeaCopy,
   IDEA_COUNT_OPTIONS,
   IDEA_DIRECTIONS,
@@ -51,9 +51,9 @@ export default function IdeaWorkbench({
   const [promptLanguage, setPromptLanguage] = useState<Language>(
     PRODUCT_CONFIG.defaultPromptLanguage,
   );
-  const [preferences, setPreferences] = useState<IdeaPreferences>({
-    ...DEFAULT_IDEA_PREFERENCES,
-  });
+  const [preferences, setPreferences] = useState<IdeaPreferences>(() =>
+    getDefaultIdeaPreferences(mode),
+  );
   const [expanded, setExpanded] = useState(true);
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
@@ -89,7 +89,7 @@ export default function IdeaWorkbench({
   }
 
   function resetDefaults() {
-    setPreferences({ ...DEFAULT_IDEA_PREFERENCES });
+    setPreferences(getDefaultIdeaPreferences(mode));
     setCopied(false);
     setCopyError(false);
   }
@@ -235,7 +235,7 @@ export default function IdeaWorkbench({
                           "recentYears",
                           Number.isFinite(value)
                             ? Math.min(15, Math.max(1, Math.round(value)))
-                            : DEFAULT_IDEA_PREFERENCES.recentYears,
+                            : getDefaultIdeaPreferences(mode).recentYears,
                         );
                       }}
                     />

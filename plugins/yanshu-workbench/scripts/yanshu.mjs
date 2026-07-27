@@ -367,7 +367,18 @@ async function init(flags) {
   const unlimitedCoreSections = booleanFlag(
     flags,
     "unlimited-core",
-    fileConfig.workflow?.unlimitedCoreSections ?? false,
+    fileConfig.workflow?.unlimitedCoreSections ?? true,
+  );
+  const includeSectionNavigationSentence = booleanFlag(
+    flags,
+    "introduction-roadmap",
+    fileConfig.workflow?.includeSectionNavigationSentence ??
+      styleId === "journal",
+  );
+  const allowTitleBrandCandidates = booleanFlag(
+    flags,
+    "title-brand-candidates",
+    fileConfig.workflow?.allowTitleBrandCandidates ?? false,
   );
   const frameworkFigure = {
     aspectRatioId: enumFlag(
@@ -413,6 +424,8 @@ async function init(flags) {
     styleId,
     hasWordLimit,
     unlimitedCoreSections,
+    includeSectionNavigationSentence,
+    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets: fileConfig.workflow?.sectionBudgets,
     includeAppendix,
