@@ -376,9 +376,9 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
           en: "C. Deeply Refine Introduction and Related Work",
         },
         body: {
-          zh: `Introduction 使用五个核心段落：P1 进入任务与现实约束；P2 综合相关路线并形成缺口；P3 明确今天仍未解决、且真正决定设计的挑战；P4 回答 P3，给出核心思想、总体机制和设计直觉；P5 用贡献句收束，每条默认以 We 开头并对应真实机制与证据。是否增加独立的论文结构导航句由当前配置决定。P3 只定义未解问题，P4 只解释本文如何回应，避免重复。
+          zh: `Introduction 由 P1–P4 四个核心叙事段落和 P5 贡献块组成：P1 进入任务与现实约束；P2 综合相关路线并形成缺口；P3 明确今天仍未解决、且真正决定设计的挑战；P4 回答 P3，给出核心思想、总体机制和设计直觉；P5 先用 \`This paper makes the following three contributions:\` 说明贡献数量，再以 LaTeX \`itemize\` 环境列出三条单句贡献，每个 \`\\item\` 默认以 We 开头并对应真实机制与证据。是否增加约 65 词的独立章节导航段由当前配置决定；启用时，该段不计入 Introduction 建议字数。P3 只定义未解问题，P4 只解释本文如何回应，避免重复。
 Related Work 恰好三个小节，并按当前论文类型使用单段或双段结构；按研究范式、训练信号、结构假设、效率或泛化权衡综合。每个小节最后用建议控制在 18 词以内、且不使用 “we” 或本文方法名的总结句收束；必要时可按内容调整。先在报告中规划主题和现有 BibTeX key，再写入 TeX；不得逐篇流水账。`,
-          en: `Use five core Introduction paragraphs: P1 enters the task and practical constraints; P2 synthesizes related lines into the gap; P3 states the unresolved challenges that still determine the design today; P4 answers P3 with the core idea, overall mechanism, and design intuition; P5 closes with contribution sentences, each beginning with We by default and aligned with a real mechanism and evidence. Add a separate paper-roadmap sentence only when the current configuration enables it. P3 defines the unresolved problem; P4 explains this paper's response, so they must not repeat each other.
+          en: `Structure the Introduction as four core narrative paragraphs, P1–P4, followed by a P5 contribution block. P1 enters the task and practical constraints; P2 synthesizes related lines into the gap; P3 states the unresolved challenges that still determine the design today; and P4 answers P3 with the core idea, overall mechanism, and design intuition. P5 begins with \`This paper makes the following three contributions:\` and then lists three one-sentence contributions in a LaTeX \`itemize\` environment; each \`\\item\` begins with We by default and maps to a real mechanism and evidence. Add a separate ≈65-word paper-roadmap paragraph only when the current configuration enables it, and exclude it from the suggested Introduction word count. P3 defines the unresolved problem; P4 explains this paper's response, so they must not repeat each other.
 Related Work has exactly three subsections and follows the current paper type's one- or two-paragraph rule. Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. End each subsection with a synthesis sentence that preferably stays within 18 words but may adjust to the content and uses neither “we” nor the method name. Plan themes and existing BibTeX keys in the report before drafting; do not narrate papers one by one.`,
         },
       },
@@ -618,8 +618,8 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
       en: "Build a submission candidate pool from the final manuscript and verify fit, rules, and risks against current official sources.",
     },
     role: {
-      zh: "你是一名熟悉计算机科学会议与期刊投稿、官方规则核验和编辑筛稿逻辑的学术投稿顾问。本轮只做目标检索、核验、评分与投稿顺序，不套模板、不改格式、不重写论文。",
-      en: "You are an academic submission adviser experienced in computer-science conferences and journals, official-rule verification, and editorial screening. This round performs targeting, verification, scoring, and submission ordering only. Do not apply templates, change formatting, or rewrite the manuscript.",
+      zh: "你是一名熟悉会议与期刊投稿、官方规则核验和编辑筛稿逻辑的学术投稿顾问。本轮只做目标检索、核验、评分与投稿顺序，不套模板、不改格式、不重写论文。",
+      en: "You are an academic submission adviser experienced in conference and journal submissions, official-rule verification, and editorial screening. This round performs targeting, verification, scoring, and submission ordering only. Do not apply templates, change formatting, or rewrite the manuscript.",
     },
     inputs: {
       zh: `- 论文重构最终 .tex
@@ -645,10 +645,10 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
 Prioritize the official Call for Papers, author guide, and organizer pages. Record historical acceptance rates only when an official or verifiable source provides them. Never treat a previous edition's rules as current.`,
       },
       journal: {
-        zh: `当前目标为期刊。核验期刊全名、出版社、Aims and Scope、当前可投稿状态、文章类型、SCIE/SSCI/ESCI 等收录、可核验的 JCR 年份/类别/分区与 Journal Impact Factor、OA 模式、APC 与币种、篇幅/图表/摘要/参考文献要求、附加文件、投稿入口和数据政策。
-不得把 CiteScore、SJR、Scopus 分区写成 JCR Journal Impact Factor 或 JCR 分区，也不得混写中科院分区。若要求综述文章，只能以当前官网 Author Guidelines 或 Article Types 页面明确接受 Review/Survey 为依据，不能仅凭历史上发表过综述推断。审稿周期、出版频率或接收率只有官网明确提供时才记录。`,
-        en: `The current target is a journal. Verify full title, publisher, Aims and Scope, current submission status, article type, SCIE/SSCI/ESCI indexing, verifiable JCR year/category/quartile and Journal Impact Factor, OA model, APC and currency, length/figure/abstract/reference requirements, additional files, submission portal, and data policies.
-Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Factor or JCR quartile, and never mix CAS rankings with JCR. If review articles are required, rely only on a current official Author Guidelines or Article Types page that explicitly accepts Review/Survey submissions; prior publication of a review is not sufficient evidence. Record review time, publication frequency, or acceptance rate only when the official site explicitly provides it.`,
+        zh: `当前目标为期刊。核验期刊全名、出版社、Aims and Scope、当前可投稿状态、文章类型、与论文类别和用户条件相关的权威收录体系（如 SCIE、SSCI、AHCI、ESCI）、可核验的 JCR 年份/类别/分区与 Journal Impact Factor、OA 模式、APC 与币种、篇幅/图表/摘要/参考文献要求、附加文件、投稿入口和数据政策。
+不得把 CiteScore、SJR、Scopus 分区写成 JCR Journal Impact Factor 或 JCR 分区，也不得混写中科院分区。某项索引、指标或分区不适用于该学科或稿件类型时，明确写“不适用”，不能为了排序强行套用。若要求综述文章，只能以当前官网 Author Guidelines 或 Article Types 页面明确接受 Review/Survey 为依据，不能仅凭历史上发表过综述推断。审稿周期、出版频率或接收率只有官网明确提供时才记录。`,
+        en: `The current target is a journal. Verify full title, publisher, Aims and Scope, current submission status, article type, authoritative indexing systems relevant to the manuscript category and user constraints (such as SCIE, SSCI, AHCI, or ESCI), verifiable JCR year/category/quartile and Journal Impact Factor, OA model, APC and currency, length/figure/abstract/reference requirements, additional files, submission portal, and data policies.
+Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Factor or JCR quartile, and never mix CAS rankings with JCR. Mark an index, metric, or ranking as “Not applicable” when it does not suit the field or manuscript type instead of forcing it into the ranking. If review articles are required, rely only on a current official Author Guidelines or Article Types page that explicitly accepts Review/Survey submissions; prior publication of a review is not sufficient evidence. Record review time, publication frequency, or acceptance rate only when the official site explicitly provides it.`,
       },
     },
     tasks: [
@@ -658,8 +658,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "A. Build the Manuscript–Venue Profile",
         },
         body: {
-          zh: "从终稿提取领域、子领域、任务、数据形态、方法范式、贡献类型、理论/方法/系统/应用属性、目标读者、图表与参考文献规模、补充材料、证据强度、主要卖点和最可能的 desk-reject/triage 风险。不得为了匹配 venue 重新定义论文主线。",
-          en: "Extract field, subfield, task, data modality, method paradigm, contribution type, theoretical/method/system/application character, audience, visual and reference scale, supplementary material, evidence strength, strongest selling point, and likely desk-reject/triage risks. Do not redefine the scientific throughline to fit a venue.",
+          zh: "首先输出恰好一句“论文类别判断”：概括主要学科、细分领域、研究或稿件类型、核心贡献形态和目标读者；跨学科论文同时标明主投领域与交叉领域。随后提取研究问题、研究对象、研究设计或方法、证据形态、贡献类型、图表与参考文献规模、补充材料、证据强度、主要卖点和最可能的 desk-reject/triage 风险。不得为了匹配 venue 重新定义论文主线。",
+          en: "Begin with exactly one “Manuscript category” sentence covering the primary discipline, subfield, study or article type, core contribution form, and intended readership; for interdisciplinary work, identify both the primary submission field and the intersecting field. Then extract the research question, object of study, design or methodology, evidence form, contribution type, visual and reference scale, supplementary material, evidence strength, strongest selling point, and likely desk-reject/triage risks. Do not redefine the scientific throughline to fit a venue.",
         },
       },
       {
@@ -668,8 +668,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "B. Build a Candidate Pool, Then Verify It",
         },
         body: {
-          zh: "建立 10–15 个候选，逐项核验名称、官方链接、范围匹配、当前是否正常接收投稿、文章/track 类型、当前收录或等级信息、篇幅与附录政策、费用、额外材料、投稿入口和所有影响投稿的规则。每个当前事实都附官方或权威来源；无法核验就明确写“未核验”。已停刊、仅保留历史页面、转投专用或当前无法正常投稿的 venue 不得进入推荐梯队。MDPI、Hindawi 和 Frontiers 是用户明确排除项，其旗下期刊不得进入候选池、评分或推荐梯队，只在排除记录中注明“用户排除”，不得作无依据的泛化质量定性。",
-          en: "Build a pool of 10–15 candidates. For each, verify name, official link, scope fit, whether it is active and currently accepting normal submissions, article/track type, current indexing or ranking information, length and appendix policy, fees, additional materials, submission portal, and every rule that affects submission. Cite an official or authoritative source for each current fact and mark anything unresolved as 'Not verified.' Do not recommend venues that have ceased publication, retain only an archive page, accept transfer-only submissions, or are otherwise not open for normal submission. MDPI, Hindawi, and Frontiers are explicit user exclusions: do not place their journals in the pool, scoring, or recommendation tiers. Record them only as 'excluded by user' without unsupported general quality claims.",
+          zh: "建立与领域规模相称的候选池，通常为 8–15 个；若可信且当前可投稿的目标更少，可以缩小候选池并说明原因，不得为凑数加入弱相关 venue。逐项核验名称、官方链接、范围匹配、当前是否正常接收投稿、文章/track 类型、当前收录或等级信息、篇幅与附录政策、费用、额外材料、投稿入口和所有影响投稿的规则。每个当前事实都附官方或权威来源；无法核验就明确写“未核验”。已停刊、仅保留历史页面、转投专用或当前无法正常投稿的 venue 不得进入推荐梯队。MDPI、Hindawi 和 Frontiers 是用户明确排除项，其旗下期刊不得进入候选池、评分或推荐梯队，只在排除记录中注明“用户排除”，不得作无依据的泛化质量定性。",
+          en: "Build a candidate pool proportionate to the field, normally eight to fifteen venues. If fewer credible venues are currently open for submission, use a smaller pool and explain why; never add weakly related venues to meet a quota. For each, verify name, official link, scope fit, whether it is active and currently accepting normal submissions, article/track type, current indexing or ranking information, length and appendix policy, fees, additional materials, submission portal, and every rule that affects submission. Cite an official or authoritative source for each current fact and mark anything unresolved as 'Not verified.' Do not recommend venues that have ceased publication, retain only an archive page, accept transfer-only submissions, or are otherwise not open for normal submission. MDPI, Hindawi, and Frontiers are explicit user exclusions: do not place their journals in the pool, scoring, or recommendation tiers. Record them only as 'excluded by user' without unsupported general quality claims.",
         },
       },
       {
@@ -678,8 +678,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "C. Score Fit and Risk",
         },
         body: {
-          zh: "使用 100 分模型：主题范围 30、贡献类型 20、证据成熟度 15、目标等级/分区 15、篇幅和材料兼容 10、费用/时间约束 5、拒稿或竞争风险 5。逐项给出理由，不能把名气或分区直接等同于匹配度。",
-          en: "Use a 100-point model: topical scope 30, contribution type 20, evidence maturity 15, target tier/quartile 15, length and material compatibility 10, fee/timeline constraints 5, and rejection or competition risk 5. Explain every score. Do not equate prestige or quartile directly with fit.",
+          zh: "默认使用 100 分模型：主题范围 30、稿件与贡献类型 20、研究设计和证据成熟度 15、目标等级/分区 15、篇幅和材料兼容 10、费用/时间约束 5、拒稿或竞争风险 5。若某维度不适合当前学科或稿件类型，可调整该维度并说明理由，但总分仍为 100。逐项给出依据，不能把名气或分区直接等同于匹配度。",
+          en: "Use this default 100-point model: topical scope 30, manuscript and contribution type 20, research-design and evidence maturity 15, target tier/quartile 15, length and material compatibility 10, fee/timeline constraints 5, and rejection or competition risk 5. If a dimension does not fit the field or article type, adjust it with an explicit rationale while keeping the total at 100. Explain every score and do not equate prestige or quartile directly with fit.",
         },
       },
       {
@@ -688,8 +688,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "D. Build Submission Tiers and Transfer Paths",
         },
         body: {
-          zh: "给出首选 3 个、稳妥备选 3 个、不建议但容易误选的 2–4 个、唯一首推及理由。为首选逐一分析范围、创新性、实验、篇幅、规则与写作风险，并给出投稿前最后核验事项和被拒后的顺序化转投路径。",
-          en: "Return three first-choice venues, three safer alternatives, two to four tempting but unsuitable venues, and one top recommendation with rationale. For each first choice, analyze scope, novelty, evidence, length, policy, and writing risks, then provide final pre-submission checks and an ordered transfer path after rejection.",
+          zh: "给出不超过 3 个首选、不超过 3 个稳妥备选、不建议但容易误选的 2–4 个，以及唯一首推和理由；可信候选不足时不得为凑满数量降低匹配标准。为首选逐一分析范围、贡献与稿件类型、研究设计和证据、篇幅、规则与表达风险，并给出投稿前最后核验事项和被拒后的顺序化转投路径。",
+          en: "Return up to three first-choice venues, up to three safer alternatives, two to four tempting but unsuitable venues, and one top recommendation with rationale; never lower the fit threshold merely to fill a tier. For each first choice, analyze scope, contribution and article type, research design and evidence, length, policy, and presentation risks, then provide final pre-submission checks and an ordered transfer path after rejection.",
         },
       },
       {
@@ -704,17 +704,19 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
       },
     ],
     deliverables: {
-      zh: "直接在当前对话中给出完整中文检索结果，不生成或下载 .tex、.md 或其他文件。结果包含核验日期、约束/假设、Manuscript–Venue Profile、候选池、来源、排除过程、评分、首选/备选/不建议、唯一首推、逐项风险、规则摘要、投稿顺序、转投路径、未核验信息，以及未改稿、未生成文件的声明。",
-      en: "Return the complete Chinese targeting result directly in the current conversation; do not generate or download any .tex, .md, or other file. Include the verification date, constraints/assumptions, Manuscript–Venue Profile, candidate pool, sources, exclusion process, scores, first choices, alternatives, unsuitable venues, one top recommendation, itemized risks, policy summary, submission order, transfer path, unverified information, and statements that the manuscript was unchanged and no file was generated.",
+      zh: "直接在当前对话中给出完整中文检索结果，不生成或下载 .tex、.md 或其他文件。结果包含一句论文类别判断、核验日期、约束/假设、Manuscript–Venue Profile、候选池、来源、排除过程、评分、首选/备选/不建议、唯一首推、逐项风险、规则摘要、投稿顺序、转投路径、未核验信息，以及未改稿、未生成文件的声明。",
+      en: "Return the complete Chinese targeting result directly in the current conversation; do not generate or download any .tex, .md, or other file. Include the one-sentence manuscript category, verification date, constraints/assumptions, Manuscript–Venue Profile, candidate pool, sources, exclusion process, scores, first choices, alternatives, unsuitable venues, one top recommendation, itemized risks, policy summary, submission order, transfer path, unverified information, and statements that the manuscript was unchanged and no file was generated.",
     },
     finalChecks: {
       zh: `- 已完整读取终稿并建立真实论文画像。
+- 已用一句话明确论文类别、主投领域与适用的评价体系。
 - 当前 venue 信息均有官方或权威来源与核验日期。
 - 未混淆不同索引、分区、届次或历史规则。
 - 未声称无法核验的费用、录取率或审稿周期。
 - 已给出首选、备选、排除、风险和转投路径。
 - 未更换模板、未修改正文、未生成文件。`,
       en: `- The final manuscript was read completely and profiled accurately.
+- The manuscript category, primary submission field, and applicable evaluation systems were stated in one sentence.
 - Every current venue fact has an official or authoritative source and verification date.
 - Indexes, quartiles, editions, and historical rules were not conflated.
 - No unverified fee, acceptance rate, or review time was claimed.

@@ -542,10 +542,11 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     targetWords: 4500,
     includeAppendix: true,
     unlimitedCoreSections: false,
+    includeSectionNavigationSentence: true,
   });
 
   assert.equal(workflow.rounds.length, 5);
-  assert.equal(workflow.workflowVersion, "2026.07.14");
+  assert.equal(workflow.workflowVersion, "2026.07.28");
   assert.deepEqual(
     workflow.rounds.map((round) => round.number),
     [1, 2, 3, 4, 5],
@@ -562,6 +563,19 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     /select and apply the best title, full method name, or four-to-seven-letter brand acronym automatically/,
   );
   assert.match(workflow.rounds[0].prompt, /high-risk diff/);
+  assert.match(
+    workflow.rounds[0].prompt,
+    /This paper makes the following three contributions:/,
+  );
+  assert.match(workflow.rounds[0].prompt, /\\begin\{itemize\}/);
+  assert.match(
+    workflow.rounds[0].prompt,
+    /paper-roadmap paragraph of about 65 words/,
+  );
+  assert.match(
+    workflow.rounds[0].prompt,
+    /excluded from the suggested Introduction word count/,
+  );
   assert.doesNotMatch(
     workflow.rounds[0].prompt,
     /explicit author selection|wait for manual selection|Candidates are never applied automatically/,
@@ -590,6 +604,19 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   assert.match(
     workflow.rounds[1].prompt,
     /never turn its column labels into repeated TeX headings/,
+  );
+  assert.match(
+    workflow.rounds[2].prompt,
+    /four consecutive narrative paragraphs/,
+  );
+  assert.match(
+    workflow.rounds[2].prompt,
+    /This paper makes the following three contributions:/,
+  );
+  assert.match(workflow.rounds[2].prompt, /three `\\item` entries/);
+  assert.match(
+    workflow.rounds[2].prompt,
+    /separate paper-roadmap paragraph of about 65 words/,
   );
   assert.equal(workflow.rounds[3].id, "framework-figure");
   assert.match(workflow.rounds[3].prompt, /Visual settings: 2:1 canvas on pure white/);

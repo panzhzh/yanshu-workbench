@@ -61,7 +61,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [章节精修](https://yanshu-workbench.pages.dev/reconstruction/refinement/) | 需要精修单章或合并实验叙事 | 按 Abstract、Introduction、Related Work、Method、Experiments & Results、Discussion、Conclusion 分别生成章节专用 Prompt |
 | [专项审计](https://yanshu-workbench.pages.dev/reconstruction/audit/) | 论文接近终稿 | 可组合审计术语、引用与 BibTeX、数据、图表、Claim–证据、符号、可复现性和跨章节重复 |
 | [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；参考同类论文和已有框架图风格，充分推敲后生成超高清单图，也可先查看英文生图 Prompt |
-| [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/ESCI 动态筛选与官网核验 |
+| [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | 先判断论文类别，再按 OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/AHCI/ESCI 等条件动态筛选并完成官网核验 |
 | YanShu 插件 | 需要全链路执行 | 通过 **Paper Reconstruction** 创建可恢复的五轮目录，保存 Chat 会话与产物状态；当前为开发者预览 |
 
 ## 设计原则

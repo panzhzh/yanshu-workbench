@@ -36,7 +36,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
   assert.match(html, /五轮重构，支持断点继续/);
-  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.14/);
+  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.28/);
   assert.match(html, /同一份 Prompt/);
   assert.match(html, /最小材料链/);
   assert.match(html, /一次交接/);
@@ -180,7 +180,8 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /不锁定 GPT 型号名称/);
   assert.match(html, /发生回退时先明确提示/);
   assert.doesNotMatch(html, /class="allocation-control/);
-  assert.match(html, /Introduction 纯章节导航句/);
+  assert.match(html, /Introduction 章节导航段/);
+  assert.match(html, /启用时约 65 词、单独成段且不计入 Introduction 建议字数/);
   assert.doesNotMatch(html, /默认保留原标题与缩写|标题与品牌候选/);
   assert.match(html, /导出桌面配置/);
   assert.match(html, /class="codex-launch-guide"/);
@@ -200,6 +201,10 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /class="workflow-context"|class="prompt-number"/);
   assert.doesNotMatch(html, /投稿目标检索与官网核验/);
   assert.match(html, /Scientific Positioning Contract/);
+  assert.match(html, /This paper makes the following three contributions:/);
+  assert.match(html, /\\begin\{itemize\}/);
+  assert.match(html, /三个 `\\item`/);
+  assert.match(html, /P1–P4 使用四个核心叙事段落/);
   assert.match(html, /论文标题与品牌缩写/);
   assert.match(html, /4–7 个拉丁字母/);
   assert.match(html, /直接选择并应用最优标题、方法全称/);
@@ -229,7 +234,7 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /_round_1_bib_suggestions\.bib/);
   assert.match(
     html,
-    /data-reconstruction-workflow-version="2026\.07\.14"/,
+    /data-reconstruction-workflow-version="2026\.07\.28"/,
   );
   assert.doesNotMatch(html, /## 可选正文与章节篇幅建议/);
   assert.doesNotMatch(html, /证据基线与初稿审计|Evidence Baseline/);
@@ -406,8 +411,22 @@ test("server-renders submission strategy filters and its live prompt", async () 
   assert.match(html, /中科院分区/);
   assert.match(html, /SCIE/);
   assert.match(html, /SSCI/);
+  assert.match(html, /AHCI/);
   assert.match(html, /ESCI/);
   assert.match(html, /投稿目标检索与官网核验/);
+  assert.match(
+    html,
+    /熟悉会议与期刊投稿、官方规则核验和编辑筛稿逻辑的学术投稿顾问/,
+  );
+  assert.doesNotMatch(
+    html,
+    /熟悉计算机科学会议与期刊投稿、官方规则核验和编辑筛稿逻辑/,
+  );
+  assert.match(html, /首先输出恰好一句“论文类别判断”/);
+  assert.match(html, /跨学科论文同时标明主投领域与交叉领域/);
+  assert.match(html, /通常为 8–15 个/);
+  assert.match(html, /不得为凑数加入弱相关 venue/);
+  assert.match(html, /不适用于该学科或稿件类型时，明确写“不适用”/);
   assert.doesNotMatch(html, /TARGETING PROMPT|投稿目标检索 Prompt|实时 Prompt/);
   assert.doesNotMatch(html, /class="prompt-number"/);
   assert.match(html, /## 当前配置/);
@@ -997,6 +1016,9 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(constraints, /Method 的固定结构约束/);
   assert.match(constraints, /Claim–Evidence 终审/);
   assert.match(constraints, /100 分匹配评分/);
+  assert.match(constraints, /恰好一句“论文类别判断”/);
+  assert.match(constraints, /研究设计和证据成熟度与 venue 期望匹配/);
+  assert.match(constraints, /某维度不适合当前学科或稿件类型时可以调整/);
   assert.match(
     constraints,
     /temporaryMainTextCeilingMultiplier:\s*1\.2/,
@@ -1053,6 +1075,10 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(submissionConfig, /jcrQuartiles:\s*\[\]/);
   assert.match(submissionConfig, /casZones:\s*\[\]/);
   assert.match(submissionConfig, /citationIndexes:\s*\[\]/);
+  assert.match(
+    submissionConfig,
+    /CITATION_INDEXES[\s\S]*"SCIE"[\s\S]*"SSCI"[\s\S]*"AHCI"[\s\S]*"ESCI"/,
+  );
   assert.match(submissionConfig, /useImpactFactorRange:\s*false/);
   assert.match(submissionConfig, /impactFactorMin:\s*0/);
   assert.match(submissionConfig, /impactFactorMax:\s*20/);
@@ -1148,6 +1174,14 @@ test("keeps section-refinement rules and merge controls configuration-driven", a
   assert.match(config, /introductionContributionWords: 22/);
   assert.match(config, /introductionContributionStartsWithWe: true/);
   assert.match(config, /introductionIncludeNavigationSentence: false/);
+  assert.match(
+    config,
+    /This paper makes the following \$\{preferences\.introductionContributionCount\} contributions:/,
+  );
+  assert.match(config, /\\begin\{itemize\}/);
+  assert.match(config, /章节导航段/);
+  assert.match(config, /约 65 词的独立章节导航段/);
+  assert.match(config, /不计入任何已配置或建议的 Introduction 字数/);
   assert.match(config, /P3：最小充分界定问题/);
   assert.match(config, /P4：直接回答 P3/);
   assert.match(config, /凡陈述既有研究、领域事实、已有能力或他人结论/);

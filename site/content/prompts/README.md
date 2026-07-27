@@ -53,7 +53,7 @@ Runtime variables:
   exported to `.yanshu.json` but are not inserted into manuscript-writing
   prompts.
 - `submissionPreferences`: OA, APC and IF ranges, review-article acceptance,
-  JCR quartile, CAS zone, SCIE/SSCI/ESCI filters, and fixed publisher
+  JCR quartile, CAS zone, SCIE/SSCI/AHCI/ESCI filters, and fixed publisher
   exclusions used only by the submission-strategy prompt.
 
 Shared length-guidance policy lives in `wordCountPolicy.ts`. When guidance is

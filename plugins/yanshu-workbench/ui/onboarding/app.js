@@ -8,10 +8,10 @@ const COPY = {
     loading: "正在载入本地配置模型…",
     paperType: "论文类型",
     paperTypeHint: "会议与期刊会使用不同的结构、篇幅侧重和写作规则。",
-    introductionRoadmap: "Introduction 纯章节导航句",
+    introductionRoadmap: "Introduction 章节导航段",
     introductionRoadmapHint:
-      "会议默认关闭，期刊默认开启；只说明论文组织，不重复章节内容。",
-    introductionRoadmapChoice: "使用一条简洁的论文结构导航句",
+      "会议默认关闭，期刊默认开启；启用时约 65 词、单独成段，且不计入 Introduction 建议字数。",
+    introductionRoadmapChoice: "使用独立的论文结构导航段",
     lengthTitle: "正文与章节篇幅建议",
     lengthHint:
       "默认关闭。启用后也只提供可接受、调整或忽略的参考值；正文不包含附录，每张表格或图片按 200 词作建议估算。",
@@ -113,10 +113,10 @@ const COPY = {
     paperType: "Paper type",
     paperTypeHint:
       "Conference and journal papers use different structures, length emphases, and writing rules.",
-    introductionRoadmap: "Pure Introduction roadmap sentence",
+    introductionRoadmap: "Introduction roadmap paragraph",
     introductionRoadmapHint:
-      "Off by default for conferences and on for journals; it states organization only.",
-    introductionRoadmapChoice: "Use one concise paper-roadmap sentence",
+      "Off by default for conferences and on for journals; when enabled, it is a separate ≈65-word paragraph outside the suggested Introduction length.",
+    introductionRoadmapChoice: "Use a separate paper-roadmap paragraph",
     lengthTitle: "Main-text and section length guidance",
     lengthHint:
       "Off by default. When enabled, every value remains an optional reference that may be accepted, adjusted, or ignored. The main text excludes the appendix; each table or figure counts as 200 words for estimation.",

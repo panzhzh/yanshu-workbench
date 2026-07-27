@@ -320,11 +320,11 @@ export const UI_COPY = {
     wordLimitOff: "默认不设篇幅建议",
     noWordLimitHint:
       "默认状态。关闭后不显示章节建议，五步 Prompt 也不包含正文总数或章节篇幅数字。",
-    introNavigation: "Introduction 纯章节导航句",
-    introNavigationOn: "保留一条简洁导航句",
-    introNavigationOff: "不写纯章节导航句",
+    introNavigation: "Introduction 章节导航段",
+    introNavigationOn: "保留约 65 词导航段",
+    introNavigationOff: "不写章节导航段",
     introNavigationHint:
-      "会议默认关闭，期刊默认开启；只说明章节组织，不重复各节内容。",
+      "会议默认关闭，期刊默认开启；启用时约 65 词、单独成段且不计入 Introduction 建议字数。",
     words: "词",
     appendix: "附录设置",
     appendixOn: "允许附录",
@@ -422,11 +422,11 @@ export const UI_COPY = {
     wordLimitOff: "No length guidance by default",
     noWordLimitHint:
       "This is the default. Section suggestions are hidden, and all five prompts omit main-text and section-length numbers.",
-    introNavigation: "Pure Introduction roadmap sentence",
-    introNavigationOn: "Include one concise roadmap sentence",
-    introNavigationOff: "No pure roadmap sentence",
+    introNavigation: "Introduction roadmap paragraph",
+    introNavigationOn: "Include an ≈65-word roadmap",
+    introNavigationOff: "No roadmap paragraph",
     introNavigationHint:
-      "Off by default for conferences and on for journals; it states organization only and does not summarize sections.",
+      "Off by default for conferences and on for journals; when enabled, it is a separate ≈65-word paragraph excluded from the suggested Introduction length.",
     words: "words",
     appendix: "Appendix",
     appendixOn: "Appendix allowed",

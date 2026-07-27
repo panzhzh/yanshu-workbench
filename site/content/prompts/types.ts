@@ -5,7 +5,7 @@ export type PreferenceMode = "any" | "yes" | "no";
 export type ApcCurrency = "USD" | "CNY" | "EUR" | "GBP";
 export type JcrQuartile = "Q1" | "Q2" | "Q3" | "Q4";
 export type CasZone = "1" | "2" | "3" | "4";
-export type CitationIndex = "SCIE" | "SSCI" | "ESCI";
+export type CitationIndex = "SCIE" | "SSCI" | "AHCI" | "ESCI";
 
 export interface PromptTask {
   heading: LocalizedText;

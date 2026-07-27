@@ -133,8 +133,8 @@ export const REFINEMENT_SECTIONS: Record<
       en: "Rebuild the path from problem and gap to challenges, core idea, and contributions.",
     },
     contractSummary: {
-      zh: "五个核心段落；独立控制引用、贡献写法与纯章节导航句。",
-      en: "Five core paragraphs with dedicated controls for citations, contribution form, and an optional pure paper roadmap.",
+      zh: "四个叙事段落加贡献列表；独立控制引用与可选章节导航段。",
+      en: "Four narrative paragraphs plus a contribution list, with dedicated citation and optional roadmap controls.",
     },
   },
   "related-work": {
@@ -560,11 +560,11 @@ export const REFINEMENT_COPY = {
     contributionCount: "贡献数量",
     contributionWords: "每条约",
     contributionStartsWithWe: "每条以 We 开头",
-    introductionNavigation: "纯章节导航句",
+    introductionNavigation: "章节导航段",
     introductionNavigationOn: "包含",
     introductionNavigationOff: "不包含",
     contributionRuleText:
-      "每条贡献只写一句。P3 只界定今天仍未解决的挑战，P4 直接回答这些挑战；导航句只说明论文组织，不承担新论证。",
+      "先用 “This paper makes the following N contributions:” 说明数量，再以 LaTeX itemize 列出单句贡献。P3 只界定挑战，P4 直接回答；导航段约 65 词且不计入 Introduction 建议字数。",
     relatedParagraphs: "每个 subsection 段落数",
     oneParagraph: "1 段",
     twoParagraphs: "2 段",
@@ -683,11 +683,11 @@ export const REFINEMENT_COPY = {
     contributionCount: "Number of contributions",
     contributionWords: "Words per item",
     contributionStartsWithWe: "Begin each with We",
-    introductionNavigation: "Pure paper-roadmap sentence",
+    introductionNavigation: "Paper-roadmap paragraph",
     introductionNavigationOn: "Include",
     introductionNavigationOff: "Omit",
     contributionRuleText:
-      "Each contribution is one sentence. P3 defines only the challenges that remain today; P4 answers them directly. A roadmap sentence states organization only and carries no new argument.",
+      "State the count with “This paper makes the following N contributions:” and list one-sentence items in a LaTeX itemize environment. P3 defines the challenges and P4 answers them; the ≈65-word roadmap paragraph is outside the suggested Introduction length.",
     relatedParagraphs: "Paragraphs per subsection",
     oneParagraph: "1 paragraph",
     twoParagraphs: "2 paragraphs",
@@ -883,8 +883,8 @@ function expressionDirective(
     if (preferences.introductionContributionStartsWithWe) {
       firstPerson =
         language === "zh"
-          ? `- 只有 P5 的 ${preferences.introductionContributionCount} 条贡献句可以使用第一人称复数，且每句必须以 We 开头；Introduction 其他句子不得使用 we、our 或 us。`
-          : `- Only the ${preferences.introductionContributionCount} P5 contribution sentences may use first-person plural, and each must begin with We. No other Introduction sentence may use we, our, or us.`;
+          ? `- 只有 P5 的 ${preferences.introductionContributionCount} 个 \\item 贡献句可以使用第一人称复数，且每句必须以 We 开头；引导句固定使用 This paper，Introduction 其他句子不得使用 we、our 或 us。`
+          : `- Only the ${preferences.introductionContributionCount} P5 \\item contribution sentences may use first-person plural, and each must begin with We. The lead-in uses This paper; no other Introduction sentence may use we, our, or us.`;
     } else {
       firstPerson =
         language === "zh"
@@ -967,6 +967,7 @@ function introductionContract(
   );
   const contributionMaxWords =
     preferences.introductionContributionWords + 2;
+  const contributionLeadSentence = `This paper makes the following ${preferences.introductionContributionCount} contributions:`;
   const contributionOpeningZh =
     preferences.introductionContributionStartsWithWe
       ? "每句必须以 `We` 开头；只有这些贡献句可以出现第一人称复数"
@@ -976,28 +977,28 @@ function introductionContract(
       ? "Each sentence must begin with `We`; only these contribution sentences may use first-person plural"
       : "Use no we, our, or us in the contribution sentences, and begin them with precise inanimate subjects";
   const navigationZh = preferences.introductionIncludeNavigationSentence
-    ? "- 在 P5 后增加一句简短的纯章节导航句，只说明论文组织，不重复章节内容，也不使用引用；该句不是独立段落。"
-    : "- 不写纯章节导航句，以贡献段自然结束 Introduction。";
+    ? "- 在 P5 后增加一个约 65 词的独立章节导航段，只说明各章节如何承接，不重复章节内容、不承担新论证，也不使用引用；该段不计入任何已配置或建议的 Introduction 字数。"
+    : "- 不写章节导航段，以贡献块自然结束 Introduction。";
   const navigationEn = preferences.introductionIncludeNavigationSentence
-    ? "- After P5, add one concise pure paper-roadmap sentence that states organization only, repeats no section content, and uses no citation. It is not a separate paragraph."
-    : "- Omit a pure paper-roadmap sentence and close Introduction naturally with the contribution paragraph.";
+    ? "- After P5, add a separate paper-roadmap paragraph of about 65 words. It only maps how the sections proceed, repeats no section content, carries no new argument, and uses no citation. Exclude it from any configured or suggested Introduction word count."
+    : "- Omit the paper-roadmap paragraph and close Introduction naturally with the contribution block.";
   return language === "zh"
-    ? `- 使用五个核心连续普通段落，不增加内部小标题。
+    ? `- P1–P4 使用四个连续普通叙事段落，随后写 P5 贡献块；不增加内部小标题。
 - P1：直接进入任务、场景和现实约束，明确说明该问题在今天仍然存在。
 - P2：综合最相关研究路线及共同假设，形成当前缺口；不得逐篇罗列。
 - P3：最小充分界定问题，并明确今天仍未解决、且真正决定设计的 2–3 个挑战；不在这里提前介绍本文方案。
 - P4：直接回答 P3，介绍核心思想、总体机制和设计直觉；不重复缺口或挑战，不展开公式、实现步骤或实验数字。
-- P5：恰好 ${preferences.introductionContributionCount} 条贡献句。每条只用一句，可参考约 ${preferences.introductionContributionWords} 词（建议区间 ${contributionMinWords}–${contributionMaxWords} 词，可按内容调整）；${contributionOpeningZh}。每条贡献分别对应 Method 中的真实机制与 Experiments/Results 中的现有证据。
+- P5：先原样写引导句 \`${contributionLeadSentence}\`，再使用 \`\\begin{itemize}\`、${preferences.introductionContributionCount} 个 \`\\item\` 和 \`\\end{itemize}\` 给出贡献。每个条目只写一句，可参考约 ${preferences.introductionContributionWords} 词（建议区间 ${contributionMinWords}–${contributionMaxWords} 词，可按内容调整）；${contributionOpeningZh}。每条贡献分别对应 Method 中的真实机制与 Experiments/Results 中的现有证据；引导句和条目均不使用引用。
 ${navigationZh}
 - 整节目标引用 ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重后的真实论文；每句最多承载 ${preferences.introductionMaxCitationsPerSentence} 篇。凡陈述既有研究、领域事实、已有能力或他人结论，必须就近使用能够直接支持该句的引用；只有本文自己的 claim、作者综合判断和贡献句可以不引用，但这些内容必须由 Method 或 Results 建立，且不得把外部观点伪装成作者总结。
 - 默认允许联网补充真实文献，原则上优先执行日前两年内直接相关的顶会或顶刊论文；不可替代的奠基工作可以更早。新增文献必须核验原文和元数据，并写入本轮交付的完整 .bib。
 - 不得把贡献写成模块清单，不得用 best、novel、significant 等宣传词代替可核验内容。`
-    : `- Use five core consecutive ordinary paragraphs with no internal heading.
+    : `- Use four consecutive narrative paragraphs, P1–P4, followed by the P5 contribution block, with no internal heading.
 - P1: enter the task, setting, and real-world constraint directly and make clear that the problem still exists today.
 - P2: synthesize the closest research lines and shared assumptions into the current gap rather than listing papers.
 - P3: define the problem minimally and state two or three challenges that remain unresolved today and genuinely determine the design; do not introduce this paper's solution here.
 - P4: answer P3 directly with the core idea, overall mechanism, and design intuition. Do not repeat the gap or challenges, and do not expand equations, implementation steps, or result values.
-- P5: give exactly ${preferences.introductionContributionCount} contribution sentences. Each uses one sentence and may use approximately ${preferences.introductionContributionWords} words (${contributionMinWords}–${contributionMaxWords} words as an optional reference, adjustable to the content). ${contributionOpeningEn}. Align every contribution with a real Method mechanism and existing Experiments/Results evidence.
+- P5: write the exact lead-in \`${contributionLeadSentence}\`, then use \`\\begin{itemize}\`, ${preferences.introductionContributionCount} \`\\item\` entries, and \`\\end{itemize}\`. Each item is one sentence and may use approximately ${preferences.introductionContributionWords} words (${contributionMinWords}–${contributionMaxWords} words as an optional reference, adjustable to the content). ${contributionOpeningEn}. Align every item with a real Method mechanism and existing Experiments/Results evidence; cite neither the lead-in nor the items.
 ${navigationEn}
 - Cite ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct authentic papers across the section, with at most ${preferences.introductionMaxCitationsPerSentence} papers attached to one sentence. Every statement about prior research, field facts, existing capabilities, or others' conclusions needs a nearby source that directly supports it. Only the paper's own claims, author synthesis, and contribution sentences may remain uncited, and these must be established by Method or Results; never disguise an external position as author synthesis.
 - Verified web additions are enabled by default. As a rule, prioritize directly relevant top-conference or top-journal papers from the two years preceding execution; older work is acceptable for irreplaceable foundations. Verify full text and metadata, and add every new source to the complete delivered .bib.
@@ -1310,8 +1311,8 @@ function specializedConfiguration(
   if (preferences.sectionId === "introduction") {
     lines.push(
       language === "zh"
-        ? `- Introduction 引用：${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重论文；单句最多 ${preferences.introductionMaxCitationsPerSentence} 篇\n- Contributions：${preferences.introductionContributionCount} 条，每条可参考约 ${preferences.introductionContributionWords} 词，${preferences.introductionContributionStartsWithWe ? "以 We 开头" : "不以 We 开头"}\n- 纯章节导航句：${preferences.introductionIncludeNavigationSentence ? "包含" : "不包含"}`
-        : `- Introduction citations: ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct papers; at most ${preferences.introductionMaxCitationsPerSentence} per sentence\n- Contributions: ${preferences.introductionContributionCount}, optionally using approximately ${preferences.introductionContributionWords} words each, ${preferences.introductionContributionStartsWithWe ? "beginning with We" : "not beginning with We"}\n- Pure paper-roadmap sentence: ${preferences.introductionIncludeNavigationSentence ? "included" : "omitted"}`,
+        ? `- Introduction 引用：${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重论文；单句最多 ${preferences.introductionMaxCitationsPerSentence} 篇\n- Contributions：先用 “This paper makes the following ${preferences.introductionContributionCount} contributions:” 引导，再列出 ${preferences.introductionContributionCount} 个 LaTeX item；每条可参考约 ${preferences.introductionContributionWords} 词，${preferences.introductionContributionStartsWithWe ? "以 We 开头" : "不以 We 开头"}\n- 章节导航段：${preferences.introductionIncludeNavigationSentence ? "包含约 65 词独立段落，不计入 Introduction 建议字数" : "不包含"}`
+        : `- Introduction citations: ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct papers; at most ${preferences.introductionMaxCitationsPerSentence} per sentence\n- Contributions: lead with “This paper makes the following ${preferences.introductionContributionCount} contributions:” and use ${preferences.introductionContributionCount} LaTeX items, optionally using approximately ${preferences.introductionContributionWords} words each, ${preferences.introductionContributionStartsWithWe ? "beginning with We" : "not beginning with We"}\n- Paper-roadmap paragraph: ${preferences.introductionIncludeNavigationSentence ? "include ≈65 words outside the suggested Introduction count" : "omit"}`,
     );
   }
   if (preferences.sectionId === "related-work") {

@@ -390,10 +390,10 @@ var UI_COPY = {
     wordLimitOn: "\u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE",
     wordLimitOff: "\u9ED8\u8BA4\u4E0D\u8BBE\u7BC7\u5E45\u5EFA\u8BAE",
     noWordLimitHint: "\u9ED8\u8BA4\u72B6\u6001\u3002\u5173\u95ED\u540E\u4E0D\u663E\u793A\u7AE0\u8282\u5EFA\u8BAE\uFF0C\u4E94\u6B65 Prompt \u4E5F\u4E0D\u5305\u542B\u6B63\u6587\u603B\u6570\u6216\u7AE0\u8282\u7BC7\u5E45\u6570\u5B57\u3002",
-    introNavigation: "Introduction \u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
-    introNavigationOn: "\u4FDD\u7559\u4E00\u6761\u7B80\u6D01\u5BFC\u822A\u53E5",
-    introNavigationOff: "\u4E0D\u5199\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
-    introNavigationHint: "\u4F1A\u8BAE\u9ED8\u8BA4\u5173\u95ED\uFF0C\u671F\u520A\u9ED8\u8BA4\u5F00\u542F\uFF1B\u53EA\u8BF4\u660E\u7AE0\u8282\u7EC4\u7EC7\uFF0C\u4E0D\u91CD\u590D\u5404\u8282\u5185\u5BB9\u3002",
+    introNavigation: "Introduction \u7AE0\u8282\u5BFC\u822A\u6BB5",
+    introNavigationOn: "\u4FDD\u7559\u7EA6 65 \u8BCD\u5BFC\u822A\u6BB5",
+    introNavigationOff: "\u4E0D\u5199\u7AE0\u8282\u5BFC\u822A\u6BB5",
+    introNavigationHint: "\u4F1A\u8BAE\u9ED8\u8BA4\u5173\u95ED\uFF0C\u671F\u520A\u9ED8\u8BA4\u5F00\u542F\uFF1B\u542F\u7528\u65F6\u7EA6 65 \u8BCD\u3001\u5355\u72EC\u6210\u6BB5\u4E14\u4E0D\u8BA1\u5165 Introduction \u5EFA\u8BAE\u5B57\u6570\u3002",
     words: "\u8BCD",
     appendix: "\u9644\u5F55\u8BBE\u7F6E",
     appendixOn: "\u5141\u8BB8\u9644\u5F55",
@@ -478,10 +478,10 @@ var UI_COPY = {
     wordLimitOn: "Enable length guidance",
     wordLimitOff: "No length guidance by default",
     noWordLimitHint: "This is the default. Section suggestions are hidden, and all five prompts omit main-text and section-length numbers.",
-    introNavigation: "Pure Introduction roadmap sentence",
-    introNavigationOn: "Include one concise roadmap sentence",
-    introNavigationOff: "No pure roadmap sentence",
-    introNavigationHint: "Off by default for conferences and on for journals; it states organization only and does not summarize sections.",
+    introNavigation: "Introduction roadmap paragraph",
+    introNavigationOn: "Include an \u224865-word roadmap",
+    introNavigationOff: "No roadmap paragraph",
+    introNavigationHint: "Off by default for conferences and on for journals; when enabled, it is a separate \u224865-word paragraph excluded from the suggested Introduction length.",
     words: "words",
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
@@ -1681,9 +1681,9 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
           en: "C. Deeply Refine Introduction and Related Work"
         },
         body: {
-          zh: `Introduction \u4F7F\u7528\u4E94\u4E2A\u6838\u5FC3\u6BB5\u843D\uFF1AP1 \u8FDB\u5165\u4EFB\u52A1\u4E0E\u73B0\u5B9E\u7EA6\u675F\uFF1BP2 \u7EFC\u5408\u76F8\u5173\u8DEF\u7EBF\u5E76\u5F62\u6210\u7F3A\u53E3\uFF1BP3 \u660E\u786E\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u3001\u4E14\u771F\u6B63\u51B3\u5B9A\u8BBE\u8BA1\u7684\u6311\u6218\uFF1BP4 \u56DE\u7B54 P3\uFF0C\u7ED9\u51FA\u6838\u5FC3\u601D\u60F3\u3001\u603B\u4F53\u673A\u5236\u548C\u8BBE\u8BA1\u76F4\u89C9\uFF1BP5 \u7528\u8D21\u732E\u53E5\u6536\u675F\uFF0C\u6BCF\u6761\u9ED8\u8BA4\u4EE5 We \u5F00\u5934\u5E76\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u8BC1\u636E\u3002\u662F\u5426\u589E\u52A0\u72EC\u7ACB\u7684\u8BBA\u6587\u7ED3\u6784\u5BFC\u822A\u53E5\u7531\u5F53\u524D\u914D\u7F6E\u51B3\u5B9A\u3002P3 \u53EA\u5B9A\u4E49\u672A\u89E3\u95EE\u9898\uFF0CP4 \u53EA\u89E3\u91CA\u672C\u6587\u5982\u4F55\u56DE\u5E94\uFF0C\u907F\u514D\u91CD\u590D\u3002
+          zh: `Introduction \u7531 P1\u2013P4 \u56DB\u4E2A\u6838\u5FC3\u53D9\u4E8B\u6BB5\u843D\u548C P5 \u8D21\u732E\u5757\u7EC4\u6210\uFF1AP1 \u8FDB\u5165\u4EFB\u52A1\u4E0E\u73B0\u5B9E\u7EA6\u675F\uFF1BP2 \u7EFC\u5408\u76F8\u5173\u8DEF\u7EBF\u5E76\u5F62\u6210\u7F3A\u53E3\uFF1BP3 \u660E\u786E\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u3001\u4E14\u771F\u6B63\u51B3\u5B9A\u8BBE\u8BA1\u7684\u6311\u6218\uFF1BP4 \u56DE\u7B54 P3\uFF0C\u7ED9\u51FA\u6838\u5FC3\u601D\u60F3\u3001\u603B\u4F53\u673A\u5236\u548C\u8BBE\u8BA1\u76F4\u89C9\uFF1BP5 \u5148\u7528 \`This paper makes the following three contributions:\` \u8BF4\u660E\u8D21\u732E\u6570\u91CF\uFF0C\u518D\u4EE5 LaTeX \`itemize\` \u73AF\u5883\u5217\u51FA\u4E09\u6761\u5355\u53E5\u8D21\u732E\uFF0C\u6BCF\u4E2A \`\\item\` \u9ED8\u8BA4\u4EE5 We \u5F00\u5934\u5E76\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u8BC1\u636E\u3002\u662F\u5426\u589E\u52A0\u7EA6 65 \u8BCD\u7684\u72EC\u7ACB\u7AE0\u8282\u5BFC\u822A\u6BB5\u7531\u5F53\u524D\u914D\u7F6E\u51B3\u5B9A\uFF1B\u542F\u7528\u65F6\uFF0C\u8BE5\u6BB5\u4E0D\u8BA1\u5165 Introduction \u5EFA\u8BAE\u5B57\u6570\u3002P3 \u53EA\u5B9A\u4E49\u672A\u89E3\u95EE\u9898\uFF0CP4 \u53EA\u89E3\u91CA\u672C\u6587\u5982\u4F55\u56DE\u5E94\uFF0C\u907F\u514D\u91CD\u590D\u3002
 Related Work \u6070\u597D\u4E09\u4E2A\u5C0F\u8282\uFF0C\u5E76\u6309\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u4F7F\u7528\u5355\u6BB5\u6216\u53CC\u6BB5\u7ED3\u6784\uFF1B\u6309\u7814\u7A76\u8303\u5F0F\u3001\u8BAD\u7EC3\u4FE1\u53F7\u3001\u7ED3\u6784\u5047\u8BBE\u3001\u6548\u7387\u6216\u6CDB\u5316\u6743\u8861\u7EFC\u5408\u3002\u6BCF\u4E2A\u5C0F\u8282\u6700\u540E\u7528\u5EFA\u8BAE\u63A7\u5236\u5728 18 \u8BCD\u4EE5\u5185\u3001\u4E14\u4E0D\u4F7F\u7528 \u201Cwe\u201D \u6216\u672C\u6587\u65B9\u6CD5\u540D\u7684\u603B\u7ED3\u53E5\u6536\u675F\uFF1B\u5FC5\u8981\u65F6\u53EF\u6309\u5185\u5BB9\u8C03\u6574\u3002\u5148\u5728\u62A5\u544A\u4E2D\u89C4\u5212\u4E3B\u9898\u548C\u73B0\u6709 BibTeX key\uFF0C\u518D\u5199\u5165 TeX\uFF1B\u4E0D\u5F97\u9010\u7BC7\u6D41\u6C34\u8D26\u3002`,
-          en: `Use five core Introduction paragraphs: P1 enters the task and practical constraints; P2 synthesizes related lines into the gap; P3 states the unresolved challenges that still determine the design today; P4 answers P3 with the core idea, overall mechanism, and design intuition; P5 closes with contribution sentences, each beginning with We by default and aligned with a real mechanism and evidence. Add a separate paper-roadmap sentence only when the current configuration enables it. P3 defines the unresolved problem; P4 explains this paper's response, so they must not repeat each other.
+          en: `Structure the Introduction as four core narrative paragraphs, P1\u2013P4, followed by a P5 contribution block. P1 enters the task and practical constraints; P2 synthesizes related lines into the gap; P3 states the unresolved challenges that still determine the design today; and P4 answers P3 with the core idea, overall mechanism, and design intuition. P5 begins with \`This paper makes the following three contributions:\` and then lists three one-sentence contributions in a LaTeX \`itemize\` environment; each \`\\item\` begins with We by default and maps to a real mechanism and evidence. Add a separate \u224865-word paper-roadmap paragraph only when the current configuration enables it, and exclude it from the suggested Introduction word count. P3 defines the unresolved problem; P4 explains this paper's response, so they must not repeat each other.
 Related Work has exactly three subsections and follows the current paper type's one- or two-paragraph rule. Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. End each subsection with a synthesis sentence that preferably stays within 18 words but may adjust to the content and uses neither \u201Cwe\u201D nor the method name. Plan themes and existing BibTeX keys in the report before drafting; do not narrate papers one by one.`
         }
       },
@@ -1923,8 +1923,8 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
       en: "Build a submission candidate pool from the final manuscript and verify fit, rules, and risks against current official sources."
     },
     role: {
-      zh: "\u4F60\u662F\u4E00\u540D\u719F\u6089\u8BA1\u7B97\u673A\u79D1\u5B66\u4F1A\u8BAE\u4E0E\u671F\u520A\u6295\u7A3F\u3001\u5B98\u65B9\u89C4\u5219\u6838\u9A8C\u548C\u7F16\u8F91\u7B5B\u7A3F\u903B\u8F91\u7684\u5B66\u672F\u6295\u7A3F\u987E\u95EE\u3002\u672C\u8F6E\u53EA\u505A\u76EE\u6807\u68C0\u7D22\u3001\u6838\u9A8C\u3001\u8BC4\u5206\u4E0E\u6295\u7A3F\u987A\u5E8F\uFF0C\u4E0D\u5957\u6A21\u677F\u3001\u4E0D\u6539\u683C\u5F0F\u3001\u4E0D\u91CD\u5199\u8BBA\u6587\u3002",
-      en: "You are an academic submission adviser experienced in computer-science conferences and journals, official-rule verification, and editorial screening. This round performs targeting, verification, scoring, and submission ordering only. Do not apply templates, change formatting, or rewrite the manuscript."
+      zh: "\u4F60\u662F\u4E00\u540D\u719F\u6089\u4F1A\u8BAE\u4E0E\u671F\u520A\u6295\u7A3F\u3001\u5B98\u65B9\u89C4\u5219\u6838\u9A8C\u548C\u7F16\u8F91\u7B5B\u7A3F\u903B\u8F91\u7684\u5B66\u672F\u6295\u7A3F\u987E\u95EE\u3002\u672C\u8F6E\u53EA\u505A\u76EE\u6807\u68C0\u7D22\u3001\u6838\u9A8C\u3001\u8BC4\u5206\u4E0E\u6295\u7A3F\u987A\u5E8F\uFF0C\u4E0D\u5957\u6A21\u677F\u3001\u4E0D\u6539\u683C\u5F0F\u3001\u4E0D\u91CD\u5199\u8BBA\u6587\u3002",
+      en: "You are an academic submission adviser experienced in conference and journal submissions, official-rule verification, and editorial screening. This round performs targeting, verification, scoring, and submission ordering only. Do not apply templates, change formatting, or rewrite the manuscript."
     },
     inputs: {
       zh: `- \u8BBA\u6587\u91CD\u6784\u6700\u7EC8 .tex
@@ -1950,10 +1950,10 @@ Attack novelty, differentiation, mechanism necessity, experiment coverage, fair 
 Prioritize the official Call for Papers, author guide, and organizer pages. Record historical acceptance rates only when an official or verifiable source provides them. Never treat a previous edition's rules as current.`
       },
       journal: {
-        zh: `\u5F53\u524D\u76EE\u6807\u4E3A\u671F\u520A\u3002\u6838\u9A8C\u671F\u520A\u5168\u540D\u3001\u51FA\u7248\u793E\u3001Aims and Scope\u3001\u5F53\u524D\u53EF\u6295\u7A3F\u72B6\u6001\u3001\u6587\u7AE0\u7C7B\u578B\u3001SCIE/SSCI/ESCI \u7B49\u6536\u5F55\u3001\u53EF\u6838\u9A8C\u7684 JCR \u5E74\u4EFD/\u7C7B\u522B/\u5206\u533A\u4E0E Journal Impact Factor\u3001OA \u6A21\u5F0F\u3001APC \u4E0E\u5E01\u79CD\u3001\u7BC7\u5E45/\u56FE\u8868/\u6458\u8981/\u53C2\u8003\u6587\u732E\u8981\u6C42\u3001\u9644\u52A0\u6587\u4EF6\u3001\u6295\u7A3F\u5165\u53E3\u548C\u6570\u636E\u653F\u7B56\u3002
-\u4E0D\u5F97\u628A CiteScore\u3001SJR\u3001Scopus \u5206\u533A\u5199\u6210 JCR Journal Impact Factor \u6216 JCR \u5206\u533A\uFF0C\u4E5F\u4E0D\u5F97\u6DF7\u5199\u4E2D\u79D1\u9662\u5206\u533A\u3002\u82E5\u8981\u6C42\u7EFC\u8FF0\u6587\u7AE0\uFF0C\u53EA\u80FD\u4EE5\u5F53\u524D\u5B98\u7F51 Author Guidelines \u6216 Article Types \u9875\u9762\u660E\u786E\u63A5\u53D7 Review/Survey \u4E3A\u4F9D\u636E\uFF0C\u4E0D\u80FD\u4EC5\u51ED\u5386\u53F2\u4E0A\u53D1\u8868\u8FC7\u7EFC\u8FF0\u63A8\u65AD\u3002\u5BA1\u7A3F\u5468\u671F\u3001\u51FA\u7248\u9891\u7387\u6216\u63A5\u6536\u7387\u53EA\u6709\u5B98\u7F51\u660E\u786E\u63D0\u4F9B\u65F6\u624D\u8BB0\u5F55\u3002`,
-        en: `The current target is a journal. Verify full title, publisher, Aims and Scope, current submission status, article type, SCIE/SSCI/ESCI indexing, verifiable JCR year/category/quartile and Journal Impact Factor, OA model, APC and currency, length/figure/abstract/reference requirements, additional files, submission portal, and data policies.
-Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Factor or JCR quartile, and never mix CAS rankings with JCR. If review articles are required, rely only on a current official Author Guidelines or Article Types page that explicitly accepts Review/Survey submissions; prior publication of a review is not sufficient evidence. Record review time, publication frequency, or acceptance rate only when the official site explicitly provides it.`
+        zh: `\u5F53\u524D\u76EE\u6807\u4E3A\u671F\u520A\u3002\u6838\u9A8C\u671F\u520A\u5168\u540D\u3001\u51FA\u7248\u793E\u3001Aims and Scope\u3001\u5F53\u524D\u53EF\u6295\u7A3F\u72B6\u6001\u3001\u6587\u7AE0\u7C7B\u578B\u3001\u4E0E\u8BBA\u6587\u7C7B\u522B\u548C\u7528\u6237\u6761\u4EF6\u76F8\u5173\u7684\u6743\u5A01\u6536\u5F55\u4F53\u7CFB\uFF08\u5982 SCIE\u3001SSCI\u3001AHCI\u3001ESCI\uFF09\u3001\u53EF\u6838\u9A8C\u7684 JCR \u5E74\u4EFD/\u7C7B\u522B/\u5206\u533A\u4E0E Journal Impact Factor\u3001OA \u6A21\u5F0F\u3001APC \u4E0E\u5E01\u79CD\u3001\u7BC7\u5E45/\u56FE\u8868/\u6458\u8981/\u53C2\u8003\u6587\u732E\u8981\u6C42\u3001\u9644\u52A0\u6587\u4EF6\u3001\u6295\u7A3F\u5165\u53E3\u548C\u6570\u636E\u653F\u7B56\u3002
+\u4E0D\u5F97\u628A CiteScore\u3001SJR\u3001Scopus \u5206\u533A\u5199\u6210 JCR Journal Impact Factor \u6216 JCR \u5206\u533A\uFF0C\u4E5F\u4E0D\u5F97\u6DF7\u5199\u4E2D\u79D1\u9662\u5206\u533A\u3002\u67D0\u9879\u7D22\u5F15\u3001\u6307\u6807\u6216\u5206\u533A\u4E0D\u9002\u7528\u4E8E\u8BE5\u5B66\u79D1\u6216\u7A3F\u4EF6\u7C7B\u578B\u65F6\uFF0C\u660E\u786E\u5199\u201C\u4E0D\u9002\u7528\u201D\uFF0C\u4E0D\u80FD\u4E3A\u4E86\u6392\u5E8F\u5F3A\u884C\u5957\u7528\u3002\u82E5\u8981\u6C42\u7EFC\u8FF0\u6587\u7AE0\uFF0C\u53EA\u80FD\u4EE5\u5F53\u524D\u5B98\u7F51 Author Guidelines \u6216 Article Types \u9875\u9762\u660E\u786E\u63A5\u53D7 Review/Survey \u4E3A\u4F9D\u636E\uFF0C\u4E0D\u80FD\u4EC5\u51ED\u5386\u53F2\u4E0A\u53D1\u8868\u8FC7\u7EFC\u8FF0\u63A8\u65AD\u3002\u5BA1\u7A3F\u5468\u671F\u3001\u51FA\u7248\u9891\u7387\u6216\u63A5\u6536\u7387\u53EA\u6709\u5B98\u7F51\u660E\u786E\u63D0\u4F9B\u65F6\u624D\u8BB0\u5F55\u3002`,
+        en: `The current target is a journal. Verify full title, publisher, Aims and Scope, current submission status, article type, authoritative indexing systems relevant to the manuscript category and user constraints (such as SCIE, SSCI, AHCI, or ESCI), verifiable JCR year/category/quartile and Journal Impact Factor, OA model, APC and currency, length/figure/abstract/reference requirements, additional files, submission portal, and data policies.
+Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Factor or JCR quartile, and never mix CAS rankings with JCR. Mark an index, metric, or ranking as \u201CNot applicable\u201D when it does not suit the field or manuscript type instead of forcing it into the ranking. If review articles are required, rely only on a current official Author Guidelines or Article Types page that explicitly accepts Review/Survey submissions; prior publication of a review is not sufficient evidence. Record review time, publication frequency, or acceptance rate only when the official site explicitly provides it.`
       }
     },
     tasks: [
@@ -1963,8 +1963,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "A. Build the Manuscript\u2013Venue Profile"
         },
         body: {
-          zh: "\u4ECE\u7EC8\u7A3F\u63D0\u53D6\u9886\u57DF\u3001\u5B50\u9886\u57DF\u3001\u4EFB\u52A1\u3001\u6570\u636E\u5F62\u6001\u3001\u65B9\u6CD5\u8303\u5F0F\u3001\u8D21\u732E\u7C7B\u578B\u3001\u7406\u8BBA/\u65B9\u6CD5/\u7CFB\u7EDF/\u5E94\u7528\u5C5E\u6027\u3001\u76EE\u6807\u8BFB\u8005\u3001\u56FE\u8868\u4E0E\u53C2\u8003\u6587\u732E\u89C4\u6A21\u3001\u8865\u5145\u6750\u6599\u3001\u8BC1\u636E\u5F3A\u5EA6\u3001\u4E3B\u8981\u5356\u70B9\u548C\u6700\u53EF\u80FD\u7684 desk-reject/triage \u98CE\u9669\u3002\u4E0D\u5F97\u4E3A\u4E86\u5339\u914D venue \u91CD\u65B0\u5B9A\u4E49\u8BBA\u6587\u4E3B\u7EBF\u3002",
-          en: "Extract field, subfield, task, data modality, method paradigm, contribution type, theoretical/method/system/application character, audience, visual and reference scale, supplementary material, evidence strength, strongest selling point, and likely desk-reject/triage risks. Do not redefine the scientific throughline to fit a venue."
+          zh: "\u9996\u5148\u8F93\u51FA\u6070\u597D\u4E00\u53E5\u201C\u8BBA\u6587\u7C7B\u522B\u5224\u65AD\u201D\uFF1A\u6982\u62EC\u4E3B\u8981\u5B66\u79D1\u3001\u7EC6\u5206\u9886\u57DF\u3001\u7814\u7A76\u6216\u7A3F\u4EF6\u7C7B\u578B\u3001\u6838\u5FC3\u8D21\u732E\u5F62\u6001\u548C\u76EE\u6807\u8BFB\u8005\uFF1B\u8DE8\u5B66\u79D1\u8BBA\u6587\u540C\u65F6\u6807\u660E\u4E3B\u6295\u9886\u57DF\u4E0E\u4EA4\u53C9\u9886\u57DF\u3002\u968F\u540E\u63D0\u53D6\u7814\u7A76\u95EE\u9898\u3001\u7814\u7A76\u5BF9\u8C61\u3001\u7814\u7A76\u8BBE\u8BA1\u6216\u65B9\u6CD5\u3001\u8BC1\u636E\u5F62\u6001\u3001\u8D21\u732E\u7C7B\u578B\u3001\u56FE\u8868\u4E0E\u53C2\u8003\u6587\u732E\u89C4\u6A21\u3001\u8865\u5145\u6750\u6599\u3001\u8BC1\u636E\u5F3A\u5EA6\u3001\u4E3B\u8981\u5356\u70B9\u548C\u6700\u53EF\u80FD\u7684 desk-reject/triage \u98CE\u9669\u3002\u4E0D\u5F97\u4E3A\u4E86\u5339\u914D venue \u91CD\u65B0\u5B9A\u4E49\u8BBA\u6587\u4E3B\u7EBF\u3002",
+          en: "Begin with exactly one \u201CManuscript category\u201D sentence covering the primary discipline, subfield, study or article type, core contribution form, and intended readership; for interdisciplinary work, identify both the primary submission field and the intersecting field. Then extract the research question, object of study, design or methodology, evidence form, contribution type, visual and reference scale, supplementary material, evidence strength, strongest selling point, and likely desk-reject/triage risks. Do not redefine the scientific throughline to fit a venue."
         }
       },
       {
@@ -1973,8 +1973,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "B. Build a Candidate Pool, Then Verify It"
         },
         body: {
-          zh: "\u5EFA\u7ACB 10\u201315 \u4E2A\u5019\u9009\uFF0C\u9010\u9879\u6838\u9A8C\u540D\u79F0\u3001\u5B98\u65B9\u94FE\u63A5\u3001\u8303\u56F4\u5339\u914D\u3001\u5F53\u524D\u662F\u5426\u6B63\u5E38\u63A5\u6536\u6295\u7A3F\u3001\u6587\u7AE0/track \u7C7B\u578B\u3001\u5F53\u524D\u6536\u5F55\u6216\u7B49\u7EA7\u4FE1\u606F\u3001\u7BC7\u5E45\u4E0E\u9644\u5F55\u653F\u7B56\u3001\u8D39\u7528\u3001\u989D\u5916\u6750\u6599\u3001\u6295\u7A3F\u5165\u53E3\u548C\u6240\u6709\u5F71\u54CD\u6295\u7A3F\u7684\u89C4\u5219\u3002\u6BCF\u4E2A\u5F53\u524D\u4E8B\u5B9E\u90FD\u9644\u5B98\u65B9\u6216\u6743\u5A01\u6765\u6E90\uFF1B\u65E0\u6CD5\u6838\u9A8C\u5C31\u660E\u786E\u5199\u201C\u672A\u6838\u9A8C\u201D\u3002\u5DF2\u505C\u520A\u3001\u4EC5\u4FDD\u7559\u5386\u53F2\u9875\u9762\u3001\u8F6C\u6295\u4E13\u7528\u6216\u5F53\u524D\u65E0\u6CD5\u6B63\u5E38\u6295\u7A3F\u7684 venue \u4E0D\u5F97\u8FDB\u5165\u63A8\u8350\u68AF\u961F\u3002MDPI\u3001Hindawi \u548C Frontiers \u662F\u7528\u6237\u660E\u786E\u6392\u9664\u9879\uFF0C\u5176\u65D7\u4E0B\u671F\u520A\u4E0D\u5F97\u8FDB\u5165\u5019\u9009\u6C60\u3001\u8BC4\u5206\u6216\u63A8\u8350\u68AF\u961F\uFF0C\u53EA\u5728\u6392\u9664\u8BB0\u5F55\u4E2D\u6CE8\u660E\u201C\u7528\u6237\u6392\u9664\u201D\uFF0C\u4E0D\u5F97\u4F5C\u65E0\u4F9D\u636E\u7684\u6CDB\u5316\u8D28\u91CF\u5B9A\u6027\u3002",
-          en: "Build a pool of 10\u201315 candidates. For each, verify name, official link, scope fit, whether it is active and currently accepting normal submissions, article/track type, current indexing or ranking information, length and appendix policy, fees, additional materials, submission portal, and every rule that affects submission. Cite an official or authoritative source for each current fact and mark anything unresolved as 'Not verified.' Do not recommend venues that have ceased publication, retain only an archive page, accept transfer-only submissions, or are otherwise not open for normal submission. MDPI, Hindawi, and Frontiers are explicit user exclusions: do not place their journals in the pool, scoring, or recommendation tiers. Record them only as 'excluded by user' without unsupported general quality claims."
+          zh: "\u5EFA\u7ACB\u4E0E\u9886\u57DF\u89C4\u6A21\u76F8\u79F0\u7684\u5019\u9009\u6C60\uFF0C\u901A\u5E38\u4E3A 8\u201315 \u4E2A\uFF1B\u82E5\u53EF\u4FE1\u4E14\u5F53\u524D\u53EF\u6295\u7A3F\u7684\u76EE\u6807\u66F4\u5C11\uFF0C\u53EF\u4EE5\u7F29\u5C0F\u5019\u9009\u6C60\u5E76\u8BF4\u660E\u539F\u56E0\uFF0C\u4E0D\u5F97\u4E3A\u51D1\u6570\u52A0\u5165\u5F31\u76F8\u5173 venue\u3002\u9010\u9879\u6838\u9A8C\u540D\u79F0\u3001\u5B98\u65B9\u94FE\u63A5\u3001\u8303\u56F4\u5339\u914D\u3001\u5F53\u524D\u662F\u5426\u6B63\u5E38\u63A5\u6536\u6295\u7A3F\u3001\u6587\u7AE0/track \u7C7B\u578B\u3001\u5F53\u524D\u6536\u5F55\u6216\u7B49\u7EA7\u4FE1\u606F\u3001\u7BC7\u5E45\u4E0E\u9644\u5F55\u653F\u7B56\u3001\u8D39\u7528\u3001\u989D\u5916\u6750\u6599\u3001\u6295\u7A3F\u5165\u53E3\u548C\u6240\u6709\u5F71\u54CD\u6295\u7A3F\u7684\u89C4\u5219\u3002\u6BCF\u4E2A\u5F53\u524D\u4E8B\u5B9E\u90FD\u9644\u5B98\u65B9\u6216\u6743\u5A01\u6765\u6E90\uFF1B\u65E0\u6CD5\u6838\u9A8C\u5C31\u660E\u786E\u5199\u201C\u672A\u6838\u9A8C\u201D\u3002\u5DF2\u505C\u520A\u3001\u4EC5\u4FDD\u7559\u5386\u53F2\u9875\u9762\u3001\u8F6C\u6295\u4E13\u7528\u6216\u5F53\u524D\u65E0\u6CD5\u6B63\u5E38\u6295\u7A3F\u7684 venue \u4E0D\u5F97\u8FDB\u5165\u63A8\u8350\u68AF\u961F\u3002MDPI\u3001Hindawi \u548C Frontiers \u662F\u7528\u6237\u660E\u786E\u6392\u9664\u9879\uFF0C\u5176\u65D7\u4E0B\u671F\u520A\u4E0D\u5F97\u8FDB\u5165\u5019\u9009\u6C60\u3001\u8BC4\u5206\u6216\u63A8\u8350\u68AF\u961F\uFF0C\u53EA\u5728\u6392\u9664\u8BB0\u5F55\u4E2D\u6CE8\u660E\u201C\u7528\u6237\u6392\u9664\u201D\uFF0C\u4E0D\u5F97\u4F5C\u65E0\u4F9D\u636E\u7684\u6CDB\u5316\u8D28\u91CF\u5B9A\u6027\u3002",
+          en: "Build a candidate pool proportionate to the field, normally eight to fifteen venues. If fewer credible venues are currently open for submission, use a smaller pool and explain why; never add weakly related venues to meet a quota. For each, verify name, official link, scope fit, whether it is active and currently accepting normal submissions, article/track type, current indexing or ranking information, length and appendix policy, fees, additional materials, submission portal, and every rule that affects submission. Cite an official or authoritative source for each current fact and mark anything unresolved as 'Not verified.' Do not recommend venues that have ceased publication, retain only an archive page, accept transfer-only submissions, or are otherwise not open for normal submission. MDPI, Hindawi, and Frontiers are explicit user exclusions: do not place their journals in the pool, scoring, or recommendation tiers. Record them only as 'excluded by user' without unsupported general quality claims."
         }
       },
       {
@@ -1983,8 +1983,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "C. Score Fit and Risk"
         },
         body: {
-          zh: "\u4F7F\u7528 100 \u5206\u6A21\u578B\uFF1A\u4E3B\u9898\u8303\u56F4 30\u3001\u8D21\u732E\u7C7B\u578B 20\u3001\u8BC1\u636E\u6210\u719F\u5EA6 15\u3001\u76EE\u6807\u7B49\u7EA7/\u5206\u533A 15\u3001\u7BC7\u5E45\u548C\u6750\u6599\u517C\u5BB9 10\u3001\u8D39\u7528/\u65F6\u95F4\u7EA6\u675F 5\u3001\u62D2\u7A3F\u6216\u7ADE\u4E89\u98CE\u9669 5\u3002\u9010\u9879\u7ED9\u51FA\u7406\u7531\uFF0C\u4E0D\u80FD\u628A\u540D\u6C14\u6216\u5206\u533A\u76F4\u63A5\u7B49\u540C\u4E8E\u5339\u914D\u5EA6\u3002",
-          en: "Use a 100-point model: topical scope 30, contribution type 20, evidence maturity 15, target tier/quartile 15, length and material compatibility 10, fee/timeline constraints 5, and rejection or competition risk 5. Explain every score. Do not equate prestige or quartile directly with fit."
+          zh: "\u9ED8\u8BA4\u4F7F\u7528 100 \u5206\u6A21\u578B\uFF1A\u4E3B\u9898\u8303\u56F4 30\u3001\u7A3F\u4EF6\u4E0E\u8D21\u732E\u7C7B\u578B 20\u3001\u7814\u7A76\u8BBE\u8BA1\u548C\u8BC1\u636E\u6210\u719F\u5EA6 15\u3001\u76EE\u6807\u7B49\u7EA7/\u5206\u533A 15\u3001\u7BC7\u5E45\u548C\u6750\u6599\u517C\u5BB9 10\u3001\u8D39\u7528/\u65F6\u95F4\u7EA6\u675F 5\u3001\u62D2\u7A3F\u6216\u7ADE\u4E89\u98CE\u9669 5\u3002\u82E5\u67D0\u7EF4\u5EA6\u4E0D\u9002\u5408\u5F53\u524D\u5B66\u79D1\u6216\u7A3F\u4EF6\u7C7B\u578B\uFF0C\u53EF\u8C03\u6574\u8BE5\u7EF4\u5EA6\u5E76\u8BF4\u660E\u7406\u7531\uFF0C\u4F46\u603B\u5206\u4ECD\u4E3A 100\u3002\u9010\u9879\u7ED9\u51FA\u4F9D\u636E\uFF0C\u4E0D\u80FD\u628A\u540D\u6C14\u6216\u5206\u533A\u76F4\u63A5\u7B49\u540C\u4E8E\u5339\u914D\u5EA6\u3002",
+          en: "Use this default 100-point model: topical scope 30, manuscript and contribution type 20, research-design and evidence maturity 15, target tier/quartile 15, length and material compatibility 10, fee/timeline constraints 5, and rejection or competition risk 5. If a dimension does not fit the field or article type, adjust it with an explicit rationale while keeping the total at 100. Explain every score and do not equate prestige or quartile directly with fit."
         }
       },
       {
@@ -1993,8 +1993,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "D. Build Submission Tiers and Transfer Paths"
         },
         body: {
-          zh: "\u7ED9\u51FA\u9996\u9009 3 \u4E2A\u3001\u7A33\u59A5\u5907\u9009 3 \u4E2A\u3001\u4E0D\u5EFA\u8BAE\u4F46\u5BB9\u6613\u8BEF\u9009\u7684 2\u20134 \u4E2A\u3001\u552F\u4E00\u9996\u63A8\u53CA\u7406\u7531\u3002\u4E3A\u9996\u9009\u9010\u4E00\u5206\u6790\u8303\u56F4\u3001\u521B\u65B0\u6027\u3001\u5B9E\u9A8C\u3001\u7BC7\u5E45\u3001\u89C4\u5219\u4E0E\u5199\u4F5C\u98CE\u9669\uFF0C\u5E76\u7ED9\u51FA\u6295\u7A3F\u524D\u6700\u540E\u6838\u9A8C\u4E8B\u9879\u548C\u88AB\u62D2\u540E\u7684\u987A\u5E8F\u5316\u8F6C\u6295\u8DEF\u5F84\u3002",
-          en: "Return three first-choice venues, three safer alternatives, two to four tempting but unsuitable venues, and one top recommendation with rationale. For each first choice, analyze scope, novelty, evidence, length, policy, and writing risks, then provide final pre-submission checks and an ordered transfer path after rejection."
+          zh: "\u7ED9\u51FA\u4E0D\u8D85\u8FC7 3 \u4E2A\u9996\u9009\u3001\u4E0D\u8D85\u8FC7 3 \u4E2A\u7A33\u59A5\u5907\u9009\u3001\u4E0D\u5EFA\u8BAE\u4F46\u5BB9\u6613\u8BEF\u9009\u7684 2\u20134 \u4E2A\uFF0C\u4EE5\u53CA\u552F\u4E00\u9996\u63A8\u548C\u7406\u7531\uFF1B\u53EF\u4FE1\u5019\u9009\u4E0D\u8DB3\u65F6\u4E0D\u5F97\u4E3A\u51D1\u6EE1\u6570\u91CF\u964D\u4F4E\u5339\u914D\u6807\u51C6\u3002\u4E3A\u9996\u9009\u9010\u4E00\u5206\u6790\u8303\u56F4\u3001\u8D21\u732E\u4E0E\u7A3F\u4EF6\u7C7B\u578B\u3001\u7814\u7A76\u8BBE\u8BA1\u548C\u8BC1\u636E\u3001\u7BC7\u5E45\u3001\u89C4\u5219\u4E0E\u8868\u8FBE\u98CE\u9669\uFF0C\u5E76\u7ED9\u51FA\u6295\u7A3F\u524D\u6700\u540E\u6838\u9A8C\u4E8B\u9879\u548C\u88AB\u62D2\u540E\u7684\u987A\u5E8F\u5316\u8F6C\u6295\u8DEF\u5F84\u3002",
+          en: "Return up to three first-choice venues, up to three safer alternatives, two to four tempting but unsuitable venues, and one top recommendation with rationale; never lower the fit threshold merely to fill a tier. For each first choice, analyze scope, contribution and article type, research design and evidence, length, policy, and presentation risks, then provide final pre-submission checks and an ordered transfer path after rejection."
         }
       },
       {
@@ -2009,17 +2009,19 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
       }
     ],
     deliverables: {
-      zh: "\u76F4\u63A5\u5728\u5F53\u524D\u5BF9\u8BDD\u4E2D\u7ED9\u51FA\u5B8C\u6574\u4E2D\u6587\u68C0\u7D22\u7ED3\u679C\uFF0C\u4E0D\u751F\u6210\u6216\u4E0B\u8F7D .tex\u3001.md \u6216\u5176\u4ED6\u6587\u4EF6\u3002\u7ED3\u679C\u5305\u542B\u6838\u9A8C\u65E5\u671F\u3001\u7EA6\u675F/\u5047\u8BBE\u3001Manuscript\u2013Venue Profile\u3001\u5019\u9009\u6C60\u3001\u6765\u6E90\u3001\u6392\u9664\u8FC7\u7A0B\u3001\u8BC4\u5206\u3001\u9996\u9009/\u5907\u9009/\u4E0D\u5EFA\u8BAE\u3001\u552F\u4E00\u9996\u63A8\u3001\u9010\u9879\u98CE\u9669\u3001\u89C4\u5219\u6458\u8981\u3001\u6295\u7A3F\u987A\u5E8F\u3001\u8F6C\u6295\u8DEF\u5F84\u3001\u672A\u6838\u9A8C\u4FE1\u606F\uFF0C\u4EE5\u53CA\u672A\u6539\u7A3F\u3001\u672A\u751F\u6210\u6587\u4EF6\u7684\u58F0\u660E\u3002",
-      en: "Return the complete Chinese targeting result directly in the current conversation; do not generate or download any .tex, .md, or other file. Include the verification date, constraints/assumptions, Manuscript\u2013Venue Profile, candidate pool, sources, exclusion process, scores, first choices, alternatives, unsuitable venues, one top recommendation, itemized risks, policy summary, submission order, transfer path, unverified information, and statements that the manuscript was unchanged and no file was generated."
+      zh: "\u76F4\u63A5\u5728\u5F53\u524D\u5BF9\u8BDD\u4E2D\u7ED9\u51FA\u5B8C\u6574\u4E2D\u6587\u68C0\u7D22\u7ED3\u679C\uFF0C\u4E0D\u751F\u6210\u6216\u4E0B\u8F7D .tex\u3001.md \u6216\u5176\u4ED6\u6587\u4EF6\u3002\u7ED3\u679C\u5305\u542B\u4E00\u53E5\u8BBA\u6587\u7C7B\u522B\u5224\u65AD\u3001\u6838\u9A8C\u65E5\u671F\u3001\u7EA6\u675F/\u5047\u8BBE\u3001Manuscript\u2013Venue Profile\u3001\u5019\u9009\u6C60\u3001\u6765\u6E90\u3001\u6392\u9664\u8FC7\u7A0B\u3001\u8BC4\u5206\u3001\u9996\u9009/\u5907\u9009/\u4E0D\u5EFA\u8BAE\u3001\u552F\u4E00\u9996\u63A8\u3001\u9010\u9879\u98CE\u9669\u3001\u89C4\u5219\u6458\u8981\u3001\u6295\u7A3F\u987A\u5E8F\u3001\u8F6C\u6295\u8DEF\u5F84\u3001\u672A\u6838\u9A8C\u4FE1\u606F\uFF0C\u4EE5\u53CA\u672A\u6539\u7A3F\u3001\u672A\u751F\u6210\u6587\u4EF6\u7684\u58F0\u660E\u3002",
+      en: "Return the complete Chinese targeting result directly in the current conversation; do not generate or download any .tex, .md, or other file. Include the one-sentence manuscript category, verification date, constraints/assumptions, Manuscript\u2013Venue Profile, candidate pool, sources, exclusion process, scores, first choices, alternatives, unsuitable venues, one top recommendation, itemized risks, policy summary, submission order, transfer path, unverified information, and statements that the manuscript was unchanged and no file was generated."
     },
     finalChecks: {
       zh: `- \u5DF2\u5B8C\u6574\u8BFB\u53D6\u7EC8\u7A3F\u5E76\u5EFA\u7ACB\u771F\u5B9E\u8BBA\u6587\u753B\u50CF\u3002
+- \u5DF2\u7528\u4E00\u53E5\u8BDD\u660E\u786E\u8BBA\u6587\u7C7B\u522B\u3001\u4E3B\u6295\u9886\u57DF\u4E0E\u9002\u7528\u7684\u8BC4\u4EF7\u4F53\u7CFB\u3002
 - \u5F53\u524D venue \u4FE1\u606F\u5747\u6709\u5B98\u65B9\u6216\u6743\u5A01\u6765\u6E90\u4E0E\u6838\u9A8C\u65E5\u671F\u3002
 - \u672A\u6DF7\u6DC6\u4E0D\u540C\u7D22\u5F15\u3001\u5206\u533A\u3001\u5C4A\u6B21\u6216\u5386\u53F2\u89C4\u5219\u3002
 - \u672A\u58F0\u79F0\u65E0\u6CD5\u6838\u9A8C\u7684\u8D39\u7528\u3001\u5F55\u53D6\u7387\u6216\u5BA1\u7A3F\u5468\u671F\u3002
 - \u5DF2\u7ED9\u51FA\u9996\u9009\u3001\u5907\u9009\u3001\u6392\u9664\u3001\u98CE\u9669\u548C\u8F6C\u6295\u8DEF\u5F84\u3002
 - \u672A\u66F4\u6362\u6A21\u677F\u3001\u672A\u4FEE\u6539\u6B63\u6587\u3001\u672A\u751F\u6210\u6587\u4EF6\u3002`,
       en: `- The final manuscript was read completely and profiled accurately.
+- The manuscript category, primary submission field, and applicable evaluation systems were stated in one sentence.
 - Every current venue fact has an official or authoritative source and verification date.
 - Indexes, quartiles, editions, and historical rules were not conflated.
 - No unverified fee, acceptance rate, or review time was claimed.
@@ -2238,12 +2240,12 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
         contextKey: "includeSectionNavigationSentence",
         branches: {
           enabled: {
-            zh: "- Introduction\uFF1A\u4F7F\u7528\u4E94\u4E2A\u6838\u5FC3\u6BB5\u843D\u3002P1 \u80CC\u666F\u4E0E\u4EFB\u52A1\uFF1BP2 \u76F8\u5173\u8DEF\u7EBF\u4E0E\u7F3A\u53E3\uFF1BP3 \u660E\u786E\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u4E14\u51B3\u5B9A\u8BBE\u8BA1\u7684\u6311\u6218\uFF1BP4 \u56DE\u7B54 P3\uFF0C\u7ED9\u51FA\u6838\u5FC3\u601D\u60F3\u3001\u603B\u4F53\u673A\u5236\u4E0E\u76F4\u89C9\uFF1BP5 \u7ED9\u51FA\u4E09\u6761\u8D21\u732E\uFF0C\u6BCF\u6761\u9ED8\u8BA4\u4EE5 We \u5F00\u5934\u5E76\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u8BC1\u636E\u3002\u672B\u5C3E\u589E\u52A0\u4E00\u53E5\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5\uFF1B",
-            en: "- Introduction: use five core paragraphs. P1 covers background/task; P2 research lines/gap; P3 the challenges still unresolved today that determine the design; P4 answers P3 with the core idea, overall mechanism, and intuition; P5 gives three contributions, each beginning with We by default and tied to a real mechanism and evidence. End with one pure paper-roadmap sentence;"
+            zh: "- Introduction\uFF1AP1\u2013P4 \u4F7F\u7528\u56DB\u4E2A\u6838\u5FC3\u53D9\u4E8B\u6BB5\u843D\uFF0C\u4F9D\u6B21\u627F\u62C5\u80CC\u666F\u4E0E\u4EFB\u52A1\u3001\u76F8\u5173\u8DEF\u7EBF\u4E0E\u7F3A\u53E3\u3001\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u4E14\u51B3\u5B9A\u8BBE\u8BA1\u7684\u6311\u6218\u3001\u672C\u6587\u7684\u6838\u5FC3\u601D\u60F3\u4E0E\u603B\u4F53\u56DE\u5E94\u3002P5 \u5148\u5199\u5F15\u5BFC\u53E5 `This paper makes the following three contributions:`\uFF0C\u518D\u4F7F\u7528 `\\begin{itemize}`\u3001\u4E09\u4E2A `\\item` \u548C `\\end{itemize}` \u7ED9\u51FA\u4E09\u6761\u5355\u53E5\u8D21\u732E\uFF1B\u6BCF\u4E2A\u6761\u76EE\u9ED8\u8BA4\u4EE5 `We` \u5F00\u5934\u5E76\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u8BC1\u636E\u3002\u8D21\u732E\u5757\u540E\u589E\u52A0\u4E00\u4E2A\u7EA6 65 \u8BCD\u7684\u72EC\u7ACB\u7AE0\u8282\u5BFC\u822A\u6BB5\uFF1B\u8BE5\u6BB5\u53EA\u8BF4\u660E\u8BBA\u6587\u7EC4\u7EC7\u3001\u4E0D\u627F\u8F7D\u65B0\u8BBA\u8BC1\u6216\u5F15\u7528\uFF0C\u4E14\u4E0D\u8BA1\u5165 Introduction \u5EFA\u8BAE\u5B57\u6570\uFF1B",
+            en: "- Introduction: use four core narrative paragraphs for background/task, research lines/gap, the challenges that remain unresolved today and determine the design, and this paper's core idea and response. P5 begins with `This paper makes the following three contributions:`, then uses `\\begin{itemize}`, three `\\item` entries, and `\\end{itemize}` for three one-sentence contributions; each item begins with `We` by default and maps to a real mechanism and evidence. Follow the contribution block with a separate paper-roadmap paragraph of about 65 words. It states organization only, carries no new argument or citation, and is excluded from the suggested Introduction word count;"
           },
           disabled: {
-            zh: "- Introduction\uFF1A\u4F7F\u7528\u4E94\u4E2A\u6838\u5FC3\u6BB5\u843D\u3002P1 \u80CC\u666F\u4E0E\u4EFB\u52A1\uFF1BP2 \u76F8\u5173\u8DEF\u7EBF\u4E0E\u7F3A\u53E3\uFF1BP3 \u660E\u786E\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u4E14\u51B3\u5B9A\u8BBE\u8BA1\u7684\u6311\u6218\uFF1BP4 \u56DE\u7B54 P3\uFF0C\u7ED9\u51FA\u6838\u5FC3\u601D\u60F3\u3001\u603B\u4F53\u673A\u5236\u4E0E\u76F4\u89C9\uFF1BP5 \u7ED9\u51FA\u4E09\u6761\u8D21\u732E\uFF0C\u6BCF\u6761\u9ED8\u8BA4\u4EE5 We \u5F00\u5934\u5E76\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u8BC1\u636E\u3002\u4E0D\u5199\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5\uFF1B",
-            en: "- Introduction: use five core paragraphs. P1 covers background/task; P2 research lines/gap; P3 the challenges still unresolved today that determine the design; P4 answers P3 with the core idea, overall mechanism, and intuition; P5 gives three contributions, each beginning with We by default and tied to a real mechanism and evidence. Omit a pure paper-roadmap sentence;"
+            zh: "- Introduction\uFF1AP1\u2013P4 \u4F7F\u7528\u56DB\u4E2A\u6838\u5FC3\u53D9\u4E8B\u6BB5\u843D\uFF0C\u4F9D\u6B21\u627F\u62C5\u80CC\u666F\u4E0E\u4EFB\u52A1\u3001\u76F8\u5173\u8DEF\u7EBF\u4E0E\u7F3A\u53E3\u3001\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u4E14\u51B3\u5B9A\u8BBE\u8BA1\u7684\u6311\u6218\u3001\u672C\u6587\u7684\u6838\u5FC3\u601D\u60F3\u4E0E\u603B\u4F53\u56DE\u5E94\u3002P5 \u5148\u5199\u5F15\u5BFC\u53E5 `This paper makes the following three contributions:`\uFF0C\u518D\u4F7F\u7528 `\\begin{itemize}`\u3001\u4E09\u4E2A `\\item` \u548C `\\end{itemize}` \u7ED9\u51FA\u4E09\u6761\u5355\u53E5\u8D21\u732E\uFF1B\u6BCF\u4E2A\u6761\u76EE\u9ED8\u8BA4\u4EE5 `We` \u5F00\u5934\u5E76\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u8BC1\u636E\u3002\u4E0D\u5199\u7AE0\u8282\u5BFC\u822A\u6BB5\uFF1B",
+            en: "- Introduction: use four core narrative paragraphs for background/task, research lines/gap, the challenges that remain unresolved today and determine the design, and this paper's core idea and response. P5 begins with `This paper makes the following three contributions:`, then uses `\\begin{itemize}`, three `\\item` entries, and `\\end{itemize}` for three one-sentence contributions; each item begins with `We` by default and maps to a real mechanism and evidence. Omit the paper-roadmap paragraph;"
           }
         }
       }
@@ -2464,14 +2466,14 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### Introduction \u7684\u6838\u5FC3\u7ED3\u6784
 
-- \u4E0D\u8BBE\u7F6E\u4EFB\u4F55\u5B50\u8282\uFF0C\u4F7F\u7528\u4E94\u4E2A\u6838\u5FC3\u6BB5\u843D\uFF1B
+- \u4E0D\u8BBE\u7F6E\u4EFB\u4F55\u5B50\u8282\uFF1BP1\u2013P4 \u4F7F\u7528\u56DB\u4E2A\u8FDE\u7EED\u53D9\u4E8B\u6BB5\u843D\uFF0CP5 \u4E3A\u8D21\u732E\u5757\uFF1B
 - P1 \u80CC\u666F\u4E0E\u52A8\u673A\uFF1A\u76F4\u63A5\u8FDB\u5165\u4EFB\u52A1\u3001\u573A\u666F\u548C\u73B0\u5B9E\u7EA6\u675F\uFF0C\u660E\u786E\u8BF4\u660E\u8BE5\u95EE\u9898\u5728\u5F53\u524D\u7814\u7A76\u4E0E\u5B9E\u9645\u73AF\u5883\u4E2D\u4ECD\u7136\u5B58\u5728\uFF0C\u800C\u4E0D\u662F\u53EA\u56DE\u987E\u5386\u53F2\u7F3A\u53E3\uFF1B\u53EF\u4F7F\u7528 6\u201310 \u4E2A\u5F53\u524D .bib key\uFF0C\u6BCF\u53E5\u6700\u591A 3 \u4E2A\uFF1B
 - P2 \u6700\u76F8\u5173\u8DEF\u7EBF\u4E0E\u7F3A\u53E3\uFF1A\u6BCF\u6761\u8DEF\u7EBF\u5148\u6982\u62EC\u518D\u8BF4\u660E\u5728\u672C\u6587\u76EE\u6807\u7EF4\u5EA6\u4E0A\u7684\u9650\u5236\uFF0C\u53EF\u4F7F\u7528 4\u20138 \u4E2A\u5F53\u524D key\uFF1B
 - P3 \u672A\u89E3\u95EE\u9898\u4E0E\u6311\u6218\uFF1A\u6700\u5C0F\u5145\u5206\u63CF\u8FF0\u8F93\u5165\u3001\u8F93\u51FA\u3001\u7EA6\u675F\u548C\u76EE\u6807\uFF0C\u53EA\u8BF4\u660E\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u4E14\u771F\u6B63\u51B3\u5B9A\u8BBE\u8BA1\u7684 2\u20134 \u4E2A\u6311\u6218\uFF1B
 - P4 \u672C\u6587\u56DE\u5E94\uFF1A\u76F4\u63A5\u56DE\u7B54 P3\uFF0C\u4ECB\u7ECD\u6838\u5FC3\u601D\u60F3\u3001\u603B\u4F53\u673A\u5236\u4E0E\u8BBE\u8BA1\u76F4\u89C9\uFF1B\u4E0D\u5F97\u518D\u6B21\u6269\u5199\u7F3A\u53E3\u6216\u91CD\u590D\u6311\u6218\uFF1B
-- P5 \u8D21\u732E\u4E0E\u610F\u4E49\uFF1A\u6070\u597D\u4E09\u6761\u5355\u53E5\u8D21\u732E\uFF0C\u6BCF\u6761\u9ED8\u8BA4\u4EE5 We \u5F00\u5934\uFF0C\u5206\u522B\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u73B0\u6709\u8BC1\u636E\uFF1B\u4E0D\u5199\u5177\u4F53\u7ED3\u679C\u6570\u5B57\u6216 cite\uFF1B
+- P5 \u8D21\u732E\u4E0E\u610F\u4E49\uFF1A\u5148\u5199\u5F15\u5BFC\u53E5 \`This paper makes the following three contributions:\`\uFF0C\u518D\u4F7F\u7528 \`\\begin{itemize}\`\u3001\u4E09\u4E2A \`\\item\` \u548C \`\\end{itemize}\` \u7ED9\u51FA\u6070\u597D\u4E09\u6761\u5355\u53E5\u8D21\u732E\uFF1B\u6BCF\u4E2A\u6761\u76EE\u9ED8\u8BA4\u4EE5 \`We\` \u5F00\u5934\uFF0C\u5206\u522B\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u73B0\u6709\u8BC1\u636E\uFF0C\u4E0D\u5199\u5177\u4F53\u7ED3\u679C\u6570\u5B57\u6216 cite\uFF1B
 {{narrative_introduction_roadmap}}
-- P1\u2013P4 \u53EF\u5F15\u7528\uFF0CP5 \u4E0D\u5F15\u7528\uFF1B\u6240\u6709 key \u5FC5\u987B\u5B58\u5728\u4E8E\u5F53\u524D .bib\u3002
+- P1\u2013P4 \u53EF\u5F15\u7528\uFF0CP5 \u7684\u5F15\u5BFC\u53E5\u548C\u6761\u76EE\u4E0D\u5F15\u7528\uFF1B\u6240\u6709 key \u5FC5\u987B\u5B58\u5728\u4E8E\u5F53\u524D .bib\u3002
 {{introduction_word_limits}}
 
 ### Related Work \u7684\u56FA\u5B9A\u7ED3\u6784
@@ -2496,7 +2498,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### \u4E2D\u6587\u62A5\u544A\u56FA\u5B9A\u6E05\u5355
 
-\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1A\u4E8B\u5B9E\u5E95\u7A3F\u3001\u539F\u7A3F\u9AD8\u4EF7\u503C\u8868\u8FBE\u4FDD\u7559\u6E05\u5355\u3001Abstract \u53E5\u5B50\u529F\u80FD\u8868\u3001Introduction \u6838\u5FC3\u6BB5\u843D\u529F\u80FD\u8868\u3001\u4E09\u70B9\u8D21\u732E\u65E7/\u65B0\u5BF9\u7167\u3001Related Work \u4E3B\u9898\u4E0E\u6587\u732E\u7C07\u3001Discussion \u7684\u8BC1\u636E/\u63A8\u65AD/\u8FB9\u754C\u8868\u3001Conclusion \u4E24\u6BB5\u529F\u80FD\u8868\u3001\u672F\u8BED\u5BF9\u9F50\u3001\u8054\u7F51\u6838\u9A8C\u3001\u5B9E\u9645\u7CBE\u4FEE\u6E05\u5355\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
+\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1A\u4E8B\u5B9E\u5E95\u7A3F\u3001\u539F\u7A3F\u9AD8\u4EF7\u503C\u8868\u8FBE\u4FDD\u7559\u6E05\u5355\u3001Abstract \u53E5\u5B50\u529F\u80FD\u8868\u3001Introduction \u53D9\u4E8B\u6BB5\u843D\u4E0E\u8D21\u732E\u5757\u529F\u80FD\u8868\u3001\u4E09\u70B9\u8D21\u732E\u65E7/\u65B0\u5BF9\u7167\u3001Related Work \u4E3B\u9898\u4E0E\u6587\u732E\u7C07\u3001Discussion \u7684\u8BC1\u636E/\u63A8\u65AD/\u8FB9\u754C\u8868\u3001Conclusion \u4E24\u6BB5\u529F\u80FD\u8868\u3001\u672F\u8BED\u5BF9\u9F50\u3001\u8054\u7F51\u6838\u9A8C\u3001\u5B9E\u9645\u7CBE\u4FEE\u6E05\u5355\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
       en: `### Deep-refinement Principle
 
 - Build both a fact base and a preservation list for high-value original expression. Retain or lightly edit original sentences that are accurate, clear, distinctive, and evidence-aligned;
@@ -2518,14 +2520,14 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### Core Structure for Introduction
 
-- Use no subsection and five core paragraphs;
+- Use no subsection. P1\u2013P4 are four consecutive narrative paragraphs, and P5 is the contribution block;
 - P1 Background and motivation: enter the task, setting, and practical constraints directly, and explicitly establish that the problem still exists in today's research and practical landscape rather than merely recounting a historical gap. It may use six to ten current .bib keys, with no more than three per sentence;
 - P2 Closest research lines and gap: summarize each line before stating its specific limitation for this paper's objective. It may use four to eight current keys;
 - P3 Unresolved problem and challenges: describe inputs, outputs, constraints, and objective minimally, focusing only on two to four challenges that still remain today and genuinely determine the design;
 - P4 This paper's response: answer P3 directly with the core idea, overall mechanism, and design intuition; do not expand the gap again or repeat the challenges;
-- P5 Contributions and significance: exactly three one-sentence contributions, each beginning with We by default and tied to a real mechanism and existing evidence. Use no specific result value or cite;
+- P5 Contributions and significance: begin with \`This paper makes the following three contributions:\`, then use \`\\begin{itemize}\`, three \`\\item\` entries, and \`\\end{itemize}\` for exactly three one-sentence contributions. Each item begins with \`We\` by default and maps to a real mechanism and existing evidence. Use no specific result value or cite;
 {{narrative_introduction_roadmap}}
-- P1\u2013P4 may cite; P5 does not. Every key must exist in the current .bib.
+- P1\u2013P4 may cite; the P5 lead-in and items do not. Every key must exist in the current .bib.
 {{introduction_word_limits}}
 
 ### Fixed Structure for Related Work
@@ -2550,7 +2552,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the fact base, preservation list for high-value original expression, Abstract sentence-function table, Introduction core-paragraph map, old/new three-contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion two-paragraph map, terminology alignment, web verification, actual refinement log, and next-step handoff.`
+The report must contain the fact base, preservation list for high-value original expression, Abstract sentence-function table, Introduction narrative-paragraph and contribution-block map, old/new three-contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion two-paragraph map, terminology alignment, web verification, actual refinement log, and next-step handoff.`
     },
     inlineStyleConstraints: [
       {
@@ -2586,12 +2588,12 @@ The report must contain the fact base, preservation list for high-value original
         contextKey: "includeSectionNavigationSentence",
         branches: {
           enabled: {
-            zh: "- \u5728 P5 \u540E\u589E\u52A0\u4E00\u53E5\u7B80\u77ED\u7684\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5\uFF0C\u53EA\u8BF4\u660E\u8BBA\u6587\u7EC4\u7EC7\uFF0C\u4E0D\u91CD\u590D\u7AE0\u8282\u5185\u5BB9\uFF0C\u4E5F\u4E0D\u4F7F\u7528 cite\uFF1B",
-            en: "- After P5, add one concise pure paper-roadmap sentence that states organization only, repeats no section content, and uses no cite;"
+            zh: "- \u5728 P5 \u540E\u589E\u52A0\u4E00\u4E2A\u7EA6 65 \u8BCD\u7684\u72EC\u7ACB\u7AE0\u8282\u5BFC\u822A\u6BB5\uFF0C\u53EA\u8BF4\u660E\u5404\u7AE0\u8282\u5982\u4F55\u627F\u63A5\uFF0C\u4E0D\u91CD\u590D\u7AE0\u8282\u5185\u5BB9\u3001\u4E0D\u627F\u8F7D\u65B0\u8BBA\u8BC1\uFF0C\u4E5F\u4E0D\u4F7F\u7528 cite\uFF1B\u8BE5\u6BB5\u4E0D\u8BA1\u5165 Introduction \u5EFA\u8BAE\u5B57\u6570\uFF1B",
+            en: "- After P5, add a separate paper-roadmap paragraph of about 65 words that only maps how the sections proceed, repeats no section content, carries no new argument, and uses no cite. Exclude this paragraph from the suggested Introduction word count;"
           },
           disabled: {
-            zh: "- \u4E0D\u5199\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5\uFF1B\u4EE5\u8D21\u732E\u6BB5\u81EA\u7136\u7ED3\u675F Introduction\uFF1B",
-            en: "- Omit a pure paper-roadmap sentence and close Introduction naturally with the contribution paragraph;"
+            zh: "- \u4E0D\u5199\u7AE0\u8282\u5BFC\u822A\u6BB5\uFF1B\u4EE5\u8D21\u732E\u5757\u81EA\u7136\u7ED3\u675F Introduction\uFF1B",
+            en: "- Omit the paper-roadmap paragraph and close Introduction naturally with the contribution block;"
           }
         }
       }
@@ -2607,8 +2609,8 @@ The report must contain the fact base, preservation list for high-value original
       {
         marker: "introduction_word_limits",
         standard: {
-          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CIntroduction \u603B\u91CF\u53EF\u53C2\u8003 {{introduction_min}}\u2013{{introduction_max}} \u8BCD\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 25 \u8BCD\uFF1BP1\u2013P4 \u53EF\u5206\u522B\u53C2\u8003 {{intro_p1_min}}\u2013{{intro_p1_max}}\u3001{{intro_p2_min}}\u2013{{intro_p2_max}}\u3001{{intro_p3_min}}\u2013{{intro_p3_max}}\u3001{{intro_p4_min}}\u2013{{intro_p4_max}} \u8BCD\uFF0CP5 \u53EF\u53C2\u8003 {{intro_p5_min}}\u2013{{intro_p5_max}} \u8BCD\uFF0C\u6BCF\u6761\u8D21\u732E\u5EFA\u8BAE 15\u201325 \u8BCD\u3002\u6240\u6709\u6570\u5B57\u53EF\u6309\u5185\u5BB9\u8C03\u6574\uFF0C\u5BFC\u822A\u53E5\u4E0D\u4F5C\u4E3A\u72EC\u7ACB\u6BB5\u843D\u3002`,
-          en: `- When length guidance is enabled, use {{introduction_min}}\u2013{{introduction_max}} words as an optional Introduction reference, with English sentences generally suggested to stay within 25 words. Optional references for P1\u2013P4 are {{intro_p1_min}}\u2013{{intro_p1_max}}, {{intro_p2_min}}\u2013{{intro_p2_max}}, {{intro_p3_min}}\u2013{{intro_p3_max}}, and {{intro_p4_min}}\u2013{{intro_p4_max}} words; P5 may use {{intro_p5_min}}\u2013{{intro_p5_max}}, with 15\u201325 words suggested per contribution. Adjust all numbers to the content. A roadmap sentence is not a separate paragraph.`
+          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CIntroduction \u603B\u91CF\u53EF\u53C2\u8003 {{introduction_min}}\u2013{{introduction_max}} \u8BCD\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 25 \u8BCD\uFF1BP1\u2013P4 \u53EF\u5206\u522B\u53C2\u8003 {{intro_p1_min}}\u2013{{intro_p1_max}}\u3001{{intro_p2_min}}\u2013{{intro_p2_max}}\u3001{{intro_p3_min}}\u2013{{intro_p3_max}}\u3001{{intro_p4_min}}\u2013{{intro_p4_max}} \u8BCD\uFF0CP5 \u8D21\u732E\u5757\u53EF\u53C2\u8003 {{intro_p5_min}}\u2013{{intro_p5_max}} \u8BCD\uFF0C\u6BCF\u4E2A\u8D21\u732E\u6761\u76EE\u5EFA\u8BAE 15\u201325 \u8BCD\u3002\u6240\u6709\u6570\u5B57\u53EF\u6309\u5185\u5BB9\u8C03\u6574\uFF1B\u542F\u7528\u65F6\uFF0C\u72EC\u7ACB\u7684\u7EA6 65 \u8BCD\u7AE0\u8282\u5BFC\u822A\u6BB5\u4E0D\u8BA1\u5165\u4E0A\u8FF0 Introduction \u5EFA\u8BAE\u5B57\u6570\u3002`,
+          en: `- When length guidance is enabled, use {{introduction_min}}\u2013{{introduction_max}} words as an optional Introduction reference, with English sentences generally suggested to stay within 25 words. Optional references for P1\u2013P4 are {{intro_p1_min}}\u2013{{intro_p1_max}}, {{intro_p2_min}}\u2013{{intro_p2_max}}, {{intro_p3_min}}\u2013{{intro_p3_max}}, and {{intro_p4_min}}\u2013{{intro_p4_max}} words; the P5 contribution block may use {{intro_p5_min}}\u2013{{intro_p5_max}}, with 15\u201325 words suggested per item. Adjust all numbers to the content. When enabled, the separate \u224865-word roadmap paragraph is excluded from this suggested Introduction count.`
         }
       },
       {
@@ -2772,8 +2774,9 @@ The report must contain the final-audit summary and major revisions, Terminology
 
 ### Manuscript\u2013Venue Profile \u5FC5\u67E5\u5B57\u6BB5
 
-- \u9886\u57DF\u4E0E\u5B50\u9886\u57DF\u3001\u4EFB\u52A1\u3001\u6570\u636E\u5F62\u6001\u3001\u65B9\u6CD5\u8303\u5F0F\u548C\u4E3B\u8981\u8D21\u732E\uFF1B
-- \u7406\u8BBA\u3001\u65B9\u6CD5\u3001\u7CFB\u7EDF\u3001\u5E94\u7528\u6216\u8DE8\u5B66\u79D1\u5C5E\u6027\uFF1B
+- \u9996\u5148\u7528\u6070\u597D\u4E00\u53E5\u201C\u8BBA\u6587\u7C7B\u522B\u5224\u65AD\u201D\u6982\u62EC\u4E3B\u8981\u5B66\u79D1\u3001\u7EC6\u5206\u9886\u57DF\u3001\u7814\u7A76\u6216\u7A3F\u4EF6\u7C7B\u578B\u3001\u6838\u5FC3\u8D21\u732E\u5F62\u6001\u548C\u76EE\u6807\u8BFB\u8005\uFF1B\u8DE8\u5B66\u79D1\u8BBA\u6587\u540C\u65F6\u6807\u660E\u4E3B\u6295\u9886\u57DF\u4E0E\u4EA4\u53C9\u9886\u57DF\uFF1B
+- \u7814\u7A76\u95EE\u9898\u3001\u7814\u7A76\u5BF9\u8C61\u3001\u7814\u7A76\u8BBE\u8BA1\u6216\u65B9\u6CD5\u3001\u8BC1\u636E\u5F62\u6001\u548C\u4E3B\u8981\u8D21\u732E\uFF1B
+- \u7406\u8BBA\u3001\u65B9\u6CD5\u3001\u5B9E\u8BC1\u3001\u7CFB\u7EDF\u3001\u5E94\u7528\u3001\u7EFC\u8FF0\u6216\u8DE8\u5B66\u79D1\u5C5E\u6027\uFF1B
 - \u76EE\u6807\u8BFB\u8005\u3001\u6B63\u6587\u89C4\u6A21\u3001\u56FE\u8868\u6570\u91CF\u3001\u53C2\u8003\u6587\u732E\u6570\u91CF\u548C\u8865\u5145\u6750\u6599\uFF1B
 - \u8BC1\u636E\u5F3A\u5EA6\u3001\u6700\u53EF\u80FD\u7684\u5356\u70B9\u548C\u6700\u53EF\u80FD\u7684 desk-reject/triage \u98CE\u9669\u3002
 
@@ -2781,35 +2784,35 @@ The report must contain the final-audit summary and major revisions, Terminology
 
 ### \u5019\u9009\u6C60\u4E0E\u6838\u9A8C\u5B57\u6BB5
 
-- \u5EFA\u7ACB\u4E0D\u5C11\u4E8E 10 \u4E2A\u3001\u6700\u591A 15 \u4E2A\u5019\u9009\uFF1B
+- \u5EFA\u7ACB\u4E0E\u9886\u57DF\u89C4\u6A21\u76F8\u79F0\u7684\u5019\u9009\u6C60\uFF0C\u901A\u5E38\u4E3A 8\u201315 \u4E2A\uFF1B\u53EF\u4FE1\u4E14\u5F53\u524D\u53EF\u6295\u7A3F\u7684\u76EE\u6807\u66F4\u5C11\u65F6\uFF0C\u53EF\u4EE5\u7F29\u5C0F\u5019\u9009\u6C60\u5E76\u8BF4\u660E\u539F\u56E0\uFF0C\u4E0D\u5F97\u4E3A\u51D1\u6570\u52A0\u5165\u5F31\u76F8\u5173 venue\uFF1B
 - MDPI\u3001Hindawi \u548C Frontiers \u662F\u7528\u6237\u660E\u786E\u6392\u9664\u7684\u51FA\u7248\u793E\uFF1A\u5176\u65D7\u4E0B\u671F\u520A\u4E0D\u5F97\u8FDB\u5165\u5019\u9009\u6C60\u3001\u8BC4\u5206\u6216\u63A8\u8350\u68AF\u961F\uFF0C\u53EA\u5728\u6392\u9664\u8BB0\u5F55\u4E2D\u6CE8\u660E\u201C\u7528\u6237\u6392\u9664\u201D\uFF0C\u4E0D\u5F97\u5BF9\u51FA\u7248\u793E\u4F5C\u65E0\u4F9D\u636E\u7684\u6CDB\u5316\u8D28\u91CF\u5B9A\u6027\uFF1B
 - \u9010\u9879\u6838\u9A8C\u5168\u540D\u3001\u51FA\u7248\u793E/\u7EC4\u7EC7\u65B9\u3001\u5B98\u7F51\u3001\u8303\u56F4\u5339\u914D\u70B9\u3001\u6587\u7AE0\u6216 track \u7C7B\u578B\u3001\u5F53\u524D\u7D22\u5F15/\u7B49\u7EA7\u3001\u6B63\u6587/\u9875\u6570/\u56FE\u8868/\u6458\u8981/\u53C2\u8003\u6587\u732E\u9650\u5236\u3001\u9644\u5F55\u4E0E\u8865\u5145\u6750\u6599\u3001\u533F\u540D\u653F\u7B56\u3001OA/APC \u6216\u6CE8\u518C\u8D39\u7528\u3001\u9644\u52A0\u6587\u4EF6\u3001\u4F26\u7406/\u6570\u636E/\u53EF\u590D\u73B0\u653F\u7B56\u3001\u6295\u7A3F\u5165\u53E3\u548C\u5173\u952E\u65E5\u671F\uFF1B
-- \u53EA\u6709\u6743\u5A01\u6765\u6E90\u652F\u6301\u65F6\u624D\u5199 SCIE\u3001SSCI\u3001ESCI\u3001JCR \u5206\u533A\u6216\u4F1A\u8BAE\u7B49\u7EA7\uFF1B
+- \u53EA\u6709\u6743\u5A01\u6765\u6E90\u652F\u6301\u65F6\u624D\u5199 SCIE\u3001SSCI\u3001AHCI\u3001ESCI\u3001JCR \u5206\u533A\u3001\u4F1A\u8BAE\u7B49\u7EA7\u6216\u5176\u4ED6\u9886\u57DF\u8BC4\u4EF7\uFF1B\u4E0D\u9002\u7528\u4E8E\u5F53\u524D\u5B66\u79D1\u6216\u7A3F\u4EF6\u7C7B\u578B\u7684\u6307\u6807\u660E\u786E\u5199\u201C\u4E0D\u9002\u7528\u201D\uFF1B
 - SJR/Scopus \u4FE1\u606F\u5FC5\u987B\u660E\u786E\u6807\u6CE8\uFF0C\u4E0D\u80FD\u5192\u5145 JCR\uFF1B\u4E2D\u79D1\u9662\u5206\u533A\u4E0E JCR \u5FC5\u987B\u5206\u5F00\u5E76\u6807\u6CE8\u5E74\u4EFD\uFF1B
 - \u5F53\u524D\u5C4A\u4E0E\u5386\u53F2\u5C4A\u89C4\u5219\u4E0D\u5F97\u6DF7\u7528\u3002
 
 ### 100 \u5206\u5339\u914D\u8BC4\u5206
 
 - \u4E3B\u9898\u4E0E\u8303\u56F4\u5339\u914D\uFF1A30\uFF1B
-- \u8BBA\u6587\u7C7B\u578B\u4E0E\u65B9\u6CD5\u8D21\u732E\u5339\u914D\uFF1A20\uFF1B
-- \u5B9E\u9A8C\u8BC1\u636E\u4E0E venue \u671F\u671B\u5339\u914D\uFF1A15\uFF1B
+- \u7A3F\u4EF6\u7C7B\u578B\u4E0E\u8D21\u732E\u5F62\u6001\u5339\u914D\uFF1A20\uFF1B
+- \u7814\u7A76\u8BBE\u8BA1\u548C\u8BC1\u636E\u6210\u719F\u5EA6\u4E0E venue \u671F\u671B\u5339\u914D\uFF1A15\uFF1B
 - \u76EE\u6807\u7B49\u7EA7\u6216\u5206\u533A\u5339\u914D\uFF1A15\uFF1B
 - \u957F\u5EA6\u3001\u56FE\u8868\u4E0E\u6750\u6599\u517C\u5BB9\uFF1A10\uFF1B
 - OA/APC\u3001\u6CE8\u518C\u8D39\u3001\u622A\u7A3F\u671F\u4E0E\u7528\u6237\u7EA6\u675F\uFF1A5\uFF1B
 - desk-reject\u3001triage \u548C\u7ADE\u4E89\u98CE\u9669\uFF1A5\u3002
 
-\u6BCF\u9879\u5FC5\u987B\u7ED9\u51FA\u7406\u7531\uFF0C\u4E0D\u80FD\u628A\u540D\u6C14\u3001\u7B49\u7EA7\u6216\u5206\u533A\u76F4\u63A5\u7B49\u540C\u4E8E\u5339\u914D\u5EA6\u3002
+\u4EE5\u4E0A\u4E3A\u9ED8\u8BA4\u6743\u91CD\u3002\u67D0\u7EF4\u5EA6\u4E0D\u9002\u5408\u5F53\u524D\u5B66\u79D1\u6216\u7A3F\u4EF6\u7C7B\u578B\u65F6\u53EF\u4EE5\u8C03\u6574\u5E76\u8BF4\u660E\u7406\u7531\uFF0C\u4F46\u603B\u5206\u4ECD\u4E3A 100\u3002\u6BCF\u9879\u5FC5\u987B\u7ED9\u51FA\u4F9D\u636E\uFF0C\u4E0D\u80FD\u628A\u540D\u6C14\u3001\u7B49\u7EA7\u6216\u5206\u533A\u76F4\u63A5\u7B49\u540C\u4E8E\u5339\u914D\u5EA6\u3002
 
 ### \u6295\u7A3F\u68AF\u961F\u4E0E\u62A5\u544A\u56FA\u5B9A\u6E05\u5355
 
-- \u9996\u9009\u4E09\u4E2A\uFF0C\u6309\u6295\u7A3F\u987A\u5E8F\u6392\u5217\uFF1B
-- \u7A33\u59A5\u5907\u9009\u4E09\u4E2A\uFF1B
+- \u9996\u9009\u4E0D\u8D85\u8FC7\u4E09\u4E2A\uFF0C\u6309\u6295\u7A3F\u987A\u5E8F\u6392\u5217\uFF1B
+- \u7A33\u59A5\u5907\u9009\u4E0D\u8D85\u8FC7\u4E09\u4E2A\uFF1B\u53EF\u4FE1\u5019\u9009\u4E0D\u8DB3\u65F6\u4E0D\u5F97\u4E3A\u51D1\u6EE1\u6570\u91CF\u964D\u4F4E\u5339\u914D\u6807\u51C6\uFF1B
 - \u4E0D\u5EFA\u8BAE\u4F46\u5BB9\u6613\u8BEF\u9009\u7684 2\u20134 \u4E2A\uFF0C\u5E76\u8BF4\u660E\u8303\u56F4\u3001\u8D39\u7528\u3001\u6536\u5F55\u3001\u7C7B\u578B\u6216\u65F6\u6548\u98CE\u9669\uFF1B
 - \u7ED9\u51FA\u552F\u4E00\u9996\u63A8\u53CA\u5B8C\u6574\u7406\u7531\uFF1B
-- \u4E3A\u6BCF\u4E2A\u9996\u9009\u5206\u6790\u8303\u56F4\u3001\u521B\u65B0\u6027\u3001\u5B9E\u9A8C\u3001\u7BC7\u5E45\u3001\u89C4\u5219\u548C\u5199\u4F5C\u98CE\u9669\uFF1B
+- \u4E3A\u6BCF\u4E2A\u9996\u9009\u5206\u6790\u8303\u56F4\u3001\u8D21\u732E\u4E0E\u7A3F\u4EF6\u7C7B\u578B\u3001\u7814\u7A76\u8BBE\u8BA1\u4E0E\u8BC1\u636E\u3001\u7BC7\u5E45\u3001\u89C4\u5219\u548C\u8868\u8FBE\u98CE\u9669\uFF1B
 - \u7ED9\u51FA\u6295\u7A3F\u524D\u6700\u540E\u6838\u9A8C\u4E8B\u9879\u548C\u62D2\u7A3F\u540E\u7684\u987A\u5E8F\u5316\u8F6C\u6295\u8DEF\u5F84\uFF1B
 - \u76F4\u63A5\u5728\u5F53\u524D\u5BF9\u8BDD\u4E2D\u7ED9\u51FA\u5B8C\u6574\u4E2D\u6587\u7ED3\u679C\uFF0C\u4E0D\u751F\u6210\u6587\u4EF6\uFF1B
-- \u7ED3\u679C\u5FC5\u987B\u5305\u542B\u6838\u9A8C\u65E5\u671F\u3001\u7528\u6237\u7EA6\u675F/\u9ED8\u8BA4\u5047\u8BBE\u3001Manuscript\u2013Venue Profile\u3001\u5019\u9009\u6C60\u3001\u6765\u6E90\u3001\u6392\u9664\u8FC7\u7A0B\u3001\u8BC4\u5206\u3001\u68AF\u961F\u3001\u552F\u4E00\u9996\u63A8\u3001\u98CE\u9669\u3001\u653F\u7B56\u6458\u8981\u3001\u8F6C\u6295\u8DEF\u5F84\u3001\u672A\u6838\u9A8C\u4FE1\u606F\u53CA\u201C\u672A\u6539\u6A21\u677F\u3001\u672A\u6539\u6B63\u6587\u3001\u672A\u751F\u6210\u6587\u4EF6\u201D\u58F0\u660E\u3002`,
+- \u7ED3\u679C\u5FC5\u987B\u5305\u542B\u4E00\u53E5\u8BBA\u6587\u7C7B\u522B\u5224\u65AD\u3001\u6838\u9A8C\u65E5\u671F\u3001\u7528\u6237\u7EA6\u675F/\u9ED8\u8BA4\u5047\u8BBE\u3001Manuscript\u2013Venue Profile\u3001\u5019\u9009\u6C60\u3001\u6765\u6E90\u3001\u6392\u9664\u8FC7\u7A0B\u3001\u8BC4\u5206\u3001\u68AF\u961F\u3001\u552F\u4E00\u9996\u63A8\u3001\u98CE\u9669\u3001\u653F\u7B56\u6458\u8981\u3001\u8F6C\u6295\u8DEF\u5F84\u3001\u672A\u6838\u9A8C\u4FE1\u606F\u53CA\u201C\u672A\u6539\u6A21\u677F\u3001\u672A\u6539\u6B63\u6587\u3001\u672A\u751F\u6210\u6587\u4EF6\u201D\u58F0\u660E\u3002`,
       en: `### Absolute Boundary for This Round
 
 - Do not change documentclass, packages, author format, bibliography format, columns, visual style, margins, or any template content;
@@ -2831,8 +2834,9 @@ Every time-sensitive fact must have a clickable source and verification date. Wr
 
 ### Required Manuscript\u2013Venue Profile Fields
 
-- Field and subfield, task, data modality, method paradigm, and primary contributions;
-- Theoretical, methodological, system, application, or interdisciplinary character;
+- Begin with exactly one \u201CManuscript category\u201D sentence covering the primary discipline, subfield, study or article type, core contribution form, and intended readership; for interdisciplinary work, identify the primary submission field and intersecting field;
+- Research question, object of study, research design or methodology, evidence form, and primary contributions;
+- Theoretical, methodological, empirical, system, application, review, or interdisciplinary character;
 - Target readership, main-text scale, number of visuals and references, and supplementary material;
 - Evidence strength, strongest selling point, and likely desk-reject/triage risk.
 
@@ -2840,35 +2844,35 @@ Do not redefine the scientific throughline for targeting.
 
 ### Candidate-pool and Verification Fields
 
-- Build no fewer than 10 and no more than 15 candidates;
+- Build a candidate pool proportionate to the field, normally eight to fifteen venues. If fewer credible venues are currently open for submission, use a smaller pool and explain why; never add weakly related venues to meet a quota;
 - MDPI, Hindawi, and Frontiers are explicit user exclusions. Do not place journals from these publishers in the candidate pool, scoring, or recommendation tiers. Record them only as \u201Cexcluded by user\u201D and do not make unsupported general quality claims about the publishers;
 - Verify full name, publisher/organizer, official site, specific scope fit, article or track type, current index/rank, main-text/page/figure/abstract/reference limits, appendix and supplementary policy, anonymity, OA/APC or registration cost, additional files, ethics/data/reproducibility rules, submission portal, and key dates;
-- State SCIE, SSCI, ESCI, JCR quartiles, or conference ranks only when an authoritative source supports them;
+- State SCIE, SSCI, AHCI, ESCI, JCR quartiles, conference ranks, or another field-specific evaluation only when an authoritative source supports them. Mark a metric \u201CNot applicable\u201D when it does not suit the field or manuscript type;
 - Label SJR/Scopus information explicitly and never present it as JCR. Keep CAS and JCR rankings separate with years;
 - Never mix current-edition rules with historical editions.
 
 ### 100-point Fit Score
 
 - Topical and scope fit: 30;
-- Paper type and methodological contribution fit: 20;
-- Experimental evidence versus venue expectations: 15;
+- Manuscript type and contribution-form fit: 20;
+- Research-design and evidence maturity versus venue expectations: 15;
 - Target rank or quartile fit: 15;
 - Length, figures, and material compatibility: 10;
 - OA/APC, registration, deadline, and user constraints: 5;
 - Desk-reject, triage, and competition risk: 5.
 
-Explain every component. Do not equate fame, rank, or quartile directly with fit.
+These are default weights. If a dimension does not fit the field or article type, adjust it with an explicit rationale while keeping the total at 100. Explain every component and do not equate fame, rank, or quartile directly with fit.
 
 ### Submission Tiers and Fixed Report Checklist
 
-- Three first choices in submission order;
-- Three safer alternatives;
+- Up to three first choices in submission order;
+- Up to three safer alternatives; never lower the fit threshold merely to fill a tier;
 - Two to four tempting but unsuitable choices, with scope, fee, index, type, or timing risks;
 - One top recommendation with complete rationale;
-- Scope, novelty, experiment, length, policy, and writing risks for every first choice;
+- Scope, contribution and article type, research design and evidence, length, policy, and presentation risks for every first choice;
 - Final pre-submission checks and an ordered transfer path after rejection;
 - Return the complete Chinese result directly in the current conversation and generate no files;
-- The result must contain verification date, user constraints/default assumptions, Manuscript\u2013Venue Profile, candidate pool, sources, exclusion process, scores, tiers, top recommendation, risks, policy summary, transfer path, unverified facts, and a statement that the template and prose were unchanged and no file was generated.`
+- The result must contain the one-sentence manuscript category, verification date, user constraints/default assumptions, Manuscript\u2013Venue Profile, candidate pool, sources, exclusion process, scores, tiers, top recommendation, risks, policy summary, transfer path, unverified facts, and a statement that the template and prose were unchanged and no file was generated.`
     }
   }
 };
@@ -2884,9 +2888,9 @@ var LABELS = {
     targetType: "\u6295\u7A3F\u7C7B\u578B",
     appendix: "\u9644\u5F55",
     styleDirective: "\u5199\u4F5C\u4FA7\u91CD",
-    introductionRoadmap: "Introduction \u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
-    included: "\u4FDD\u7559\u4E00\u6761\u7B80\u6D01\u5BFC\u822A\u53E5",
-    omitted: "\u4E0D\u5199\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
+    introductionRoadmap: "Introduction \u7AE0\u8282\u5BFC\u822A\u6BB5",
+    included: "\u4FDD\u7559\u7EA6 65 \u8BCD\u7684\u72EC\u7ACB\u5BFC\u822A\u6BB5",
+    omitted: "\u4E0D\u5199\u7AE0\u8282\u5BFC\u822A\u6BB5",
     openAccess: "\u662F\u5426 OA",
     apc: "\u662F\u5426\u6709 APC",
     apcRange: "APC \u8303\u56F4",
@@ -2935,9 +2939,9 @@ var LABELS = {
     targetType: "Submission type",
     appendix: "Appendix",
     styleDirective: "Writing emphasis",
-    introductionRoadmap: "Pure Introduction roadmap sentence",
-    included: "Include one concise roadmap sentence",
-    omitted: "Omit a pure roadmap sentence",
+    introductionRoadmap: "Introduction roadmap paragraph",
+    included: "Include a separate \u224865-word roadmap",
+    omitted: "Omit the roadmap paragraph",
     openAccess: "OA",
     apc: "APC charged",
     apcRange: "APC range",
@@ -3313,7 +3317,7 @@ function buildPrompt(template, context) {
 }
 
 // content/prompts/version.ts
-var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.14";
+var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.28";
 
 // content/prompts/pluginExport.ts
 function getReconstructionConfigurationModel() {

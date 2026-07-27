@@ -249,12 +249,12 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
         contextKey: "includeSectionNavigationSentence",
         branches: {
           enabled: {
-            zh: "- Introduction：使用五个核心段落。P1 背景与任务；P2 相关路线与缺口；P3 明确今天仍未解决且决定设计的挑战；P4 回答 P3，给出核心思想、总体机制与直觉；P5 给出三条贡献，每条默认以 We 开头并对应真实机制与证据。末尾增加一句纯章节导航句；",
-            en: "- Introduction: use five core paragraphs. P1 covers background/task; P2 research lines/gap; P3 the challenges still unresolved today that determine the design; P4 answers P3 with the core idea, overall mechanism, and intuition; P5 gives three contributions, each beginning with We by default and tied to a real mechanism and evidence. End with one pure paper-roadmap sentence;",
+            zh: "- Introduction：P1–P4 使用四个核心叙事段落，依次承担背景与任务、相关路线与缺口、今天仍未解决且决定设计的挑战、本文的核心思想与总体回应。P5 先写引导句 `This paper makes the following three contributions:`，再使用 `\\begin{itemize}`、三个 `\\item` 和 `\\end{itemize}` 给出三条单句贡献；每个条目默认以 `We` 开头并对应真实机制与证据。贡献块后增加一个约 65 词的独立章节导航段；该段只说明论文组织、不承载新论证或引用，且不计入 Introduction 建议字数；",
+            en: "- Introduction: use four core narrative paragraphs for background/task, research lines/gap, the challenges that remain unresolved today and determine the design, and this paper's core idea and response. P5 begins with `This paper makes the following three contributions:`, then uses `\\begin{itemize}`, three `\\item` entries, and `\\end{itemize}` for three one-sentence contributions; each item begins with `We` by default and maps to a real mechanism and evidence. Follow the contribution block with a separate paper-roadmap paragraph of about 65 words. It states organization only, carries no new argument or citation, and is excluded from the suggested Introduction word count;",
           },
           disabled: {
-            zh: "- Introduction：使用五个核心段落。P1 背景与任务；P2 相关路线与缺口；P3 明确今天仍未解决且决定设计的挑战；P4 回答 P3，给出核心思想、总体机制与直觉；P5 给出三条贡献，每条默认以 We 开头并对应真实机制与证据。不写纯章节导航句；",
-            en: "- Introduction: use five core paragraphs. P1 covers background/task; P2 research lines/gap; P3 the challenges still unresolved today that determine the design; P4 answers P3 with the core idea, overall mechanism, and intuition; P5 gives three contributions, each beginning with We by default and tied to a real mechanism and evidence. Omit a pure paper-roadmap sentence;",
+            zh: "- Introduction：P1–P4 使用四个核心叙事段落，依次承担背景与任务、相关路线与缺口、今天仍未解决且决定设计的挑战、本文的核心思想与总体回应。P5 先写引导句 `This paper makes the following three contributions:`，再使用 `\\begin{itemize}`、三个 `\\item` 和 `\\end{itemize}` 给出三条单句贡献；每个条目默认以 `We` 开头并对应真实机制与证据。不写章节导航段；",
+            en: "- Introduction: use four core narrative paragraphs for background/task, research lines/gap, the challenges that remain unresolved today and determine the design, and this paper's core idea and response. P5 begins with `This paper makes the following three contributions:`, then uses `\\begin{itemize}`, three `\\item` entries, and `\\end{itemize}` for three one-sentence contributions; each item begins with `We` by default and maps to a real mechanism and evidence. Omit the paper-roadmap paragraph;",
           },
         },
       },
@@ -475,14 +475,14 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### Introduction 的核心结构
 
-- 不设置任何子节，使用五个核心段落；
+- 不设置任何子节；P1–P4 使用四个连续叙事段落，P5 为贡献块；
 - P1 背景与动机：直接进入任务、场景和现实约束，明确说明该问题在当前研究与实际环境中仍然存在，而不是只回顾历史缺口；可使用 6–10 个当前 .bib key，每句最多 3 个；
 - P2 最相关路线与缺口：每条路线先概括再说明在本文目标维度上的限制，可使用 4–8 个当前 key；
 - P3 未解问题与挑战：最小充分描述输入、输出、约束和目标，只说明今天仍未解决且真正决定设计的 2–4 个挑战；
 - P4 本文回应：直接回答 P3，介绍核心思想、总体机制与设计直觉；不得再次扩写缺口或重复挑战；
-- P5 贡献与意义：恰好三条单句贡献，每条默认以 We 开头，分别对应真实机制与现有证据；不写具体结果数字或 cite；
+- P5 贡献与意义：先写引导句 \`This paper makes the following three contributions:\`，再使用 \`\\begin{itemize}\`、三个 \`\\item\` 和 \`\\end{itemize}\` 给出恰好三条单句贡献；每个条目默认以 \`We\` 开头，分别对应真实机制与现有证据，不写具体结果数字或 cite；
 {{narrative_introduction_roadmap}}
-- P1–P4 可引用，P5 不引用；所有 key 必须存在于当前 .bib。
+- P1–P4 可引用，P5 的引导句和条目不引用；所有 key 必须存在于当前 .bib。
 {{introduction_word_limits}}
 
 ### Related Work 的固定结构
@@ -507,7 +507,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### 中文报告固定清单
 
-报告必须包含：事实底稿、原稿高价值表达保留清单、Abstract 句子功能表、Introduction 核心段落功能表、三点贡献旧/新对照、Related Work 主题与文献簇、Discussion 的证据/推断/边界表、Conclusion 两段功能表、术语对齐、联网核验、实际精修清单和下一步交接摘要。`,
+报告必须包含：事实底稿、原稿高价值表达保留清单、Abstract 句子功能表、Introduction 叙事段落与贡献块功能表、三点贡献旧/新对照、Related Work 主题与文献簇、Discussion 的证据/推断/边界表、Conclusion 两段功能表、术语对齐、联网核验、实际精修清单和下一步交接摘要。`,
       en: `### Deep-refinement Principle
 
 - Build both a fact base and a preservation list for high-value original expression. Retain or lightly edit original sentences that are accurate, clear, distinctive, and evidence-aligned;
@@ -529,14 +529,14 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### Core Structure for Introduction
 
-- Use no subsection and five core paragraphs;
+- Use no subsection. P1–P4 are four consecutive narrative paragraphs, and P5 is the contribution block;
 - P1 Background and motivation: enter the task, setting, and practical constraints directly, and explicitly establish that the problem still exists in today's research and practical landscape rather than merely recounting a historical gap. It may use six to ten current .bib keys, with no more than three per sentence;
 - P2 Closest research lines and gap: summarize each line before stating its specific limitation for this paper's objective. It may use four to eight current keys;
 - P3 Unresolved problem and challenges: describe inputs, outputs, constraints, and objective minimally, focusing only on two to four challenges that still remain today and genuinely determine the design;
 - P4 This paper's response: answer P3 directly with the core idea, overall mechanism, and design intuition; do not expand the gap again or repeat the challenges;
-- P5 Contributions and significance: exactly three one-sentence contributions, each beginning with We by default and tied to a real mechanism and existing evidence. Use no specific result value or cite;
+- P5 Contributions and significance: begin with \`This paper makes the following three contributions:\`, then use \`\\begin{itemize}\`, three \`\\item\` entries, and \`\\end{itemize}\` for exactly three one-sentence contributions. Each item begins with \`We\` by default and maps to a real mechanism and existing evidence. Use no specific result value or cite;
 {{narrative_introduction_roadmap}}
-- P1–P4 may cite; P5 does not. Every key must exist in the current .bib.
+- P1–P4 may cite; the P5 lead-in and items do not. Every key must exist in the current .bib.
 {{introduction_word_limits}}
 
 ### Fixed Structure for Related Work
@@ -561,7 +561,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the fact base, preservation list for high-value original expression, Abstract sentence-function table, Introduction core-paragraph map, old/new three-contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion two-paragraph map, terminology alignment, web verification, actual refinement log, and next-step handoff.`,
+The report must contain the fact base, preservation list for high-value original expression, Abstract sentence-function table, Introduction narrative-paragraph and contribution-block map, old/new three-contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion two-paragraph map, terminology alignment, web verification, actual refinement log, and next-step handoff.`,
     },
     inlineStyleConstraints: [
       {
@@ -597,12 +597,12 @@ The report must contain the fact base, preservation list for high-value original
         contextKey: "includeSectionNavigationSentence",
         branches: {
           enabled: {
-            zh: "- 在 P5 后增加一句简短的纯章节导航句，只说明论文组织，不重复章节内容，也不使用 cite；",
-            en: "- After P5, add one concise pure paper-roadmap sentence that states organization only, repeats no section content, and uses no cite;",
+            zh: "- 在 P5 后增加一个约 65 词的独立章节导航段，只说明各章节如何承接，不重复章节内容、不承载新论证，也不使用 cite；该段不计入 Introduction 建议字数；",
+            en: "- After P5, add a separate paper-roadmap paragraph of about 65 words that only maps how the sections proceed, repeats no section content, carries no new argument, and uses no cite. Exclude this paragraph from the suggested Introduction word count;",
           },
           disabled: {
-            zh: "- 不写纯章节导航句；以贡献段自然结束 Introduction；",
-            en: "- Omit a pure paper-roadmap sentence and close Introduction naturally with the contribution paragraph;",
+            zh: "- 不写章节导航段；以贡献块自然结束 Introduction；",
+            en: "- Omit the paper-roadmap paragraph and close Introduction naturally with the contribution block;",
           },
         },
       },
@@ -618,8 +618,8 @@ The report must contain the fact base, preservation list for high-value original
       {
         marker: "introduction_word_limits",
         standard: {
-          zh: `- 启用篇幅建议时，Introduction 总量可参考 {{introduction_min}}–{{introduction_max}} 词，英文句子通常建议不超过 25 词；P1–P4 可分别参考 {{intro_p1_min}}–{{intro_p1_max}}、{{intro_p2_min}}–{{intro_p2_max}}、{{intro_p3_min}}–{{intro_p3_max}}、{{intro_p4_min}}–{{intro_p4_max}} 词，P5 可参考 {{intro_p5_min}}–{{intro_p5_max}} 词，每条贡献建议 15–25 词。所有数字可按内容调整，导航句不作为独立段落。`,
-          en: `- When length guidance is enabled, use {{introduction_min}}–{{introduction_max}} words as an optional Introduction reference, with English sentences generally suggested to stay within 25 words. Optional references for P1–P4 are {{intro_p1_min}}–{{intro_p1_max}}, {{intro_p2_min}}–{{intro_p2_max}}, {{intro_p3_min}}–{{intro_p3_max}}, and {{intro_p4_min}}–{{intro_p4_max}} words; P5 may use {{intro_p5_min}}–{{intro_p5_max}}, with 15–25 words suggested per contribution. Adjust all numbers to the content. A roadmap sentence is not a separate paragraph.`,
+          zh: `- 启用篇幅建议时，Introduction 总量可参考 {{introduction_min}}–{{introduction_max}} 词，英文句子通常建议不超过 25 词；P1–P4 可分别参考 {{intro_p1_min}}–{{intro_p1_max}}、{{intro_p2_min}}–{{intro_p2_max}}、{{intro_p3_min}}–{{intro_p3_max}}、{{intro_p4_min}}–{{intro_p4_max}} 词，P5 贡献块可参考 {{intro_p5_min}}–{{intro_p5_max}} 词，每个贡献条目建议 15–25 词。所有数字可按内容调整；启用时，独立的约 65 词章节导航段不计入上述 Introduction 建议字数。`,
+          en: `- When length guidance is enabled, use {{introduction_min}}–{{introduction_max}} words as an optional Introduction reference, with English sentences generally suggested to stay within 25 words. Optional references for P1–P4 are {{intro_p1_min}}–{{intro_p1_max}}, {{intro_p2_min}}–{{intro_p2_max}}, {{intro_p3_min}}–{{intro_p3_max}}, and {{intro_p4_min}}–{{intro_p4_max}} words; the P5 contribution block may use {{intro_p5_min}}–{{intro_p5_max}}, with 15–25 words suggested per item. Adjust all numbers to the content. When enabled, the separate ≈65-word roadmap paragraph is excluded from this suggested Introduction count.`,
         },
       },
       {
@@ -783,8 +783,9 @@ The report must contain the final-audit summary and major revisions, Terminology
 
 ### Manuscript–Venue Profile 必查字段
 
-- 领域与子领域、任务、数据形态、方法范式和主要贡献；
-- 理论、方法、系统、应用或跨学科属性；
+- 首先用恰好一句“论文类别判断”概括主要学科、细分领域、研究或稿件类型、核心贡献形态和目标读者；跨学科论文同时标明主投领域与交叉领域；
+- 研究问题、研究对象、研究设计或方法、证据形态和主要贡献；
+- 理论、方法、实证、系统、应用、综述或跨学科属性；
 - 目标读者、正文规模、图表数量、参考文献数量和补充材料；
 - 证据强度、最可能的卖点和最可能的 desk-reject/triage 风险。
 
@@ -792,35 +793,35 @@ The report must contain the final-audit summary and major revisions, Terminology
 
 ### 候选池与核验字段
 
-- 建立不少于 10 个、最多 15 个候选；
+- 建立与领域规模相称的候选池，通常为 8–15 个；可信且当前可投稿的目标更少时，可以缩小候选池并说明原因，不得为凑数加入弱相关 venue；
 - MDPI、Hindawi 和 Frontiers 是用户明确排除的出版社：其旗下期刊不得进入候选池、评分或推荐梯队，只在排除记录中注明“用户排除”，不得对出版社作无依据的泛化质量定性；
 - 逐项核验全名、出版社/组织方、官网、范围匹配点、文章或 track 类型、当前索引/等级、正文/页数/图表/摘要/参考文献限制、附录与补充材料、匿名政策、OA/APC 或注册费用、附加文件、伦理/数据/可复现政策、投稿入口和关键日期；
-- 只有权威来源支持时才写 SCIE、SSCI、ESCI、JCR 分区或会议等级；
+- 只有权威来源支持时才写 SCIE、SSCI、AHCI、ESCI、JCR 分区、会议等级或其他领域评价；不适用于当前学科或稿件类型的指标明确写“不适用”；
 - SJR/Scopus 信息必须明确标注，不能冒充 JCR；中科院分区与 JCR 必须分开并标注年份；
 - 当前届与历史届规则不得混用。
 
 ### 100 分匹配评分
 
 - 主题与范围匹配：30；
-- 论文类型与方法贡献匹配：20；
-- 实验证据与 venue 期望匹配：15；
+- 稿件类型与贡献形态匹配：20；
+- 研究设计和证据成熟度与 venue 期望匹配：15；
 - 目标等级或分区匹配：15；
 - 长度、图表与材料兼容：10；
 - OA/APC、注册费、截稿期与用户约束：5；
 - desk-reject、triage 和竞争风险：5。
 
-每项必须给出理由，不能把名气、等级或分区直接等同于匹配度。
+以上为默认权重。某维度不适合当前学科或稿件类型时可以调整并说明理由，但总分仍为 100。每项必须给出依据，不能把名气、等级或分区直接等同于匹配度。
 
 ### 投稿梯队与报告固定清单
 
-- 首选三个，按投稿顺序排列；
-- 稳妥备选三个；
+- 首选不超过三个，按投稿顺序排列；
+- 稳妥备选不超过三个；可信候选不足时不得为凑满数量降低匹配标准；
 - 不建议但容易误选的 2–4 个，并说明范围、费用、收录、类型或时效风险；
 - 给出唯一首推及完整理由；
-- 为每个首选分析范围、创新性、实验、篇幅、规则和写作风险；
+- 为每个首选分析范围、贡献与稿件类型、研究设计与证据、篇幅、规则和表达风险；
 - 给出投稿前最后核验事项和拒稿后的顺序化转投路径；
 - 直接在当前对话中给出完整中文结果，不生成文件；
-- 结果必须包含核验日期、用户约束/默认假设、Manuscript–Venue Profile、候选池、来源、排除过程、评分、梯队、唯一首推、风险、政策摘要、转投路径、未核验信息及“未改模板、未改正文、未生成文件”声明。`,
+- 结果必须包含一句论文类别判断、核验日期、用户约束/默认假设、Manuscript–Venue Profile、候选池、来源、排除过程、评分、梯队、唯一首推、风险、政策摘要、转投路径、未核验信息及“未改模板、未改正文、未生成文件”声明。`,
       en: `### Absolute Boundary for This Round
 
 - Do not change documentclass, packages, author format, bibliography format, columns, visual style, margins, or any template content;
@@ -842,8 +843,9 @@ Every time-sensitive fact must have a clickable source and verification date. Wr
 
 ### Required Manuscript–Venue Profile Fields
 
-- Field and subfield, task, data modality, method paradigm, and primary contributions;
-- Theoretical, methodological, system, application, or interdisciplinary character;
+- Begin with exactly one “Manuscript category” sentence covering the primary discipline, subfield, study or article type, core contribution form, and intended readership; for interdisciplinary work, identify the primary submission field and intersecting field;
+- Research question, object of study, research design or methodology, evidence form, and primary contributions;
+- Theoretical, methodological, empirical, system, application, review, or interdisciplinary character;
 - Target readership, main-text scale, number of visuals and references, and supplementary material;
 - Evidence strength, strongest selling point, and likely desk-reject/triage risk.
 
@@ -851,35 +853,35 @@ Do not redefine the scientific throughline for targeting.
 
 ### Candidate-pool and Verification Fields
 
-- Build no fewer than 10 and no more than 15 candidates;
+- Build a candidate pool proportionate to the field, normally eight to fifteen venues. If fewer credible venues are currently open for submission, use a smaller pool and explain why; never add weakly related venues to meet a quota;
 - MDPI, Hindawi, and Frontiers are explicit user exclusions. Do not place journals from these publishers in the candidate pool, scoring, or recommendation tiers. Record them only as “excluded by user” and do not make unsupported general quality claims about the publishers;
 - Verify full name, publisher/organizer, official site, specific scope fit, article or track type, current index/rank, main-text/page/figure/abstract/reference limits, appendix and supplementary policy, anonymity, OA/APC or registration cost, additional files, ethics/data/reproducibility rules, submission portal, and key dates;
-- State SCIE, SSCI, ESCI, JCR quartiles, or conference ranks only when an authoritative source supports them;
+- State SCIE, SSCI, AHCI, ESCI, JCR quartiles, conference ranks, or another field-specific evaluation only when an authoritative source supports them. Mark a metric “Not applicable” when it does not suit the field or manuscript type;
 - Label SJR/Scopus information explicitly and never present it as JCR. Keep CAS and JCR rankings separate with years;
 - Never mix current-edition rules with historical editions.
 
 ### 100-point Fit Score
 
 - Topical and scope fit: 30;
-- Paper type and methodological contribution fit: 20;
-- Experimental evidence versus venue expectations: 15;
+- Manuscript type and contribution-form fit: 20;
+- Research-design and evidence maturity versus venue expectations: 15;
 - Target rank or quartile fit: 15;
 - Length, figures, and material compatibility: 10;
 - OA/APC, registration, deadline, and user constraints: 5;
 - Desk-reject, triage, and competition risk: 5.
 
-Explain every component. Do not equate fame, rank, or quartile directly with fit.
+These are default weights. If a dimension does not fit the field or article type, adjust it with an explicit rationale while keeping the total at 100. Explain every component and do not equate fame, rank, or quartile directly with fit.
 
 ### Submission Tiers and Fixed Report Checklist
 
-- Three first choices in submission order;
-- Three safer alternatives;
+- Up to three first choices in submission order;
+- Up to three safer alternatives; never lower the fit threshold merely to fill a tier;
 - Two to four tempting but unsuitable choices, with scope, fee, index, type, or timing risks;
 - One top recommendation with complete rationale;
-- Scope, novelty, experiment, length, policy, and writing risks for every first choice;
+- Scope, contribution and article type, research design and evidence, length, policy, and presentation risks for every first choice;
 - Final pre-submission checks and an ordered transfer path after rejection;
 - Return the complete Chinese result directly in the current conversation and generate no files;
-- The result must contain verification date, user constraints/default assumptions, Manuscript–Venue Profile, candidate pool, sources, exclusion process, scores, tiers, top recommendation, risks, policy summary, transfer path, unverified facts, and a statement that the template and prose were unchanged and no file was generated.`,
+- The result must contain the one-sentence manuscript category, verification date, user constraints/default assumptions, Manuscript–Venue Profile, candidate pool, sources, exclusion process, scores, tiers, top recommendation, risks, policy summary, transfer path, unverified facts, and a statement that the template and prose were unchanged and no file was generated.`,
     },
   },
 };

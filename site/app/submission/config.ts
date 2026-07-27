@@ -23,15 +23,20 @@ export const DEFAULT_SUBMISSION_PREFERENCES: SubmissionPreferences = {
 
 export const JCR_QUARTILES: JcrQuartile[] = ["Q1", "Q2", "Q3", "Q4"];
 export const CAS_ZONES: CasZone[] = ["1", "2", "3", "4"];
-export const CITATION_INDEXES: CitationIndex[] = ["SCIE", "SSCI", "ESCI"];
+export const CITATION_INDEXES: CitationIndex[] = [
+  "SCIE",
+  "SSCI",
+  "AHCI",
+  "ESCI",
+];
 
 export const SUBMISSION_COPY = {
   zh: {
     eyebrow: "SUBMISSION STRATEGY",
     title: "投稿策略",
     subtitle:
-      "根据终稿建立期刊候选池，并用官网与权威来源核验匹配度、收录、分区、OA 和费用。",
-    preset: "期刊目标检索 · 动态筛选条件",
+      "先判断论文所属领域与稿件类型，再建立候选投稿池并核验匹配度、规则、收录和费用。",
+    preset: "投稿目标检索 · 动态筛选条件",
     reset: "恢复默认筛选",
     resetHint: "清除 OA、APC、IF、综述、分区和收录筛选。",
     any: "不限",
@@ -62,7 +67,7 @@ export const SUBMISSION_COPY = {
     casHint: "可多选；与 JCR 分区分开核验和展示。",
     zone: "区",
     indexes: "收录索引",
-    indexesHint: "可多选；未选择表示 SCIE、SSCI、ESCI 均可。",
+    indexesHint: "可多选；未选择表示不以 SCIE、SSCI、AHCI 或 ESCI 限制候选池。",
     switchPromptLanguage: "切换 Prompt 语言",
     copy: "复制",
     copied: "已复制",
@@ -74,8 +79,8 @@ export const SUBMISSION_COPY = {
     eyebrow: "SUBMISSION STRATEGY",
     title: "Submission strategy",
     subtitle:
-      "Build a journal candidate pool from the final manuscript and verify fit, indexing, rankings, OA, and fees against official or authoritative sources.",
-    preset: "Journal targeting · dynamic filters",
+      "Classify the manuscript first, then build a candidate pool and verify fit, rules, indexing, and fees against official or authoritative sources.",
+    preset: "Venue targeting · dynamic filters",
     reset: "Reset filters",
     resetHint: "Clear OA, APC, IF, review-article, ranking, and indexing filters.",
     any: "Any",
@@ -108,7 +113,8 @@ export const SUBMISSION_COPY = {
     casHint: "Select multiple if needed and verify separately from JCR.",
     zone: "Zone",
     indexes: "Citation index",
-    indexesHint: "Select multiple if needed; no selection allows SCIE, SSCI, or ESCI.",
+    indexesHint:
+      "Select multiple if needed; no selection leaves SCIE, SSCI, AHCI, and ESCI unrestricted.",
     switchPromptLanguage: "Switch prompt language",
     copy: "Copy",
     copied: "Copied",

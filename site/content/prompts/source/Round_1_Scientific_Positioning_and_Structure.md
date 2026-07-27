@@ -130,7 +130,7 @@
 
 #### Introduction
 
-使用五个核心连续段落：P1 背景与任务；P2 相关路线与缺口；P3 明确今天仍未解决且决定设计的挑战；P4 直接回答 P3，给出核心思想、总体机制与直觉；P5 给出三条单句贡献，每条默认以 `We` 开头并对应真实机制与证据。是否增加纯章节导航句由页面配置决定。
+P1–P4 使用四个核心连续叙事段落：背景与任务、相关路线与缺口、今天仍未解决且决定设计的挑战、本文的核心思想与总体回应。P5 先写 `This paper makes the following three contributions:`，再使用 `\begin{itemize}`、三个 `\item` 和 `\end{itemize}` 给出三条单句贡献；每个条目默认以 `We` 开头并对应真实机制与证据。是否增加约 65 词的独立章节导航段由页面配置决定；启用时，该段只说明论文组织且不计入 Introduction 建议字数。
 
 #### Related Work
 
@@ -235,7 +235,7 @@ Discussion 由模型按证据选择 3–5 个主题 `\subsection`，覆盖综合
 
 - 全文围绕一个明确科学问题和核心思想组织。
 - 已核查原标题、方法全称与原缩写；若发生变更，已自动应用综合判断最优的方案，并在报告中完整记录 high-risk diff。
-- Introduction 使用五个核心段落并遵守导航句配置；Related Work 为 3 个小节。
+- Introduction 使用四个核心叙事段落、一个 LaTeX 贡献块，并遵守章节导航段配置；Related Work 为 3 个小节。
 - Method 与 Experiments 的核心内容未被压缩，标题层级只对应实质科学单元。
 - Discussion 与 Limitations 符合当前论文类型，且不重复实验结果；Conclusion 为两段。
 - 没有擅自适配模板或改变 TeX 格式。
