@@ -2,6 +2,7 @@ import { PRODUCT_CONFIG } from "../../app/config";
 import {
   CHAT_FALLBACK_POLICY,
   CHAT_MODEL_POLICY,
+  CHAT_PRO_FOLLOW_UP_PREFERENCE,
   CHAT_RESULT_POLLING_POLICY,
   CHAT_REASONING_PREFERENCES,
   CHAT_REASONING_PREFERENCE_IDS,
@@ -30,7 +31,6 @@ export interface ReconstructionWorkflowInput {
   hasWordLimit?: boolean;
   unlimitedCoreSections?: boolean;
   includeSectionNavigationSentence?: boolean;
-  allowTitleBrandCandidates?: boolean;
   targetWords?: number;
   sectionBudgets?: Record<string, number>;
   includeAppendix?: boolean;
@@ -81,6 +81,7 @@ export function getReconstructionConfigurationModel() {
       reasoningPreferences: CHAT_REASONING_PREFERENCE_IDS.map(
         (id) => CHAT_REASONING_PREFERENCES[id],
       ),
+      proFollowUpPreference: CHAT_PRO_FOLLOW_UP_PREFERENCE,
       pollingPolicy: CHAT_RESULT_POLLING_POLICY,
     },
   };
@@ -126,9 +127,6 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
   const includeSectionNavigationSentence =
     input.includeSectionNavigationSentence ??
     style.defaultIncludeSectionNavigationSentence;
-  const allowTitleBrandCandidates =
-    input.allowTitleBrandCandidates ??
-    PRODUCT_CONFIG.titleBrand.defaultAllowCandidates;
   if (
     input.targetWords !== undefined &&
     !Number.isFinite(input.targetWords)
@@ -220,6 +218,12 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
       `Unsupported ChatGPT reasoning preference: ${String(reasoningPreference)}.`,
     );
   }
+  const forceProForAllTurns =
+    input.chatExecution?.forceProForAllTurns ??
+    DEFAULT_CHAT_EXECUTION_PREFERENCES.forceProForAllTurns;
+  if (typeof forceProForAllTurns !== "boolean") {
+    throw new Error("forceProForAllTurns must be a boolean.");
+  }
   const fallbackPolicy =
     input.chatExecution?.fallbackPolicy ??
     DEFAULT_CHAT_EXECUTION_PREFERENCES.fallbackPolicy;
@@ -231,6 +235,7 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
   const chatExecution: ChatExecutionPreferences = {
     modelPolicy,
     reasoningPreference,
+    forceProForAllTurns,
     fallbackPolicy,
     pollingPolicy: CHAT_RESULT_POLLING_POLICY,
   };
@@ -253,7 +258,6 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
-    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
@@ -274,7 +278,6 @@ export function buildReconstructionWorkflow(
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
-    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets,
     includeAppendix,
@@ -291,7 +294,6 @@ export function buildReconstructionWorkflow(
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
-    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets: style.sections.map((section) => ({
       id: section.id,
@@ -324,7 +326,6 @@ export function buildReconstructionWorkflow(
       hasWordLimit,
       unlimitedCoreSections,
       includeSectionNavigationSentence,
-      allowTitleBrandCandidates,
       targetWords,
       sectionBudgets,
       includeAppendix,

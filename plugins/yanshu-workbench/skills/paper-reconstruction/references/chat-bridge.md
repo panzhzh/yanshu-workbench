@@ -82,7 +82,7 @@ var yanshuCapabilities =
   await inspectYanShuFreshChatConfiguration(yanshuChatGPT);
 ```
 
-Pass its exact visible reasoning labels to `chat-plan`. Apply the returned selection:
+Pass its exact visible reasoning labels to `chat-plan --interaction initial`. Apply the returned selection:
 
 ```js
 var yanshuApplied = await applyYanShuChatReasoningSelection(
@@ -95,6 +95,8 @@ var yanshuApplied = await applyYanShuChatReasoningSelection(
 ```
 
 Continue on `verified` or `click-acknowledged`. An unavailable requested level automatically falls back to the closest lower visible level; notify without pausing.
+
+When the configured preference is Pro, the initial plan uses Pro. Before a continuation, correction request, or artifact follow-up in the same round, call `chat-plan --interaction follow-up` against the same visible options and apply the new `selectedLabel` before submitting. This defaults to Extra High; `forceProForAllTurns` keeps Pro for every interaction and returns an explicit time warning. Never ask the user to approve this automatic switch.
 
 ## Submit once
 

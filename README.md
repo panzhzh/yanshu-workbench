@@ -89,7 +89,7 @@ Idea 工作台参考了若干许可清晰的开源研究流程：[NoviScl/AI-Res
 - 自动识别或显式接收 TeX、BibTeX、PDF 与 figures 路径；
 - 新建 `yanshu-reconstruction/<run-id>/`，保存每轮 Prompt、产物、日志与状态；
 - 记录并恢复每轮 Chat 会话地址、实际模型标签和推理档位；
-- 默认使用 ChatGPT 当前可见的最新推理模型与最强档位，也可选择 Medium、High、Extra High 或 Pro；
+- 默认使用 ChatGPT 当前可见的最新推理模型与最强档位，也可选择 Medium、High、Extra High 或 Pro；选择 Pro 时默认每轮首次有效对话使用 Pro，后续继续、纠正和补交自动切换为 Extra High，也可显式强制全部 Pro；
 - 所选档位不可用时，先提示用户，再回退到最接近的较低档位；名称无法判断时选择最强可用档位；
 - 内置受控的 YanShu Paper Workspace MCP：ChatGPT 可以按需读取 Prompt、TeX、BibTeX、图表证据和 PDF 页面，而不是每轮重新上传整套文件；
 - 从 TeX 建立图表证据索引，并将 PNG/JPEG/WebP/SVG 原图、PDF 页面、PDF/EPS 图件作为真实图像返回给模型；实验数字不得只凭文件名或 caption 推断；
@@ -143,11 +143,14 @@ YanShu 会先确认论文目录；若目录中有多篇论文，只需选择目�
 {
   "modelPolicy": "latest-visible-reasoning",
   "reasoningPreference": "strongest",
+  "forceProForAllTurns": false,
   "fallbackPolicy": "closest-lower-then-strongest"
 }
 ```
 
 运行时以 ChatGPT 真实可见的选择器为准，而不是根据 Plus、Pro 等套餐名称猜测。比如用户选择 Extra High 或 Pro，但页面只显示 Medium 与 High，YanShu 会明确说明并使用 High；若新名称无法可靠分类，则使用选择器中最强的可用档位。
+
+Pro 通常耗时更久。默认策略是在每轮首次有效提交时使用 Pro，同一轮的续写、纠正与产物补交使用 Extra High；配置页可开启“强制全部 Pro”，并会明确提示五轮流程可能显著延长。
 
 每一轮都会先显式新建独立的空白 Chat，再在该会话中选择推理档位，不会修改用户原本打开的聊天。连接 MCP 时，新对话只接收一个很短的运行标识，随后自行读取本轮 Prompt、最新源码和上一轮产物；写入、编译与 PDF 页面复核也通过 MCP 完成。没有 MCP 连接时，YanShu 才通过 ChatGPT 可见的文件选择器传入最小白名单；已有 PDF 时不再重复上传其中已渲染的原始图件。每个文本轮次交付完整 TeX、报告和可直接延续的完整当前 BibTeX，优先以一个严格校验的 ZIP 单次下载并导入；Windows 文件对象剪贴板粘贴与逐文件下载仅作为后备路径。如果 ChatGPT 已接受准确的档位点击、但新版界面暂时无法回读当前标签，YanShu 会将其记录为 `click-acknowledged` 并继续；只有选项未找到、点击失败、新会话未建立或回读明确冲突时才暂停。
 

@@ -112,7 +112,9 @@ After the diagnostic, prepare a separate fresh Chat for the actual round.
 For each round:
 
 1. Run `next --run <run-path>` and reuse a recorded Chat URL when resuming; otherwise create a fresh blank Chat.
-2. Inspect visible reasoning options, run `chat-plan`, and apply `selectedLabel`.
+2. Inspect visible reasoning options, run `chat-plan --interaction initial`, and apply `selectedLabel`.
+   - When the configured preference is Pro, this first effective submission uses Pro. Before any continuation, correction, or artifact follow-up in the same round, rerun `chat-plan --interaction follow-up` and apply its selection; the default effective level is Extra High.
+   - If the local page enabled `forceProForAllTurns`, every interaction remains Pro. This is automatic and must not trigger another confirmation.
    - `verified` and `click-acknowledged` both continue.
    - A lower available reasoning level is an automatic fallback: report it in one sentence without pausing.
    - Block only on a failed click, stale thread, or explicit contradictory readback.
@@ -123,7 +125,7 @@ For each round:
 5. Mark `waiting --checkpoint generating` and call the runtime-managed `waitForChatRound`.
    - Medium and High: 60 seconds.
    - Extra High: 180 seconds.
-   - Pro: 300 seconds.
+   - Pro: 300 seconds for the initial interaction, or every interaction only when force-all-Pro is enabled.
    - A timeout is a heartbeat, not authorization to resubmit.
 6. MCP mode uses registered artifacts directly.
 7. When the assistant turn is complete and its expected output is visible, mark `waiting --checkpoint artifact-ready`.

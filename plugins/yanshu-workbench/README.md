@@ -85,6 +85,10 @@ YanShu stores capability intent rather than a brittle GPT model string:
 - **Model policy:** latest visible reasoning-capable model
 - **Default reasoning:** strongest visible level
 - **Selectable preferences:** Medium, High, Extra High, and Pro
+- **Default Pro policy:** Pro for the first effective interaction of each round,
+  then Extra High for continuations, corrections, and artifact follow-ups
+- **Optional override:** force every interaction to Pro, with an explicit
+  long-runtime warning
 - **Fallback:** closest lower supported level, then strongest visible when
   labels cannot be interpreted
 
@@ -103,7 +107,9 @@ threads, and explicit contradictory readback remain blockers.
 
 Waiting is owned by the YanShu runtime rather than repeated manual checks:
 Medium and High use 60-second heartbeats, Extra High uses 180 seconds, and Pro
-uses 300 seconds. A heartbeat timeout never resubmits a Prompt. Browser states
+uses 300 seconds. Under the default Pro policy, only each round's first
+effective interaction uses the Pro interval; follow-ups use the Extra High
+interval. A heartbeat timeout never resubmits a Prompt. Browser states
 are normalized to `generating`, `completed`, `needs_continuation`, `blocked`,
 or `failed` using generation signals, stable assistant turns, and artifact
 presence.

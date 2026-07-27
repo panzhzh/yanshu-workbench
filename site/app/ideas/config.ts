@@ -1,4 +1,5 @@
 import type { Language, LocalizedText } from "../config";
+import { withPromptJudgmentDirective } from "../../content/prompts/promptAgency";
 
 export type IdeaWorkbenchMode = "discovery" | "evaluation";
 
@@ -803,7 +804,10 @@ export function buildIdeaPrompt(
   preferences: IdeaPreferences,
   language: Language,
 ) {
-  return mode === "discovery"
-    ? discoveryPrompt(preferences, language)
-    : evaluationPrompt(preferences, language);
+  return withPromptJudgmentDirective(
+    mode === "discovery"
+      ? discoveryPrompt(preferences, language)
+      : evaluationPrompt(preferences, language),
+    language,
+  );
 }

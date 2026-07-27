@@ -1,4 +1,5 @@
 import { COMMON_PROMPT_BLOCKS } from "../../../content/prompts/templates";
+import { withPromptJudgmentDirective } from "../../../content/prompts/promptAgency";
 import type { Language } from "../../config";
 
 type LocalizedText = Record<Language, string>;
@@ -1368,7 +1369,7 @@ function specializedConfiguration(
   return lines.join("\n");
 }
 
-export function buildSectionRefinementPrompt(
+function buildSectionRefinementPromptContent(
   preferences: SectionRefinementPreferences,
   language: Language,
 ) {
@@ -1535,4 +1536,14 @@ Deliver directly:
 - the successfully compiled PDF.
 
 Do not return only a diff, isolated fragment, advice, outline, or multiple candidate versions. Read the complete materials and finish the refinement now.`;
+}
+
+export function buildSectionRefinementPrompt(
+  preferences: SectionRefinementPreferences,
+  language: Language,
+) {
+  return withPromptJudgmentDirective(
+    buildSectionRefinementPromptContent(preferences, language),
+    language,
+  );
 }

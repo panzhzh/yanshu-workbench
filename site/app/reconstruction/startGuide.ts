@@ -1,4 +1,5 @@
 import type { Language } from "../config";
+import { PROMPT_JUDGMENT_DIRECTIVE } from "../../content/prompts/promptAgency";
 
 type CodexStartGuide = {
   eyebrow: string;
@@ -20,7 +21,9 @@ export const CODEX_START_GUIDE = {
     preview: "查看将复制的说明",
     copy: "复制给 Codex",
     copied: "已复制",
-    prompt: `请安装或更新 YanShu 插件，并启动 Paper Reconstruction。
+    prompt: `${PROMPT_JUDGMENT_DIRECTIVE.zh}
+
+请安装或更新 YanShu 插件，并启动 Paper Reconstruction。
 
 插件仓库：https://github.com/panzhzh/yanshu-workbench
 请先检查当前环境：若尚未添加插件源，将 \`panzhzh/yanshu-workbench\` 的 \`main\` 分支添加为 marketplace；若已添加，则升级到最新 \`main\`。随后安装或重新载入 \`yanshu-workbench@yanshu-workbench\`。这些操作请由 Codex 完成，不要让我手动输入终端命令。
@@ -42,7 +45,9 @@ export const CODEX_START_GUIDE = {
     preview: "View the copied instruction",
     copy: "Copy for Codex",
     copied: "Copied",
-    prompt: `Install or update the YanShu plugin and start Paper Reconstruction.
+    prompt: `${PROMPT_JUDGMENT_DIRECTIVE.en}
+
+Install or update the YanShu plugin and start Paper Reconstruction.
 
 Repository: https://github.com/panzhzh/yanshu-workbench
 Inspect the current environment first. If the marketplace source is missing, add the \`main\` branch of \`panzhzh/yanshu-workbench\`; otherwise upgrade it to the latest \`main\`. Then install or reload \`yanshu-workbench@yanshu-workbench\`. Codex must perform these operations instead of asking me to type terminal commands.

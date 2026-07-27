@@ -19,6 +19,9 @@ by the website.
   policies, including the scientific-positioning
   temporary ceiling and protected sections, are defined here as data.
 - `buildPrompt.ts` compiles a selected template with the current planner state.
+- `promptAgency.ts` injects one shared model-judgment directive into every
+  complete Prompt without weakening facts, evidence boundaries, or hard
+  constraints.
 - `types.ts` defines the template and runtime-variable contract.
 - `version.ts` defines the one reconstruction workflow release shared by the
   rendered website and generated plugin runtime.
@@ -43,8 +46,12 @@ Runtime variables:
   its main-text-counting rule.
 - `chatExecution`: plugin-only execution metadata. It stores
   `latest-visible-reasoning`, a stable reasoning preference, and
-  `closest-lower-then-strongest`; it is exported to `.yanshu.json` but is not
-  inserted into manuscript-writing prompts.
+  `closest-lower-then-strongest`. When Pro is selected, the default policy uses
+  Pro for the first effective interaction of each round and Extra High for
+  later continuations, corrections, and artifact follow-ups; an explicit
+  force-all-Pro flag is available with a time warning. These values are
+  exported to `.yanshu.json` but are not inserted into manuscript-writing
+  prompts.
 - `submissionPreferences`: OA, APC and IF ranges, review-article acceptance,
   JCR quartile, CAS zone, SCIE/SSCI/ESCI filters, and fixed publisher
   exclusions used only by the submission-strategy prompt.

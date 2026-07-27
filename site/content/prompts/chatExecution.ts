@@ -3,6 +3,7 @@ import type { LocalizedText } from "./types";
 export const CHAT_MODEL_POLICY = "latest-visible-reasoning" as const;
 export const CHAT_FALLBACK_POLICY =
   "closest-lower-then-strongest" as const;
+export const CHAT_PRO_FOLLOW_UP_PREFERENCE = "extra-high" as const;
 
 export const CHAT_REASONING_PREFERENCE_IDS = [
   "strongest",
@@ -39,6 +40,7 @@ export const CHAT_RESULT_POLLING_POLICY = {
 export interface ChatExecutionPreferences {
   modelPolicy: typeof CHAT_MODEL_POLICY;
   reasoningPreference: ChatReasoningPreferenceId;
+  forceProForAllTurns: boolean;
   fallbackPolicy: typeof CHAT_FALLBACK_POLICY;
   pollingPolicy: typeof CHAT_RESULT_POLLING_POLICY;
 }
@@ -125,8 +127,8 @@ export const CHAT_REASONING_PREFERENCES: Record<
       en: "Pro",
     },
     description: {
-      zh: "优先使用最强 Pro 档位；不可用时依次回退到 Extra High、High、Medium。",
-      en: "Prefer the strongest Pro level, then fall back to Extra High, High, and Medium.",
+      zh: "默认每轮首次有效对话使用 Pro，后续继续、纠正与补交切换为 Extra High；不可用时仍按最接近档位回退。",
+      en: "Use Pro for the first effective interaction of each round by default, then switch continuations, corrections, and resubmissions to Extra High; unavailable levels still fall back to the closest option.",
     },
   },
 };
@@ -134,6 +136,7 @@ export const CHAT_REASONING_PREFERENCES: Record<
 export const DEFAULT_CHAT_EXECUTION_PREFERENCES: ChatExecutionPreferences = {
   modelPolicy: CHAT_MODEL_POLICY,
   reasoningPreference: "strongest",
+  forceProForAllTurns: false,
   fallbackPolicy: CHAT_FALLBACK_POLICY,
   pollingPolicy: CHAT_RESULT_POLLING_POLICY,
 };

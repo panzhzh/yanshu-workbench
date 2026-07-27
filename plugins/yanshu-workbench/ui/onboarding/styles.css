@@ -380,6 +380,10 @@ main {
   margin-top: 4px;
 }
 
+.pro-policy-row[hidden] {
+  display: none;
+}
+
 .switch-row span,
 .field-row > span {
   min-width: 0;

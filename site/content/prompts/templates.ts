@@ -25,8 +25,8 @@ export const COMMON_PROMPT_BLOCKS = {
 4. Deliver a complete, continuous, editable English .tex; keep Chinese analysis and revision notes in the Chinese report.`,
   },
   identityGovernance: {
-    zh: `默认保留原标题、方法全称与论文品牌缩写。只有当前配置允许，且现有名称存在误导、越界或明显不自然时，才在中文报告中提出少量候选；自动化流程不得静默写入候选。任何标题或品牌变化都必须由作者明确选择，并记录 high-risk diff（原值、候选、依据、风险与授权状态）。科学主线可以随新证据修正，但每次变化都要记录原因和影响，不得因单轮判断永久冻结。`,
-    en: `Preserve the current title, full method name, and paper-brand acronym by default. Only when the configuration allows it and the current identity is misleading, overbroad, or clearly unnatural may the Chinese report propose a small candidate set; automation must never apply a candidate silently. Any title or brand change requires explicit author selection and a high-risk diff recording the original, candidate, evidence, risk, and authorization status. The scientific throughline may be revised when later evidence warrants it, but every change must record its reason and impact rather than becoming permanently frozen after one round.`,
+    zh: `核查当前标题、方法全称与论文品牌缩写；若其仍是最优方案则保留，若变更能明确提升准确性、边界或辨识度，则由模型在本轮自动选择并应用最优方案。所有实际变更必须在中文报告中记录 high-risk diff（原值、最终值、依据与证据、风险及影响位置），不得无声替换。科学主线也可随新证据自动修正，但每次变化都要记录原因和影响。`,
+    en: `Audit the current title, full method name, and paper-brand acronym. Keep them when they remain the strongest option; when a change clearly improves accuracy, scope, or distinctiveness, select and apply the best option automatically as part of this workflow. Record every applied change in the Chinese report as a high-risk diff covering the original and final values, rationale and evidence, risks, and affected locations; never change identity silently. The scientific throughline may also be revised automatically when later evidence warrants it, with every change and impact recorded.`,
   },
   cohesiveRevision: {
     zh: `1. 不做“原文 + 修补句”：先确定允许范围内最小的完整论证单元，再整体融合问题、claim、证据、解释、边界与过渡。
@@ -61,8 +61,8 @@ export const PROMPT_TEMPLATES: PromptTemplate[] = [
       en: "Scientific Positioning & Structure",
     },
     purpose: {
-      zh: "审计科学定位，在默认保留论文身份的前提下建立主线、术语体系、Claim–Evidence Map 和章节分工。",
-      en: "Audit the scientific position and, while preserving the paper identity by default, establish the throughline, terminology, claim–evidence map, and section responsibilities.",
+      zh: "审计科学定位与论文身份，建立主线、术语体系、Claim–Evidence Map 和章节分工。",
+      en: "Audit the scientific position and paper identity, then establish the throughline, terminology, claim–evidence map, and section responsibilities.",
     },
     role: {
       zh: "你是一名熟悉计算机科学顶级会议与高水平期刊评审的资深研究者。本轮在保留原稿有效论证和优质表达的基础上，完成科学定位与宏观结构的深度精修。",
@@ -111,8 +111,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
           en: "B. Audit the Title and Paper Brand Acronym",
         },
         body: {
-          zh: "默认保留原标题、方法全称和原缩写，并核查其准确性、自然度与冲突风险。只有当前配置允许且确有误导、越界或明显不自然时，才在中文报告中给出少量候选；不得自动写入 TeX。任何变化都必须由作者明确选择，并附 high-risk diff。",
-          en: "Preserve the current title, full method name, and acronym by default, while auditing accuracy, naturalness, and conflict risk. Only when the configuration permits and the identity is misleading, overbroad, or clearly unnatural may the Chinese report offer a small candidate set. Never apply it to TeX automatically. Any change requires explicit author selection and a high-risk diff.",
+          zh: "核查当前标题、方法全称和缩写的准确性、自然度、检索性与冲突风险。当前方案仍最优时保留；若替换能明确改善论文身份，则由模型自动选择并写入最优方案，品牌缩写使用 4–7 个拉丁字母；变更记录遵循全局标题与品牌治理规则。",
+          en: "Audit the current title, full method name, and acronym for accuracy, naturalness, searchability, and collision risk. Keep the current identity when it remains strongest; when replacement clearly improves it, automatically select and apply the best option, using four to seven Latin letters for a brand acronym. Follow the global title-and-brand governance rule for change records.",
         },
       },
       {
@@ -121,8 +121,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
           en: "C. Standardize the Terminology System",
         },
         body: {
-          zh: "以现有方法全称与论文品牌缩写为默认基准，统一问题、表示、模块、分支、查询、损失、训练/推理、数据集、指标和实验类型的 canonical term；列出禁用变体与必须区分的相近概念。",
-          en: "Use the existing full method name and paper brand acronym as the default identity, then define canonical terms for the problem, representations, components, branches, queries, losses, training/inference, datasets, metrics, and experiment types. List prohibited variants and nearby concepts that must remain distinct.",
+          zh: "以本轮审计后确定的方法全称与论文品牌缩写为唯一基准，统一问题、表示、模块、分支、查询、损失、训练/推理、数据集、指标和实验类型的 canonical term；列出禁用变体与必须区分的相近概念。",
+          en: "Use the full method name and paper-brand acronym selected by this audit as the single identity, then define canonical terms for the problem, representations, components, branches, queries, losses, training/inference, datasets, metrics, and experiment types. List prohibited variants and nearby concepts that must remain distinct.",
         },
       },
       {
@@ -157,8 +157,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
       },
     ],
     deliverables: {
-      zh: `生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。中文报告至少包含：Scientific Positioning Contract、标题与论文品牌审计（如有候选则附 high-risk diff 和未授权状态）、一句话主旨与痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能与可选篇幅建议表、图表角色、结构操作清单、联网核验、文献记录和下一步交接摘要。`,
-      en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract; title and paper-brand audit, with a high-risk diff and unauthorized status for any candidate; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology table; section functions and budgets; visual roles; structural operations; web verification; bibliography changes; and a self-contained handoff.`,
+      zh: `生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。中文报告至少包含：Scientific Positioning Contract、标题与论文品牌审计及所有已应用 high-risk diff、一句话主旨与痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能与可选篇幅建议表、图表角色、结构操作清单、联网核验、文献记录和下一步交接摘要。`,
+      en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract; title and paper-brand audit with every applied high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology table; section functions and budgets; visual roles; structural operations; web verification; bibliography changes; and a self-contained handoff.`,
     },
     fileNames: {
       zh: `<base_name>_round_1_scientific_structure.tex
@@ -171,14 +171,14 @@ The core idea must remain meaningful without component names. Do not relabel ord
     finalChecks: {
       zh: `- 全文围绕一个科学问题和核心思想组织。
 - 每个主要 claim 都有证据位置和边界。
-- 默认保留原标题与原缩写；任何候选均未被静默写入，并附 high-risk diff。
+- 标题、方法全称与缩写已自动选择最优方案，未发生无声替换。
 - 术语、章节功能与图表角色已稳定。
 - Method 与 Experiments 的核心内容未因篇幅建议或结构整理而压缩。
 - 未改变模板，未添加无证据内容。
 - 已按当前论文风格与附录配置执行。`,
       en: `- The manuscript is organized around one scientific problem and core idea.
 - Every primary claim has an evidence location and boundary.
-- The original title and acronym were preserved by default; no candidate was silently applied, and every candidate has a high-risk diff.
+- The strongest title, full method name, and acronym were selected automatically, with no silent change.
 - Terminology, section functions, and visual roles are stable.
 - Core Method and Experiments content was not compressed to satisfy a length suggestion or structural cleanup.
 - The template was preserved and no unsupported content was added.
@@ -211,8 +211,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
 - The current complete .bib`,
     },
     scope: {
-      zh: "Method 与 Experiments 允许大幅重构。其他章节只为术语、事实与交叉引用一致性做最小同步。没有证据的实现或实验信息必须删除或标记为作者需确认。",
-      en: "Method and Experiments may be substantially reconstructed. Make only minimal terminology, fact, and cross-reference updates elsewhere. Remove unsupported implementation or experimental details from the manuscript and flag them for author confirmation.",
+      zh: "Method 与 Experiments 允许大幅重构。其他章节只为术语、事实与交叉引用一致性做最小同步。没有证据的实现或实验信息必须删除或降级为证据允许的表述，并在报告中列为未核验风险。",
+      en: "Method and Experiments may be substantially reconstructed. Make only minimal terminology, fact, and cross-reference updates elsewhere. Remove unsupported implementation or experimental details, or qualify them to the strongest evidence-supported wording, and record the unresolved risk in the report.",
     },
     styleBranches: {
       conference: {
@@ -280,8 +280,8 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
       },
     ],
     deliverables: {
-      zh: "生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。报告包含 Method 逻辑图谱、旧/新小节对照、公式符号审计、现有图表与正文接口审计、Experiment Question–Evidence Matrix、实验顺序说明、数字风险、弱化主张、联网核验、新增或修正文献记录、修改清单、作者需确认项和下一轮交接摘要。",
-      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, added or corrected bibliography records, revision log, author-confirmation items, and the next-round handoff.",
+      zh: "生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。报告包含 Method 逻辑图谱、旧/新小节对照、公式符号审计、现有图表与正文接口审计、Experiment Question–Evidence Matrix、实验顺序说明、数字风险、弱化主张、联网核验、新增或修正文献记录、修改清单、未核验风险和下一轮交接摘要。",
+      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, added or corrected bibliography records, revision log, unresolved verification risks, and the next-round handoff.",
     },
     fileNames: {
       zh: `<base_name>_round_2_method_experiments.tex
@@ -336,8 +336,8 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
 - The current complete .bib`,
     },
     scope: {
-      zh: "允许重组 Abstract、Introduction、Related Work、Discussion 和 Conclusion 的段落与证据顺序，但默认采用深度精修而非清空重写。标题、方法全称与缩写遵循保留优先和 high-risk diff 规则。Method 与 Experiments 只做必要一致性同步，不压缩核心内容。不得改变模板。",
-      en: "You may reorganize paragraphs and evidence within Abstract, Introduction, Related Work, Discussion, and Conclusion, but default to deep refinement rather than blank-slate rewriting. The title, full method name, and acronym follow preserve-first and high-risk-diff governance. Synchronize Method and Experiments only as needed for consistency and never compress their core content. Preserve the template.",
+      zh: "允许重组 Abstract、Introduction、Related Work、Discussion 和 Conclusion 的段落与证据顺序，但默认采用深度精修而非清空重写。Method 与 Experiments 只做必要一致性同步，不压缩核心内容。不得改变模板。",
+      en: "You may reorganize paragraphs and evidence within Abstract, Introduction, Related Work, Discussion, and Conclusion, but default to deep refinement rather than blank-slate rewriting. Synchronize Method and Experiments only as needed for consistency and never compress their core content. Preserve the template.",
     },
     styleBranches: {
       conference: {
@@ -356,8 +356,8 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
           en: "A. Build the Fact Base and Preservation List",
         },
         body: {
-          zh: "从全文抽取任务、问题、核心思想、机制、证据和边界，同时标记原稿中准确、清晰、有辨识度且值得保留的句子与表达。记录当前 Title、方法全称与论文品牌缩写；除非已有作者授权的 high-risk diff，不得替换。",
-          en: "Extract the task, problem, core idea, mechanisms, evidence, and boundaries from the manuscript, while marking original sentences and expressions that are accurate, clear, distinctive, and worth preserving. Record the current Title, full method name, and paper brand acronym; do not replace them without an author-authorized high-risk diff.",
+          zh: "从全文抽取任务、问题、核心思想、机制、证据和边界，同时标记原稿中准确、清晰、有辨识度且值得保留的句子与表达。标题、方法全称与论文品牌缩写按全局治理规则同步审计。",
+          en: "Extract the task, problem, core idea, mechanisms, evidence, and boundaries from the manuscript, while marking original sentences and expressions that are accurate, clear, distinctive, and worth preserving. Audit the title, full method name, and paper-brand acronym under the global governance rule.",
         },
       },
       {
@@ -416,13 +416,13 @@ Related Work has exactly three subsections and follows the current paper type's 
 <base_name>_round_3_references.bib`,
     },
     finalChecks: {
-      zh: `- 标题与论文品牌遵循保留优先；任何变化均有作者授权和 high-risk diff。
+      zh: `- 标题与论文品牌已自动择优；任何实际变化均有 high-risk diff。
 - 前后叙事完成深度精修，并保留原稿中准确有力的表达。
 - 新叙事与 Method、Experiments 和图表事实一致。
 - 引用 key 全部存在于当前 .bib。
 - 未无必要改写 Method 与 Experiments。
 - 全文符合当前风格与附录配置。`,
-      en: `- The title and paper brand follow preserve-first governance; every change has author authorization and a high-risk diff.
+      en: `- The title and paper brand follow automatic best-option selection; every applied change has a high-risk diff.
 - The narrative sections received deep refinement while preserving accurate, effective original expression.
 - The new narrative matches Method, Experiments, and visual evidence.
 - Every citation key exists in the current .bib.
@@ -526,8 +526,8 @@ Related Work has exactly three subsections and follows the current paper type's 
           en: "B. Govern Terminology, Acronyms, and Notation",
         },
         body: {
-          zh: "建立最终 Terminology Consistency Table，落实 canonical term、既定论文品牌缩写、首次定义、禁用变体、冗余缩写和必须区分的概念。检查标题、摘要、正文、图、表、caption、公式和算法是否完全一致。",
-          en: "Create the final Terminology Consistency Table covering canonical terms, the current author-approved paper-brand acronym, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct. Verify consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms.",
+          zh: "建立最终 Terminology Consistency Table，落实 canonical term、本流程确定的论文品牌缩写、首次定义、禁用变体、冗余缩写和必须区分的概念。检查标题、摘要、正文、图、表、caption、公式和算法是否完全一致。",
+          en: "Create the final Terminology Consistency Table covering canonical terms, the paper-brand acronym selected by this workflow, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct. Verify consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms.",
         },
       },
       {

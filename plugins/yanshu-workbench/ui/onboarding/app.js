@@ -11,9 +11,7 @@ const COPY = {
     introductionRoadmap: "Introduction 纯章节导航句",
     introductionRoadmapHint:
       "会议默认关闭，期刊默认开启；只说明论文组织，不重复章节内容。",
-    titleBrandCandidates: "允许标题与品牌候选",
-    titleBrandCandidatesHint:
-      "默认关闭；候选只进入报告，必须经作者确认和 high-risk diff 后才能应用。",
+    introductionRoadmapChoice: "使用一条简洁的论文结构导航句",
     lengthTitle: "正文与章节篇幅建议",
     lengthHint:
       "默认关闭。启用后也只提供可接受、调整或忽略的参考值；正文不包含附录，每张表格或图片按 200 词作建议估算。",
@@ -47,6 +45,11 @@ const COPY = {
       "模型名称不写死；YanShu 会读取当前账号真实可见的推理档位。",
     promptLanguage: "Prompt 语言",
     reasoning: "推理偏好",
+    forceAllPro: "强制所有对话使用 Pro",
+    proFirstTurnHint:
+      "默认关闭：每轮首次有效提交使用 Pro，后续继续、纠正和补交自动切换为 Extra High。",
+    proForceAllHint:
+      "已强制全部 Pro；五轮流程会显著变慢，尤其是续写、纠正与产物补交。",
     resultPolling: "结果检查间隔",
     pollingStrongest:
       "按实际档位自动采用：Medium / High 1 分钟，Extra High 3 分钟，Pro 5 分钟；无法识别时按 1 分钟。",
@@ -113,9 +116,7 @@ const COPY = {
     introductionRoadmap: "Pure Introduction roadmap sentence",
     introductionRoadmapHint:
       "Off by default for conferences and on for journals; it states organization only.",
-    titleBrandCandidates: "Allow title and brand candidates",
-    titleBrandCandidatesHint:
-      "Off by default. Candidates stay in the report until author approval and a high-risk diff.",
+    introductionRoadmapChoice: "Use one concise paper-roadmap sentence",
     lengthTitle: "Main-text and section length guidance",
     lengthHint:
       "Off by default. When enabled, every value remains an optional reference that may be accepted, adjusted, or ignored. The main text excludes the appendix; each table or figure counts as 200 words for estimation.",
@@ -153,6 +154,11 @@ const COPY = {
       "Model names are not pinned; YanShu reads the reasoning levels actually visible to the account.",
     promptLanguage: "Prompt language",
     reasoning: "Reasoning preference",
+    forceAllPro: "Force Pro for every interaction",
+    proFirstTurnHint:
+      "Off by default: use Pro for the first effective submission of each round, then switch continuations, corrections, and artifact follow-ups to Extra High.",
+    proForceAllHint:
+      "All interactions are forced to Pro. The five-round workflow will take substantially longer, especially for continuations, corrections, and artifact follow-ups.",
     resultPolling: "Result-check interval",
     pollingStrongest:
       "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",
@@ -224,9 +230,6 @@ const elements = {
   introductionRoadmapToggle: document.querySelector(
     "#introduction-roadmap-toggle",
   ),
-  titleBrandCandidatesToggle: document.querySelector(
-    "#title-brand-candidates-toggle",
-  ),
   wordLimitToggle: document.querySelector("#word-limit-toggle"),
   wordLimitPanel: document.querySelector("#word-limit-panel"),
   targetWords: document.querySelector("#target-words"),
@@ -249,6 +252,9 @@ const elements = {
   pollingDescription: document.querySelector(
     "#polling-description",
   ),
+  forceAllProRow: document.querySelector("#force-all-pro-row"),
+  forceAllProToggle: document.querySelector("#force-all-pro-toggle"),
+  forceAllProHint: document.querySelector("#force-all-pro-hint"),
   summary: document.querySelector("#configuration-summary"),
   confirmButton: document.querySelector("#confirm-button"),
   exitButton: document.querySelector("#exit-button"),
@@ -555,8 +561,6 @@ function renderStyles() {
   });
   elements.introductionRoadmapToggle.checked =
     workflow.includeSectionNavigationSentence;
-  elements.titleBrandCandidatesToggle.checked =
-    workflow.allowTitleBrandCandidates;
 }
 
 function budgetIsUnlimited(sectionId) {
@@ -713,11 +717,27 @@ function renderExecution() {
   );
   elements.pollingDescription.textContent =
     `${copy("resultPolling")} · ${pollingIntervalText(selected?.id)}`;
+  const usesPro = selected?.id === "pro";
+  elements.forceAllProRow.hidden = !usesPro;
+  elements.forceAllProToggle.checked =
+    usesPro && workflow.chatExecution.forceProForAllTurns === true;
+  elements.forceAllProHint.textContent =
+    workflow.chatExecution.forceProForAllTurns === true
+      ? copy("proForceAllHint")
+      : copy("proFirstTurnHint");
 }
 
 function pollingIntervalText(preferenceId) {
   const policy = model.chatExecution.pollingPolicy;
   if (preferenceId === "strongest") return copy("pollingStrongest");
+  if (
+    preferenceId === "pro" &&
+    workflow.chatExecution.forceProForAllTurns !== true
+  ) {
+    return uiLanguage === "zh"
+      ? "首次 Pro 每 5 分钟；后续 Extra High 每 3 分钟"
+      : "First Pro interaction every 5 minutes; later Extra High interactions every 3 minutes";
+  }
   const intervalMs =
     policy.intervalMsByCapability[preferenceId] ??
     policy.unknownIntervalMs;
@@ -864,12 +884,6 @@ function bindEvents() {
     renderSummary();
     schedulePromptPreview();
   });
-  elements.titleBrandCandidatesToggle.addEventListener("change", () => {
-    workflow.allowTitleBrandCandidates =
-      elements.titleBrandCandidatesToggle.checked;
-    renderSummary();
-    schedulePromptPreview();
-  });
   elements.targetWords.addEventListener("input", () => {
     const next = Number(elements.targetWords.value);
     if (!Number.isFinite(next)) return;
@@ -924,6 +938,16 @@ function bindEvents() {
   elements.reasoningSelect.addEventListener("change", () => {
     workflow.chatExecution.reasoningPreference =
       elements.reasoningSelect.value;
+    if (elements.reasoningSelect.value !== "pro") {
+      workflow.chatExecution.forceProForAllTurns = false;
+    }
+    renderExecution();
+    renderSummary();
+    schedulePromptPreview();
+  });
+  elements.forceAllProToggle.addEventListener("change", () => {
+    workflow.chatExecution.forceProForAllTurns =
+      elements.forceAllProToggle.checked;
     renderExecution();
     renderSummary();
     schedulePromptPreview();
@@ -1007,6 +1031,7 @@ async function initialize() {
   bootstrap = await api("/api/bootstrap");
   model = bootstrap.model;
   workflow = structuredClone(bootstrap.initialWorkflow);
+  workflow.chatExecution.forceProForAllTurns ??= false;
   uiLanguage = bootstrap.uiLanguage === "en" ? "en" : "zh";
   bindEvents();
   render();

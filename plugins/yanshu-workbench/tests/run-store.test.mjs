@@ -28,7 +28,10 @@ import {
   downloadAssistantArtifact,
   normalizeChatArtifactName,
 } from "../scripts/lib/chat-artifact-protocol.mjs";
-import { resolveChatPreference } from "../scripts/lib/chat-preferences.mjs";
+import {
+  resolveChatPreference,
+  resolveEffectiveChatPreference,
+} from "../scripts/lib/chat-preferences.mjs";
 import {
   onboardingStatus,
   startOnboardingSession,
@@ -542,12 +545,27 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   });
 
   assert.equal(workflow.rounds.length, 5);
-  assert.equal(workflow.workflowVersion, "2026.07.13");
+  assert.equal(workflow.workflowVersion, "2026.07.14");
   assert.deepEqual(
     workflow.rounds.map((round) => round.number),
     [1, 2, 3, 4, 5],
   );
   assert.match(workflow.rounds[0].prompt, /4,500 words/);
+  for (const round of workflow.rounds) {
+    assert.match(
+      round.prompt,
+      /Understand this Prompt's objectives, evidence boundaries, and deliverables as a whole/,
+    );
+  }
+  assert.match(
+    workflow.rounds[0].prompt,
+    /select and apply the best title, full method name, or four-to-seven-letter brand acronym automatically/,
+  );
+  assert.match(workflow.rounds[0].prompt, /high-risk diff/);
+  assert.doesNotMatch(
+    workflow.rounds[0].prompt,
+    /explicit author selection|wait for manual selection|Candidates are never applied automatically/,
+  );
   assert.match(workflow.rounds[0].prompt, /Appendix allowed/);
   assert.match(
     workflow.rounds[0].prompt,
@@ -631,6 +649,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   assert.deepEqual(workflow.config.chatExecution, {
     modelPolicy: "latest-visible-reasoning",
     reasoningPreference: "strongest",
+    forceProForAllTurns: false,
     fallbackPolicy: "closest-lower-then-strongest",
     pollingPolicy: {
       strategy: "selected-reasoning-capability",
@@ -701,6 +720,9 @@ test("skill uses one local configuration page and a no-intervention recoverable 
   assert.match(skill, /zero-sensitive `yanshu_health`/);
   assert.match(skill, /Never ask the user to choose or confirm the mode/);
   assert.match(skill, /chat-plan/);
+  assert.match(skill, /chat-plan --interaction initial/);
+  assert.match(skill, /chat-plan --interaction follow-up/);
+  assert.match(skill, /forceProForAllTurns/);
   assert.match(skill, /Medium and High: 60 seconds/);
   assert.match(skill, /Extra High: 180 seconds/);
   assert.match(skill, /Pro: 300 seconds/);
@@ -802,6 +824,10 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.equal(bootstrap.initialWorkflow.styleId, "conference");
     assert.equal(bootstrap.initialWorkflow.hasWordLimit, false);
     assert.equal(bootstrap.initialWorkflow.unlimitedCoreSections, true);
+    assert.equal(
+      bootstrap.initialWorkflow.chatExecution.forceProForAllTurns,
+      false,
+    );
     assert.equal("placements" in bootstrap.model.frameworkFigure, false);
     assert.deepEqual(
       bootstrap.model.chatExecution.pollingPolicy.intervalMsByCapability,
@@ -858,7 +884,8 @@ test("local onboarding page confirms a complete automation config", async () => 
           },
           chatExecution: {
             ...bootstrap.initialWorkflow.chatExecution,
-            reasoningPreference: "high",
+            reasoningPreference: "pro",
+            forceProForAllTurns: true,
           },
         },
       }),
@@ -877,7 +904,8 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.equal(config.workflow.hasWordLimit, false);
     assert.equal(config.workflow.unlimitedCoreSections, true);
     assert.equal("placementId" in config.workflow.frameworkFigure, false);
-    assert.equal(config.workflow.chatExecution.reasoningPreference, "high");
+    assert.equal(config.workflow.chatExecution.reasoningPreference, "pro");
+    assert.equal(config.workflow.chatExecution.forceProForAllTurns, true);
 
     const ui = await readFile(
       path.join(pluginRoot, "ui", "onboarding", "index.html"),
@@ -888,6 +916,8 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.match(ui, /exit-button/);
     assert.match(ui, /copy-all-button/);
     assert.match(ui, /prompt-preview-list/);
+    assert.match(ui, /force-all-pro-toggle/);
+    assert.doesNotMatch(ui, /title-brand-candidates-toggle/);
     assert.doesNotMatch(ui, /placement-options/);
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });
@@ -1004,6 +1034,33 @@ test("reasoning preferences fall back against visible Chat options", () => {
   });
   assert.equal(extraHigh.selectedLabel, "Extra High");
   assert.equal(extraHigh.pollIntervalMs, 180_000);
+});
+
+test("Pro is limited to the first effective interaction unless explicitly forced", () => {
+  const initial = resolveEffectiveChatPreference({
+    configured: "pro",
+    interactionKind: "initial",
+  });
+  assert.equal(initial.effective, "pro");
+  assert.equal(initial.policyApplied, false);
+  assert.match(initial.notice, /first effective interaction/);
+
+  const followUp = resolveEffectiveChatPreference({
+    configured: "pro",
+    interactionKind: "follow-up",
+  });
+  assert.equal(followUp.effective, "extra-high");
+  assert.equal(followUp.policyApplied, true);
+  assert.match(followUp.notice, /follow-up uses Extra High/);
+
+  const forced = resolveEffectiveChatPreference({
+    configured: "pro",
+    interactionKind: "follow-up",
+    forceProForAllTurns: true,
+  });
+  assert.equal(forced.effective, "pro");
+  assert.equal(forced.policyApplied, false);
+  assert.match(forced.notice, /substantially extend the workflow/);
 });
 
 test("chat round protocol prepares a fresh thread before configuration and upload", async () => {
@@ -1192,6 +1249,7 @@ test("workflow preserves an explicit reasoning preference", () => {
   const workflow = buildReconstructionWorkflow({
     chatExecution: {
       reasoningPreference: "extra-high",
+      forceProForAllTurns: false,
     },
   });
 
@@ -1202,6 +1260,10 @@ test("workflow preserves an explicit reasoning preference", () => {
   assert.equal(
     workflow.config.chatExecution.modelPolicy,
     "latest-visible-reasoning",
+  );
+  assert.equal(
+    workflow.config.chatExecution.forceProForAllTurns,
+    false,
   );
 });
 

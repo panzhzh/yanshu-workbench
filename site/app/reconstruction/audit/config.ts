@@ -1,4 +1,5 @@
 import { COMMON_PROMPT_BLOCKS } from "../../../content/prompts/templates";
+import { withPromptJudgmentDirective } from "../../../content/prompts/promptAgency";
 import type { Language } from "../../config";
 
 type LocalizedText = Record<Language, string>;
@@ -286,13 +287,13 @@ function dataConsistencyAdapter(language: Language) {
 - 建立 numeric-claim ledger，覆盖 Abstract、正文、附录、表格、图片、caption、脚注和结论中的每个关键数字，并记录位置、对象、条件、指标、单位、统计口径和证据源。
 - 核对数据集规模与划分、样本数、超参数、运行次数、均值/标准差、显著性、排名、提升比例、百分比与百分点、单位换算、有效位数和四舍五入。
 - 检查正文中的 best/second-best、绝对提升和相对提升能否由图表直接推出；重新计算可确定的派生值，但保留原始值和计算式。
-- 主文、附录、图表或 TeX/PDF 冲突时不得静默选一个数。并列给出冲突位置、各值、影响的 claim 与最低风险处理；缺少原始证据时标为作者确认。
+- 主文、附录、图表或 TeX/PDF 冲突时不得静默选一个数。并列给出冲突位置、各值、影响的 claim 与最低风险处理；缺少原始证据时保留为未核验风险，不暂停审计流程。
 - 不把展示精度差异误报为科学冲突；必须说明允许的舍入容差与判断依据。`
     : `### [DATA] Data and Numeric Consistency
 - Build a numeric-claim ledger covering every material value in the Abstract, body, appendix, tables, figures, captions, footnotes, and Conclusion. Record location, object, condition, metric, unit, statistical convention, and evidence source.
 - Cross-check dataset sizes and splits, sample counts, hyperparameters, run counts, means/standard deviations, significance, rankings, gains, percentages versus percentage points, unit conversions, significant digits, and rounding.
 - Verify that best/second-best claims and absolute or relative gains in prose are derivable from visuals. Recalculate deterministic derived values while retaining source values and the formula used.
-- Never choose silently when main text, appendix, visuals, or TeX/PDF disagree. List every location and value, the affected claim, and the lowest-risk treatment; require author confirmation when primary evidence is absent.
+- Never choose silently when main text, appendix, visuals, or TeX/PDF disagree. List every location and value, the affected claim, and the lowest-risk treatment; preserve the item as an unresolved verification risk when primary evidence is absent, without pausing the audit.
 - Do not mistake display precision for a scientific conflict; state the accepted rounding tolerance and rationale.`;
 }
 
@@ -332,12 +333,12 @@ function notationAdapter(language: Language) {
 - 建立 notation registry：符号、首次定义、语义、类型/维度、单位、适用范围和复用位置；遵循一个符号一个含义、首次使用前定义。
 - 检查标量/向量/矩阵字体、上下标、集合与随机变量、损失项、期望、概率、范数、转置和运算符是否前后一致。
 - 核对公式编号与引用、符号在正文和算法中的一致性、输入输出维度、训练/推理阶段含义，以及量纲或单位是否可相容。
-- 区分排版不一致与数学错误。只有确定性的排版/引用错误可安全修复；潜在推导错误必须定位并交给作者确认，不得改造算法。`
+- 区分排版不一致与数学错误。只有确定性的排版/引用错误可安全修复；潜在推导错误必须精确定位并保留为未核验风险，不得改造算法。`
     : `### [MATH] Notation, Equations, and Units
 - Build a notation registry: symbol, first definition, meaning, type/dimension, unit, scope, and reuse locations. Enforce one symbol per meaning and definition before first use.
 - Check scalar/vector/matrix typography, subscripts, sets and random variables, loss terms, expectations, probabilities, norms, transposes, and operators for consistency.
 - Verify equation numbering and references, symbol consistency between prose and algorithms, input/output dimensions, training/inference meanings, and dimensional or unit compatibility.
-- Distinguish typography drift from a mathematical defect. Safely fix only deterministic typography/reference issues; locate potential derivation errors for author confirmation rather than redesigning the algorithm.`;
+- Distinguish typography drift from a mathematical defect. Safely fix only deterministic typography/reference issues; locate potential derivation errors precisely and preserve them as unresolved verification risks rather than redesigning the algorithm.`;
 }
 
 function reproducibilityAdapter(language: Language) {
@@ -421,7 +422,7 @@ function auditProtection(
 5. ${modeBoundary}`;
 }
 
-export function buildSpecializedAuditPrompt(
+function buildSpecializedAuditPromptContent(
   preferences: SpecializedAuditPreferences,
   language: Language,
 ) {
@@ -501,7 +502,7 @@ ${adapters}
 3. 每项发现必须包含：严重度（Blocker / Major / Minor）、置信度、精确位置（文件与行、章节/图表/cite key、PDF 页码按适用情况）、观察、直接证据、影响、最低风险行动和状态。
 4. 严重度按科学影响划分：Blocker 会使核心 claim、数据或引用不可信；Major 会实质影响理解、复现或投稿判断；Minor 是确定性一致性或表达缺陷。
 5. 不把偏好差异、无证据猜测或纯风格意见包装成问题。每个已选审计即使零发现，也要报告覆盖范围和“未发现可核验问题”。
-6. 先报告跨项统计和 Blocker，再给问题台账、各审计覆盖摘要、确定性修复、待作者确认项和无法覆盖的材料边界。
+6. 先报告跨项统计和 Blocker，再给问题台账、各审计覆盖摘要、确定性修复、未核验风险和无法覆盖的材料边界。
 
 ## 输出
 ${deliverables}
@@ -566,4 +567,14 @@ ${adapters}
 ${deliverables}
 
 Do not return only a generic checklist, overall impression, or unlocatable advice. Read the complete materials and perform the selected audit now.`;
+}
+
+export function buildSpecializedAuditPrompt(
+  preferences: SpecializedAuditPreferences,
+  language: Language,
+) {
+  return withPromptJudgmentDirective(
+    buildSpecializedAuditPromptContent(preferences, language),
+    language,
+  );
 }

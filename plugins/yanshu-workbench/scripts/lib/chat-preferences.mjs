@@ -7,6 +7,7 @@ export const CHAT_REASONING_PREFERENCES = [
   "extra-high",
   "pro",
 ];
+export const CHAT_INTERACTION_KINDS = ["initial", "follow-up"];
 
 const PREFERENCE_LABELS = {
   strongest: "strongest available",
@@ -23,6 +24,48 @@ const FALLBACK_ORDER = {
   "extra-high": ["extra-high", "high", "medium"],
   pro: ["pro", "extra-high", "high", "medium"],
 };
+
+export function resolveEffectiveChatPreference({
+  configured = "strongest",
+  interactionKind = "initial",
+  forceProForAllTurns = false,
+}) {
+  if (!CHAT_REASONING_PREFERENCES.includes(configured)) {
+    throw new CliError(
+      `Unknown ChatGPT reasoning preference: ${configured}.`,
+    );
+  }
+  if (!CHAT_INTERACTION_KINDS.includes(interactionKind)) {
+    throw new CliError(
+      `Unknown ChatGPT interaction kind: ${interactionKind}.`,
+    );
+  }
+  if (typeof forceProForAllTurns !== "boolean") {
+    throw new CliError(
+      "forceProForAllTurns must be a boolean.",
+      "invalid_chat_execution_policy",
+    );
+  }
+
+  const proFollowUp =
+    configured === "pro" &&
+    interactionKind === "follow-up" &&
+    !forceProForAllTurns;
+  return {
+    configured,
+    effective: proFollowUp ? "extra-high" : configured,
+    interactionKind,
+    forceProForAllTurns,
+    policyApplied: proFollowUp,
+    notice: proFollowUp
+      ? "Pro is reserved for the first effective interaction of this round; this follow-up uses Extra High."
+      : configured === "pro" && forceProForAllTurns
+        ? "Every interaction is forced to Pro; this may substantially extend the workflow."
+        : configured === "pro"
+          ? "This is the round's first effective interaction, so it uses Pro; later follow-ups will use Extra High."
+          : null,
+  };
+}
 
 export function normalizeVisibleChatLabel(value) {
   return value

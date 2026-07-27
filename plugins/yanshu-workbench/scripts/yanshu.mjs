@@ -22,9 +22,11 @@ import {
   stringFlag,
 } from "./lib/cli.mjs";
 import {
+  CHAT_INTERACTION_KINDS,
   CHAT_REASONING_PREFERENCES,
   parseVisibleChatOptions,
   resolveChatPreference,
+  resolveEffectiveChatPreference,
 } from "./lib/chat-preferences.mjs";
 import {
   artifactBundleSpec,
@@ -375,11 +377,6 @@ async function init(flags) {
     fileConfig.workflow?.includeSectionNavigationSentence ??
       styleId === "journal",
   );
-  const allowTitleBrandCandidates = booleanFlag(
-    flags,
-    "title-brand-candidates",
-    fileConfig.workflow?.allowTitleBrandCandidates ?? false,
-  );
   const frameworkFigure = {
     aspectRatioId: enumFlag(
       flags,
@@ -415,6 +412,11 @@ async function init(flags) {
       CHAT_REASONING_PREFERENCES,
       fileConfig.workflow?.chatExecution?.reasoningPreference ?? "strongest",
     ),
+    forceProForAllTurns: booleanFlag(
+      flags,
+      "force-all-pro",
+      fileConfig.workflow?.chatExecution?.forceProForAllTurns ?? false,
+    ),
   };
 
   const engine = await loadPromptEngine();
@@ -425,7 +427,6 @@ async function init(flags) {
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
-    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets: fileConfig.workflow?.sectionBudgets,
     includeAppendix,
@@ -560,12 +561,29 @@ async function mcpStop(flags) {
 async function chatPlan(flags) {
   const state = await loadRun(requiredFlag(flags, "run"));
   const engine = await loadPromptEngine();
-  const requested = enumFlag(
+  const configured = enumFlag(
     flags,
     "requested",
     CHAT_REASONING_PREFERENCES,
     state.config.chatExecution?.reasoningPreference ?? "strongest",
   );
+  const activeRound = nextRound(state);
+  const interactionKind = enumFlag(
+    flags,
+    "interaction",
+    CHAT_INTERACTION_KINDS,
+    activeRound?.checkpoint === "configured" ? "initial" : "follow-up",
+  );
+  const forceProForAllTurns = booleanFlag(
+    flags,
+    "force-all-pro",
+    state.config.chatExecution?.forceProForAllTurns ?? false,
+  );
+  const effectivePolicy = resolveEffectiveChatPreference({
+    configured,
+    interactionKind,
+    forceProForAllTurns,
+  });
   const visibleOptions = parseVisibleChatOptions(
     requiredFlag(flags, "visible"),
   );
@@ -573,13 +591,20 @@ async function chatPlan(flags) {
     state.config.chatExecution?.pollingPolicy ??
     engine.getReconstructionConfigurationModel().chatExecution
       .pollingPolicy;
+  const resolved = resolveChatPreference({
+    requested: effectivePolicy.effective,
+    visibleOptions,
+    pollingPolicy,
+  });
   return {
     ok: true,
-    ...resolveChatPreference({
-      requested,
-      visibleOptions,
-      pollingPolicy,
-    }),
+    ...resolved,
+    configuredReasoningPreference: effectivePolicy.configured,
+    effectiveReasoningPreference: effectivePolicy.effective,
+    interactionKind: effectivePolicy.interactionKind,
+    forceProForAllTurns: effectivePolicy.forceProForAllTurns,
+    proPolicyApplied: effectivePolicy.policyApplied,
+    proPolicyNotice: effectivePolicy.notice,
     visibleOptions,
     fallbackPolicy:
       state.config.chatExecution?.fallbackPolicy ??

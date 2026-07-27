@@ -94,11 +94,12 @@ function localizedSelection(config, model) {
       config.hasWordLimit && config.unlimitedCoreSections,
     includeSectionNavigationSentence:
       config.includeSectionNavigationSentence,
-    allowTitleBrandCandidates: config.allowTitleBrandCandidates,
     includeAppendix: config.includeAppendix,
     promptLanguage: config.language,
     figureRatio: ratioLabel,
     reasoningPreference: config.chatExecution.reasoningPreference,
+    forceProForAllTurns:
+      config.chatExecution.forceProForAllTurns === true,
   };
 }
 

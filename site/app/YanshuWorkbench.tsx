@@ -127,8 +127,6 @@ export default function YanshuWorkbench() {
     includeSectionNavigationSentence,
     setIncludeSectionNavigationSentence,
   ] = useState(defaultStyle.defaultIncludeSectionNavigationSentence);
-  const [allowTitleBrandCandidates, setAllowTitleBrandCandidates] =
-    useState<boolean>(PRODUCT_CONFIG.titleBrand.defaultAllowCandidates);
   const [targetWords, setTargetWords] = useState(
     defaultStyle.defaultTargetWords,
   );
@@ -202,7 +200,12 @@ export default function YanshuWorkbench() {
     chatExecution.reasoningPreference,
   );
   const chatPollingDescription =
-    chatPollingIntervalMs === null
+    chatExecution.reasoningPreference === "pro" &&
+    !chatExecution.forceProForAllTurns
+      ? uiLanguage === "zh"
+        ? "首次 Pro 每 5 分钟；后续 Extra High 每 3 分钟"
+        : "First Pro interaction every 5 minutes; later Extra High interactions every 3 minutes"
+      : chatPollingIntervalMs === null
       ? copy.chatPollingAuto
       : uiLanguage === "zh"
         ? `每 ${chatPollingIntervalMs / 60_000} 分钟检查一次`
@@ -225,7 +228,6 @@ export default function YanshuWorkbench() {
             styleLabel: style.label[language],
             styleDirective: style.promptDirective[language],
             includeSectionNavigationSentence,
-            allowTitleBrandCandidates,
             targetWords,
             hasWordLimit,
             unlimitedCoreSections,
@@ -249,7 +251,6 @@ export default function YanshuWorkbench() {
       promptLanguages,
       styleId,
       includeSectionNavigationSentence,
-      allowTitleBrandCandidates,
       targetWords,
       hasWordLimit,
       unlimitedCoreSections,
@@ -384,9 +385,6 @@ export default function YanshuWorkbench() {
     setIncludeSectionNavigationSentence(
       nextStyle.defaultIncludeSectionNavigationSentence,
     );
-    setAllowTitleBrandCandidates(
-      PRODUCT_CONFIG.titleBrand.defaultAllowCandidates,
-    );
     setTargetWords(nextStyle.defaultTargetWords);
     setHasWordLimit(PRODUCT_CONFIG.wordCount.defaultMode === "target");
     setUnlimitedCoreSections(
@@ -424,7 +422,6 @@ export default function YanshuWorkbench() {
           roundLanguages: promptLanguages,
           styleId,
           includeSectionNavigationSentence,
-          allowTitleBrandCandidates,
           hasWordLimit,
           unlimitedCoreSections,
           targetWords,
@@ -593,64 +590,40 @@ export default function YanshuWorkbench() {
                 })}
               </div>
               <small>{style.description[uiLanguage]}</small>
-              <div className="style-preset-options">
-                <button
-                  className={`compact-switch ${
-                    includeSectionNavigationSentence ? "active" : ""
-                  }`}
-                  type="button"
-                  role="switch"
-                  aria-checked={includeSectionNavigationSentence}
-                  onClick={() => {
-                    setIncludeSectionNavigationSentence((current) => !current);
-                    setCopied(null);
-                  }}
-                >
-                  <span className="switch-track" aria-hidden="true">
-                    <span />
-                  </span>
-                  <span>
-                    <strong>
-                      {includeSectionNavigationSentence
-                        ? copy.introNavigationOn
-                        : copy.introNavigationOff}
-                    </strong>
-                    <small>{copy.introNavigation}</small>
-                  </span>
-                </button>
-                <button
-                  className={`compact-switch ${
-                    allowTitleBrandCandidates ? "active" : ""
-                  }`}
-                  type="button"
-                  role="switch"
-                  aria-checked={allowTitleBrandCandidates}
-                  onClick={() => {
-                    setAllowTitleBrandCandidates((current) => !current);
-                    setCopied(null);
-                  }}
-                >
-                  <span className="switch-track" aria-hidden="true">
-                    <span />
-                  </span>
-                  <span>
-                    <strong>
-                      {allowTitleBrandCandidates
-                        ? copy.titleBrandCandidatesOn
-                        : copy.titleBrandCandidatesOff}
-                    </strong>
-                    <small>{copy.titleBrandCandidates}</small>
-                  </span>
-                </button>
+            </div>
+
+            <div className="config-control intro-navigation-control">
+              <div className="control-label-row">
+                <span className="control-index">02</span>
+                <span>{copy.introNavigation}</span>
               </div>
-              <p className="style-preset-hint">
-                {copy.introNavigationHint} {copy.titleBrandCandidatesHint}
-              </p>
+              <button
+                className={`switch-row ${
+                  includeSectionNavigationSentence ? "active" : ""
+                }`}
+                type="button"
+                role="switch"
+                aria-checked={includeSectionNavigationSentence}
+                onClick={() => {
+                  setIncludeSectionNavigationSentence((current) => !current);
+                  setCopied(null);
+                }}
+              >
+                <span className="switch-track" aria-hidden="true">
+                  <span />
+                </span>
+                <strong>
+                  {includeSectionNavigationSentence
+                    ? copy.introNavigationOn
+                    : copy.introNavigationOff}
+                </strong>
+              </button>
+              <small>{copy.introNavigationHint}</small>
             </div>
 
             <div className="config-control target-control">
               <div className="control-label-row">
-                <span className="control-index">02</span>
+                <span className="control-index">03</span>
                 <span>{copy.targetWords}</span>
               </div>
               <button
@@ -674,7 +647,7 @@ export default function YanshuWorkbench() {
 
             <div className="config-control appendix-control">
               <div className="control-label-row">
-                <span className="control-index">03</span>
+                <span className="control-index">04</span>
                 <span>{copy.appendix}</span>
               </div>
               <button
@@ -703,7 +676,7 @@ export default function YanshuWorkbench() {
 
             <fieldset className="config-control framework-figure-control">
               <legend className="control-label-row">
-                <span className="control-index">04</span>
+                <span className="control-index">05</span>
                 <span>{copy.frameworkFigure}</span>
               </legend>
               <div className="framework-figure-row">
@@ -779,7 +752,7 @@ export default function YanshuWorkbench() {
 
             <fieldset className="config-control chat-execution-control">
               <legend className="control-label-row">
-                <span className="control-index">05</span>
+                <span className="control-index">06</span>
                 <span>{copy.chatExecution}</span>
               </legend>
               <div className="chat-execution-row">
@@ -816,6 +789,10 @@ export default function YanshuWorkbench() {
                             setChatExecution((current) => ({
                               ...current,
                               reasoningPreference: preferenceId,
+                              forceProForAllTurns:
+                                preferenceId === "pro"
+                                  ? current.forceProForAllTurns
+                                  : false,
                             }));
                             setCopied(null);
                           }}
@@ -831,6 +808,46 @@ export default function YanshuWorkbench() {
                 <span>{copy.chatPollingInterval}</span>
                 <strong>{chatPollingDescription}</strong>
               </div>
+              {chatExecution.reasoningPreference === "pro" && (
+                <div
+                  className={`chat-pro-policy ${
+                    chatExecution.forceProForAllTurns ? "forced" : ""
+                  }`}
+                >
+                  <button
+                    className={`compact-switch ${
+                      chatExecution.forceProForAllTurns ? "active" : ""
+                    }`}
+                    type="button"
+                    role="switch"
+                    aria-checked={chatExecution.forceProForAllTurns}
+                    onClick={() => {
+                      setChatExecution((current) => ({
+                        ...current,
+                        forceProForAllTurns: !current.forceProForAllTurns,
+                      }));
+                      setCopied(null);
+                    }}
+                  >
+                    <span className="switch-track" aria-hidden="true">
+                      <span />
+                    </span>
+                    <span>
+                      <strong>{copy.chatProStrategy}</strong>
+                      <small>
+                        {chatExecution.forceProForAllTurns
+                          ? copy.chatProForceAll
+                          : copy.chatProFirstTurnOnly}
+                      </small>
+                    </span>
+                  </button>
+                  <p>
+                    {chatExecution.forceProForAllTurns
+                      ? copy.chatProForceAllHint
+                      : copy.chatProFirstTurnHint}
+                  </p>
+                </div>
+              )}
               <small>
                 <strong>
                   {chatReasoningPreference.description[uiLanguage]}
@@ -847,7 +864,7 @@ export default function YanshuWorkbench() {
             >
             <div className="allocation-control-header">
               <div className="allocation-title">
-                <span className="control-index">06</span>
+                <span className="control-index">07</span>
                 <div>
                   <strong>{copy.plannerTitle}</strong>
                   <span>{copy.plannerBody}</span>

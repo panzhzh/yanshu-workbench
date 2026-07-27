@@ -16,9 +16,7 @@ export interface InlineStyleConstraint {
 
 export interface InlinePreferenceConstraint {
   marker: string;
-  contextKey:
-    | "includeSectionNavigationSentence"
-    | "allowTitleBrandCandidates";
+  contextKey: "includeSectionNavigationSentence";
   branches: {
     enabled: LocalizedText;
     disabled: LocalizedText;
@@ -94,14 +92,14 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 ### 论文标题与品牌缩写
 
-- 默认保留原标题、方法全称和现有缩写；核查其准确性、自然度、检索性及与最近邻工作的冲突风险；
-- 自动化流程不得静默替换论文身份。任何候选都只能写入中文报告，必须附 high-risk diff（原值、候选、依据、风险与授权状态）；
-{{title_brand_strategy}}
+- 核查当前标题、方法全称和缩写的准确性、自然度、检索性及与最近邻工作的冲突风险；
+- 若当前身份仍是最优方案则继续使用；若变更能明确改善准确性、边界或辨识度，直接选择并应用最优标题、方法全称或 4–7 个拉丁字母的品牌缩写，不生成延后决策的候选集，也不暂停流程；
+- 按全局标题与品牌治理规则记录每项实际变更；未变更时也要记录审计结论；
 {{title_word_limits}}
 
 ### 唯一术语体系
 
-- 以现有方法全称和论文品牌缩写为默认身份；
+- 以本轮审计后确定的方法全称和论文品牌缩写为唯一身份；
 - 统一科学问题、核心表示、模块、分支、查询、损失、训练和推理术语；
 - 统一数据集、指标、比较设置和实验类型名称；
 - 列出禁止继续使用的冗余同义词；
@@ -128,7 +126,7 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 ### 中文报告固定清单
 
-报告必须包含：Scientific Positioning Contract、标题与论文品牌审计及 high-risk diff（如有）、一句话论文主旨、一句话核心痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能表、图表角色表、结构操作、联网核验、作者需确认项和下一步交接摘要。`,
+报告必须包含：Scientific Positioning Contract、标题与论文品牌审计及 high-risk diff（如有）、一句话论文主旨、一句话核心痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能表、图表角色表、结构操作、联网核验、自动决策与未核验风险、下一步交接摘要。`,
       en: `### The Scientific Positioning Contract Must Answer Every Item
 
 1. Task: the concrete task, inputs, outputs, and applicable boundary;
@@ -142,14 +140,14 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 ### Paper Title and Brand Acronym
 
-- Preserve the current title, full method name, and acronym by default; audit their accuracy, naturalness, searchability, and collision risk against nearest-neighbor work;
-- Automation must never replace the paper identity silently. Any candidate belongs only in the Chinese report and requires a high-risk diff covering the original, candidate, evidence, risk, and authorization state;
-{{title_brand_strategy}}
+- Audit the current title, full method name, and acronym for accuracy, naturalness, searchability, and collision risk against nearest-neighbor work;
+- Keep the current identity when it remains the strongest option. When a change clearly improves accuracy, scope, or distinctiveness, select and apply the best title, full method name, or four-to-seven-letter brand acronym automatically; do not create a deferred candidate set or pause the workflow;
+- Record every applied change under the global title-and-brand governance rule, and record the audit conclusion even when nothing changes;
 {{title_word_limits}}
 
 ### One Terminology System
 
-- Treat the existing full method name and paper brand acronym as the default identity;
+- Treat the full method name and paper-brand acronym selected by this audit as the single identity;
 - Standardize terminology for the scientific problem, representations, components, branches, queries, losses, training, and inference;
 - Standardize names for datasets, metrics, comparison settings, and experiment types;
 - List redundant synonyms that must no longer appear;
@@ -176,7 +174,7 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Scientific Positioning Contract; title and paper-brand audit with any high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology and section-function tables; visual roles; structural operations; web verification; author-confirmation items; and next-step handoff.`,
+The report must contain the Scientific Positioning Contract; title and paper-brand audit with any high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology and section-function tables; visual roles; structural operations; web verification; automatic decisions and unresolved risks; and next-step handoff.`,
     },
     inlineStyleConstraints: [
       {
@@ -246,20 +244,6 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
       },
     ],
     inlinePreferenceConstraints: [
-      {
-        marker: "title_brand_strategy",
-        contextKey: "allowTitleBrandCandidates",
-        branches: {
-          enabled: {
-            zh: "- 仅当现有标题或缩写存在误导、越界或明显不自然时，才在报告中提供少量候选；候选品牌缩写为 4–7 个拉丁字母。在作者明确选择前，TeX 继续使用原值。",
-            en: "- Only when the current title or acronym is misleading, overbroad, or clearly unnatural may the report offer a small candidate set; a candidate paper-brand acronym uses four to seven Latin letters. TeX retains the original until the author explicitly selects a change.",
-          },
-          disabled: {
-            zh: "- 当前配置不允许候选：保持原标题、方法全称和缩写；发现风险时只在报告中说明，不生成替代名称。",
-            en: "- Candidates are disabled: preserve the current title, full method name, and acronym. Report risks without generating replacement names.",
-          },
-        },
-      },
       {
         marker: "scientific_introduction_structure",
         contextKey: "includeSectionNavigationSentence",
@@ -366,7 +350,7 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
 
 ### 中文报告固定清单
 
-报告必须包含：Method 逻辑图谱、方法小节重构对照、公式与符号审计、现有图表与正文接口审计、Experiment Question–Evidence 表、实验顺序设计、数字与统计风险、删除或弱化的机制主张、联网基线与协议核验、修改清单、作者需确认项和下一轮交接摘要。Question–Evidence 表是报告中的规划与审计工具，其列名不得变成 TeX 中重复的小标题或句首标签。`,
+报告必须包含：Method 逻辑图谱、方法小节重构对照、公式与符号审计、现有图表与正文接口审计、Experiment Question–Evidence 表、实验顺序设计、数字与统计风险、删除或弱化的机制主张、联网基线与协议核验、修改清单、未核验风险和下一轮交接摘要。Question–Evidence 表是报告中的规划与审计工具，其列名不得变成 TeX 中重复的小标题或句首标签。`,
       en: `### Fixed Constraints for Method
 
 1. {{method_document_hierarchy}}
@@ -393,7 +377,7 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, author-confirmation items, and next-step handoff. Treat the Question–Evidence table as a report-only planning and audit device; never turn its column labels into repeated TeX headings or sentence prefixes.`,
+The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, unresolved verification risks, and next-step handoff. Treat the Question–Evidence table as a report-only planning and audit device; never turn its column labels into repeated TeX headings or sentence prefixes.`,
     },
     inlineStyleConstraints: [
       {
@@ -736,7 +720,7 @@ The report must contain the fact base, preservation list for high-value original
 
 ### Terminology, Acronym, and Cross-section Function Governance
 
-- Build the final Terminology Consistency Table covering canonical terms, the full method name and current author-approved paper-brand acronym, component/representation/query/branch/loss/data/metric terminology, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct;
+- Build the final Terminology Consistency Table covering canonical terms, the full method name and paper-brand acronym selected by this workflow, component/representation/query/branch/loss/data/metric terminology, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct;
 - Check complete consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms;
 - Check whether Abstract copies Introduction; Introduction reveals excessive method detail or numbers; Related Work repeats Introduction or narrates papers; Method Overview repeats mechanism subsections; Experiments reads tables cell by cell; Discussion repeats Results; Conclusion copies Abstract; the three contributions align with Method/Experiments/Conclusion; and the same limitation appears repeatedly;
 - Return a Cross-Section Redundancy Matrix explaining every deletion, merge, or retention.

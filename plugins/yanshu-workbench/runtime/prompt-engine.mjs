@@ -1,6 +1,7 @@
 // content/prompts/chatExecution.ts
 var CHAT_MODEL_POLICY = "latest-visible-reasoning";
 var CHAT_FALLBACK_POLICY = "closest-lower-then-strongest";
+var CHAT_PRO_FOLLOW_UP_PREFERENCE = "extra-high";
 var CHAT_REASONING_PREFERENCE_IDS = [
   "strongest",
   "medium",
@@ -90,14 +91,15 @@ var CHAT_REASONING_PREFERENCES = {
       en: "Pro"
     },
     description: {
-      zh: "\u4F18\u5148\u4F7F\u7528\u6700\u5F3A Pro \u6863\u4F4D\uFF1B\u4E0D\u53EF\u7528\u65F6\u4F9D\u6B21\u56DE\u9000\u5230 Extra High\u3001High\u3001Medium\u3002",
-      en: "Prefer the strongest Pro level, then fall back to Extra High, High, and Medium."
+      zh: "\u9ED8\u8BA4\u6BCF\u8F6E\u9996\u6B21\u6709\u6548\u5BF9\u8BDD\u4F7F\u7528 Pro\uFF0C\u540E\u7EED\u7EE7\u7EED\u3001\u7EA0\u6B63\u4E0E\u8865\u4EA4\u5207\u6362\u4E3A Extra High\uFF1B\u4E0D\u53EF\u7528\u65F6\u4ECD\u6309\u6700\u63A5\u8FD1\u6863\u4F4D\u56DE\u9000\u3002",
+      en: "Use Pro for the first effective interaction of each round by default, then switch continuations, corrections, and resubmissions to Extra High; unavailable levels still fall back to the closest option."
     }
   }
 };
 var DEFAULT_CHAT_EXECUTION_PREFERENCES = {
   modelPolicy: CHAT_MODEL_POLICY,
   reasoningPreference: "strongest",
+  forceProForAllTurns: false,
   fallbackPolicy: CHAT_FALLBACK_POLICY,
   pollingPolicy: CHAT_RESULT_POLLING_POLICY
 };
@@ -123,9 +125,6 @@ var PRODUCT_CONFIG = {
     min: 2e3,
     max: 2e4,
     step: 100
-  },
-  titleBrand: {
-    defaultAllowCandidates: false
   },
   chatExecution: {
     default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
@@ -395,10 +394,6 @@ var UI_COPY = {
     introNavigationOn: "\u4FDD\u7559\u4E00\u6761\u7B80\u6D01\u5BFC\u822A\u53E5",
     introNavigationOff: "\u4E0D\u5199\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
     introNavigationHint: "\u4F1A\u8BAE\u9ED8\u8BA4\u5173\u95ED\uFF0C\u671F\u520A\u9ED8\u8BA4\u5F00\u542F\uFF1B\u53EA\u8BF4\u660E\u7AE0\u8282\u7EC4\u7EC7\uFF0C\u4E0D\u91CD\u590D\u5404\u8282\u5185\u5BB9\u3002",
-    titleBrandCandidates: "\u6807\u9898\u4E0E\u54C1\u724C\u5019\u9009",
-    titleBrandCandidatesOn: "\u5141\u8BB8\u5728\u62A5\u544A\u4E2D\u63D0\u51FA\u5019\u9009",
-    titleBrandCandidatesOff: "\u9ED8\u8BA4\u4FDD\u7559\u539F\u6807\u9898\u4E0E\u7F29\u5199",
-    titleBrandCandidatesHint: "\u5019\u9009\u4E0D\u4F1A\u88AB\u81EA\u52A8\u5199\u5165\u8BBA\u6587\uFF1B\u4EFB\u4F55\u53D8\u66F4\u90FD\u5FC5\u987B\u7531\u4F5C\u8005\u660E\u786E\u9009\u62E9\uFF0C\u5E76\u751F\u6210 high-risk diff\u3002",
     words: "\u8BCD",
     appendix: "\u9644\u5F55\u8BBE\u7F6E",
     appendixOn: "\u5141\u8BB8\u9644\u5F55",
@@ -412,6 +407,11 @@ var UI_COPY = {
     chatModelPolicy: "\u6A21\u578B\u7B56\u7565",
     chatLatestVisibleModel: "\u6700\u65B0\u53EF\u7528\u63A8\u7406\u6A21\u578B",
     chatReasoningPreference: "\u63A8\u7406\u7B49\u7EA7",
+    chatProStrategy: "Pro \u5BF9\u8BDD\u7B56\u7565",
+    chatProFirstTurnOnly: "\u6BCF\u8F6E\u9996\u6B21\u4F7F\u7528 Pro\uFF0C\u540E\u7EED\u4F7F\u7528 Extra High",
+    chatProForceAll: "\u5F3A\u5236\u6240\u6709\u5BF9\u8BDD\u4F7F\u7528 Pro",
+    chatProFirstTurnHint: "\u63A8\u8350\u3002Pro \u901A\u5E38\u8017\u65F6\u8F83\u957F\uFF1B\u6BCF\u8F6E\u9996\u6B21\u6709\u6548\u63D0\u4EA4\u4F7F\u7528 Pro\uFF0C\u540C\u8F6E\u7EE7\u7EED\u3001\u7EA0\u6B63\u548C\u8865\u4EA4\u81EA\u52A8\u5207\u6362\u4E3A Extra High\u3002",
+    chatProForceAllHint: "\u5F3A\u5236\u5168\u90E8 Pro \u4F1A\u663E\u8457\u5EF6\u957F\u4E94\u8F6E\u6D41\u7A0B\uFF0C\u5C24\u5176\u662F\u7EED\u5199\u3001\u7EA0\u6B63\u4E0E\u4EA7\u7269\u8865\u4EA4\u3002",
     chatPollingInterval: "\u7ED3\u679C\u68C0\u67E5\u95F4\u9694",
     chatPollingAuto: "\u6309\u5B9E\u9645\u6863\u4F4D\u81EA\u52A8\u91C7\u7528\uFF1AMedium / High 1 \u5206\u949F\uFF0CExtra High 3 \u5206\u949F\uFF0CPro 5 \u5206\u949F\uFF1B\u65E0\u6CD5\u8BC6\u522B\u65F6\u6309 1 \u5206\u949F\u3002",
     chatRuntimePolicy: "\u4E0D\u9501\u5B9A GPT \u578B\u53F7\u540D\u79F0\uFF1B\u63D2\u4EF6\u6BCF\u8F6E\u8BFB\u53D6 ChatGPT \u5F53\u524D\u53EF\u89C1\u9009\u9879\u3002\u53D1\u751F\u56DE\u9000\u65F6\u5148\u660E\u786E\u63D0\u793A\uFF0C\u540D\u79F0\u65E0\u6CD5\u5224\u65AD\u65F6\u9009\u62E9\u6700\u5F3A\u53EF\u7528\u6863\u4F4D\u3002",
@@ -482,10 +482,6 @@ var UI_COPY = {
     introNavigationOn: "Include one concise roadmap sentence",
     introNavigationOff: "No pure roadmap sentence",
     introNavigationHint: "Off by default for conferences and on for journals; it states organization only and does not summarize sections.",
-    titleBrandCandidates: "Title and brand candidates",
-    titleBrandCandidatesOn: "Allow candidates in the report",
-    titleBrandCandidatesOff: "Preserve the current title and acronym",
-    titleBrandCandidatesHint: "Candidates are never applied automatically. Any change requires explicit author selection and a high-risk diff.",
     words: "words",
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
@@ -499,6 +495,11 @@ var UI_COPY = {
     chatModelPolicy: "Model policy",
     chatLatestVisibleModel: "Latest available reasoning model",
     chatReasoningPreference: "Reasoning level",
+    chatProStrategy: "Pro interaction policy",
+    chatProFirstTurnOnly: "Pro for the first interaction of each round; Extra High afterward",
+    chatProForceAll: "Force Pro for every interaction",
+    chatProFirstTurnHint: "Recommended. Pro can take much longer: use it for the first effective submission of each round, then switch continuations, corrections, and artifact follow-ups to Extra High.",
+    chatProForceAllHint: "Forcing Pro throughout can substantially extend the five-round workflow, especially during continuations, corrections, and artifact follow-ups.",
     chatPollingInterval: "Result-check interval",
     chatPollingAuto: "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",
     chatRuntimePolicy: "GPT model names are never pinned. The plugin inspects the options currently visible in ChatGPT for every round, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
@@ -694,6 +695,17 @@ var OUTPUT_PROTOCOL = {
   zh: ({ executionMode, outputFileName }) => executionMode === "direct" ? buildDirectProtocol("zh", outputFileName) : buildPromptFirstProtocol("zh", outputFileName),
   en: ({ executionMode, outputFileName }) => executionMode === "direct" ? buildDirectProtocol("en", outputFileName) : buildPromptFirstProtocol("en", outputFileName)
 };
+
+// content/prompts/promptAgency.ts
+var PROMPT_JUDGMENT_DIRECTIVE = {
+  zh: "\u8BF7\u4ECE\u6574\u4F53\u7406\u89E3\u672C Prompt \u7684\u76EE\u6807\u3001\u8BC1\u636E\u8FB9\u754C\u4E0E\u4EA4\u4ED8\u8981\u6C42\uFF1B\u5728\u4E0D\u6539\u53D8\u4E8B\u5B9E\u548C\u786C\u6027\u7EA6\u675F\u7684\u524D\u63D0\u4E0B\uFF0C\u4E3B\u52A8\u91C7\u7528\u4F60\u5224\u65AD\u66F4\u4E25\u8C28\u3001\u66F4\u6709\u6548\u7684\u65B9\u6848\uFF0C\u5E76\u5728\u6709\u52A9\u4E8E\u63D0\u5347\u7ED3\u679C\u65F6\u6BD4\u5B57\u9762\u8981\u6C42\u601D\u8003\u5F97\u66F4\u6DF1\u5165\u3002",
+  en: "Understand this Prompt's objectives, evidence boundaries, and deliverables as a whole. Without changing facts or hard constraints, use any more rigorous and effective approach you judge appropriate, and reason beyond the literal wording when that improves the result."
+};
+function withPromptJudgmentDirective(prompt, language) {
+  return `${PROMPT_JUDGMENT_DIRECTIVE[language]}
+
+${prompt}`;
+}
 
 // app/figures/config.ts
 var FIGURE_PROMPT_ORDER = [
@@ -1268,7 +1280,7 @@ function buildVisualConfiguration(preferences, language) {
   return `Visual settings: ${selectedAspectRatio} canvas on pure white; use ${accentRange.label} accent colors from ${palette.label.en} (${candidateColors}); ${linePolicy}; ${fontFamily.label}, ${typeHierarchy}, with black or near-black text; container fill policy: ${cardPolicy}; ${iconPolicy}; ${titlePolicy}.`;
 }
 function buildFigurePrompt(promptId, preferences, language, options = {}) {
-  return [
+  return withPromptJudgmentDirective([
     COMMON_BASE[language](FIGURE_PROMPTS[promptId].label[language]),
     FIGURE_TYPE_ADAPTERS[promptId][language],
     buildVisualConfiguration(preferences, language),
@@ -1276,7 +1288,7 @@ function buildFigurePrompt(promptId, preferences, language, options = {}) {
       executionMode: preferences.executionMode,
       outputFileName: options.outputFileName
     })
-  ].join("\n\n");
+  ].join("\n\n"), language);
 }
 function buildFrameworkFigureReconstructionPrompt(language, layout = {
   aspectRatioId: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
@@ -1319,8 +1331,8 @@ var COMMON_PROMPT_BLOCKS = {
 4. Deliver a complete, continuous, editable English .tex; keep Chinese analysis and revision notes in the Chinese report.`
   },
   identityGovernance: {
-    zh: `\u9ED8\u8BA4\u4FDD\u7559\u539F\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u3002\u53EA\u6709\u5F53\u524D\u914D\u7F6E\u5141\u8BB8\uFF0C\u4E14\u73B0\u6709\u540D\u79F0\u5B58\u5728\u8BEF\u5BFC\u3001\u8D8A\u754C\u6216\u660E\u663E\u4E0D\u81EA\u7136\u65F6\uFF0C\u624D\u5728\u4E2D\u6587\u62A5\u544A\u4E2D\u63D0\u51FA\u5C11\u91CF\u5019\u9009\uFF1B\u81EA\u52A8\u5316\u6D41\u7A0B\u4E0D\u5F97\u9759\u9ED8\u5199\u5165\u5019\u9009\u3002\u4EFB\u4F55\u6807\u9898\u6216\u54C1\u724C\u53D8\u5316\u90FD\u5FC5\u987B\u7531\u4F5C\u8005\u660E\u786E\u9009\u62E9\uFF0C\u5E76\u8BB0\u5F55 high-risk diff\uFF08\u539F\u503C\u3001\u5019\u9009\u3001\u4F9D\u636E\u3001\u98CE\u9669\u4E0E\u6388\u6743\u72B6\u6001\uFF09\u3002\u79D1\u5B66\u4E3B\u7EBF\u53EF\u4EE5\u968F\u65B0\u8BC1\u636E\u4FEE\u6B63\uFF0C\u4F46\u6BCF\u6B21\u53D8\u5316\u90FD\u8981\u8BB0\u5F55\u539F\u56E0\u548C\u5F71\u54CD\uFF0C\u4E0D\u5F97\u56E0\u5355\u8F6E\u5224\u65AD\u6C38\u4E45\u51BB\u7ED3\u3002`,
-    en: `Preserve the current title, full method name, and paper-brand acronym by default. Only when the configuration allows it and the current identity is misleading, overbroad, or clearly unnatural may the Chinese report propose a small candidate set; automation must never apply a candidate silently. Any title or brand change requires explicit author selection and a high-risk diff recording the original, candidate, evidence, risk, and authorization status. The scientific throughline may be revised when later evidence warrants it, but every change must record its reason and impact rather than becoming permanently frozen after one round.`
+    zh: `\u6838\u67E5\u5F53\u524D\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\uFF1B\u82E5\u5176\u4ECD\u662F\u6700\u4F18\u65B9\u6848\u5219\u4FDD\u7559\uFF0C\u82E5\u53D8\u66F4\u80FD\u660E\u786E\u63D0\u5347\u51C6\u786E\u6027\u3001\u8FB9\u754C\u6216\u8FA8\u8BC6\u5EA6\uFF0C\u5219\u7531\u6A21\u578B\u5728\u672C\u8F6E\u81EA\u52A8\u9009\u62E9\u5E76\u5E94\u7528\u6700\u4F18\u65B9\u6848\u3002\u6240\u6709\u5B9E\u9645\u53D8\u66F4\u5FC5\u987B\u5728\u4E2D\u6587\u62A5\u544A\u4E2D\u8BB0\u5F55 high-risk diff\uFF08\u539F\u503C\u3001\u6700\u7EC8\u503C\u3001\u4F9D\u636E\u4E0E\u8BC1\u636E\u3001\u98CE\u9669\u53CA\u5F71\u54CD\u4F4D\u7F6E\uFF09\uFF0C\u4E0D\u5F97\u65E0\u58F0\u66FF\u6362\u3002\u79D1\u5B66\u4E3B\u7EBF\u4E5F\u53EF\u968F\u65B0\u8BC1\u636E\u81EA\u52A8\u4FEE\u6B63\uFF0C\u4F46\u6BCF\u6B21\u53D8\u5316\u90FD\u8981\u8BB0\u5F55\u539F\u56E0\u548C\u5F71\u54CD\u3002`,
+    en: `Audit the current title, full method name, and paper-brand acronym. Keep them when they remain the strongest option; when a change clearly improves accuracy, scope, or distinctiveness, select and apply the best option automatically as part of this workflow. Record every applied change in the Chinese report as a high-risk diff covering the original and final values, rationale and evidence, risks, and affected locations; never change identity silently. The scientific throughline may also be revised automatically when later evidence warrants it, with every change and impact recorded.`
   },
   cohesiveRevision: {
     zh: `1. \u4E0D\u505A\u201C\u539F\u6587 + \u4FEE\u8865\u53E5\u201D\uFF1A\u5148\u786E\u5B9A\u5141\u8BB8\u8303\u56F4\u5185\u6700\u5C0F\u7684\u5B8C\u6574\u8BBA\u8BC1\u5355\u5143\uFF0C\u518D\u6574\u4F53\u878D\u5408\u95EE\u9898\u3001claim\u3001\u8BC1\u636E\u3001\u89E3\u91CA\u3001\u8FB9\u754C\u4E0E\u8FC7\u6E21\u3002
@@ -1354,8 +1366,8 @@ var PROMPT_TEMPLATES = [
       en: "Scientific Positioning & Structure"
     },
     purpose: {
-      zh: "\u5BA1\u8BA1\u79D1\u5B66\u5B9A\u4F4D\uFF0C\u5728\u9ED8\u8BA4\u4FDD\u7559\u8BBA\u6587\u8EAB\u4EFD\u7684\u524D\u63D0\u4E0B\u5EFA\u7ACB\u4E3B\u7EBF\u3001\u672F\u8BED\u4F53\u7CFB\u3001Claim\u2013Evidence Map \u548C\u7AE0\u8282\u5206\u5DE5\u3002",
-      en: "Audit the scientific position and, while preserving the paper identity by default, establish the throughline, terminology, claim\u2013evidence map, and section responsibilities."
+      zh: "\u5BA1\u8BA1\u79D1\u5B66\u5B9A\u4F4D\u4E0E\u8BBA\u6587\u8EAB\u4EFD\uFF0C\u5EFA\u7ACB\u4E3B\u7EBF\u3001\u672F\u8BED\u4F53\u7CFB\u3001Claim\u2013Evidence Map \u548C\u7AE0\u8282\u5206\u5DE5\u3002",
+      en: "Audit the scientific position and paper identity, then establish the throughline, terminology, claim\u2013evidence map, and section responsibilities."
     },
     role: {
       zh: "\u4F60\u662F\u4E00\u540D\u719F\u6089\u8BA1\u7B97\u673A\u79D1\u5B66\u9876\u7EA7\u4F1A\u8BAE\u4E0E\u9AD8\u6C34\u5E73\u671F\u520A\u8BC4\u5BA1\u7684\u8D44\u6DF1\u7814\u7A76\u8005\u3002\u672C\u8F6E\u5728\u4FDD\u7559\u539F\u7A3F\u6709\u6548\u8BBA\u8BC1\u548C\u4F18\u8D28\u8868\u8FBE\u7684\u57FA\u7840\u4E0A\uFF0C\u5B8C\u6210\u79D1\u5B66\u5B9A\u4F4D\u4E0E\u5B8F\u89C2\u7ED3\u6784\u7684\u6DF1\u5EA6\u7CBE\u4FEE\u3002",
@@ -1404,8 +1416,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
           en: "B. Audit the Title and Paper Brand Acronym"
         },
         body: {
-          zh: "\u9ED8\u8BA4\u4FDD\u7559\u539F\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u548C\u539F\u7F29\u5199\uFF0C\u5E76\u6838\u67E5\u5176\u51C6\u786E\u6027\u3001\u81EA\u7136\u5EA6\u4E0E\u51B2\u7A81\u98CE\u9669\u3002\u53EA\u6709\u5F53\u524D\u914D\u7F6E\u5141\u8BB8\u4E14\u786E\u6709\u8BEF\u5BFC\u3001\u8D8A\u754C\u6216\u660E\u663E\u4E0D\u81EA\u7136\u65F6\uFF0C\u624D\u5728\u4E2D\u6587\u62A5\u544A\u4E2D\u7ED9\u51FA\u5C11\u91CF\u5019\u9009\uFF1B\u4E0D\u5F97\u81EA\u52A8\u5199\u5165 TeX\u3002\u4EFB\u4F55\u53D8\u5316\u90FD\u5FC5\u987B\u7531\u4F5C\u8005\u660E\u786E\u9009\u62E9\uFF0C\u5E76\u9644 high-risk diff\u3002",
-          en: "Preserve the current title, full method name, and acronym by default, while auditing accuracy, naturalness, and conflict risk. Only when the configuration permits and the identity is misleading, overbroad, or clearly unnatural may the Chinese report offer a small candidate set. Never apply it to TeX automatically. Any change requires explicit author selection and a high-risk diff."
+          zh: "\u6838\u67E5\u5F53\u524D\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u548C\u7F29\u5199\u7684\u51C6\u786E\u6027\u3001\u81EA\u7136\u5EA6\u3001\u68C0\u7D22\u6027\u4E0E\u51B2\u7A81\u98CE\u9669\u3002\u5F53\u524D\u65B9\u6848\u4ECD\u6700\u4F18\u65F6\u4FDD\u7559\uFF1B\u82E5\u66FF\u6362\u80FD\u660E\u786E\u6539\u5584\u8BBA\u6587\u8EAB\u4EFD\uFF0C\u5219\u7531\u6A21\u578B\u81EA\u52A8\u9009\u62E9\u5E76\u5199\u5165\u6700\u4F18\u65B9\u6848\uFF0C\u54C1\u724C\u7F29\u5199\u4F7F\u7528 4\u20137 \u4E2A\u62C9\u4E01\u5B57\u6BCD\uFF1B\u53D8\u66F4\u8BB0\u5F55\u9075\u5FAA\u5168\u5C40\u6807\u9898\u4E0E\u54C1\u724C\u6CBB\u7406\u89C4\u5219\u3002",
+          en: "Audit the current title, full method name, and acronym for accuracy, naturalness, searchability, and collision risk. Keep the current identity when it remains strongest; when replacement clearly improves it, automatically select and apply the best option, using four to seven Latin letters for a brand acronym. Follow the global title-and-brand governance rule for change records."
         }
       },
       {
@@ -1414,8 +1426,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
           en: "C. Standardize the Terminology System"
         },
         body: {
-          zh: "\u4EE5\u73B0\u6709\u65B9\u6CD5\u5168\u79F0\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u4E3A\u9ED8\u8BA4\u57FA\u51C6\uFF0C\u7EDF\u4E00\u95EE\u9898\u3001\u8868\u793A\u3001\u6A21\u5757\u3001\u5206\u652F\u3001\u67E5\u8BE2\u3001\u635F\u5931\u3001\u8BAD\u7EC3/\u63A8\u7406\u3001\u6570\u636E\u96C6\u3001\u6307\u6807\u548C\u5B9E\u9A8C\u7C7B\u578B\u7684 canonical term\uFF1B\u5217\u51FA\u7981\u7528\u53D8\u4F53\u4E0E\u5FC5\u987B\u533A\u5206\u7684\u76F8\u8FD1\u6982\u5FF5\u3002",
-          en: "Use the existing full method name and paper brand acronym as the default identity, then define canonical terms for the problem, representations, components, branches, queries, losses, training/inference, datasets, metrics, and experiment types. List prohibited variants and nearby concepts that must remain distinct."
+          zh: "\u4EE5\u672C\u8F6E\u5BA1\u8BA1\u540E\u786E\u5B9A\u7684\u65B9\u6CD5\u5168\u79F0\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u4E3A\u552F\u4E00\u57FA\u51C6\uFF0C\u7EDF\u4E00\u95EE\u9898\u3001\u8868\u793A\u3001\u6A21\u5757\u3001\u5206\u652F\u3001\u67E5\u8BE2\u3001\u635F\u5931\u3001\u8BAD\u7EC3/\u63A8\u7406\u3001\u6570\u636E\u96C6\u3001\u6307\u6807\u548C\u5B9E\u9A8C\u7C7B\u578B\u7684 canonical term\uFF1B\u5217\u51FA\u7981\u7528\u53D8\u4F53\u4E0E\u5FC5\u987B\u533A\u5206\u7684\u76F8\u8FD1\u6982\u5FF5\u3002",
+          en: "Use the full method name and paper-brand acronym selected by this audit as the single identity, then define canonical terms for the problem, representations, components, branches, queries, losses, training/inference, datasets, metrics, and experiment types. List prohibited variants and nearby concepts that must remain distinct."
         }
       },
       {
@@ -1450,8 +1462,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
       }
     ],
     deliverables: {
-      zh: `\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u4E2D\u6587\u62A5\u544A\u81F3\u5C11\u5305\u542B\uFF1AScientific Positioning Contract\u3001\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u5BA1\u8BA1\uFF08\u5982\u6709\u5019\u9009\u5219\u9644 high-risk diff \u548C\u672A\u6388\u6743\u72B6\u6001\uFF09\u3001\u4E00\u53E5\u8BDD\u4E3B\u65E8\u4E0E\u75DB\u70B9\u3001\u65E7/\u65B0\u4E3B\u7EBF\u5BF9\u7167\u3001\u8D21\u732E\u5206\u5C42\u3001Claim\u2013Evidence Map\u3001\u672F\u8BED\u8868\u3001\u7AE0\u8282\u529F\u80FD\u4E0E\u53EF\u9009\u7BC7\u5E45\u5EFA\u8BAE\u8868\u3001\u56FE\u8868\u89D2\u8272\u3001\u7ED3\u6784\u64CD\u4F5C\u6E05\u5355\u3001\u8054\u7F51\u6838\u9A8C\u3001\u6587\u732E\u8BB0\u5F55\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
-      en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract; title and paper-brand audit, with a high-risk diff and unauthorized status for any candidate; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim\u2013Evidence Map; terminology table; section functions and budgets; visual roles; structural operations; web verification; bibliography changes; and a self-contained handoff.`
+      zh: `\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u4E2D\u6587\u62A5\u544A\u81F3\u5C11\u5305\u542B\uFF1AScientific Positioning Contract\u3001\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u5BA1\u8BA1\u53CA\u6240\u6709\u5DF2\u5E94\u7528 high-risk diff\u3001\u4E00\u53E5\u8BDD\u4E3B\u65E8\u4E0E\u75DB\u70B9\u3001\u65E7/\u65B0\u4E3B\u7EBF\u5BF9\u7167\u3001\u8D21\u732E\u5206\u5C42\u3001Claim\u2013Evidence Map\u3001\u672F\u8BED\u8868\u3001\u7AE0\u8282\u529F\u80FD\u4E0E\u53EF\u9009\u7BC7\u5E45\u5EFA\u8BAE\u8868\u3001\u56FE\u8868\u89D2\u8272\u3001\u7ED3\u6784\u64CD\u4F5C\u6E05\u5355\u3001\u8054\u7F51\u6838\u9A8C\u3001\u6587\u732E\u8BB0\u5F55\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
+      en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract; title and paper-brand audit with every applied high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim\u2013Evidence Map; terminology table; section functions and budgets; visual roles; structural operations; web verification; bibliography changes; and a self-contained handoff.`
     },
     fileNames: {
       zh: `<base_name>_round_1_scientific_structure.tex
@@ -1464,14 +1476,14 @@ The core idea must remain meaningful without component names. Do not relabel ord
     finalChecks: {
       zh: `- \u5168\u6587\u56F4\u7ED5\u4E00\u4E2A\u79D1\u5B66\u95EE\u9898\u548C\u6838\u5FC3\u601D\u60F3\u7EC4\u7EC7\u3002
 - \u6BCF\u4E2A\u4E3B\u8981 claim \u90FD\u6709\u8BC1\u636E\u4F4D\u7F6E\u548C\u8FB9\u754C\u3002
-- \u9ED8\u8BA4\u4FDD\u7559\u539F\u6807\u9898\u4E0E\u539F\u7F29\u5199\uFF1B\u4EFB\u4F55\u5019\u9009\u5747\u672A\u88AB\u9759\u9ED8\u5199\u5165\uFF0C\u5E76\u9644 high-risk diff\u3002
+- \u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u4E0E\u7F29\u5199\u5DF2\u81EA\u52A8\u9009\u62E9\u6700\u4F18\u65B9\u6848\uFF0C\u672A\u53D1\u751F\u65E0\u58F0\u66FF\u6362\u3002
 - \u672F\u8BED\u3001\u7AE0\u8282\u529F\u80FD\u4E0E\u56FE\u8868\u89D2\u8272\u5DF2\u7A33\u5B9A\u3002
 - Method \u4E0E Experiments \u7684\u6838\u5FC3\u5185\u5BB9\u672A\u56E0\u7BC7\u5E45\u5EFA\u8BAE\u6216\u7ED3\u6784\u6574\u7406\u800C\u538B\u7F29\u3002
 - \u672A\u6539\u53D8\u6A21\u677F\uFF0C\u672A\u6DFB\u52A0\u65E0\u8BC1\u636E\u5185\u5BB9\u3002
 - \u5DF2\u6309\u5F53\u524D\u8BBA\u6587\u98CE\u683C\u4E0E\u9644\u5F55\u914D\u7F6E\u6267\u884C\u3002`,
       en: `- The manuscript is organized around one scientific problem and core idea.
 - Every primary claim has an evidence location and boundary.
-- The original title and acronym were preserved by default; no candidate was silently applied, and every candidate has a high-risk diff.
+- The strongest title, full method name, and acronym were selected automatically, with no silent change.
 - Terminology, section functions, and visual roles are stable.
 - Core Method and Experiments content was not compressed to satisfy a length suggestion or structural cleanup.
 - The template was preserved and no unsupported content was added.
@@ -1504,8 +1516,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
 - The current complete .bib`
     },
     scope: {
-      zh: "Method \u4E0E Experiments \u5141\u8BB8\u5927\u5E45\u91CD\u6784\u3002\u5176\u4ED6\u7AE0\u8282\u53EA\u4E3A\u672F\u8BED\u3001\u4E8B\u5B9E\u4E0E\u4EA4\u53C9\u5F15\u7528\u4E00\u81F4\u6027\u505A\u6700\u5C0F\u540C\u6B65\u3002\u6CA1\u6709\u8BC1\u636E\u7684\u5B9E\u73B0\u6216\u5B9E\u9A8C\u4FE1\u606F\u5FC5\u987B\u5220\u9664\u6216\u6807\u8BB0\u4E3A\u4F5C\u8005\u9700\u786E\u8BA4\u3002",
-      en: "Method and Experiments may be substantially reconstructed. Make only minimal terminology, fact, and cross-reference updates elsewhere. Remove unsupported implementation or experimental details from the manuscript and flag them for author confirmation."
+      zh: "Method \u4E0E Experiments \u5141\u8BB8\u5927\u5E45\u91CD\u6784\u3002\u5176\u4ED6\u7AE0\u8282\u53EA\u4E3A\u672F\u8BED\u3001\u4E8B\u5B9E\u4E0E\u4EA4\u53C9\u5F15\u7528\u4E00\u81F4\u6027\u505A\u6700\u5C0F\u540C\u6B65\u3002\u6CA1\u6709\u8BC1\u636E\u7684\u5B9E\u73B0\u6216\u5B9E\u9A8C\u4FE1\u606F\u5FC5\u987B\u5220\u9664\u6216\u964D\u7EA7\u4E3A\u8BC1\u636E\u5141\u8BB8\u7684\u8868\u8FF0\uFF0C\u5E76\u5728\u62A5\u544A\u4E2D\u5217\u4E3A\u672A\u6838\u9A8C\u98CE\u9669\u3002",
+      en: "Method and Experiments may be substantially reconstructed. Make only minimal terminology, fact, and cross-reference updates elsewhere. Remove unsupported implementation or experimental details, or qualify them to the strongest evidence-supported wording, and record the unresolved risk in the report."
     },
     styleBranches: {
       conference: {
@@ -1573,8 +1585,8 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
       }
     ],
     deliverables: {
-      zh: "\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u62A5\u544A\u5305\u542B Method \u903B\u8F91\u56FE\u8C31\u3001\u65E7/\u65B0\u5C0F\u8282\u5BF9\u7167\u3001\u516C\u5F0F\u7B26\u53F7\u5BA1\u8BA1\u3001\u73B0\u6709\u56FE\u8868\u4E0E\u6B63\u6587\u63A5\u53E3\u5BA1\u8BA1\u3001Experiment Question\u2013Evidence Matrix\u3001\u5B9E\u9A8C\u987A\u5E8F\u8BF4\u660E\u3001\u6570\u5B57\u98CE\u9669\u3001\u5F31\u5316\u4E3B\u5F20\u3001\u8054\u7F51\u6838\u9A8C\u3001\u65B0\u589E\u6216\u4FEE\u6B63\u6587\u732E\u8BB0\u5F55\u3001\u4FEE\u6539\u6E05\u5355\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u8F6E\u4EA4\u63A5\u6458\u8981\u3002",
-      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question\u2013Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, added or corrected bibliography records, revision log, author-confirmation items, and the next-round handoff."
+      zh: "\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u62A5\u544A\u5305\u542B Method \u903B\u8F91\u56FE\u8C31\u3001\u65E7/\u65B0\u5C0F\u8282\u5BF9\u7167\u3001\u516C\u5F0F\u7B26\u53F7\u5BA1\u8BA1\u3001\u73B0\u6709\u56FE\u8868\u4E0E\u6B63\u6587\u63A5\u53E3\u5BA1\u8BA1\u3001Experiment Question\u2013Evidence Matrix\u3001\u5B9E\u9A8C\u987A\u5E8F\u8BF4\u660E\u3001\u6570\u5B57\u98CE\u9669\u3001\u5F31\u5316\u4E3B\u5F20\u3001\u8054\u7F51\u6838\u9A8C\u3001\u65B0\u589E\u6216\u4FEE\u6B63\u6587\u732E\u8BB0\u5F55\u3001\u4FEE\u6539\u6E05\u5355\u3001\u672A\u6838\u9A8C\u98CE\u9669\u548C\u4E0B\u4E00\u8F6E\u4EA4\u63A5\u6458\u8981\u3002",
+      en: "Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Method logic map, old/new subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question\u2013Evidence Matrix, experiment-order rationale, numeric risks, qualified claims, web verification, added or corrected bibliography records, revision log, unresolved verification risks, and the next-round handoff."
     },
     fileNames: {
       zh: `<base_name>_round_2_method_experiments.tex
@@ -1629,8 +1641,8 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
 - The current complete .bib`
     },
     scope: {
-      zh: "\u5141\u8BB8\u91CD\u7EC4 Abstract\u3001Introduction\u3001Related Work\u3001Discussion \u548C Conclusion \u7684\u6BB5\u843D\u4E0E\u8BC1\u636E\u987A\u5E8F\uFF0C\u4F46\u9ED8\u8BA4\u91C7\u7528\u6DF1\u5EA6\u7CBE\u4FEE\u800C\u975E\u6E05\u7A7A\u91CD\u5199\u3002\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u4E0E\u7F29\u5199\u9075\u5FAA\u4FDD\u7559\u4F18\u5148\u548C high-risk diff \u89C4\u5219\u3002Method \u4E0E Experiments \u53EA\u505A\u5FC5\u8981\u4E00\u81F4\u6027\u540C\u6B65\uFF0C\u4E0D\u538B\u7F29\u6838\u5FC3\u5185\u5BB9\u3002\u4E0D\u5F97\u6539\u53D8\u6A21\u677F\u3002",
-      en: "You may reorganize paragraphs and evidence within Abstract, Introduction, Related Work, Discussion, and Conclusion, but default to deep refinement rather than blank-slate rewriting. The title, full method name, and acronym follow preserve-first and high-risk-diff governance. Synchronize Method and Experiments only as needed for consistency and never compress their core content. Preserve the template."
+      zh: "\u5141\u8BB8\u91CD\u7EC4 Abstract\u3001Introduction\u3001Related Work\u3001Discussion \u548C Conclusion \u7684\u6BB5\u843D\u4E0E\u8BC1\u636E\u987A\u5E8F\uFF0C\u4F46\u9ED8\u8BA4\u91C7\u7528\u6DF1\u5EA6\u7CBE\u4FEE\u800C\u975E\u6E05\u7A7A\u91CD\u5199\u3002Method \u4E0E Experiments \u53EA\u505A\u5FC5\u8981\u4E00\u81F4\u6027\u540C\u6B65\uFF0C\u4E0D\u538B\u7F29\u6838\u5FC3\u5185\u5BB9\u3002\u4E0D\u5F97\u6539\u53D8\u6A21\u677F\u3002",
+      en: "You may reorganize paragraphs and evidence within Abstract, Introduction, Related Work, Discussion, and Conclusion, but default to deep refinement rather than blank-slate rewriting. Synchronize Method and Experiments only as needed for consistency and never compress their core content. Preserve the template."
     },
     styleBranches: {
       conference: {
@@ -1649,8 +1661,8 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
           en: "A. Build the Fact Base and Preservation List"
         },
         body: {
-          zh: "\u4ECE\u5168\u6587\u62BD\u53D6\u4EFB\u52A1\u3001\u95EE\u9898\u3001\u6838\u5FC3\u601D\u60F3\u3001\u673A\u5236\u3001\u8BC1\u636E\u548C\u8FB9\u754C\uFF0C\u540C\u65F6\u6807\u8BB0\u539F\u7A3F\u4E2D\u51C6\u786E\u3001\u6E05\u6670\u3001\u6709\u8FA8\u8BC6\u5EA6\u4E14\u503C\u5F97\u4FDD\u7559\u7684\u53E5\u5B50\u4E0E\u8868\u8FBE\u3002\u8BB0\u5F55\u5F53\u524D Title\u3001\u65B9\u6CD5\u5168\u79F0\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\uFF1B\u9664\u975E\u5DF2\u6709\u4F5C\u8005\u6388\u6743\u7684 high-risk diff\uFF0C\u4E0D\u5F97\u66FF\u6362\u3002",
-          en: "Extract the task, problem, core idea, mechanisms, evidence, and boundaries from the manuscript, while marking original sentences and expressions that are accurate, clear, distinctive, and worth preserving. Record the current Title, full method name, and paper brand acronym; do not replace them without an author-authorized high-risk diff."
+          zh: "\u4ECE\u5168\u6587\u62BD\u53D6\u4EFB\u52A1\u3001\u95EE\u9898\u3001\u6838\u5FC3\u601D\u60F3\u3001\u673A\u5236\u3001\u8BC1\u636E\u548C\u8FB9\u754C\uFF0C\u540C\u65F6\u6807\u8BB0\u539F\u7A3F\u4E2D\u51C6\u786E\u3001\u6E05\u6670\u3001\u6709\u8FA8\u8BC6\u5EA6\u4E14\u503C\u5F97\u4FDD\u7559\u7684\u53E5\u5B50\u4E0E\u8868\u8FBE\u3002\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u4E0E\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u6309\u5168\u5C40\u6CBB\u7406\u89C4\u5219\u540C\u6B65\u5BA1\u8BA1\u3002",
+          en: "Extract the task, problem, core idea, mechanisms, evidence, and boundaries from the manuscript, while marking original sentences and expressions that are accurate, clear, distinctive, and worth preserving. Audit the title, full method name, and paper-brand acronym under the global governance rule."
         }
       },
       {
@@ -1709,13 +1721,13 @@ Related Work has exactly three subsections and follows the current paper type's 
 <base_name>_round_3_references.bib`
     },
     finalChecks: {
-      zh: `- \u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u9075\u5FAA\u4FDD\u7559\u4F18\u5148\uFF1B\u4EFB\u4F55\u53D8\u5316\u5747\u6709\u4F5C\u8005\u6388\u6743\u548C high-risk diff\u3002
+      zh: `- \u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u5DF2\u81EA\u52A8\u62E9\u4F18\uFF1B\u4EFB\u4F55\u5B9E\u9645\u53D8\u5316\u5747\u6709 high-risk diff\u3002
 - \u524D\u540E\u53D9\u4E8B\u5B8C\u6210\u6DF1\u5EA6\u7CBE\u4FEE\uFF0C\u5E76\u4FDD\u7559\u539F\u7A3F\u4E2D\u51C6\u786E\u6709\u529B\u7684\u8868\u8FBE\u3002
 - \u65B0\u53D9\u4E8B\u4E0E Method\u3001Experiments \u548C\u56FE\u8868\u4E8B\u5B9E\u4E00\u81F4\u3002
 - \u5F15\u7528 key \u5168\u90E8\u5B58\u5728\u4E8E\u5F53\u524D .bib\u3002
 - \u672A\u65E0\u5FC5\u8981\u6539\u5199 Method \u4E0E Experiments\u3002
 - \u5168\u6587\u7B26\u5408\u5F53\u524D\u98CE\u683C\u4E0E\u9644\u5F55\u914D\u7F6E\u3002`,
-      en: `- The title and paper brand follow preserve-first governance; every change has author authorization and a high-risk diff.
+      en: `- The title and paper brand follow automatic best-option selection; every applied change has a high-risk diff.
 - The narrative sections received deep refinement while preserving accurate, effective original expression.
 - The new narrative matches Method, Experiments, and visual evidence.
 - Every citation key exists in the current .bib.
@@ -1819,8 +1831,8 @@ Related Work has exactly three subsections and follows the current paper type's 
           en: "B. Govern Terminology, Acronyms, and Notation"
         },
         body: {
-          zh: "\u5EFA\u7ACB\u6700\u7EC8 Terminology Consistency Table\uFF0C\u843D\u5B9E canonical term\u3001\u65E2\u5B9A\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u3001\u9996\u6B21\u5B9A\u4E49\u3001\u7981\u7528\u53D8\u4F53\u3001\u5197\u4F59\u7F29\u5199\u548C\u5FC5\u987B\u533A\u5206\u7684\u6982\u5FF5\u3002\u68C0\u67E5\u6807\u9898\u3001\u6458\u8981\u3001\u6B63\u6587\u3001\u56FE\u3001\u8868\u3001caption\u3001\u516C\u5F0F\u548C\u7B97\u6CD5\u662F\u5426\u5B8C\u5168\u4E00\u81F4\u3002",
-          en: "Create the final Terminology Consistency Table covering canonical terms, the current author-approved paper-brand acronym, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct. Verify consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms."
+          zh: "\u5EFA\u7ACB\u6700\u7EC8 Terminology Consistency Table\uFF0C\u843D\u5B9E canonical term\u3001\u672C\u6D41\u7A0B\u786E\u5B9A\u7684\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u3001\u9996\u6B21\u5B9A\u4E49\u3001\u7981\u7528\u53D8\u4F53\u3001\u5197\u4F59\u7F29\u5199\u548C\u5FC5\u987B\u533A\u5206\u7684\u6982\u5FF5\u3002\u68C0\u67E5\u6807\u9898\u3001\u6458\u8981\u3001\u6B63\u6587\u3001\u56FE\u3001\u8868\u3001caption\u3001\u516C\u5F0F\u548C\u7B97\u6CD5\u662F\u5426\u5B8C\u5168\u4E00\u81F4\u3002",
+          en: "Create the final Terminology Consistency Table covering canonical terms, the paper-brand acronym selected by this workflow, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct. Verify consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms."
         }
       },
       {
@@ -2069,14 +2081,14 @@ var PROMPT_DETAILED_CONSTRAINTS = {
 
 ### \u8BBA\u6587\u6807\u9898\u4E0E\u54C1\u724C\u7F29\u5199
 
-- \u9ED8\u8BA4\u4FDD\u7559\u539F\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u548C\u73B0\u6709\u7F29\u5199\uFF1B\u6838\u67E5\u5176\u51C6\u786E\u6027\u3001\u81EA\u7136\u5EA6\u3001\u68C0\u7D22\u6027\u53CA\u4E0E\u6700\u8FD1\u90BB\u5DE5\u4F5C\u7684\u51B2\u7A81\u98CE\u9669\uFF1B
-- \u81EA\u52A8\u5316\u6D41\u7A0B\u4E0D\u5F97\u9759\u9ED8\u66FF\u6362\u8BBA\u6587\u8EAB\u4EFD\u3002\u4EFB\u4F55\u5019\u9009\u90FD\u53EA\u80FD\u5199\u5165\u4E2D\u6587\u62A5\u544A\uFF0C\u5FC5\u987B\u9644 high-risk diff\uFF08\u539F\u503C\u3001\u5019\u9009\u3001\u4F9D\u636E\u3001\u98CE\u9669\u4E0E\u6388\u6743\u72B6\u6001\uFF09\uFF1B
-{{title_brand_strategy}}
+- \u6838\u67E5\u5F53\u524D\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u548C\u7F29\u5199\u7684\u51C6\u786E\u6027\u3001\u81EA\u7136\u5EA6\u3001\u68C0\u7D22\u6027\u53CA\u4E0E\u6700\u8FD1\u90BB\u5DE5\u4F5C\u7684\u51B2\u7A81\u98CE\u9669\uFF1B
+- \u82E5\u5F53\u524D\u8EAB\u4EFD\u4ECD\u662F\u6700\u4F18\u65B9\u6848\u5219\u7EE7\u7EED\u4F7F\u7528\uFF1B\u82E5\u53D8\u66F4\u80FD\u660E\u786E\u6539\u5584\u51C6\u786E\u6027\u3001\u8FB9\u754C\u6216\u8FA8\u8BC6\u5EA6\uFF0C\u76F4\u63A5\u9009\u62E9\u5E76\u5E94\u7528\u6700\u4F18\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u6216 4\u20137 \u4E2A\u62C9\u4E01\u5B57\u6BCD\u7684\u54C1\u724C\u7F29\u5199\uFF0C\u4E0D\u751F\u6210\u5EF6\u540E\u51B3\u7B56\u7684\u5019\u9009\u96C6\uFF0C\u4E5F\u4E0D\u6682\u505C\u6D41\u7A0B\uFF1B
+- \u6309\u5168\u5C40\u6807\u9898\u4E0E\u54C1\u724C\u6CBB\u7406\u89C4\u5219\u8BB0\u5F55\u6BCF\u9879\u5B9E\u9645\u53D8\u66F4\uFF1B\u672A\u53D8\u66F4\u65F6\u4E5F\u8981\u8BB0\u5F55\u5BA1\u8BA1\u7ED3\u8BBA\uFF1B
 {{title_word_limits}}
 
 ### \u552F\u4E00\u672F\u8BED\u4F53\u7CFB
 
-- \u4EE5\u73B0\u6709\u65B9\u6CD5\u5168\u79F0\u548C\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u4E3A\u9ED8\u8BA4\u8EAB\u4EFD\uFF1B
+- \u4EE5\u672C\u8F6E\u5BA1\u8BA1\u540E\u786E\u5B9A\u7684\u65B9\u6CD5\u5168\u79F0\u548C\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u4E3A\u552F\u4E00\u8EAB\u4EFD\uFF1B
 - \u7EDF\u4E00\u79D1\u5B66\u95EE\u9898\u3001\u6838\u5FC3\u8868\u793A\u3001\u6A21\u5757\u3001\u5206\u652F\u3001\u67E5\u8BE2\u3001\u635F\u5931\u3001\u8BAD\u7EC3\u548C\u63A8\u7406\u672F\u8BED\uFF1B
 - \u7EDF\u4E00\u6570\u636E\u96C6\u3001\u6307\u6807\u3001\u6BD4\u8F83\u8BBE\u7F6E\u548C\u5B9E\u9A8C\u7C7B\u578B\u540D\u79F0\uFF1B
 - \u5217\u51FA\u7981\u6B62\u7EE7\u7EED\u4F7F\u7528\u7684\u5197\u4F59\u540C\u4E49\u8BCD\uFF1B
@@ -2103,7 +2115,7 @@ var PROMPT_DETAILED_CONSTRAINTS = {
 
 ### \u4E2D\u6587\u62A5\u544A\u56FA\u5B9A\u6E05\u5355
 
-\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1AScientific Positioning Contract\u3001\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u5BA1\u8BA1\u53CA high-risk diff\uFF08\u5982\u6709\uFF09\u3001\u4E00\u53E5\u8BDD\u8BBA\u6587\u4E3B\u65E8\u3001\u4E00\u53E5\u8BDD\u6838\u5FC3\u75DB\u70B9\u3001\u65E7/\u65B0\u4E3B\u7EBF\u5BF9\u7167\u3001\u8D21\u732E\u5206\u5C42\u3001Claim\u2013Evidence Map\u3001\u672F\u8BED\u8868\u3001\u7AE0\u8282\u529F\u80FD\u8868\u3001\u56FE\u8868\u89D2\u8272\u8868\u3001\u7ED3\u6784\u64CD\u4F5C\u3001\u8054\u7F51\u6838\u9A8C\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
+\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1AScientific Positioning Contract\u3001\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u5BA1\u8BA1\u53CA high-risk diff\uFF08\u5982\u6709\uFF09\u3001\u4E00\u53E5\u8BDD\u8BBA\u6587\u4E3B\u65E8\u3001\u4E00\u53E5\u8BDD\u6838\u5FC3\u75DB\u70B9\u3001\u65E7/\u65B0\u4E3B\u7EBF\u5BF9\u7167\u3001\u8D21\u732E\u5206\u5C42\u3001Claim\u2013Evidence Map\u3001\u672F\u8BED\u8868\u3001\u7AE0\u8282\u529F\u80FD\u8868\u3001\u56FE\u8868\u89D2\u8272\u8868\u3001\u7ED3\u6784\u64CD\u4F5C\u3001\u8054\u7F51\u6838\u9A8C\u3001\u81EA\u52A8\u51B3\u7B56\u4E0E\u672A\u6838\u9A8C\u98CE\u9669\u3001\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
       en: `### The Scientific Positioning Contract Must Answer Every Item
 
 1. Task: the concrete task, inputs, outputs, and applicable boundary;
@@ -2117,14 +2129,14 @@ var PROMPT_DETAILED_CONSTRAINTS = {
 
 ### Paper Title and Brand Acronym
 
-- Preserve the current title, full method name, and acronym by default; audit their accuracy, naturalness, searchability, and collision risk against nearest-neighbor work;
-- Automation must never replace the paper identity silently. Any candidate belongs only in the Chinese report and requires a high-risk diff covering the original, candidate, evidence, risk, and authorization state;
-{{title_brand_strategy}}
+- Audit the current title, full method name, and acronym for accuracy, naturalness, searchability, and collision risk against nearest-neighbor work;
+- Keep the current identity when it remains the strongest option. When a change clearly improves accuracy, scope, or distinctiveness, select and apply the best title, full method name, or four-to-seven-letter brand acronym automatically; do not create a deferred candidate set or pause the workflow;
+- Record every applied change under the global title-and-brand governance rule, and record the audit conclusion even when nothing changes;
 {{title_word_limits}}
 
 ### One Terminology System
 
-- Treat the existing full method name and paper brand acronym as the default identity;
+- Treat the full method name and paper-brand acronym selected by this audit as the single identity;
 - Standardize terminology for the scientific problem, representations, components, branches, queries, losses, training, and inference;
 - Standardize names for datasets, metrics, comparison settings, and experiment types;
 - List redundant synonyms that must no longer appear;
@@ -2151,7 +2163,7 @@ var PROMPT_DETAILED_CONSTRAINTS = {
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Scientific Positioning Contract; title and paper-brand audit with any high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim\u2013Evidence Map; terminology and section-function tables; visual roles; structural operations; web verification; author-confirmation items; and next-step handoff.`
+The report must contain the Scientific Positioning Contract; title and paper-brand audit with any high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim\u2013Evidence Map; terminology and section-function tables; visual roles; structural operations; web verification; automatic decisions and unresolved risks; and next-step handoff.`
     },
     inlineStyleConstraints: [
       {
@@ -2221,20 +2233,6 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
       }
     ],
     inlinePreferenceConstraints: [
-      {
-        marker: "title_brand_strategy",
-        contextKey: "allowTitleBrandCandidates",
-        branches: {
-          enabled: {
-            zh: "- \u4EC5\u5F53\u73B0\u6709\u6807\u9898\u6216\u7F29\u5199\u5B58\u5728\u8BEF\u5BFC\u3001\u8D8A\u754C\u6216\u660E\u663E\u4E0D\u81EA\u7136\u65F6\uFF0C\u624D\u5728\u62A5\u544A\u4E2D\u63D0\u4F9B\u5C11\u91CF\u5019\u9009\uFF1B\u5019\u9009\u54C1\u724C\u7F29\u5199\u4E3A 4\u20137 \u4E2A\u62C9\u4E01\u5B57\u6BCD\u3002\u5728\u4F5C\u8005\u660E\u786E\u9009\u62E9\u524D\uFF0CTeX \u7EE7\u7EED\u4F7F\u7528\u539F\u503C\u3002",
-            en: "- Only when the current title or acronym is misleading, overbroad, or clearly unnatural may the report offer a small candidate set; a candidate paper-brand acronym uses four to seven Latin letters. TeX retains the original until the author explicitly selects a change."
-          },
-          disabled: {
-            zh: "- \u5F53\u524D\u914D\u7F6E\u4E0D\u5141\u8BB8\u5019\u9009\uFF1A\u4FDD\u6301\u539F\u6807\u9898\u3001\u65B9\u6CD5\u5168\u79F0\u548C\u7F29\u5199\uFF1B\u53D1\u73B0\u98CE\u9669\u65F6\u53EA\u5728\u62A5\u544A\u4E2D\u8BF4\u660E\uFF0C\u4E0D\u751F\u6210\u66FF\u4EE3\u540D\u79F0\u3002",
-            en: "- Candidates are disabled: preserve the current title, full method name, and acronym. Report risks without generating replacement names."
-          }
-        }
-      },
       {
         marker: "scientific_introduction_structure",
         contextKey: "includeSectionNavigationSentence",
@@ -2341,7 +2339,7 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
 
 ### \u4E2D\u6587\u62A5\u544A\u56FA\u5B9A\u6E05\u5355
 
-\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1AMethod \u903B\u8F91\u56FE\u8C31\u3001\u65B9\u6CD5\u5C0F\u8282\u91CD\u6784\u5BF9\u7167\u3001\u516C\u5F0F\u4E0E\u7B26\u53F7\u5BA1\u8BA1\u3001\u73B0\u6709\u56FE\u8868\u4E0E\u6B63\u6587\u63A5\u53E3\u5BA1\u8BA1\u3001Experiment Question\u2013Evidence \u8868\u3001\u5B9E\u9A8C\u987A\u5E8F\u8BBE\u8BA1\u3001\u6570\u5B57\u4E0E\u7EDF\u8BA1\u98CE\u9669\u3001\u5220\u9664\u6216\u5F31\u5316\u7684\u673A\u5236\u4E3B\u5F20\u3001\u8054\u7F51\u57FA\u7EBF\u4E0E\u534F\u8BAE\u6838\u9A8C\u3001\u4FEE\u6539\u6E05\u5355\u3001\u4F5C\u8005\u9700\u786E\u8BA4\u9879\u548C\u4E0B\u4E00\u8F6E\u4EA4\u63A5\u6458\u8981\u3002Question\u2013Evidence \u8868\u662F\u62A5\u544A\u4E2D\u7684\u89C4\u5212\u4E0E\u5BA1\u8BA1\u5DE5\u5177\uFF0C\u5176\u5217\u540D\u4E0D\u5F97\u53D8\u6210 TeX \u4E2D\u91CD\u590D\u7684\u5C0F\u6807\u9898\u6216\u53E5\u9996\u6807\u7B7E\u3002`,
+\u62A5\u544A\u5FC5\u987B\u5305\u542B\uFF1AMethod \u903B\u8F91\u56FE\u8C31\u3001\u65B9\u6CD5\u5C0F\u8282\u91CD\u6784\u5BF9\u7167\u3001\u516C\u5F0F\u4E0E\u7B26\u53F7\u5BA1\u8BA1\u3001\u73B0\u6709\u56FE\u8868\u4E0E\u6B63\u6587\u63A5\u53E3\u5BA1\u8BA1\u3001Experiment Question\u2013Evidence \u8868\u3001\u5B9E\u9A8C\u987A\u5E8F\u8BBE\u8BA1\u3001\u6570\u5B57\u4E0E\u7EDF\u8BA1\u98CE\u9669\u3001\u5220\u9664\u6216\u5F31\u5316\u7684\u673A\u5236\u4E3B\u5F20\u3001\u8054\u7F51\u57FA\u7EBF\u4E0E\u534F\u8BAE\u6838\u9A8C\u3001\u4FEE\u6539\u6E05\u5355\u3001\u672A\u6838\u9A8C\u98CE\u9669\u548C\u4E0B\u4E00\u8F6E\u4EA4\u63A5\u6458\u8981\u3002Question\u2013Evidence \u8868\u662F\u62A5\u544A\u4E2D\u7684\u89C4\u5212\u4E0E\u5BA1\u8BA1\u5DE5\u5177\uFF0C\u5176\u5217\u540D\u4E0D\u5F97\u53D8\u6210 TeX \u4E2D\u91CD\u590D\u7684\u5C0F\u6807\u9898\u6216\u53E5\u9996\u6807\u7B7E\u3002`,
       en: `### Fixed Constraints for Method
 
 1. {{method_document_hierarchy}}
@@ -2368,7 +2366,7 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question\u2013Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, author-confirmation items, and next-step handoff. Treat the Question\u2013Evidence table as a report-only planning and audit device; never turn its column labels into repeated TeX headings or sentence prefixes.`
+The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question\u2013Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, unresolved verification risks, and next-step handoff. Treat the Question\u2013Evidence table as a report-only planning and audit device; never turn its column labels into repeated TeX headings or sentence prefixes.`
     },
     inlineStyleConstraints: [
       {
@@ -2711,7 +2709,7 @@ The report must contain the fact base, preservation list for high-value original
 
 ### Terminology, Acronym, and Cross-section Function Governance
 
-- Build the final Terminology Consistency Table covering canonical terms, the full method name and current author-approved paper-brand acronym, component/representation/query/branch/loss/data/metric terminology, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct;
+- Build the final Terminology Consistency Table covering canonical terms, the full method name and paper-brand acronym selected by this workflow, component/representation/query/branch/loss/data/metric terminology, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct;
 - Check complete consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms;
 - Check whether Abstract copies Introduction; Introduction reveals excessive method detail or numbers; Related Work repeats Introduction or narrates papers; Method Overview repeats mechanism subsections; Experiments reads tables cell by cell; Discussion repeats Results; Conclusion copies Abstract; the three contributions align with Method/Experiments/Conclusion; and the same limitation appears repeatedly;
 - Return a Cross-Section Redundancy Matrix explaining every deletion, merge, or retention.
@@ -2887,11 +2885,8 @@ var LABELS = {
     appendix: "\u9644\u5F55",
     styleDirective: "\u5199\u4F5C\u4FA7\u91CD",
     introductionRoadmap: "Introduction \u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
-    titleBrandCandidates: "\u6807\u9898\u4E0E\u54C1\u724C\u5019\u9009",
     included: "\u4FDD\u7559\u4E00\u6761\u7B80\u6D01\u5BFC\u822A\u53E5",
     omitted: "\u4E0D\u5199\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
-    candidatesAllowed: "\u4EC5\u5728\u62A5\u544A\u4E2D\u5141\u8BB8\u5019\u9009\uFF0C\u7B49\u5F85\u4F5C\u8005\u660E\u786E\u9009\u62E9",
-    preserveIdentity: "\u4FDD\u7559\u539F\u6807\u9898\u4E0E\u539F\u7F29\u5199",
     openAccess: "\u662F\u5426 OA",
     apc: "\u662F\u5426\u6709 APC",
     apcRange: "APC \u8303\u56F4",
@@ -2941,11 +2936,8 @@ var LABELS = {
     appendix: "Appendix",
     styleDirective: "Writing emphasis",
     introductionRoadmap: "Pure Introduction roadmap sentence",
-    titleBrandCandidates: "Title and brand candidates",
     included: "Include one concise roadmap sentence",
     omitted: "Omit a pure roadmap sentence",
-    candidatesAllowed: "Candidates may appear in the report only, pending explicit author selection",
-    preserveIdentity: "Preserve the current title and acronym",
     openAccess: "OA",
     apc: "APC charged",
     apcRange: "APC range",
@@ -3048,12 +3040,6 @@ function buildConfiguration(template, context) {
       field(
         labels.introductionRoadmap,
         context.includeSectionNavigationSentence ? labels.included : labels.omitted
-      )
-    ] : [],
-    ...template.id === "scientific-positioning" ? [
-      field(
-        labels.titleBrandCandidates,
-        context.allowTitleBrandCandidates ? labels.candidatesAllowed : labels.preserveIdentity
       )
     ] : [],
     ...context.hasWordLimit && context.unlimitedCoreSections ? [field(labels.lengthMode, labels.flexibleCoreMode)] : [],
@@ -3266,7 +3252,7 @@ function buildPrompt(template, context) {
   ) : "";
   const wordLimitAfterBudget = detailedConstraints?.wordLimitPlacement === "after-budget";
   const deliveryBundle = buildDeliveryBundle(template, language);
-  return [
+  return withPromptJudgmentDirective([
     labels.role,
     template.role[language],
     "",
@@ -3323,11 +3309,11 @@ function buildPrompt(template, context) {
     ] : [],
     labels.finalChecks,
     template.finalChecks[language]
-  ].join("\n");
+  ].join("\n"), language);
 }
 
 // content/prompts/version.ts
-var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.13";
+var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.14";
 
 // content/prompts/pluginExport.ts
 function getReconstructionConfigurationModel() {
@@ -3372,6 +3358,7 @@ function getReconstructionConfigurationModel() {
       reasoningPreferences: CHAT_REASONING_PREFERENCE_IDS.map(
         (id) => CHAT_REASONING_PREFERENCES[id]
       ),
+      proFollowUpPreference: CHAT_PRO_FOLLOW_UP_PREFERENCE,
       pollingPolicy: CHAT_RESULT_POLLING_POLICY
     }
   };
@@ -3402,7 +3389,6 @@ function normalizeInput(input = {}) {
   const hasWordLimit = input.hasWordLimit ?? PRODUCT_CONFIG.wordCount.defaultMode === "target";
   const unlimitedCoreSections = input.unlimitedCoreSections ?? PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections;
   const includeSectionNavigationSentence = input.includeSectionNavigationSentence ?? style.defaultIncludeSectionNavigationSentence;
-  const allowTitleBrandCandidates = input.allowTitleBrandCandidates ?? PRODUCT_CONFIG.titleBrand.defaultAllowCandidates;
   if (input.targetWords !== void 0 && !Number.isFinite(input.targetWords)) {
     throw new Error("targetWords must be a finite number.");
   }
@@ -3468,6 +3454,10 @@ function normalizeInput(input = {}) {
       `Unsupported ChatGPT reasoning preference: ${String(reasoningPreference)}.`
     );
   }
+  const forceProForAllTurns = input.chatExecution?.forceProForAllTurns ?? DEFAULT_CHAT_EXECUTION_PREFERENCES.forceProForAllTurns;
+  if (typeof forceProForAllTurns !== "boolean") {
+    throw new Error("forceProForAllTurns must be a boolean.");
+  }
   const fallbackPolicy = input.chatExecution?.fallbackPolicy ?? DEFAULT_CHAT_EXECUTION_PREFERENCES.fallbackPolicy;
   if (fallbackPolicy !== CHAT_FALLBACK_POLICY) {
     throw new Error(
@@ -3477,6 +3467,7 @@ function normalizeInput(input = {}) {
   const chatExecution = {
     modelPolicy,
     reasoningPreference,
+    forceProForAllTurns,
     fallbackPolicy,
     pollingPolicy: CHAT_RESULT_POLLING_POLICY
   };
@@ -3498,7 +3489,6 @@ function normalizeInput(input = {}) {
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
-    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
@@ -3516,7 +3506,6 @@ function buildReconstructionWorkflow(input = {}) {
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
-    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets,
     includeAppendix,
@@ -3531,7 +3520,6 @@ function buildReconstructionWorkflow(input = {}) {
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
-    allowTitleBrandCandidates,
     targetWords,
     sectionBudgets: style.sections.map((section) => ({
       id: section.id,
@@ -3554,7 +3542,6 @@ function buildReconstructionWorkflow(input = {}) {
       hasWordLimit,
       unlimitedCoreSections,
       includeSectionNavigationSentence,
-      allowTitleBrandCandidates,
       targetWords,
       sectionBudgets,
       includeAppendix,

@@ -53,9 +53,6 @@ export const PRODUCT_CONFIG = {
     max: 20000,
     step: 100,
   },
-  titleBrand: {
-    defaultAllowCandidates: false,
-  },
   chatExecution: {
     default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
     reasoningPreferences: CHAT_REASONING_PREFERENCES,
@@ -328,11 +325,6 @@ export const UI_COPY = {
     introNavigationOff: "不写纯章节导航句",
     introNavigationHint:
       "会议默认关闭，期刊默认开启；只说明章节组织，不重复各节内容。",
-    titleBrandCandidates: "标题与品牌候选",
-    titleBrandCandidatesOn: "允许在报告中提出候选",
-    titleBrandCandidatesOff: "默认保留原标题与缩写",
-    titleBrandCandidatesHint:
-      "候选不会被自动写入论文；任何变更都必须由作者明确选择，并生成 high-risk diff。",
     words: "词",
     appendix: "附录设置",
     appendixOn: "允许附录",
@@ -347,6 +339,13 @@ export const UI_COPY = {
     chatModelPolicy: "模型策略",
     chatLatestVisibleModel: "最新可用推理模型",
     chatReasoningPreference: "推理等级",
+    chatProStrategy: "Pro 对话策略",
+    chatProFirstTurnOnly: "每轮首次使用 Pro，后续使用 Extra High",
+    chatProForceAll: "强制所有对话使用 Pro",
+    chatProFirstTurnHint:
+      "推荐。Pro 通常耗时较长；每轮首次有效提交使用 Pro，同轮继续、纠正和补交自动切换为 Extra High。",
+    chatProForceAllHint:
+      "强制全部 Pro 会显著延长五轮流程，尤其是续写、纠正与产物补交。",
     chatPollingInterval: "结果检查间隔",
     chatPollingAuto:
       "按实际档位自动采用：Medium / High 1 分钟，Extra High 3 分钟，Pro 5 分钟；无法识别时按 1 分钟。",
@@ -428,11 +427,6 @@ export const UI_COPY = {
     introNavigationOff: "No pure roadmap sentence",
     introNavigationHint:
       "Off by default for conferences and on for journals; it states organization only and does not summarize sections.",
-    titleBrandCandidates: "Title and brand candidates",
-    titleBrandCandidatesOn: "Allow candidates in the report",
-    titleBrandCandidatesOff: "Preserve the current title and acronym",
-    titleBrandCandidatesHint:
-      "Candidates are never applied automatically. Any change requires explicit author selection and a high-risk diff.",
     words: "words",
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
@@ -447,6 +441,14 @@ export const UI_COPY = {
     chatModelPolicy: "Model policy",
     chatLatestVisibleModel: "Latest available reasoning model",
     chatReasoningPreference: "Reasoning level",
+    chatProStrategy: "Pro interaction policy",
+    chatProFirstTurnOnly:
+      "Pro for the first interaction of each round; Extra High afterward",
+    chatProForceAll: "Force Pro for every interaction",
+    chatProFirstTurnHint:
+      "Recommended. Pro can take much longer: use it for the first effective submission of each round, then switch continuations, corrections, and artifact follow-ups to Extra High.",
+    chatProForceAllHint:
+      "Forcing Pro throughout can substantially extend the five-round workflow, especially during continuations, corrections, and artifact follow-ups.",
     chatPollingInterval: "Result-check interval",
     chatPollingAuto:
       "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",

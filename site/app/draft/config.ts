@@ -1,4 +1,5 @@
 import type { Language } from "../config";
+import { withPromptJudgmentDirective } from "../../content/prompts/promptAgency";
 
 export type DraftTemplateId =
   | "arxiv"
@@ -178,7 +179,7 @@ function selectedVenue(
   return customVenue.trim() || "the custom top-tier CS conference named by the user";
 }
 
-export function buildDraftPrompt(
+function buildDraftPromptContent(
   templateId: DraftTemplateId,
   customVenue: string,
   language: Language,
@@ -296,4 +297,15 @@ Run the LaTeX build and fix package, bibliography, cross-reference, float, BibTe
 - The project compiles cleanly, with working bibliography and cross-references.
 
 Read all materials now and generate the final draft project directly. Do not first provide an outline or writing plan, and do not wait for section-by-section approval.`;
+}
+
+export function buildDraftPrompt(
+  templateId: DraftTemplateId,
+  customVenue: string,
+  language: Language,
+) {
+  return withPromptJudgmentDirective(
+    buildDraftPromptContent(templateId, customVenue, language),
+    language,
+  );
 }

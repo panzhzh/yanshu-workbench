@@ -112,7 +112,6 @@ export default function SubmissionStrategy() {
         hasWordLimit: false,
         unlimitedCoreSections: false,
         includeSectionNavigationSentence: false,
-        allowTitleBrandCandidates: false,
         targetWords: journalStyle.defaultTargetWords,
         sectionBudgets: [],
         includeAppendix: false,

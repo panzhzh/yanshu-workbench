@@ -6,6 +6,7 @@ import {
   SOURCE_BUDGET_REFERENCE,
 } from "./constraints";
 import type { PromptConstraintSet } from "./constraints";
+import { withPromptJudgmentDirective } from "./promptAgency";
 import { WORD_COUNT_POLICY } from "./wordCountPolicy";
 import type {
   Language,
@@ -24,11 +25,8 @@ const LABELS = {
     appendix: "附录",
     styleDirective: "写作侧重",
     introductionRoadmap: "Introduction 纯章节导航句",
-    titleBrandCandidates: "标题与品牌候选",
     included: "保留一条简洁导航句",
     omitted: "不写纯章节导航句",
-    candidatesAllowed: "仅在报告中允许候选，等待作者明确选择",
-    preserveIdentity: "保留原标题与原缩写",
     openAccess: "是否 OA",
     apc: "是否有 APC",
     apcRange: "APC 范围",
@@ -83,12 +81,8 @@ const LABELS = {
     appendix: "Appendix",
     styleDirective: "Writing emphasis",
     introductionRoadmap: "Pure Introduction roadmap sentence",
-    titleBrandCandidates: "Title and brand candidates",
     included: "Include one concise roadmap sentence",
     omitted: "Omit a pure roadmap sentence",
-    candidatesAllowed:
-      "Candidates may appear in the report only, pending explicit author selection",
-    preserveIdentity: "Preserve the current title and acronym",
     openAccess: "OA",
     apc: "APC charged",
     apcRange: "APC range",
@@ -222,16 +216,6 @@ function buildConfiguration(
             context.includeSectionNavigationSentence
               ? labels.included
               : labels.omitted,
-          ),
-        ]
-      : []),
-    ...(template.id === "scientific-positioning"
-      ? [
-          field(
-            labels.titleBrandCandidates,
-            context.allowTitleBrandCandidates
-              ? labels.candidatesAllowed
-              : labels.preserveIdentity,
           ),
         ]
       : []),
@@ -557,7 +541,7 @@ export function buildPrompt(
     detailedConstraints?.wordLimitPlacement === "after-budget";
   const deliveryBundle = buildDeliveryBundle(template, language);
 
-  return [
+  return withPromptJudgmentDirective([
     labels.role,
     template.role[language],
     "",
@@ -630,5 +614,5 @@ export function buildPrompt(
       : []),
     labels.finalChecks,
     template.finalChecks[language],
-  ].join("\n");
+  ].join("\n"), language);
 }
