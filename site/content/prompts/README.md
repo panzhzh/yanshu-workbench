@@ -30,13 +30,15 @@ Runtime variables:
 - `language`: prompt language, independent for every step.
 - `styleId`, `styleLabel`, `styleDirective`: conference or journal mode and its
   writing emphasis.
-- `hasWordLimit`: whether a main-text target exists. When false, the compiler
-  omits the complete main-text and section-budget block.
+- `hasWordLimit`: legacy-compatible flag indicating whether optional main-text
+  and section length guidance is enabled. It defaults to false. When false,
+  the compiler omits the complete length-guidance block.
 - `unlimitedCoreSections`: when true, the compiler removes the main-text total
-  and every Method/Experiments word cap while retaining budgets for all other
-  sections.
-- `targetWords`: current main-text target.
-- `sectionBudgets`: current per-section allocation, including Abstract.
+  and every Method/Experiments length suggestion while retaining optional
+  references for all other sections.
+- `targetWords`: optional main-text reference value.
+- `sectionBudgets`: optional per-section reference allocation, including
+  Abstract.
 - `includeAppendix`, `appendixLabel`, `appendixDirective`: appendix state and
   its main-text-counting rule.
 - `chatExecution`: plugin-only execution metadata. It stores
@@ -47,9 +49,10 @@ Runtime variables:
   JCR quartile, CAS zone, SCIE/SSCI/ESCI filters, and fixed publisher
   exclusions used only by the submission-strategy prompt.
 
-Shared word-count policy lives in `wordCountPolicy.ts`. Each table or figure is
-currently counted as 200 words in its section and in any applicable main-text
-total.
+Shared length-guidance policy lives in `wordCountPolicy.ts`. When guidance is
+enabled, each table or figure is currently estimated as 200 words in its
+section and in the optional main-text reference. These values are never hard
+caps, minimums, or acceptance criteria.
 
 Template-level visibility flags keep the final-refinement prompt focused on
 editing and audit: it receives the paper type but omits the style directive,

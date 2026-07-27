@@ -935,6 +935,19 @@ export default function SectionRefinementWorkbench() {
                   <button
                     type="button"
                     role="radio"
+                    aria-checked={preferences.sectionLengthMode === "none"}
+                    className={
+                      preferences.sectionLengthMode === "none" ? "active" : ""
+                    }
+                    onClick={() =>
+                      updatePreference("sectionLengthMode", "none")
+                    }
+                  >
+                    {copy.noLength}
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
                     aria-checked={
                       preferences.sectionLengthMode === "preserve"
                     }
@@ -970,31 +983,34 @@ export default function SectionRefinementWorkbench() {
               </div>
 
               <div className="refinement-range-list">
-                {preferences.sectionLengthMode === "custom" &&
-                  renderRange(
-                    copy.sectionLength,
-                    "sectionMinWords",
-                    "sectionMaxWords",
-                    10,
-                    copy.words,
-                    1,
-                  )}
-                {preferences.sectionId !== "abstract" &&
-                  renderRange(
-                    copy.paragraphLength,
-                    "paragraphMinWords",
-                    "paragraphMaxWords",
-                    5,
-                    copy.words,
-                    1,
-                  )}
-                {renderRange(
-                  copy.sentenceLength,
-                  "sentenceMinWords",
-                  "sentenceMaxWords",
-                  1,
-                  copy.words,
-                  1,
+                {preferences.sectionLengthMode === "custom" && (
+                  <>
+                    {renderRange(
+                      copy.sectionLength,
+                      "sectionMinWords",
+                      "sectionMaxWords",
+                      10,
+                      copy.words,
+                      1,
+                    )}
+                    {preferences.sectionId !== "abstract" &&
+                      renderRange(
+                        copy.paragraphLength,
+                        "paragraphMinWords",
+                        "paragraphMaxWords",
+                        5,
+                        copy.words,
+                        1,
+                      )}
+                    {renderRange(
+                      copy.sentenceLength,
+                      "sentenceMinWords",
+                      "sentenceMaxWords",
+                      1,
+                      copy.words,
+                      1,
+                    )}
+                  </>
                 )}
               </div>
               <small>{copy.lengthHint}</small>

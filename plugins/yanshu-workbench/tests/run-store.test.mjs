@@ -542,7 +542,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   });
 
   assert.equal(workflow.rounds.length, 5);
-  assert.equal(workflow.workflowVersion, "2026.07.12");
+  assert.equal(workflow.workflowVersion, "2026.07.13");
   assert.deepEqual(
     workflow.rounds.map((round) => round.number),
     [1, 2, 3, 4, 5],
@@ -800,6 +800,8 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.equal(bootstrap.model.paperStyles.conference.defaultTargetWords, 4500);
     assert.equal(bootstrap.model.paperStyles.journal.defaultTargetWords, 5000);
     assert.equal(bootstrap.initialWorkflow.styleId, "conference");
+    assert.equal(bootstrap.initialWorkflow.hasWordLimit, false);
+    assert.equal(bootstrap.initialWorkflow.unlimitedCoreSections, true);
     assert.equal("placements" in bootstrap.model.frameworkFigure, false);
     assert.deepEqual(
       bootstrap.model.chatExecution.pollingPolicy.intervalMsByCapability,
@@ -873,7 +875,7 @@ test("local onboarding page confirms a complete automation config", async () => 
     assert.equal(config.projectRoot, paperRoot);
     assert.equal(config.workflow.styleId, "journal");
     assert.equal(config.workflow.hasWordLimit, false);
-    assert.equal(config.workflow.unlimitedCoreSections, false);
+    assert.equal(config.workflow.unlimitedCoreSections, true);
     assert.equal("placementId" in config.workflow.frameworkFigure, false);
     assert.equal(config.workflow.chatExecution.reasoningPreference, "high");
 
@@ -1249,7 +1251,7 @@ test("no-limit and unlimited-core modes alter generated prompts", () => {
   });
   assert.doesNotMatch(
     noLimit.rounds[0].prompt,
-    /## Main-text and Section Budgets/,
+    /## Optional Main-text and Section Length Guidance/,
   );
   assert.match(
     noLimit.rounds[1].prompt,
@@ -1272,9 +1274,9 @@ test("no-limit and unlimited-core modes alter generated prompts", () => {
   });
   assert.match(
     unlimitedCore.rounds[0].prompt,
-    /No main-text total; only sections other than Method and Experiments are limited/,
+    /No suggested main-text total; optional ranges only for sections other than Method and Experiments/,
   );
-  assert.match(unlimitedCore.rounds[0].prompt, /Method: Unlimited/);
+  assert.match(unlimitedCore.rounds[0].prompt, /Method: No suggestion/);
   assert.match(
     unlimitedCore.rounds[0].prompt,
     /each table or figure as 200 words/,
@@ -1310,7 +1312,7 @@ test("custom budgets must match the configured total", () => {
         sectionBudgets: { abstract: 999 },
         unlimitedCoreSections: false,
       }),
-    /Section budgets total/,
+    /Section length suggestions total/,
   );
 });
 

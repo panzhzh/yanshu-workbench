@@ -14,21 +14,23 @@ const COPY = {
     titleBrandCandidates: "允许标题与品牌候选",
     titleBrandCandidatesHint:
       "默认关闭；候选只进入报告，必须经作者确认和 high-risk diff 后才能应用。",
-    lengthTitle: "建议正文与章节篇幅",
-    lengthHint: "正文不包含附录；每张表格或图片按 200 词计入建议篇幅。",
-    useWordLimit: "提供建议正文字数",
+    lengthTitle: "正文与章节篇幅建议",
+    lengthHint:
+      "默认关闭。启用后也只提供可接受、调整或忽略的参考值；正文不包含附录，每张表格或图片按 200 词作建议估算。",
+    useWordLimit: "启用篇幅建议",
     useWordLimitHint: "关闭后，不向五轮 Prompt 注入任何正文或章节篇幅建议。",
-    targetWords: "建议正文字数",
-    targetWordsHint: "修改后，章节预算会按当前论文类型重新计算。",
+    targetWords: "建议正文参考值",
+    targetWordsHint: "修改后，章节建议会按当前论文类型重新计算。",
     words: "词",
-    unlimitedCore: "方法与实验不受字数限制",
+    unlimitedCore: "方法与实验不设置建议字数",
     unlimitedCoreHint:
-      "启用后不限制正文总数，只限制方法与实验之外的章节。",
-    sectionBudgets: "章节预算",
-    sectionBudgetsHint: "默认展开，可直接修改；受限模式下总和必须一致。",
-    unlimited: "不限",
-    budgetMatch: "预算一致",
-    budgetMismatch: "章节总和与建议正文字数不一致。",
+      "启用后不提供正文总建议，只为方法与实验之外的章节保留可选参考值。",
+    sectionBudgets: "章节建议",
+    sectionBudgetsHint:
+      "默认展开，可直接修改；总和一致只用于保持配置可计算，不表示论文必须命中。",
+    unlimited: "无建议",
+    budgetMatch: "建议分配一致",
+    budgetMismatch: "章节建议总和与正文参考值不一致。",
     appendixTitle: "附录",
     appendixHint: "附录不计入正文字数且字数不限。",
     allowAppendix: "允许附录",
@@ -89,8 +91,8 @@ const COPY = {
     summaryLanguage: "Prompt",
     summaryReasoning: "推理",
     summaryPolling: "结果检查",
-    noLimit: "不限制",
-    limitedCore: "方法与实验不限",
+    noLimit: "不设篇幅建议",
+    limitedCore: "仅其他章节有建议",
     allowed: "允许",
     disabled: "不使用",
     fileTex: "TeX",
@@ -114,24 +116,24 @@ const COPY = {
     titleBrandCandidates: "Allow title and brand candidates",
     titleBrandCandidatesHint:
       "Off by default. Candidates stay in the report until author approval and a high-risk diff.",
-    lengthTitle: "Suggested main-text and section lengths",
+    lengthTitle: "Main-text and section length guidance",
     lengthHint:
-      "The main text excludes the appendix; each table or figure counts as 200 words toward the suggestion.",
-    useWordLimit: "Provide a suggested main-text length",
+      "Off by default. When enabled, every value remains an optional reference that may be accepted, adjusted, or ignored. The main text excludes the appendix; each table or figure counts as 200 words for estimation.",
+    useWordLimit: "Enable length guidance",
     useWordLimitHint:
       "When disabled, no main-text or section-length suggestions enter the five prompts.",
-    targetWords: "Suggested main-text words",
+    targetWords: "Suggested main-text reference",
     targetWordsHint:
-      "Changing this value recalculates section budgets for the paper type.",
+      "Changing this value recalculates section suggestions for the paper type.",
     words: "words",
-    unlimitedCore: "Do not limit Method or Experiments",
+    unlimitedCore: "No suggested length for Method or Experiments",
     unlimitedCoreHint:
-      "Removes the main-text total and limits only sections outside Method and Experiments.",
-    sectionBudgets: "Section budgets",
+      "Removes the main-text suggestion and retains optional references only for sections outside Method and Experiments.",
+    sectionBudgets: "Section suggestions",
     sectionBudgetsHint:
-      "Open by default and editable; constrained totals must match.",
-    unlimited: "Unlimited",
-    budgetMatch: "Budgets match",
+      "Open by default and editable. Matching totals keep the configuration computable; they do not require the paper to hit them.",
+    unlimited: "No suggestion",
+    budgetMatch: "Suggestions match",
     budgetMismatch:
       "The section total does not match the suggested main-text length.",
     appendixTitle: "Appendix",
@@ -197,8 +199,8 @@ const COPY = {
     summaryLanguage: "Prompt",
     summaryReasoning: "Reasoning",
     summaryPolling: "Result checks",
-    noLimit: "No limit",
-    limitedCore: "Method and Experiments unlimited",
+    noLimit: "No length guidance",
+    limitedCore: "Guidance for other sections only",
     allowed: "Allowed",
     disabled: "Not used",
     fileTex: "TeX",
@@ -848,8 +850,10 @@ function bindEvents() {
     });
   });
   elements.wordLimitToggle.addEventListener("change", () => {
+    if (elements.wordLimitToggle.checked && !workflow.hasWordLimit) {
+      workflow.unlimitedCoreSections = true;
+    }
     workflow.hasWordLimit = elements.wordLimitToggle.checked;
-    if (!workflow.hasWordLimit) workflow.unlimitedCoreSections = false;
     renderWordLimit();
     renderSummary();
     schedulePromptPreview();

@@ -34,7 +34,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
   assert.match(html, /五轮重构，支持断点继续/);
-  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.12/);
+  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.13/);
   assert.match(html, /同一份 Prompt/);
   assert.match(html, /最小材料链/);
   assert.match(html, /一次交接/);
@@ -156,9 +156,9 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /class="workflow-section content-section prompt-rail"/);
   assert.match(html, /会议/);
   assert.match(html, /期刊/);
-  assert.match(html, /建议正文字数/);
-  assert.match(html, /提供建议字数/);
-  assert.match(html, /附录不计入正文，每张表格或图片按 200 词折算/);
+  assert.match(html, /建议正文参考值/);
+  assert.match(html, /默认不设篇幅建议/);
+  assert.match(html, /默认状态。关闭后不显示章节建议/);
   assert.match(html, /总体框架图/);
   assert.match(html, /画布比例/);
   assert.match(html, /Tol 鲜明色系/);
@@ -174,11 +174,9 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /Extra High/);
   assert.match(html, /不锁定 GPT 型号名称/);
   assert.match(html, /发生回退时先明确提示/);
-  assert.match(html, /正文与章节预算/);
-  assert.match(html, /不限制方法和实验的字数/);
+  assert.doesNotMatch(html, /class="allocation-control/);
   assert.match(html, /Introduction 纯章节导航句/);
   assert.match(html, /默认保留原标题与缩写/);
-  assert.match(html, /每张表格或图片按 200 词计入/);
   assert.match(html, /导出桌面配置/);
   assert.match(html, /class="codex-launch-guide"/);
   assert.match(html, /在 Codex 中启动/);
@@ -218,22 +216,16 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /Experimental Configuration/);
   assert.match(html, /## 融合式精修规则/);
   assert.match(html, /不做“原文 \+ 修补句”/);
-  assert.match(html, /方法与实验不限字数模式/);
-  assert.match(html, /Method 与 Experiments and Results 必须按科学完整性和证据需要充分保留/);
-  assert.match(html, /当前配置只允许、并不要求使用附录/);
+  assert.match(html, /允许附录，但不能只为命中建议字数而转移内容/);
   assert.match(html, /_round_1_artifacts\.zip/);
   assert.match(html, /完整当前 BibTeX 文献库/);
   assert.match(html, /_round_1_references\.bib/);
   assert.doesNotMatch(html, /_round_1_bib_suggestions\.bib/);
   assert.match(
     html,
-    /data-reconstruction-workflow-version="2026\.07\.12"/,
+    /data-reconstruction-workflow-version="2026\.07\.13"/,
   );
-  assert.match(html, /满足当前适用的总量与章节预算，不得使用附录/);
-  assert.match(
-    html,
-    /## 建议正文与章节篇幅[\s\S]*### 方法与实验不限字数模式[\s\S]*## 本轮任务/,
-  );
+  assert.doesNotMatch(html, /## 可选正文与章节篇幅建议/);
   assert.doesNotMatch(html, /证据基线与初稿审计|Evidence Baseline/);
   assert.doesNotMatch(html, /## 使用方式|## 独立运行规则/);
   assert.doesNotMatch(html, /# 第\d+轮：|# Round \d+:/);
@@ -284,10 +276,12 @@ test("server-renders the section-refinement workbench", async () => {
   assert.match(html, /默认建议 2–4 个/);
   assert.match(html, /Keywords 数量/);
   assert.match(html, /每个 Keyword 词数/);
-  assert.match(html, /精修范围总量/);
-  assert.match(html, /保持当前长度/);
-  assert.match(html, /自定义区间/);
-  assert.match(html, /普通句子词数/);
+  assert.match(html, /篇幅建议/);
+  assert.match(html, /精修范围参考方式/);
+  assert.match(html, /不设篇幅建议/);
+  assert.match(html, /参考原稿长度/);
+  assert.match(html, /自定义建议/);
+  assert.doesNotMatch(html, /普通句子建议词数/);
   assert.match(html, /改写强度/);
   assert.match(html, /深度精修/);
   assert.match(html, /允许冒号/);
@@ -297,12 +291,12 @@ test("server-renders the section-refinement workbench", async () => {
   assert.match(html, /# 精修 摘要/);
   assert.match(html, /Abstract 必须为一个连续英文段落/);
   assert.match(html, /整段保留 2–4 个最能支撑核心 claim 的数字/);
-  assert.match(html, /使用 4–5 个高信息量英文关键词/);
-  assert.match(html, /每个关键词 1–2 个词/);
+  assert.match(html, /建议使用 4–5 个高信息量英文关键词/);
+  assert.match(html, /每个关键词可参考 1–2 个词/);
   assert.match(html, /不鼓励使用本文方法之外的缩写/);
   assert.match(html, /摘要不使用任何引用/);
-  assert.match(html, /当前精修范围目标为 190–220 个英文单词/);
-  assert.match(html, /普通句子目标为 12–24 个英文单词/);
+  assert.match(html, /默认不设置章节、段落或句子的篇幅建议/);
+  assert.match(html, /上述词数均为可选的可读性建议/);
   assert.match(html, /冒号只在确有必要/);
   assert.match(html, /## 融合式精修/);
   assert.match(html, /不做“原文 \+ 修补句”/);
@@ -618,7 +612,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
 
   assert.match(config, /defaultTargetWords:\s*4500/);
   assert.match(config, /defaultTargetWords:\s*5000/);
-  assert.match(config, /引言 480 词，讨论与局限占 10%，结论 200 词/);
+  assert.match(config, /建议引言约 480 词、讨论与局限约占 10%、结论约 200 词/);
   assert.match(config, /ratio:\s*0\.10666666666666667/);
   assert.match(config, /ratio:\s*0\.1/);
   assert.match(config, /ratio:\s*0\.044444444444444446/);
@@ -630,15 +624,15 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(config, /三个小节，每小节一个普通段落/);
   assert.match(config, /由论文内容决定 3–5 个讨论与局限主题/);
-  assert.match(config, /defaultMode:\s*"target"/);
+  assert.match(config, /defaultMode:\s*"none"/);
   assert.match(config, /defaultAppendix:\s*true/);
   assert.match(config, /defaultAppendix:\s*false/);
-  assert.match(config, /wordLimitOff:\s*"不设篇幅建议"/);
+  assert.match(config, /wordLimitOff:\s*"默认不设篇幅建议"/);
   assert.match(config, /appendixOn:\s*"允许附录"/);
   assert.doesNotMatch(config, /workflowTitle|五步重构工作流/);
   assert.match(config, /resizePromptRail:\s*"拖动调整 Prompt 栏宽度"/);
   assert.match(config, /resetPromptRail:\s*"双击恢复为 40%"/);
-  assert.match(config, /满足当前适用的总量与章节预算时不得使用/);
+  assert.match(config, /不能只为命中建议字数而转移内容/);
   assert.match(config, /defaultUnlimitedCoreSections:\s*true/);
   assert.match(config, /defaultIncludeSectionNavigationSentence:\s*false/);
   assert.match(config, /defaultIncludeSectionNavigationSentence:\s*true/);
@@ -728,7 +722,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   ).join("\n");
   assert.match(
     originalPrompts,
-    /Abstract 必须为一个连续英文段落，并执行页面注入的 Abstract 预算/,
+    /Abstract 必须为一个连续英文段落；仅在页面启用时参考其篇幅建议/,
   );
   assert.match(
     originalPrompts,
@@ -753,19 +747,19 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.doesNotMatch(originalPrompts, /## 任务 A：Title 重构/);
   assert.doesNotMatch(originalPrompts, /摘要正文只允许出现一个缩写/);
   assert.match(originalPrompts, /可选的其他附件/);
-  assert.match(originalPrompts, /本步骤允许正文临时上浮 20%/);
+  assert.match(originalPrompts, /可将参考总量上浮 20% 作为结构诊断区间/);
   assert.doesNotMatch(originalPrompts, /临时上限为 6,000 词/);
   assert.match(
     originalPrompts,
     /Experiments and Results 的现有内容不得精简、删除、弱化或移入附录/,
   );
   assert.equal(
-    (originalPrompts.match(/所有表格和图片各按 \*\*200 词\*\*/g) ?? [])
+    (originalPrompts.match(/表格和图片各按 \*\*200 词\*\*作建议估算/g) ?? [])
       .length,
     3,
   );
   assert.match(originalPrompts, /会议论文不得单设 `Overview` 小节/);
-  assert.match(originalPrompts, /期刊论文必须单设 `Overview`，恰好两个普通段落且总计不超过 80 词/);
+  assert.match(originalPrompts, /期刊论文必须单设 `Overview`，使用两个普通段落，总词数可参考 80 词/);
   assert.match(originalPrompts, /后续小节按真实证据安排/);
   assert.match(originalPrompts, /四项必须依次覆盖，但不是四个强制标题/);
   assert.match(originalPrompts, /避免标准文档式层级/);
@@ -956,15 +950,15 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(constraints, /Abstract 的固定结构/);
   assert.match(
     constraints,
-    /Abstract 为 \{\{abstract_min\}\}–\{\{abstract_max\}\} 词/,
+    /Abstract 可参考 \{\{abstract_min\}\}–\{\{abstract_max\}\} 词/,
   );
   assert.match(
     constraints,
-    /Bridge 为 12–18 词/,
+    /Bridge 12–18 词/,
   );
   assert.match(constraints, /Method 每句 16–24 词/);
   assert.match(constraints, /Results 每句 14–22 词/);
-  assert.match(constraints, /Implication 为 12–18 词/);
+  assert.match(constraints, /Implication 12–18 词/);
   assert.match(constraints, /论文标题与品牌缩写/);
   assert.match(constraints, /marker:\s*"abstract_word_limits"/);
   assert.match(constraints, /marker:\s*"method_word_limits"/);
@@ -981,9 +975,9 @@ test("keeps presets and production prompts configuration-driven", async () => {
     constraints,
     /protectedSectionIds:\s*\["method", "experiments-results"\]/,
   );
-  assert.match(constraints, /本步骤临时上限与附录分流规则/);
-  assert.match(constraints, /当前 Method 不设词数范围/);
-  assert.match(constraints, /因正文没有总量上限，20% 临时上浮规则不适用/);
+  assert.match(constraints, /本步骤篇幅建议与附录分流/);
+  assert.match(constraints, /当前 Method 不设词数建议/);
+  assert.match(constraints, /正文不设总量建议，20% 观察区间不适用/);
   assert.match(
     constraints,
     /Problem Definition 与当前论文类型规定的 Overview 结构仍须满足/,
@@ -1000,12 +994,12 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(constraints, /具体结果数字最多三个/);
   assert.match(
     builder,
-    /仅为标有数字的章节提供建议范围/,
+    /仅为标有数字的章节提供可选参考范围/,
   );
   assert.match(constraints, /只允许、并不要求使用附录/);
   assert.match(
     constraints,
-    /若正文能够满足当前适用的总量与章节预算，不得使用附录/,
+    /不得只为命中建议字数而移动内容/,
   );
   assert.match(constraints, /wordLimitPlacement:\s*"after-budget"/);
   assert.match(
@@ -1046,7 +1040,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     /four reconstruction cards and the separate submission-strategy/,
   );
   assert.match(promptReadme, /unlimitedCoreSections/);
-  assert.match(promptReadme, /counted as 200 words/);
+  assert.match(promptReadme, /estimated as 200 words/);
   assert.match(page, /<HomePage \/>/);
   assert.match(layout, /研术台 · YanShu/);
   assert.match(layout, /\/og-reconstruction-2026-07-7\.png/);
@@ -1097,7 +1091,7 @@ test("keeps section-refinement rules and merge controls configuration-driven", a
   assert.match(config, /每个标题为 3–7 个英文单词/);
   assert.match(config, /relatedCitationMin: 15/);
   assert.match(config, /relatedCitationMax: 25/);
-  assert.match(config, /subsection 最后一句不超过 18 个英文单词/);
+  assert.match(config, /subsection 最后一句建议控制在 18 个英文单词以内/);
   assert.match(config, /function abstractContract/);
   assert.match(config, /abstractKeywordCountMin: 4/);
   assert.match(config, /abstractKeywordCountMax: 5/);
@@ -1147,7 +1141,9 @@ test("keeps section-refinement rules and merge controls configuration-driven", a
   assert.match(config, /上限不是配额/);
   assert.match(config, /冒号只在确有必要/);
   assert.match(config, /“允许”不是使用要求/);
-  assert.match(config, /mode: "preserve"[\s\S]*section: \[300, 500\]/);
+  assert.match(config, /mode: "none"[\s\S]*section: \[300, 500\]/);
+  assert.match(config, /默认不设置章节、段落或句子的篇幅建议/);
+  assert.match(config, /可根据论文内容选择接受、调整或忽略/);
   assert.match(config, /experimentalFocus: ExperimentalFocusId = "both"/);
   assert.match(config, /section: \[800, 1400\]/);
   assert.match(config, /allowColon:\s*true/);
@@ -1160,6 +1156,7 @@ test("keeps section-refinement rules and merge controls configuration-driven", a
   assert.match(component, /sectionMinWords/);
   assert.match(component, /paragraphMinWords/);
   assert.match(component, /sentenceMinWords/);
+  assert.match(component, /updatePreference\("sectionLengthMode", "none"\)/);
   assert.match(component, /visualParagraphsPerItem/);
   assert.match(component, /abstractKeywordCountMin/);
   assert.match(component, /abstractKeywordWordsMax/);

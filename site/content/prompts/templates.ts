@@ -88,8 +88,8 @@ export const PROMPT_TEMPLATES: PromptTemplate[] = [
         en: "Conference prose is compact and claim-first. Use paragraph when a third heading level is genuinely needed, and otherwise keep exposition continuous. Related Work uses three one-paragraph subsections; Method has no standalone Overview; the model selects three to five evidence-driven Discussion topics, followed by an approximately 100-word Limitations subsection.",
       },
       journal: {
-        zh: "期刊论文采用累积式、解释充分的写法。目录层级默认止于 subsubsection，叙述功能使用主题句与过渡表达。Related Work 使用三个双段小节；Method 单设两段且不超过 80 词的 Overview；Discussion 由模型按证据选择 3–5 个主题小节。",
-        en: "Journal prose is cumulative and sufficiently explanatory. Stop the heading hierarchy at subsubsection by default and express discourse functions through topic sentences and transitions. Related Work uses three two-paragraph subsections; Method has a two-paragraph Overview capped at 80 words; the model selects three to five evidence-driven Discussion topics.",
+        zh: "期刊论文采用累积式、解释充分的写法。目录层级默认止于 subsubsection，叙述功能使用主题句与过渡表达。Related Work 使用三个双段小节；Method 单设两段 Overview，篇幅可参考 80 词并按内容调整；Discussion 由模型按证据选择 3–5 个主题小节。",
+        en: "Journal prose is cumulative and sufficiently explanatory. Stop the heading hierarchy at subsubsection by default and express discourse functions through topic sentences and transitions. Related Work uses three two-paragraph subsections; Method has a two-paragraph Overview using 80 words only as an optional reference; the model selects three to five evidence-driven Discussion topics.",
       },
     },
     tasks: [
@@ -157,7 +157,7 @@ The core idea must remain meaningful without component names. Do not relabel ord
       },
     ],
     deliverables: {
-      zh: `生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。中文报告至少包含：Scientific Positioning Contract、标题与论文品牌审计（如有候选则附 high-risk diff 和未授权状态）、一句话主旨与痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能与预算表、图表角色、结构操作清单、联网核验、文献记录和下一步交接摘要。`,
+      zh: `生成完整英文 .tex、中文报告和完整当前 BibTeX 文献库。中文报告至少包含：Scientific Positioning Contract、标题与论文品牌审计（如有候选则附 high-risk diff 和未授权状态）、一句话主旨与痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能与可选篇幅建议表、图表角色、结构操作清单、联网核验、文献记录和下一步交接摘要。`,
       en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract; title and paper-brand audit, with a high-risk diff and unauthorized status for any candidate; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology table; section functions and budgets; visual roles; structural operations; web verification; bibliography changes; and a self-contained handoff.`,
     },
     fileNames: {
@@ -220,8 +220,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
         en: "Conference prose is compact and claim-first. The available hierarchy is section → subsection → paragraph, but headings are reserved for substantive scientific units. Method has no standalone Overview and introduces the framework where it serves the argument. Experimental setup covers Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order without mechanically turning all four into headings.",
       },
       journal: {
-        zh: "期刊论文采用累积式、解释充分的写法。目录层级默认止于 subsubsection；其下使用主题句、过渡和自然段。Method 单设两段、总计不超过 80 词的 Overview，解释科学逻辑但不复述框架图。实验设置依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines，只在内容确实构成独立单元时设置 subsubsection。",
-        en: "Journal prose is cumulative and sufficiently explanatory. Stop the hierarchy at subsubsection by default and use topic sentences and transitions below it. Method has a two-paragraph Overview capped at 80 words that explains the scientific logic without narrating the figure. Experimental setup covers Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order, using subsubsections only for genuinely independent units.",
+        zh: "期刊论文采用累积式、解释充分的写法。目录层级默认止于 subsubsection；其下使用主题句、过渡和自然段。Method 单设两段 Overview，总词数可参考 80 词并按内容调整，解释科学逻辑但不复述框架图。实验设置依次覆盖 Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines，只在内容确实构成独立单元时设置 subsubsection。",
+        en: "Journal prose is cumulative and sufficiently explanatory. Stop the hierarchy at subsubsection by default and use topic sentences and transitions below it. Method has a two-paragraph Overview using 80 words only as an optional reference and explaining scientific logic without narrating the figure. Experimental setup covers Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order, using subsubsections only for genuinely independent units.",
       },
     },
     tasks: [
@@ -377,9 +377,9 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
         },
         body: {
           zh: `Introduction 使用五个核心段落：P1 进入任务与现实约束；P2 综合相关路线并形成缺口；P3 明确今天仍未解决、且真正决定设计的挑战；P4 回答 P3，给出核心思想、总体机制和设计直觉；P5 用贡献句收束，每条默认以 We 开头并对应真实机制与证据。是否增加独立的论文结构导航句由当前配置决定。P3 只定义未解问题，P4 只解释本文如何回应，避免重复。
-Related Work 恰好三个小节，并按当前论文类型使用单段或双段结构；按研究范式、训练信号、结构假设、效率或泛化权衡综合。每个小节最后用不超过 18 词的无 “we”、无本文方法名总结句收束。先在报告中规划主题和现有 BibTeX key，再写入 TeX；不得逐篇流水账。`,
+Related Work 恰好三个小节，并按当前论文类型使用单段或双段结构；按研究范式、训练信号、结构假设、效率或泛化权衡综合。每个小节最后用建议控制在 18 词以内、且不使用 “we” 或本文方法名的总结句收束；必要时可按内容调整。先在报告中规划主题和现有 BibTeX key，再写入 TeX；不得逐篇流水账。`,
           en: `Use five core Introduction paragraphs: P1 enters the task and practical constraints; P2 synthesizes related lines into the gap; P3 states the unresolved challenges that still determine the design today; P4 answers P3 with the core idea, overall mechanism, and design intuition; P5 closes with contribution sentences, each beginning with We by default and aligned with a real mechanism and evidence. Add a separate paper-roadmap sentence only when the current configuration enables it. P3 defines the unresolved problem; P4 explains this paper's response, so they must not repeat each other.
-Related Work has exactly three subsections and follows the current paper type's one- or two-paragraph rule. Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. End each subsection with a synthesis sentence of at most 18 words that uses neither “we” nor the method name. Plan themes and existing BibTeX keys in the report before drafting; do not narrate papers one by one.`,
+Related Work has exactly three subsections and follows the current paper type's one- or two-paragraph rule. Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. End each subsection with a synthesis sentence that preferably stays within 18 words but may adjust to the content and uses neither “we” nor the method name. Plan themes and existing BibTeX keys in the report before drafting; do not narrate papers one by one.`,
         },
       },
       {

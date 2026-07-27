@@ -50,12 +50,12 @@ export const PROMPT_STEP_POLICIES = {
     protectedSectionIds: ["method", "experiments-results"],
     appendixTriage: {
       enabled: {
-        zh: "当前配置只允许、并不要求使用附录。若正文能够满足当前适用的总量与章节预算，不得使用附录；只有受限章节仍超额，且逐项分析确认内容并非科学主线所必需时，才可考虑移入附录。除 {{protected_sections}} 外，移动任何内容都不得削弱定义完整性和论证闭环，且正文必须保持自洽。",
-        en: "The current configuration permits but does not require an appendix. Do not use one when the main text satisfies every applicable total and section budget. Consider moving material only when a limited section remains over budget and itemized review confirms that it is not essential to the scientific throughline. Outside {{protected_sections}}, no move may weaken complete definitions or argumentative closure, and the main text must remain self-contained.",
+        zh: "当前配置只允许、并不要求使用附录。不得只为命中建议字数而移动内容；正文已经清楚、完整且结构紧凑时不使用附录。只有材料本身确属补充内容、放在正文会削弱主线时才可考虑移入。除 {{protected_sections}} 外，任何移动都不得削弱定义完整性和论证闭环，且正文必须保持自洽。",
+        en: "The configuration permits but does not require an appendix. Never move content merely to hit a suggested length, and omit the appendix when the main text is clear, complete, and focused. Move material only when it is genuinely supplementary and would weaken the main throughline. Outside {{protected_sections}}, no move may weaken complete definitions or argumentative closure, and the main text must remain self-contained.",
       },
       disabled: {
-        zh: "当前配置未启用附录：不得把任何内容转移到附录。受限章节超额时，应删除重复、合并非核心叙述或在报告中登记风险，并遵守当前适用的章节预算；若当前模式另有总量或临时上限，也必须遵守。",
-        en: "The current configuration disables the appendix. Do not move material outside the main text. When a limited section is over budget, remove repetition, consolidate non-core exposition, or record the risk, while respecting every applicable section budget and any total or temporary ceiling defined by the current mode.",
+        zh: "当前配置未启用附录：不得把任何内容转移到附录。可以删除真实重复并合并非核心叙述，但篇幅建议不构成删减核心内容的理由；必要时直接偏离建议并在报告中说明。",
+        en: "The current configuration disables the appendix. Do not move material outside the main text. Remove genuine repetition and consolidate non-core exposition when useful, but never treat length guidance as a reason to delete core content; deviate from the suggestion when necessary and record why.",
       },
     },
   },
@@ -279,63 +279,63 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
       {
         marker: "title_word_limits",
         standard: {
-          zh: "- 启用字数限制时，标题控制在 8–16 个英文单词。",
-          en: "- When a word limit is enabled, keep the title between 8 and 16 English words.",
+          zh: "- 启用篇幅建议时，标题可参考 8–16 个英文单词；以准确、自然和有辨识度为先，可根据论文内容偏离。",
+          en: "- When length guidance is enabled, use 8–16 English words as an optional title reference; accuracy, naturalness, and distinctiveness take priority, and the paper may justify a different length.",
         },
       },
       {
         marker: "scientific_overview_word_limits",
         standard: {
-          zh: "- 启用字数限制时，期刊 Method 的 Overview 总计不超过 80 词。",
-          en: "- When a word limit is enabled, cap the journal Method Overview at 80 words in total.",
+          zh: "- 启用篇幅建议时，期刊 Method Overview 建议约 80 词；若科学逻辑需要，可适度调整。",
+          en: "- When length guidance is enabled, about 80 words is suggested for the journal Method Overview; adjust when the scientific logic requires it.",
         },
       },
       {
         marker: "scientific_limitations_word_limits",
         standard: {
-          zh: "- 启用字数限制时，会议论文的 Limitations subsection 约 100 词。",
-          en: "- When a word limit is enabled, keep the conference-paper Limitations subsection at approximately 100 words.",
+          zh: "- 启用篇幅建议时，会议论文的 Limitations subsection 可参考约 100 词，并按真实局限数量与重要性调整。",
+          en: "- When length guidance is enabled, use about 100 words as an optional reference for conference-paper Limitations and adjust to the number and importance of genuine limitations.",
         },
       },
     ],
     wordLimitPlacement: "after-budget",
     wordLimit: {
-      zh: `### 本步骤临时上限与附录分流规则
+      zh: `### 本步骤篇幅建议与附录分流
 
-- 完整理解当前论文后，把正文重构到与当前目标总字数和章节预算大体一致；
-- 当前正式目标不变。本步骤允许正文临时上浮 {{temporary_ceiling_percent}}%，临时上限为 {{temporary_ceiling_words}} 词；该上限不是新的目标字数；
-- 对超出正式目标的内容逐项建立“保留正文 / 移入附录 / 删除重复”清单，并说明依据；
+- 完整理解当前论文后，把页面给出的总字数和章节数字仅作为结构参考，不作为硬上限或验收条件；
+- 若本步骤为理顺结构而需要扩展正文，可把建议值上浮 {{temporary_ceiling_percent}}%（约 {{temporary_ceiling_words}} 词）作为观察区间；它仍是可选参考，不是临时上限；
+- 对明显超出建议且可能影响聚焦度的内容建立“保留正文 / 移入附录 / 删除重复”清单，并按科学必要性说明依据；偏离建议本身不是错误；
 - {{appendix_triage_rule}}
 - {{protected_sections}} 是正文核心保护区。Method 的问题定义、必要机制、公式接口和训练/推理说明不得因压缩而残缺，也不得移入附录；
 - Experiments and Results 的现有内容不得精简、删除、弱化或移入附录，包括实验设置、比较协议、主结果、消融、稳健性、敏感性、定性结果、失败案例和必要解释；
 - Abstract 保持为临时版本；其他章节优先删除重复背景、偏离主线的铺陈和重复结论；
-- 中文报告必须记录当前总词数、正式目标、临时上限、逐节词数，以及每项保留、删除重复或移入附录的决定；
-- 后续步骤仍以当前正式目标和章节预算为最终约束，不得把本步骤的临时上限当作永久篇幅。`,
-      en: `### Temporary Ceiling and Appendix-triage Rules for This Step
+- 中文报告记录当前总词数、建议参考值、逐节词数、偏离建议的必要理由，以及每项保留、删除重复或移入附录的决定；
+- 后续步骤继续把篇幅数字视为可选建议，并按内容需要重新判断是否采纳。`,
+      en: `### Length Guidance and Appendix Triage for This Step
 
-- After understanding the complete manuscript, reconstruct the main text so that its total and sections broadly align with the current configured budgets;
-- The formal target remains unchanged. This step permits a temporary increase of {{temporary_ceiling_percent}}%, producing a temporary ceiling of {{temporary_ceiling_words}} words; this ceiling is not a new target;
-- Create an itemized keep-in-main-text / move-to-appendix / remove-duplication ledger for every item above the formal target and justify each decision;
+- After understanding the complete manuscript, use the configured total and section numbers only as structural references, never as hard caps or acceptance criteria;
+- If restructuring benefits from temporary expansion, a {{temporary_ceiling_percent}}% increase (about {{temporary_ceiling_words}} words) may serve as an observation range. It remains optional guidance, not a temporary ceiling;
+- For content far above the suggestion that may weaken focus, create an itemized keep-in-main-text / move-to-appendix / remove-duplication ledger and justify decisions by scientific necessity. Deviation itself is not an error;
 - {{appendix_triage_rule}}
 - {{protected_sections}} are protected core sections. Do not make Method's problem definition, necessary mechanisms, equation interfaces, or training/inference description incomplete through compression, and do not move them to the appendix;
 - Do not condense, delete, weaken, or move any existing Experiments and Results content to the appendix, including settings, comparison protocols, main results, ablations, robustness, sensitivity, qualitative findings, failure cases, and necessary interpretation;
 - Keep Abstract temporary. In other sections, remove repeated background, off-throughline exposition, and repeated conclusions first;
-- The Chinese report must record the current total, formal target, temporary ceiling, per-section counts, and every keep, duplication-removal, or appendix-move decision;
-- Later steps must return to the current formal target and section budgets. Never treat this temporary ceiling as a permanent length allowance.`,
+- The Chinese report must record the current total, suggested reference, per-section counts, necessary reasons for deviations, and every keep, duplication-removal, or appendix-move decision;
+- Later steps continue to treat all length numbers as optional guidance and reassess them against the content.`,
     },
     flexibleCoreWordLimit: {
-      zh: `### 方法与实验不限字数模式
+      zh: `### 仅为非核心章节提供篇幅建议
 
-- 因正文没有总量上限，20% 临时上浮规则不适用；
+- 正文不设总量建议，20% 观察区间不适用；
 - Method 与 Experiments and Results 必须按科学完整性和证据需要充分保留，不得因篇幅精简、删除、弱化或移入附录；
 - {{appendix_triage_rule}}
-- 中文报告记录逐节词数、表格与图片折算数、受限章节是否合规，以及每项保留、删除重复或移入附录的决定。`,
-      en: `### Unlimited Method and Experiments Mode
+- 其他章节的数字也只是可选建议；中文报告记录逐节词数、表格与图片折算数、是否采纳建议及理由，以及每项保留、删除重复或移入附录的决定。`,
+      en: `### Length Guidance Only Outside Method and Experiments
 
-- Because there is no main-text cap, the temporary 20% allowance does not apply;
+- Because no main-text total is suggested, the 20% observation range does not apply;
 - Preserve Method and Experiments & Results as scientific completeness and evidence require; never condense, delete, weaken, or move their content to the appendix merely for length;
 - {{appendix_triage_rule}}
-- The Chinese report must record per-section counts, table/figure equivalents, compliance of every limited section, and every keep, duplication-removal, or appendix-move decision.`,
+- Numbers for all other sections are optional guidance as well. The Chinese report records per-section counts, table/figure equivalents, whether each suggestion was adopted and why, and every keep, duplication-removal, or appendix-move decision.`,
     },
   },
   "method-experiments": {
@@ -440,30 +440,30 @@ The report must contain the Method logic map, old/new Method subsection comparis
       {
         marker: "journal_overview_word_limits",
         standard: {
-          zh: "- 启用字数限制时，期刊 Overview 两段合计不超过 80 词。",
-          en: "- When a word limit is enabled, cap the two journal Overview paragraphs at 80 words in total.",
+          zh: "- 启用篇幅建议时，期刊 Overview 两段可参考约 80 词，并按科学逻辑需要调整。",
+          en: "- When length guidance is enabled, use about 80 words as an optional reference for the two journal Overview paragraphs and adjust to the scientific logic.",
         },
       },
       {
         marker: "method_word_limits",
         standard: {
-          zh: `- 启用字数限制时，Problem Definition 为 {{problem_definition_min}}–{{problem_definition_max}} 词；Method 总量落在当前配置范围内，每个英文句子不超过 24 词。`,
-          en: `- When a word limit is enabled, Problem Definition contains {{problem_definition_min}}–{{problem_definition_max}} words; Method stays within its configured range, and no English sentence exceeds 24 words.`,
+          zh: `- 启用篇幅建议时，Problem Definition 可参考 {{problem_definition_min}}–{{problem_definition_max}} 词，Method 可参考当前配置范围，英文句子通常建议不超过 24 词；均可按机制完整性调整。`,
+          en: `- When length guidance is enabled, use {{problem_definition_min}}–{{problem_definition_max}} words as an optional reference for Problem Definition and the configured range for Method; English sentences are generally suggested to stay within 24 words. Adjust all of these for mechanism completeness.`,
         },
         flexibleCore: {
-          zh: `- 当前 Method 不设词数范围；Problem Definition 与当前论文类型规定的 Overview 结构仍须满足，每个英文句子不超过 24 词。按机制完整性展开并删除重复，不得为了扩写增加无证据内容。`,
-          en: `- Method currently has no word range. Problem Definition and the Overview structure defined for the current paper type still apply, and no English sentence exceeds 24 words. Develop only what mechanism completeness requires, remove repetition, and never add unsupported material merely to expand the section.`,
+          zh: `- 当前 Method 不设词数建议；Problem Definition 与当前论文类型规定的 Overview 结构仍须满足，英文句子通常建议不超过 24 词。按机制完整性展开并删除重复，不得为了扩写增加无证据内容。`,
+          en: `- Method has no suggested word range. Problem Definition and the Overview structure defined for the current paper type still apply, while English sentences are generally suggested to stay within 24 words. Develop only what mechanism completeness requires, remove repetition, and never add unsupported material merely to expand the section.`,
         },
       },
       {
         marker: "experiments_word_limits",
         standard: {
-          zh: `- 启用字数限制时，Experiments and Results 总量落在当前配置范围内，每个英文句子不超过 24 词。`,
-          en: `- When a word limit is enabled, Experiments and Results stays within its configured range, and no English sentence exceeds 24 words.`,
+          zh: `- 启用篇幅建议时，Experiments and Results 可参考当前配置范围，英文句子通常建议不超过 24 词；应按实验协议和证据链需要调整。`,
+          en: `- When length guidance is enabled, use the configured range as an optional reference for Experiments and Results; English sentences are generally suggested to stay within 24 words. Adjust to the experimental protocol and evidence chain.`,
         },
         flexibleCore: {
-          zh: `- 当前 Experiments and Results 不设词数范围，每个英文句子仍不超过 24 词。按实验协议与证据链需要充分展开并删除重复，不得因篇幅压缩、删除或弱化现有实验内容。`,
-          en: `- Experiments and Results currently has no word range, while each English sentence remains at most 24 words. Develop the section as fully as its protocols and evidence chain require, remove repetition, and never condense, delete, or weaken existing experimental content merely for length.`,
+          zh: `- 当前 Experiments and Results 不设词数建议，英文句子通常建议不超过 24 词。按实验协议与证据链需要充分展开并删除重复，不得因篇幅压缩、删除或弱化现有实验内容。`,
+          en: `- Experiments and Results has no suggested word range, while English sentences are generally suggested to stay within 24 words. Develop the section as fully as its protocols and evidence chain require, remove repetition, and never condense, delete, or weaken existing experimental content merely for length.`,
         },
       },
     ],
@@ -508,7 +508,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 {{narrative_related_work_structure}}
 - 第一句用主动语态和一般现在时概括稳定观察；
 - 有且仅有一句用一般过去时描述代表性作者行为；
-- 每个 subsection 的最后一句不超过 18 词，必须是对本小节文献的综合分析或总结；只有分析自然支持时才可落到本文定位，但不得出现本文方法名，不得使用 "we"；
+- 每个 subsection 的最后一句建议控制在 18 词以内并可按内容调整，必须是对本小节文献的综合分析或总结；只有分析自然支持时才可落到本文定位，但不得出现本文方法名，不得使用 "we"；
 - 按研究范式、训练信号、结构假设、效率或泛化权衡综合，禁止逐篇串讲；
 - 整节建议使用 15–25 个真实 BibTeX key，至少 60% 优先来自近三年；更早工作只用于任务定义或奠基背景；每句最多 3 个 key；除上述小节末句外，全文 we 最多三次；
 - 正式重写前先在报告中给出三个小节主题、选择理由和计划使用的现有 key。
@@ -562,7 +562,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 {{narrative_related_work_structure}}
 - The first sentence uses active voice and present tense to summarize a stable observation;
 - Exactly one sentence uses simple past tense to describe a representative author action;
-- The final sentence of each subsection contains no more than 18 words and synthesizes or summarizes that subsection's literature. It may lead naturally to the paper's position only when the analysis warrants it, but must not name the paper's method or use "we";
+- The final sentence of each subsection preferably stays within 18 words but may adjust to the content, and it synthesizes or summarizes that subsection's literature. It may lead naturally to the paper's position only when the analysis warrants it, but must not name the paper's method or use "we";
 - Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. Never narrate papers one by one;
 - Recommend 15–25 real BibTeX keys across the section, prioritizing at least 60% from the last three years. Use older work only for task definition or foundations, at most three keys per sentence, and "we" no more than three times outside the prohibited subsection-final sentences;
 - Before drafting, plan the three subsection themes, rationale, and existing keys in the report.
@@ -627,43 +627,43 @@ The report must contain the fact base, preservation list for high-value original
       {
         marker: "abstract_word_limits",
         standard: {
-          zh: `- 启用字数限制时，Abstract 为 {{abstract_min}}–{{abstract_max}} 词；Background 每句 16–24 词；Bridge 为 12–18 词；Method 每句 16–24 词；Results 每句 14–22 词；Implication 为 12–18 词。`,
-          en: `- When a word limit is enabled, Abstract contains {{abstract_min}}–{{abstract_max}} words; each Background sentence contains 16–24 words; Bridge contains 12–18; each Method sentence 16–24; each Results sentence 14–22; and Implication 12–18.`,
+          zh: `- 启用篇幅建议时，Abstract 可参考 {{abstract_min}}–{{abstract_max}} 词；Background 每句建议 16–24 词，Bridge 12–18 词，Method 每句 16–24 词，Results 每句 14–22 词，Implication 12–18 词。所有区间均可按内容与可读性调整。`,
+          en: `- When length guidance is enabled, use {{abstract_min}}–{{abstract_max}} words as an optional Abstract reference; suggested sentence ranges are 16–24 words for Background, 12–18 for Bridge, 16–24 for Method, 14–22 for Results, and 12–18 for Implication. Adjust every range for content and readability.`,
         },
       },
       {
         marker: "introduction_word_limits",
         standard: {
-          zh: `- 启用建议字数时，Introduction 总计 {{introduction_min}}–{{introduction_max}} 词，每句不超过 25 词；P1–P4 依次为 {{intro_p1_min}}–{{intro_p1_max}}、{{intro_p2_min}}–{{intro_p2_max}}、{{intro_p3_min}}–{{intro_p3_max}}、{{intro_p4_min}}–{{intro_p4_max}} 词；P5 约 {{intro_p5_min}}–{{intro_p5_max}} 词，每条贡献 15–25 词。导航句不作为独立段落。`,
-          en: `- When suggested lengths are enabled, Introduction totals {{introduction_min}}–{{introduction_max}} words with no sentence over 25 words. P1–P4 contain {{intro_p1_min}}–{{intro_p1_max}}, {{intro_p2_min}}–{{intro_p2_max}}, {{intro_p3_min}}–{{intro_p3_max}}, and {{intro_p4_min}}–{{intro_p4_max}} words; P5 contains approximately {{intro_p5_min}}–{{intro_p5_max}} words, with 15–25 words per contribution. A roadmap sentence is not a separate paragraph.`,
+          zh: `- 启用篇幅建议时，Introduction 总量可参考 {{introduction_min}}–{{introduction_max}} 词，英文句子通常建议不超过 25 词；P1–P4 可分别参考 {{intro_p1_min}}–{{intro_p1_max}}、{{intro_p2_min}}–{{intro_p2_max}}、{{intro_p3_min}}–{{intro_p3_max}}、{{intro_p4_min}}–{{intro_p4_max}} 词，P5 可参考 {{intro_p5_min}}–{{intro_p5_max}} 词，每条贡献建议 15–25 词。所有数字可按内容调整，导航句不作为独立段落。`,
+          en: `- When length guidance is enabled, use {{introduction_min}}–{{introduction_max}} words as an optional Introduction reference, with English sentences generally suggested to stay within 25 words. Optional references for P1–P4 are {{intro_p1_min}}–{{intro_p1_max}}, {{intro_p2_min}}–{{intro_p2_max}}, {{intro_p3_min}}–{{intro_p3_max}}, and {{intro_p4_min}}–{{intro_p4_max}} words; P5 may use {{intro_p5_min}}–{{intro_p5_max}}, with 15–25 words suggested per contribution. Adjust all numbers to the content. A roadmap sentence is not a separate paragraph.`,
         },
       },
       {
         marker: "related_work_word_limits_conference",
         standard: {
-          zh: `- 启用字数限制时，Related Work 总计 {{related_work_min}}–{{related_work_max}} 词；每个 subsection 的唯一段落为 {{related_subsection_min}}–{{related_subsection_max}} 词，每句不超过 22 词。`,
-          en: `- When a word limit is enabled, Related Work totals {{related_work_min}}–{{related_work_max}} words; each subsection's sole paragraph contains {{related_subsection_min}}–{{related_subsection_max}} words, and no sentence exceeds 22 words.`,
+          zh: `- 启用篇幅建议时，Related Work 总量可参考 {{related_work_min}}–{{related_work_max}} 词，每个 subsection 的唯一段落可参考 {{related_subsection_min}}–{{related_subsection_max}} 词，英文句子通常建议不超过 22 词；均可按文献密度调整。`,
+          en: `- When length guidance is enabled, use {{related_work_min}}–{{related_work_max}} words as an optional Related Work reference, {{related_subsection_min}}–{{related_subsection_max}} for each subsection's sole paragraph, and generally no more than 22 words per English sentence. Adjust to the literature density.`,
         },
       },
       {
         marker: "related_work_word_limits_journal",
         standard: {
-          zh: `- 启用字数限制时，Related Work 总计 {{related_work_min}}–{{related_work_max}} 词；每个 subsection 为 {{related_subsection_min}}–{{related_subsection_max}} 词，每段为 {{related_paragraph_min}}–{{related_paragraph_max}} 词，每句不超过 22 词。`,
-          en: `- When a word limit is enabled, Related Work totals {{related_work_min}}–{{related_work_max}} words; each subsection contains {{related_subsection_min}}–{{related_subsection_max}} words, each paragraph {{related_paragraph_min}}–{{related_paragraph_max}}, and no sentence exceeds 22 words.`,
+          zh: `- 启用篇幅建议时，Related Work 总量可参考 {{related_work_min}}–{{related_work_max}} 词，每个 subsection 可参考 {{related_subsection_min}}–{{related_subsection_max}} 词，每段可参考 {{related_paragraph_min}}–{{related_paragraph_max}} 词，英文句子通常建议不超过 22 词；均可按文献密度调整。`,
+          en: `- When length guidance is enabled, optional references are {{related_work_min}}–{{related_work_max}} words for Related Work, {{related_subsection_min}}–{{related_subsection_max}} per subsection, {{related_paragraph_min}}–{{related_paragraph_max}} per paragraph, and generally no more than 22 words per English sentence. Adjust to the literature density.`,
         },
       },
       {
         marker: "narrative_limitations_word_limits",
         standard: {
-          zh: "- 启用字数限制时，会议论文的 Limitations subsection 约 100 词。",
-          en: "- When a word limit is enabled, keep the conference-paper Limitations subsection at approximately 100 words.",
+          zh: "- 启用篇幅建议时，会议论文的 Limitations subsection 可参考约 100 词，并按真实局限数量与重要性调整。",
+          en: "- When length guidance is enabled, use about 100 words as an optional reference for conference-paper Limitations and adjust to the number and importance of genuine limitations.",
         },
       },
       {
         marker: "discussion_conclusion_word_limits",
         standard: {
-          zh: `- 启用字数限制时，Discussion 总计 {{discussion_min}}–{{discussion_max}} 词；Conclusion 总计 {{conclusion_min}}–{{conclusion_max}} 词，每句不超过 24 词，第一段为 {{conclusion_p1_min}}–{{conclusion_p1_max}} 词，第二段为 {{conclusion_p2_min}}–{{conclusion_p2_max}} 词。`,
-          en: `- When a word limit is enabled, Discussion totals {{discussion_min}}–{{discussion_max}} words. Conclusion totals {{conclusion_min}}–{{conclusion_max}} words with no sentence over 24 words; Paragraph 1 contains {{conclusion_p1_min}}–{{conclusion_p1_max}} words and Paragraph 2 {{conclusion_p2_min}}–{{conclusion_p2_max}}.`,
+          zh: `- 启用篇幅建议时，Discussion 总量可参考 {{discussion_min}}–{{discussion_max}} 词；Conclusion 可参考 {{conclusion_min}}–{{conclusion_max}} 词，英文句子通常建议不超过 24 词，第一段可参考 {{conclusion_p1_min}}–{{conclusion_p1_max}} 词，第二段可参考 {{conclusion_p2_min}}–{{conclusion_p2_max}} 词。所有数字均可按论证需要调整。`,
+          en: `- When length guidance is enabled, use {{discussion_min}}–{{discussion_max}} words as an optional Discussion reference and {{conclusion_min}}–{{conclusion_max}} for Conclusion. English sentences are generally suggested to stay within 24 words; optional paragraph references are {{conclusion_p1_min}}–{{conclusion_p1_max}} and {{conclusion_p2_min}}–{{conclusion_p2_max}} words. Adjust every number to the argument.`,
         },
       },
     ],

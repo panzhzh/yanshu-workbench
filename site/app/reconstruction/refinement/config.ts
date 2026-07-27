@@ -46,7 +46,7 @@ export const CITATION_MODE_IDS = [
 
 export type CitationModeId = (typeof CITATION_MODE_IDS)[number];
 export type LimitationModeId = "separate" | "merged";
-export type SectionLengthMode = "preserve" | "custom";
+export type SectionLengthMode = "none" | "preserve" | "custom";
 export type ParagraphsPerVisual = 1 | 2;
 export type RelatedWorkParagraphs = 1 | 2;
 export type MethodOverviewMode = "preserve" | "standalone" | "integrated";
@@ -156,8 +156,8 @@ export const REFINEMENT_SECTIONS: Record<
       en: "Turn motivation, computation, interfaces, and scope into a coherent scientific story.",
     },
     contractSummary: {
-      zh: "默认保持当前长度和标题层级；围绕 why 组织叙事，不写成说明书。",
-      en: "Preserve current length and hierarchy by default; organize around why rather than a manual-like inventory.",
+      zh: "默认保留核心内容和合理标题层级；围绕 why 组织叙事，不写成说明书。",
+      en: "Preserve core content and a justified hierarchy by default; organize around why rather than a manual-like inventory.",
     },
   },
   "experiments-results": {
@@ -307,43 +307,43 @@ const SECTION_LENGTH_PROFILES: Record<
   LengthProfile
 > = {
   abstract: {
-    mode: "custom",
+    mode: "none",
     section: [190, 220],
     paragraph: [190, 220],
     sentence: [12, 24],
   },
   introduction: {
-    mode: "custom",
+    mode: "none",
     section: [480, 560],
     paragraph: [65, 100],
     sentence: [14, 24],
   },
   "related-work": {
-    mode: "custom",
+    mode: "none",
     section: [420, 520],
     paragraph: [110, 170],
     sentence: [14, 22],
   },
   method: {
-    mode: "preserve",
+    mode: "none",
     section: [1200, 1800],
     paragraph: [90, 160],
     sentence: [14, 26],
   },
   "experiments-results": {
-    mode: "preserve",
+    mode: "none",
     section: [300, 500],
     paragraph: [75, 130],
     sentence: [14, 24],
   },
   discussion: {
-    mode: "preserve",
+    mode: "none",
     section: [420, 560],
     paragraph: [90, 150],
     sentence: [14, 24],
   },
   conclusion: {
-    mode: "custom",
+    mode: "none",
     section: [180, 220],
     paragraph: [80, 120],
     sentence: [14, 24],
@@ -359,7 +359,7 @@ export function getLengthProfile(
   if (sectionId === "experiments-results") {
     if (experimentalFocus === "both") {
       return {
-        mode: "preserve",
+        mode: "none",
         section: [800, 1400],
         paragraph: [80, 135],
         sentence: [14, 24],
@@ -367,7 +367,7 @@ export function getLengthProfile(
     }
     if (experimentalFocus === "results") {
       return {
-        mode: "preserve",
+        mode: "none",
         section: [500, 900],
         paragraph: [85, 140],
         sentence: [14, 24],
@@ -380,7 +380,7 @@ export function getLengthProfile(
     discussionScope === "merged-experiments-results-discussion"
   ) {
     return {
-      mode: "custom",
+      mode: "none",
       section: [1800, 2800],
       paragraph: base.paragraph,
       sentence: base.sentence,
@@ -523,7 +523,7 @@ export const REFINEMENT_COPY = {
       "每个章节使用独立精修合同；页面只显示当前章节真正适用的结构、引用与证据控件。",
     preset: "单章聚焦 · 章节专用 Prompt · 证据不变",
     reset: "恢复当前章节默认",
-    resetHint: "恢复当前章节的推荐结构和定量约束。",
+    resetHint: "恢复当前章节的推荐结构；篇幅建议默认关闭。",
     materials: "论文材料",
     materialItems: [
       "完整 .tex",
@@ -534,7 +534,7 @@ export const REFINEMENT_COPY = {
     materialsHint:
       "figures/ 仅在当前范围引用图表、需要核对视觉证据或源图时提供；缺少 figures/ 不阻止精修。",
     targetSection: "精修章节",
-    targetSectionHint: "切换章节会同步切换默认篇幅、专用控件和完整 Prompt。",
+    targetSectionHint: "切换章节会同步切换专用控件和完整 Prompt；篇幅建议默认关闭。",
     organization: "Discussion 组织",
     organizationHint:
       "可只精修 Discussion，也可将 Experiments、Results 与 Discussion 合并为一个顶层章节。",
@@ -568,10 +568,10 @@ export const REFINEMENT_COPY = {
     oneParagraph: "1 段",
     twoParagraphs: "2 段",
     relatedRuleText:
-      "固定三个 subsection；最后一句不超过 18 词，不出现方法名、品牌缩写或 we。",
+      "固定三个 subsection；最后一句建议控制在 18 词以内，不出现方法名、品牌缩写或 we。",
     experimentalFocus: "精修范围",
     experimentalFocusHint:
-      "默认联合精修实验设置与结果；切换为单独范围时会同步收窄合同与推荐篇幅。",
+      "默认联合精修实验设置与结果；切换为单独范围时会同步收窄章节合同。",
     visualParagraphs: "每张图／表对应段落",
     visualParagraphLength: "图表对应段落词数",
     keyNumbersPerParagraph: "每段关键数字",
@@ -593,7 +593,7 @@ export const REFINEMENT_COPY = {
     overviewPreserve: "保持现状",
     overviewStandalone: "单列 Overview",
     overviewIntegrated: "不单列",
-    overviewWords: "Overview 总词数上限",
+    overviewWords: "Overview 建议总词数",
     overviewParagraphs: "Overview 段落数",
     includePseudocode: "需要伪代码",
     pseudocodeLines: "伪代码行数上限",
@@ -602,12 +602,13 @@ export const REFINEMENT_COPY = {
       "伪代码默认不超过 12 行；复杂度分析只做可由现有算法推出的精简说明，不为完整性虚构结论。",
     conclusionRuleText:
       "固定两段且不使用引用；不得加入新 claim、新数字、新模块或复制 Abstract 句子。",
-    length: "句段与篇幅",
-    sectionLength: "精修范围总量",
-    preserveLength: "保持当前长度",
-    customLength: "自定义区间",
-    paragraphLength: "普通段落词数",
-    sentenceLength: "普通句子词数",
+    length: "篇幅建议",
+    sectionLength: "精修范围参考方式",
+    noLength: "不设篇幅建议",
+    preserveLength: "参考原稿长度",
+    customLength: "自定义建议",
+    paragraphLength: "普通段落建议词数",
+    sentenceLength: "普通句子建议词数",
     minimum: "最少",
     maximum: "最多",
     words: "词",
@@ -615,7 +616,7 @@ export const REFINEMENT_COPY = {
     values: "个",
     lines: "行",
     lengthHint:
-      "范围是目标而非凑数要求；固定结构、定义完整性和证据准确性优先。",
+      "默认不设篇幅建议。启用后，所有数字也只供参考，可根据论文内容选择接受、调整或忽略；定义完整性和证据准确性始终优先。",
     expression: "改写与表达",
     rewriteDepth: "改写强度",
     citationMode: "引用策略",
@@ -643,7 +644,8 @@ export const REFINEMENT_COPY = {
       "Each section has its own refinement contract; only structurally and evidentially relevant controls are shown.",
     preset: "One focused scope · section-specific Prompt · unchanged evidence",
     reset: "Restore section defaults",
-    resetHint: "Restore the current section's recommended structure and quantitative constraints.",
+    resetHint:
+      "Restore the current section's recommended structure; length guidance remains off by default.",
     materials: "Paper materials",
     materialItems: [
       "Complete .tex",
@@ -655,7 +657,7 @@ export const REFINEMENT_COPY = {
       "Provide figures/ only when the scope cites visuals or source images are needed for evidence checks. Its absence does not block refinement.",
     targetSection: "Section to refine",
     targetSectionHint:
-      "Changing the section also changes its default length, dedicated controls, and complete Prompt.",
+      "Changing the section updates its dedicated controls and complete Prompt; length guidance remains off by default.",
     organization: "Discussion organization",
     organizationHint:
       "Refine Discussion alone or merge Experiments, Results, and Discussion into one top-level section.",
@@ -689,10 +691,10 @@ export const REFINEMENT_COPY = {
     oneParagraph: "1 paragraph",
     twoParagraphs: "2 paragraphs",
     relatedRuleText:
-      "Exactly three subsections; each final sentence is at most 18 words and names neither the method, its acronym, nor we.",
+      "Exactly three subsections; each final sentence should preferably stay within 18 words and names neither the method, its acronym, nor we.",
     experimentalFocus: "Refinement scope",
     experimentalFocusHint:
-      "Setup and Results are refined together by default; a focused scope narrows both the contract and recommended length.",
+      "Setup and Results are refined together by default; a focused scope narrows the section contract.",
     visualParagraphs: "Paragraphs per figure/table",
     visualParagraphLength: "Words per visual paragraph",
     keyNumbersPerParagraph: "Key values per paragraph",
@@ -714,7 +716,7 @@ export const REFINEMENT_COPY = {
     overviewPreserve: "Preserve current",
     overviewStandalone: "Standalone Overview",
     overviewIntegrated: "No standalone Overview",
-    overviewWords: "Overview word maximum",
+    overviewWords: "Suggested Overview words",
     overviewParagraphs: "Overview paragraphs",
     includePseudocode: "Include pseudocode",
     pseudocodeLines: "Pseudocode line maximum",
@@ -723,12 +725,13 @@ export const REFINEMENT_COPY = {
       "Pseudocode defaults to at most 12 lines. Complexity analysis stays concise and includes only conclusions derivable from the existing algorithm.",
     conclusionRuleText:
       "Exactly two paragraphs with no citations, new claims, new values, new components, or copied Abstract sentences.",
-    length: "Length and prose units",
-    sectionLength: "Complete scope",
-    preserveLength: "Preserve current length",
-    customLength: "Custom range",
-    paragraphLength: "Ordinary paragraph length",
-    sentenceLength: "Ordinary sentence length",
+    length: "Length guidance",
+    sectionLength: "Reference mode",
+    noLength: "No length guidance",
+    preserveLength: "Use current length as reference",
+    customLength: "Custom suggestions",
+    paragraphLength: "Suggested ordinary paragraph length",
+    sentenceLength: "Suggested ordinary sentence length",
     minimum: "Minimum",
     maximum: "Maximum",
     words: "words",
@@ -736,7 +739,7 @@ export const REFINEMENT_COPY = {
     values: "values",
     lines: "lines",
     lengthHint:
-      "Ranges are targets, not quotas; fixed structure, definitional completeness, and evidence accuracy take priority.",
+      "Length guidance is off by default. When enabled, every number is optional: accept, adjust, or ignore it according to the paper; definitional completeness and evidence accuracy always take priority.",
     expression: "Revision and expression",
     rewriteDepth: "Revision depth",
     citationMode: "Citation policy",
@@ -836,22 +839,29 @@ function lengthDirective(
   preferences: SectionRefinementPreferences,
   language: Language,
 ) {
-  const total =
+  if (preferences.sectionLengthMode === "none") {
+    return language === "zh"
+      ? "- 默认不设置章节、段落或句子的篇幅建议；根据论证、证据和可读性决定自然长度。"
+      : "- No section-, paragraph-, or sentence-length guidance is configured by default; let argument, evidence, and readability determine the natural length.";
+  }
+
+  const guidance =
     preferences.sectionLengthMode === "preserve"
       ? language === "zh"
-        ? "- 保持当前精修范围的大体长度；只允许因去重、逻辑修复或章节合并产生的必要自然浮动。"
-        : "- Preserve the approximate current length of the refinement scope, allowing only changes required by deduplication, logical repair, or the configured merge."
+        ? "- 可将原稿当前长度作为轻量参考，但允许为逻辑、证据和表达质量自然增减。"
+        : "- Use the manuscript's current length only as a light reference, with natural expansion or contraction for logic, evidence, and prose quality."
       : language === "zh"
-        ? `- 当前精修范围目标为 ${preferences.sectionMinWords}–${preferences.sectionMaxWords} 个英文单词。`
-        : `- Target ${preferences.sectionMinWords}–${preferences.sectionMaxWords} English words for the complete refinement scope.`;
+        ? `- 当前精修范围可参考 ${preferences.sectionMinWords}–${preferences.sectionMaxWords} 个英文单词。`
+        : `- The complete refinement scope may use ${preferences.sectionMinWords}–${preferences.sectionMaxWords} English words as a reference.`;
+
   return [
-    total,
+    guidance,
     language === "zh"
-      ? `- 普通段落目标为 ${preferences.paragraphMinWords}–${preferences.paragraphMaxWords} 个英文单词；章节固定结构和图表对应段落的专用范围优先。`
-      : `- Target ${preferences.paragraphMinWords}–${preferences.paragraphMaxWords} English words per ordinary paragraph; fixed section structures and the dedicated visual-paragraph range take priority.`,
+      ? `- 普通段落可参考 ${preferences.paragraphMinWords}–${preferences.paragraphMaxWords} 个英文单词，普通句子可参考 ${preferences.sentenceMinWords}–${preferences.sentenceMaxWords} 个英文单词。`
+      : `- Ordinary paragraphs may use ${preferences.paragraphMinWords}–${preferences.paragraphMaxWords} English words and ordinary sentences ${preferences.sentenceMinWords}–${preferences.sentenceMaxWords} words as references.`,
     language === "zh"
-      ? `- 普通句子目标为 ${preferences.sentenceMinWords}–${preferences.sentenceMaxWords} 个英文单词；不得为凑数破坏定义、并列关系或必要限定。`
-      : `- Target ${preferences.sentenceMinWords}–${preferences.sentenceMaxWords} English words per ordinary sentence; never damage a definition, parallel relation, or necessary qualification to hit the range.`,
+      ? "- 以上均为可选建议，不是上限、下限或验收标准；根据论文内容选择接受、调整或忽略，不得为贴合数字损害定义、证据或行文。"
+      : "- Every number above is optional guidance, not a cap, minimum, or acceptance criterion. Accept, adjust, or ignore it according to the paper; never damage definitions, evidence, or prose merely to match a number.",
   ].join("\n");
 }
 
@@ -924,23 +934,25 @@ function abstractContract(
   return language === "zh"
     ? `- Abstract 必须为一个连续英文段落，不含引用、公式、脚注、编号、项目符号或换行。
 - 内部顺序严格为 Background → Bridge → Method → Results → Implication，但不得显示这些标签。
-- Background：1–2 句，每句 16–24 词，具体说明任务、场景和今天仍存在的限制。
-- Bridge：恰好 1 句，12–18 词，自然引入方法全称与既定品牌缩写，不机械套用固定句式。
-- Method：3–4 句，每句 16–24 词，从核心思想到必要机制展开；不堆砌正文中才需要的模块名、公式名或专有名词。
-- Results：2–3 句，每句 14–22 词；整段保留 ${preferences.abstractResultNumbersMin}–${preferences.abstractResultNumbersMax} 个最能支撑核心 claim 的数字，不逐项罗列表格。
-- Implication：恰好 1 句，12–18 词，只陈述证据支持的意义和适用范围。
+- Background：1–2 句，句长可参考 16–24 词，具体说明任务、场景和今天仍存在的限制。
+- Bridge：恰好 1 句，句长可参考 12–18 词，自然引入方法全称与既定品牌缩写，不机械套用固定句式。
+- Method：3–4 句，句长可参考 16–24 词，从核心思想到必要机制展开；不堆砌正文中才需要的模块名、公式名或专有名词。
+- Results：2–3 句，句长可参考 14–22 词；整段保留 ${preferences.abstractResultNumbersMin}–${preferences.abstractResultNumbersMax} 个最能支撑核心 claim 的数字，不逐项罗列表格。
+- Implication：恰好 1 句，句长可参考 12–18 词，只陈述证据支持的意义和适用范围。
 - 不鼓励使用本文方法之外的缩写。确需多次出现的术语必须先给全称；数据集等公认名称可按领域惯例处理。
-- Abstract 后单列 Keywords：使用 ${preferences.abstractKeywordCountMin}–${preferences.abstractKeywordCountMax} 个高信息量英文关键词，每个关键词 ${preferences.abstractKeywordWordsMin}–${preferences.abstractKeywordWordsMax} 个词。关键词应覆盖任务、问题或机制且彼此不近义重复；避免 Method、Model、Framework 等脱离语境的泛化词，也不得引入正文未建立的术语。
+- Abstract 后单列 Keywords：建议使用 ${preferences.abstractKeywordCountMin}–${preferences.abstractKeywordCountMax} 个高信息量英文关键词，每个关键词可参考 ${preferences.abstractKeywordWordsMin}–${preferences.abstractKeywordWordsMax} 个词。关键词应覆盖任务、问题或机制且彼此不近义重复；避免 Method、Model、Framework 等脱离语境的泛化词，也不得引入正文未建立的术语。
+- 上述词数均为可选的可读性建议；根据内容选择接受、调整或忽略，不得为贴合数字牺牲准确性或自然表达。
 - 摘要不使用任何引用；不得因界面未提供引用选项而自行补充文献。`
     : `- The Abstract is one continuous English paragraph with no citations, equations, footnotes, numbering, bullets, or line breaks.
 - Follow Background → Bridge → Method → Results → Implication internally without exposing those labels.
-- Background: one or two sentences of 16–24 words stating the task, setting, and limitation that still exists today.
-- Bridge: exactly one 12–18-word sentence that naturally introduces the full method name and established brand acronym without forcing a stock phrase.
-- Method: three or four 16–24-word sentences moving from the core idea to necessary mechanisms without body-level module names, equation names, or specialist terms that burden first-time readers.
-- Results: two or three 14–22-word sentences; retain ${preferences.abstractResultNumbersMin}–${preferences.abstractResultNumbersMax} values across the paragraph, selecting only those that directly support primary claims rather than enumerating a table.
-- Implication: exactly one 12–18-word sentence stating only evidence-supported significance and scope.
+- Background: one or two sentences, using 16–24 words as an optional readability reference, stating the task, setting, and limitation that still exists today.
+- Bridge: exactly one sentence, optionally using 12–18 words as a reference, that naturally introduces the full method name and established brand acronym without forcing a stock phrase.
+- Method: three or four sentences, optionally using 16–24 words as a reference, moving from the core idea to necessary mechanisms without body-level module names, equation names, or specialist terms that burden first-time readers.
+- Results: two or three sentences, optionally using 14–22 words as a reference; retain ${preferences.abstractResultNumbersMin}–${preferences.abstractResultNumbersMax} values across the paragraph, selecting only those that directly support primary claims rather than enumerating a table.
+- Implication: exactly one sentence, optionally using 12–18 words as a reference, stating only evidence-supported significance and scope.
 - Discourage acronyms other than the method acronym. Give the full form before any repeatedly necessary abbreviation; conventional dataset names may follow field practice.
-- Add a Keywords line after the Abstract with ${preferences.abstractKeywordCountMin}–${preferences.abstractKeywordCountMax} high-information English keywords of ${preferences.abstractKeywordWordsMin}–${preferences.abstractKeywordWordsMax} words each. Cover the task, problem, or mechanism without near-duplicates; avoid context-free labels such as Method, Model, or Framework and introduce no term absent from the manuscript.
+- Add a Keywords line after the Abstract, preferably with ${preferences.abstractKeywordCountMin}–${preferences.abstractKeywordCountMax} high-information English keywords using ${preferences.abstractKeywordWordsMin}–${preferences.abstractKeywordWordsMax} words each as a reference. Cover the task, problem, or mechanism without near-duplicates; avoid context-free labels such as Method, Model, or Framework and introduce no term absent from the manuscript.
+- Every word-count value above is optional readability guidance. Accept, adjust, or ignore it according to the content; never sacrifice accuracy or natural prose merely to match a number.
 - Use no citation in the Abstract; the absence of a citation control does not authorize adding one.`;
 }
 
@@ -974,7 +986,7 @@ function introductionContract(
 - P2：综合最相关研究路线及共同假设，形成当前缺口；不得逐篇罗列。
 - P3：最小充分界定问题，并明确今天仍未解决、且真正决定设计的 2–3 个挑战；不在这里提前介绍本文方案。
 - P4：直接回答 P3，介绍核心思想、总体机制和设计直觉；不重复缺口或挑战，不展开公式、实现步骤或实验数字。
-- P5：恰好 ${preferences.introductionContributionCount} 条贡献句。每条只用一句，目标约 ${preferences.introductionContributionWords} 词（建议 ${contributionMinWords}–${contributionMaxWords} 词）；${contributionOpeningZh}。每条贡献分别对应 Method 中的真实机制与 Experiments/Results 中的现有证据。
+- P5：恰好 ${preferences.introductionContributionCount} 条贡献句。每条只用一句，可参考约 ${preferences.introductionContributionWords} 词（建议区间 ${contributionMinWords}–${contributionMaxWords} 词，可按内容调整）；${contributionOpeningZh}。每条贡献分别对应 Method 中的真实机制与 Experiments/Results 中的现有证据。
 ${navigationZh}
 - 整节目标引用 ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重后的真实论文；每句最多承载 ${preferences.introductionMaxCitationsPerSentence} 篇。凡陈述既有研究、领域事实、已有能力或他人结论，必须就近使用能够直接支持该句的引用；只有本文自己的 claim、作者综合判断和贡献句可以不引用，但这些内容必须由 Method 或 Results 建立，且不得把外部观点伪装成作者总结。
 - 默认允许联网补充真实文献，原则上优先执行日前两年内直接相关的顶会或顶刊论文；不可替代的奠基工作可以更早。新增文献必须核验原文和元数据，并写入本轮交付的完整 .bib。
@@ -984,7 +996,7 @@ ${navigationZh}
 - P2: synthesize the closest research lines and shared assumptions into the current gap rather than listing papers.
 - P3: define the problem minimally and state two or three challenges that remain unresolved today and genuinely determine the design; do not introduce this paper's solution here.
 - P4: answer P3 directly with the core idea, overall mechanism, and design intuition. Do not repeat the gap or challenges, and do not expand equations, implementation steps, or result values.
-- P5: give exactly ${preferences.introductionContributionCount} contribution sentences. Each is one approximately ${preferences.introductionContributionWords}-word sentence (target ${contributionMinWords}–${contributionMaxWords} words). ${contributionOpeningEn}. Align every contribution with a real Method mechanism and existing Experiments/Results evidence.
+- P5: give exactly ${preferences.introductionContributionCount} contribution sentences. Each uses one sentence and may use approximately ${preferences.introductionContributionWords} words (${contributionMinWords}–${contributionMaxWords} words as an optional reference, adjustable to the content). ${contributionOpeningEn}. Align every contribution with a real Method mechanism and existing Experiments/Results evidence.
 ${navigationEn}
 - Cite ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct authentic papers across the section, with at most ${preferences.introductionMaxCitationsPerSentence} papers attached to one sentence. Every statement about prior research, field facts, existing capabilities, or others' conclusions needs a nearby source that directly supports it. Only the paper's own claims, author synthesis, and contribution sentences may remain uncited, and these must be established by Method or Results; never disguise an external position as author synthesis.
 - Verified web additions are enabled by default. As a rule, prioritize directly relevant top-conference or top-journal papers from the two years preceding execution; older work is acceptable for irreplaceable foundations. Verify full text and metadata, and add every new source to the complete delivered .bib.
@@ -1008,14 +1020,14 @@ function relatedWorkContract(
 - ${paragraphProtocol}
 - 整节使用 ${preferences.relatedCitationMin}–${preferences.relatedCitationMax} 篇去重后的真实论文；每句最多引用 ${preferences.relatedMaxCitationsPerSentence} 篇。原则上优先执行日前两年内直接相关的顶会、顶刊论文，同时保留不可替代的奠基文献。
 - 按范式、假设、能力边界或关键权衡综合组织；禁止逐篇流水账、citation dumping，以及一篇论文一句话的机械排列。
-- 每个 subsection 最后一句不超过 18 个英文单词，承担综合总结；可自然收束到研究定位，也可只总结该路线。
+- 每个 subsection 最后一句建议控制在 18 个英文单词以内，承担综合总结；必要时可按内容调整，可自然收束到研究定位，也可只总结该路线。
 - subsection 最后一句不得出现本文方法名、论文品牌缩写、we、our 或 us。
 - 每个引用必须存在于完整 BibTeX 文献库并在语义上支持当前句子；引用数量不允许牺牲相关性。逐项核查当前引用及其 BibTeX 元数据；联网新增的每篇文献都必须核验并写入完整 .bib。`
     : `- Use exactly three subsections. Each title contains three to seven English words and names a genuine research theme.
 - ${paragraphProtocol}
 - Cite ${preferences.relatedCitationMin}–${preferences.relatedCitationMax} distinct authentic papers across the section, with at most ${preferences.relatedMaxCitationsPerSentence} papers in one sentence. As a rule, prioritize directly relevant top-conference and top-journal papers from the two years preceding execution while retaining irreplaceable foundations.
 - Organize by paradigm, assumption, capability boundary, or key trade-off. Do not narrate papers serially, dump citations, or assign one sentence mechanically to each paper.
-- End every subsection with a synthesis sentence of no more than 18 English words. It may close toward the research position or simply summarize the line.
+- End every subsection with a synthesis sentence that preferably stays within 18 English words but may adjust to the content. It may close toward the research position or simply summarize the line.
 - The subsection-final sentence must not name the method, use its brand acronym, or use we / our / us.
 - Every citation must exist in the complete BibTeX library and semantically support its sentence; a count target never overrides relevance. Audit every current citation and its BibTeX metadata, and verify and append every web addition to the complete .bib.`;
 }
@@ -1028,13 +1040,13 @@ function methodContract(
     preferences.methodOverviewMode === "preserve"
       ? "- 保持当前是否单列 Method Overview 及其标题层级，不新增、删除或转换 Overview。"
       : preferences.methodOverviewMode === "standalone"
-        ? `- 设置独立 Method Overview：恰好 ${preferences.methodOverviewParagraphs} 个普通段落，总计不超过 ${preferences.methodOverviewMaxWords} 个英文单词。只建立输入、主要阶段、信息流与输出的总体心智地图，不复述框架图、不展开局部计算。`
+        ? `- 设置独立 Method Overview：使用 ${preferences.methodOverviewParagraphs} 个普通段落，总词数可参考 ${preferences.methodOverviewMaxWords} 个英文单词并按内容调整。只建立输入、主要阶段、信息流与输出的总体心智地图，不复述框架图、不展开局部计算。`
         : "- 不设置独立 Method Overview；在进入第一个核心机制前，用最短必要过渡自然引出总体框架，并同步修复标题、label/ref 和相邻衔接。";
   const overviewEn =
     preferences.methodOverviewMode === "preserve"
       ? "- Preserve whether the manuscript currently has a standalone Method Overview and preserve its heading level; do not add, remove, or convert it."
       : preferences.methodOverviewMode === "standalone"
-        ? `- Use a standalone Method Overview with exactly ${preferences.methodOverviewParagraphs} ordinary paragraphs and at most ${preferences.methodOverviewMaxWords} English words in total. Establish only the input, major stages, information flow, and output; do not narrate the framework figure or expand local computation.`
+        ? `- Use a standalone Method Overview with ${preferences.methodOverviewParagraphs} ordinary paragraphs and ${preferences.methodOverviewMaxWords} English words as an optional total-length reference, adjustable to the content. Establish only the input, major stages, information flow, and output; do not narrate the framework figure or expand local computation.`
         : "- Use no standalone Method Overview. Introduce the overall framework through the shortest necessary transition before the first core mechanism, and synchronize headings, label/ref, and adjacent transitions.";
   const pseudocodeZh = preferences.methodIncludePseudocode
     ? `- 加入一份真正有助于理解控制流、状态更新或关键算法步骤的精简伪代码，正文不超过 ${preferences.methodPseudocodeMaxLines} 行；不把公式逐行改写成算法，也不加入实现细节。`
@@ -1077,19 +1089,21 @@ function visualEvidenceProtocol(
     preferences.visualParagraphsPerItem === 1
       ? language === "zh"
         ? `- 每张图或表通常对应一个主要正文段落，建议 ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} 词。该段融合研究问题、最小必要证据、${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} 个决定性数字、克制解释与适用边界。`
-        : `- Assign each figure or table one primary prose paragraph in most cases, targeting ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words. Integrate the research question, minimum necessary evidence, ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} decisive values, restrained interpretation, and applicable boundary.`
+        : `- Assign each figure or table one primary prose paragraph in most cases, using ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words only as an optional reference. Integrate the research question, minimum necessary evidence, ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} decisive values, restrained interpretation, and applicable boundary.`
       : language === "zh"
         ? `- 重要图表可用两个主要正文段落，每段建议 ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} 词。第一段建立问题、比较条件与主要证据模式，并选择 ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} 个决定性数字；第二段解释意义、机制/权衡/异常与边界，原则上不重复第一段数字。`
-        : `- Important visuals may use two primary prose paragraphs, each targeting ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words. Paragraph 1 establishes the question, comparison conditions, and primary evidence pattern with ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} decisive values. Paragraph 2 explains implications, mechanism/trade-off/anomaly, and scope, normally without repeating Paragraph 1 values.`;
+        : `- Important visuals may use two primary prose paragraphs, each using ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words only as an optional reference. Paragraph 1 establishes the question, comparison conditions, and primary evidence pattern with ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} decisive values. Paragraph 2 explains implications, mechanism/trade-off/anomaly, and scope, normally without repeating Paragraph 1 values.`;
   return language === "zh"
     ? `${paragraphProtocol}
 - 按证据重要性调节篇幅：Main Results、决定性消融或直接支撑主要 claim 的图表可接近区间上限；常规诊断、补充对比和辅助证据应更短。不得平均分配字数。
+- 图表对应段落的词数区间同样只是建议，可根据每项证据的重要性接受、调整或忽略。
 - 图表本体负责完整数值、视觉比较和结构关系；caption 负责对象、条件、指标与图例的自足说明；正文负责提出判断、选择最小证据并解释意义。三者各司其职，不机械复述 caption、坐标轴、表格单元格或全部数字。
 - “每张图或表对应段落”指主要解释单元，不要求每次提及 label 都新建段落。只有多张图表回答同一个不可分割的问题时才允许联合分析，并在报告中说明。
 - 每个正文数字都必须可追溯到对应图表或已核验统计；不得通过省略负面结果制造更强叙事，也不得把相关性改写为因果。
 - 若 0 个数字已足以表达稳定趋势，可以不写数字；上限不是配额。`
     : `${paragraphProtocol}
 - Allocate prose by evidential importance: Main Results, decisive ablations, and visuals directly supporting primary claims may approach the upper end; routine diagnostics, supplementary comparisons, and supporting evidence should be shorter. Do not distribute words evenly.
+- The visual-paragraph range is also optional guidance; accept, adjust, or ignore it according to each item’s evidential importance.
 - The visual carries complete values, visual comparisons, and structural relations; the caption supplies self-contained objects, conditions, metrics, and legend; prose makes the claim, selects minimum evidence, and explains meaning. Keep these roles distinct and do not restate captions, axes, cells, or all values mechanically.
 - “Paragraphs per figure/table” means the primary interpretive unit, not a new paragraph for every label mention. Joint analysis is allowed only when multiple visuals answer one inseparable question, and the report must explain that choice.
 - Every prose value must trace to the corresponding visual or verified statistic. Do not create a stronger story by omitting unfavorable evidence or rewrite correlation as causation.
@@ -1288,15 +1302,15 @@ function specializedConfiguration(
   if (preferences.sectionId === "abstract") {
     lines.push(
       language === "zh"
-        ? `- Abstract Results 数字：整段 ${preferences.abstractResultNumbersMin}–${preferences.abstractResultNumbersMax} 个\n- Keywords：${preferences.abstractKeywordCountMin}–${preferences.abstractKeywordCountMax} 个，每个 ${preferences.abstractKeywordWordsMin}–${preferences.abstractKeywordWordsMax} 词`
-        : `- Result values in Abstract: ${preferences.abstractResultNumbersMin}–${preferences.abstractResultNumbersMax} across the paragraph\n- Keywords: ${preferences.abstractKeywordCountMin}–${preferences.abstractKeywordCountMax}, with ${preferences.abstractKeywordWordsMin}–${preferences.abstractKeywordWordsMax} words each`,
+        ? `- Abstract Results 数字：整段 ${preferences.abstractResultNumbersMin}–${preferences.abstractResultNumbersMax} 个\n- Keywords 建议：${preferences.abstractKeywordCountMin}–${preferences.abstractKeywordCountMax} 个，每个可参考 ${preferences.abstractKeywordWordsMin}–${preferences.abstractKeywordWordsMax} 词`
+        : `- Result values in Abstract: ${preferences.abstractResultNumbersMin}–${preferences.abstractResultNumbersMax} across the paragraph\n- Suggested Keywords: ${preferences.abstractKeywordCountMin}–${preferences.abstractKeywordCountMax}, optionally using ${preferences.abstractKeywordWordsMin}–${preferences.abstractKeywordWordsMax} words each`,
     );
   }
   if (preferences.sectionId === "introduction") {
     lines.push(
       language === "zh"
-        ? `- Introduction 引用：${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重论文；单句最多 ${preferences.introductionMaxCitationsPerSentence} 篇\n- Contributions：${preferences.introductionContributionCount} 条，每条约 ${preferences.introductionContributionWords} 词，${preferences.introductionContributionStartsWithWe ? "以 We 开头" : "不以 We 开头"}\n- 纯章节导航句：${preferences.introductionIncludeNavigationSentence ? "包含" : "不包含"}`
-        : `- Introduction citations: ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct papers; at most ${preferences.introductionMaxCitationsPerSentence} per sentence\n- Contributions: ${preferences.introductionContributionCount}, approximately ${preferences.introductionContributionWords} words each, ${preferences.introductionContributionStartsWithWe ? "beginning with We" : "not beginning with We"}\n- Pure paper-roadmap sentence: ${preferences.introductionIncludeNavigationSentence ? "included" : "omitted"}`,
+        ? `- Introduction 引用：${preferences.introductionCitationMin}–${preferences.introductionCitationMax} 篇去重论文；单句最多 ${preferences.introductionMaxCitationsPerSentence} 篇\n- Contributions：${preferences.introductionContributionCount} 条，每条可参考约 ${preferences.introductionContributionWords} 词，${preferences.introductionContributionStartsWithWe ? "以 We 开头" : "不以 We 开头"}\n- 纯章节导航句：${preferences.introductionIncludeNavigationSentence ? "包含" : "不包含"}`
+        : `- Introduction citations: ${preferences.introductionCitationMin}–${preferences.introductionCitationMax} distinct papers; at most ${preferences.introductionMaxCitationsPerSentence} per sentence\n- Contributions: ${preferences.introductionContributionCount}, optionally using approximately ${preferences.introductionContributionWords} words each, ${preferences.introductionContributionStartsWithWe ? "beginning with We" : "not beginning with We"}\n- Pure paper-roadmap sentence: ${preferences.introductionIncludeNavigationSentence ? "included" : "omitted"}`,
     );
   }
   if (preferences.sectionId === "related-work") {
@@ -1314,8 +1328,8 @@ function specializedConfiguration(
           : "preserve the current Overview structure"
         : preferences.methodOverviewMode === "standalone"
           ? language === "zh"
-            ? `独立 Overview，${preferences.methodOverviewParagraphs} 段、最多 ${preferences.methodOverviewMaxWords} 词`
-            : `standalone Overview, ${preferences.methodOverviewParagraphs} paragraphs and at most ${preferences.methodOverviewMaxWords} words`
+            ? `独立 Overview，${preferences.methodOverviewParagraphs} 段、建议参考 ${preferences.methodOverviewMaxWords} 词`
+            : `standalone Overview, ${preferences.methodOverviewParagraphs} paragraphs with ${preferences.methodOverviewMaxWords} words as an optional reference`
           : language === "zh"
             ? "不单列 Overview"
             : "no standalone Overview";
@@ -1335,8 +1349,8 @@ function specializedConfiguration(
   if (scopeUsesVisualEvidence(preferences)) {
     lines.push(
       language === "zh"
-        ? `- 每张图／表：${preferences.visualParagraphsPerItem} 个主要段落，每段 ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} 词、${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} 个关键数字`
-        : `- Per figure/table: ${preferences.visualParagraphsPerItem} primary paragraph(s), ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words and ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} key values per paragraph`,
+        ? `- 每张图／表：${preferences.visualParagraphsPerItem} 个主要段落，每段可参考 ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} 词，并选择 ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} 个关键数字`
+        : `- Per figure/table: ${preferences.visualParagraphsPerItem} primary paragraph(s), optionally using ${preferences.visualParagraphMinWords}–${preferences.visualParagraphMaxWords} words and selecting ${preferences.keyNumbersPerParagraphMin}–${preferences.keyNumbersPerParagraphMax} key values per paragraph`,
     );
     lines.push(
       language === "zh"
@@ -1447,7 +1461,7 @@ ${citation}
 ## 输出要求
 直接交付：
 - \`<base_name>_${fileStem}_refined.tex\`：完整、连续、可编译的英文论文，只在允许范围内修改；
-- \`<base_name>_${fileStem}_refinement_report_zh.md\`：简洁中文报告，记录范围、结构操作、主要修改、保留证据、冲突、引用变化、图表—正文对应关系、定量约束和仍需作者判断的问题；
+    - \`<base_name>_${fileStem}_refinement_report_zh.md\`：简洁中文报告，记录范围、结构操作、主要修改、保留证据、冲突、引用变化、图表—正文对应关系、可选篇幅建议的处理和仍需作者判断的问题；
 - \`<base_name>_${fileStem}_references.bib\`：完整当前 BibTeX 文献库，不是增量建议；
 - 成功编译的 PDF。
 
@@ -1516,7 +1530,7 @@ ${citation}
 ## Deliverables
 Deliver directly:
 - \`<base_name>_${fileStem}_refined.tex\`: the complete continuous compilable English manuscript, changed only within the permitted scope;
-- \`<base_name>_${fileStem}_refinement_report_zh.md\`: a concise Chinese report covering scope, structural operations, major revisions, preserved evidence, conflicts, citation changes, visual-to-prose mapping, quantitative constraints, and remaining author decisions;
+    - \`<base_name>_${fileStem}_refinement_report_zh.md\`: a concise Chinese report covering scope, structural operations, major revisions, preserved evidence, conflicts, citation changes, visual-to-prose mapping, how optional length guidance was handled, and remaining author decisions;
 - \`<base_name>_${fileStem}_references.bib\`: the complete current BibTeX library, not an incremental suggestion file;
 - the successfully compiled PDF.
 

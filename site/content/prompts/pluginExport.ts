@@ -117,7 +117,9 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     throw new Error(`Unsupported paper style: ${String(styleId)}.`);
   }
   const style = PRODUCT_CONFIG.paperStyles[styleId];
-  const hasWordLimit = input.hasWordLimit ?? true;
+  const hasWordLimit =
+    input.hasWordLimit ??
+    (PRODUCT_CONFIG.wordCount.defaultMode === "target");
   const unlimitedCoreSections =
     input.unlimitedCoreSections ??
     PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections;
@@ -146,7 +148,7 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
       const supplied = input.sectionBudgets?.[section.id];
       if (supplied !== undefined && !Number.isFinite(supplied)) {
         throw new Error(
-          `Section budget "${section.id}" must be a finite number.`,
+          `Section length suggestion "${section.id}" must be a finite number.`,
         );
       }
       return [
@@ -165,7 +167,7 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     );
     if (sectionTotal !== targetWords) {
       throw new Error(
-        `Section budgets total ${sectionTotal}, but targetWords is ${targetWords}.`,
+        `Section length suggestions total ${sectionTotal}, but the suggested main-text reference is ${targetWords}.`,
       );
     }
   }

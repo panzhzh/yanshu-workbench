@@ -116,7 +116,7 @@ var PRODUCT_CONFIG = {
   defaultPromptLanguage: "zh",
   defaultPaperStyle: "conference",
   wordCount: {
-    defaultMode: "target",
+    defaultMode: "none",
     defaultUnlimitedCoreSections: true,
     unlimitedSectionIds: WORD_COUNT_POLICY.unlimitedCoreSectionIds,
     visualWordEquivalent: WORD_COUNT_POLICY.visualWordEquivalent,
@@ -151,12 +151,12 @@ var PRODUCT_CONFIG = {
       defaultIncludeSectionNavigationSentence: false,
       appendixRule: {
         enabled: {
-          zh: "\u5141\u8BB8\u9644\u5F55\uFF0C\u4F46\u6B63\u6587\u6EE1\u8DB3\u5F53\u524D\u9002\u7528\u7684\u603B\u91CF\u4E0E\u7AE0\u8282\u9884\u7B97\u65F6\u4E0D\u5F97\u4F7F\u7528\uFF1B\u4EC5\u5728\u53D7\u9650\u7AE0\u8282\u4ECD\u8D85\u989D\u4E14\u9010\u9879\u786E\u8BA4\u5185\u5BB9\u975E\u4E3B\u7EBF\u5FC5\u9700\u540E\uFF0C\u624D\u53EF\u79FB\u5165\u9644\u5F55\u3002\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\u5B57\u6570\u4E14\u5B57\u6570\u4E0D\u9650\u3002",
-          en: "Appendix permitted, but do not use it when the main text meets every applicable total and section budget. Move material only when a limited section remains over budget and itemized review confirms it is not essential to the throughline. The appendix is excluded from the main-text count and unlimited."
+          zh: "\u5141\u8BB8\u9644\u5F55\uFF0C\u4F46\u4E0D\u80FD\u53EA\u4E3A\u547D\u4E2D\u5EFA\u8BAE\u5B57\u6570\u800C\u8F6C\u79FB\u5185\u5BB9\u3002\u6B63\u6587\u5DF2\u7ECF\u6E05\u695A\u3001\u5B8C\u6574\u4E14\u7ED3\u6784\u7D27\u51D1\u65F6\u65E0\u9700\u9644\u5F55\uFF1B\u53EA\u6709\u6750\u6599\u672C\u8EAB\u786E\u5C5E\u8865\u5145\u5185\u5BB9\u3001\u653E\u5165\u6B63\u6587\u4F1A\u524A\u5F31\u4E3B\u7EBF\u65F6\u624D\u79FB\u5165\u3002\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\u5EFA\u8BAE\u5B57\u6570\u3002",
+          en: "An appendix is allowed, but never move content merely to hit a suggested length. Omit it when the main text is clear, complete, and focused; move material only when it is genuinely supplementary and would weaken the throughline in the main text. The appendix is excluded from suggested main-text length."
         },
         disabled: {
-          zh: "\u4E0D\u4F7F\u7528\u9644\u5F55\u3002\u5173\u952E\u65B9\u6CD5\u3001\u5B9E\u9A8C\u7EC6\u8282\u4E0E\u9650\u5236\u5FC5\u987B\u5728\u6B63\u6587\u9884\u7B97\u5185\u5B8C\u6210\u4EA4\u4EE3\u3002",
-          en: "No appendix. Essential method details, experimental evidence, and limitations must fit within the main-text budget."
+          zh: "\u4E0D\u4F7F\u7528\u9644\u5F55\u3002\u5173\u952E\u65B9\u6CD5\u3001\u5B9E\u9A8C\u7EC6\u8282\u4E0E\u5C40\u9650\u5E94\u5B8C\u6574\u4FDD\u7559\u5728\u6B63\u6587\uFF1B\u5FC5\u8981\u65F6\u53EF\u4EE5\u504F\u79BB\u5EFA\u8BAE\u7BC7\u5E45\uFF0C\u4E0D\u5F97\u4E3A\u51D1\u5B57\u6570\u5220\u9664\u6838\u5FC3\u5185\u5BB9\u3002",
+          en: "No appendix. Keep essential method details, experimental evidence, and limitations complete in the main text; deviate from suggested lengths when necessary rather than deleting core content."
         }
       },
       structureNote: {
@@ -168,8 +168,8 @@ var PRODUCT_CONFIG = {
         en: "Prioritize contribution clarity, fair baselines, ablations, and reproducibility details."
       },
       plannerSummary: {
-        zh: "\u7B2C\u4E09\u5C42\u4F7F\u7528 paragraph \u800C\u975E subsubsection\uFF1B\u5F15\u8A00 480 \u8BCD\uFF0C\u8BA8\u8BBA\u4E0E\u5C40\u9650\u5360 10%\uFF0C\u7ED3\u8BBA 200 \u8BCD\uFF0CMethod \u4E0D\u5355\u8BBE Overview\u3002",
-        en: "Use paragraph rather than subsubsection for third-level headings; 480-word Introduction, 10% Discussion & Limitations, 200-word Conclusion, and no standalone Method Overview."
+        zh: "\u7B2C\u4E09\u5C42\u4F7F\u7528 paragraph \u800C\u975E subsubsection\uFF1B\u5EFA\u8BAE\u5F15\u8A00\u7EA6 480 \u8BCD\u3001\u8BA8\u8BBA\u4E0E\u5C40\u9650\u7EA6\u5360 10%\u3001\u7ED3\u8BBA\u7EA6 200 \u8BCD\uFF0CMethod \u4E0D\u5355\u8BBE Overview\u3002",
+        en: "Use paragraph rather than subsubsection for third-level headings; suggested references are about 480 words for Introduction, 10% for Discussion & Limitations, and 200 words for Conclusion, with no standalone Method Overview."
       },
       promptDirective: {
         zh: "\u91C7\u7528\u9AD8\u5BC6\u5EA6\u3001claim-first \u7684\u4F1A\u8BAE\u5199\u6CD5\uFF1A\u5C3D\u65E9\u5EFA\u7ACB\u95EE\u9898\u2014\u65B9\u6CD5\u2014\u8BC1\u636E\u95ED\u73AF\uFF0C\u6BCF\u6BB5\u627F\u62C5\u4E00\u4E2A\u4E3B\u8981\u8BBA\u8BC1\u529F\u80FD\uFF0C\u8FC7\u6E21\u7B80\u77ED\u4F46\u81EA\u7136\u3002\u53EA\u4E3A\u5185\u5BB9\u5145\u8DB3\u4E14\u79D1\u5B66\u4E0A\u72EC\u7ACB\u7684\u5355\u5143\u8BBE\u7F6E\u6807\u9898\uFF1B\u666E\u901A\u8BBA\u8FF0\u3001\u5C40\u90E8\u52A8\u673A\u548C\u9010\u56FE\u89E3\u91CA\u4FDD\u7559\u5728\u8FDE\u7EED\u6B63\u6587\u4E2D\u3002Related Work \u6BCF\u5C0F\u8282\u5355\u6BB5\uFF0CMethod \u4E0D\u5355\u8BBE Overview\uFF1B\u4E0D\u4EE5\u538B\u7F29\u6838\u5FC3 Method \u6216 Experiments and Results \u6362\u53D6\u8868\u9762\u7B80\u6D01\u3002",
@@ -202,7 +202,7 @@ var PRODUCT_CONFIG = {
           shortLabel: { zh: "\u76F8\u5173", en: "Related" },
           description: {
             zh: "\u4E09\u4E2A\u5C0F\u8282\uFF0C\u6BCF\u5C0F\u8282\u4E00\u4E2A\u666E\u901A\u6BB5\u843D\uFF0C\u53EA\u4FDD\u7559\u5B9A\u4F4D\u6240\u9700\u8109\u7EDC\u3002",
-            en: "Three subsections with one ordinary paragraph each, limited to positioning-essential literature."
+            en: "Three subsections with one ordinary paragraph each, focused on positioning-essential literature."
           },
           ratio: 0.08
         },
@@ -267,8 +267,8 @@ var PRODUCT_CONFIG = {
       defaultIncludeSectionNavigationSentence: true,
       appendixRule: {
         enabled: {
-          zh: "\u5141\u8BB8\u9644\u5F55\uFF0C\u4F46\u6B63\u6587\u6EE1\u8DB3\u5F53\u524D\u9002\u7528\u7684\u603B\u91CF\u4E0E\u7AE0\u8282\u9884\u7B97\u65F6\u4E0D\u5F97\u4F7F\u7528\uFF1B\u53EA\u6709\u53D7\u9650\u7AE0\u8282\u4ECD\u8D85\u989D\u4E14\u9010\u9879\u786E\u8BA4\u5185\u5BB9\u4E0D\u5F71\u54CD\u590D\u73B0\u3001\u7ED3\u8BBA\u5224\u65AD\u4E0E\u79D1\u5B66\u4E3B\u7EBF\u65F6\uFF0C\u624D\u53EF\u79FB\u5165\u9644\u5F55\u3002\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\u5B57\u6570\u4E14\u5B57\u6570\u4E0D\u9650\u3002",
-          en: "Appendix permitted, but do not use it when the main text meets every applicable total and section budget. Move material only when a limited section remains over budget and itemized review confirms that reproducibility, claim assessment, and the scientific throughline remain intact. The appendix is excluded from the main-text count and unlimited."
+          zh: "\u5141\u8BB8\u9644\u5F55\uFF0C\u4F46\u4E0D\u80FD\u53EA\u4E3A\u547D\u4E2D\u5EFA\u8BAE\u5B57\u6570\u800C\u8F6C\u79FB\u5185\u5BB9\u3002\u6B63\u6587\u5DF2\u7ECF\u6E05\u695A\u3001\u5B8C\u6574\u4E14\u7ED3\u6784\u7D27\u51D1\u65F6\u65E0\u9700\u9644\u5F55\uFF1B\u53EA\u6709\u6750\u6599\u672C\u8EAB\u786E\u5C5E\u8865\u5145\u5185\u5BB9\uFF0C\u4E14\u79FB\u52A8\u540E\u4E0D\u5F71\u54CD\u590D\u73B0\u3001\u7ED3\u8BBA\u5224\u65AD\u4E0E\u79D1\u5B66\u4E3B\u7EBF\u65F6\u624D\u79FB\u5165\u3002\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\u5EFA\u8BAE\u5B57\u6570\u3002",
+          en: "An appendix is allowed, but never move content merely to hit a suggested length. Omit it when the main text is clear, complete, and focused; move material only when it is genuinely supplementary and reproducibility, claim assessment, and the scientific throughline remain intact. The appendix is excluded from suggested main-text length."
         },
         disabled: {
           zh: "\u9ED8\u8BA4\u4E0D\u8BBE\u9644\u5F55\u3002\u7814\u7A76\u80CC\u666F\u3001\u65B9\u6CD5\u7EC6\u8282\u3001\u7A33\u5065\u6027\u5206\u6790\u548C\u5C40\u9650\u5E94\u6574\u5408\u8FDB\u6B63\u6587\u3002",
@@ -276,8 +276,8 @@ var PRODUCT_CONFIG = {
         }
       },
       structureNote: {
-        zh: "\u76EE\u5F55\u5C42\u7EA7\u901A\u5E38\u6B62\u4E8E subsubsection\uFF0C\u4F46\u53EA\u6709\u5185\u5BB9\u5145\u8DB3\u4E14\u79D1\u5B66\u4E0A\u72EC\u7ACB\u65F6\u624D\u589E\u52A0\u6807\u9898\u3002Method \u5355\u8BBE\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684\u53CC\u6BB5 Overview\u3002",
-        en: "Usually stop at subsubsection, but add a heading only for a scientifically distinct unit with enough substance. Use a standalone two-paragraph Method Overview capped at 80 words."
+        zh: "\u76EE\u5F55\u5C42\u7EA7\u901A\u5E38\u6B62\u4E8E subsubsection\uFF0C\u4F46\u53EA\u6709\u5185\u5BB9\u5145\u8DB3\u4E14\u79D1\u5B66\u4E0A\u72EC\u7ACB\u65F6\u624D\u589E\u52A0\u6807\u9898\u3002Method \u5355\u8BBE\u53CC\u6BB5 Overview\uFF0C\u5EFA\u8BAE\u63A7\u5236\u5728 80 \u8BCD\u5DE6\u53F3\u3002",
+        en: "Usually stop at subsubsection, but add a heading only for a scientifically distinct unit with enough substance. Use a standalone two-paragraph Method Overview, with about 80 words as an optional reference."
       },
       emphasisNote: {
         zh: "\u4F18\u5148\u4FDD\u8BC1\u7406\u8BBA\u4E0E\u7ECF\u9A8C\u8BBA\u8BC1\u7684\u5B8C\u6574\u6027\u3001\u65B9\u6CD5\u900F\u660E\u5EA6\u548C\u5BF9\u65E2\u6709\u7814\u7A76\u7684\u7D2F\u79EF\u8D21\u732E\u3002",
@@ -288,8 +288,8 @@ var PRODUCT_CONFIG = {
         en: "Stop the heading hierarchy at subsubsection by default; retain a two-paragraph Overview and deepen positioning, methods, and discussion."
       },
       promptDirective: {
-        zh: "\u91C7\u7528\u7D2F\u79EF\u8BBA\u8BC1\u578B\u671F\u520A\u5199\u6CD5\uFF1A\u7ED9\u4E88\u7814\u7A76\u8109\u7EDC\u3001\u673A\u5236\u7406\u7531\u3001\u8BC1\u636E\u8FB9\u754C\u548C\u7EFC\u5408\u8BA8\u8BBA\u5145\u5206\u7A7A\u95F4\uFF0C\u5E76\u7528\u6E05\u695A\u8FC7\u6E21\u8FDE\u63A5\u6BB5\u843D\u3002\u76EE\u5F55\u901A\u5E38\u6B62\u4E8E subsubsection\uFF0C\u4F46\u53EA\u4E3A\u5185\u5BB9\u5145\u8DB3\u4E14\u79D1\u5B66\u4E0A\u72EC\u7ACB\u7684\u5355\u5143\u589E\u52A0\u6807\u9898\uFF1B\u5C40\u90E8\u52A8\u673A\u548C\u9010\u56FE\u89E3\u91CA\u7559\u5728\u6B63\u6587\u3002Method \u5355\u8BBE\u4E24\u4E2A\u666E\u901A\u6BB5\u843D\u4E14\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF0C\u4E0D\u590D\u8FF0\u6846\u67B6\u56FE\uFF1B\u4E0D\u538B\u7F29\u6838\u5FC3 Method \u6216 Experiments and Results\u3002",
-        en: "Use a cumulative journal style with sufficient space for positioning, mechanism rationale, evidence boundaries, and synthesis, connected by clear paragraph transitions. Usually stop at subsubsection, but create a heading only for a scientifically distinct unit with enough substance; keep local motivation and per-visual interpretation in prose. Give Method a standalone two-paragraph Overview capped at 80 words without narrating the framework figure, and do not compress core Method or Experiments & Results content."
+        zh: "\u91C7\u7528\u7D2F\u79EF\u8BBA\u8BC1\u578B\u671F\u520A\u5199\u6CD5\uFF1A\u7ED9\u4E88\u7814\u7A76\u8109\u7EDC\u3001\u673A\u5236\u7406\u7531\u3001\u8BC1\u636E\u8FB9\u754C\u548C\u7EFC\u5408\u8BA8\u8BBA\u5145\u5206\u7A7A\u95F4\uFF0C\u5E76\u7528\u6E05\u695A\u8FC7\u6E21\u8FDE\u63A5\u6BB5\u843D\u3002\u76EE\u5F55\u901A\u5E38\u6B62\u4E8E subsubsection\uFF0C\u4F46\u53EA\u4E3A\u5185\u5BB9\u5145\u8DB3\u4E14\u79D1\u5B66\u4E0A\u72EC\u7ACB\u7684\u5355\u5143\u589E\u52A0\u6807\u9898\uFF1B\u5C40\u90E8\u52A8\u673A\u548C\u9010\u56FE\u89E3\u91CA\u7559\u5728\u6B63\u6587\u3002Method \u5355\u8BBE\u4E24\u4E2A\u666E\u901A\u6BB5\u843D\u7684 Overview\uFF0C\u5EFA\u8BAE\u7EA6 80 \u8BCD\u4E14\u4E0D\u590D\u8FF0\u6846\u67B6\u56FE\uFF1B\u4E0D\u538B\u7F29\u6838\u5FC3 Method \u6216 Experiments and Results\u3002",
+        en: "Use a cumulative journal style with sufficient space for positioning, mechanism rationale, evidence boundaries, and synthesis, connected by clear paragraph transitions. Usually stop at subsubsection, but create a heading only for a scientifically distinct unit with enough substance; keep local motivation and per-visual interpretation in prose. Give Method a standalone two-paragraph Overview, using about 80 words as an optional reference without narrating the framework figure, and do not compress core Method or Experiments & Results content."
       },
       sections: [
         {
@@ -380,17 +380,17 @@ var UI_COPY = {
     comingSoon: "\u5373\u5C06\u63A8\u51FA",
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "\u8BBA\u6587\u91CD\u6784",
-    subtitle: "\u9009\u62E9\u8BBA\u6587\u7C7B\u578B\u3001\u5EFA\u8BAE\u6B63\u6587\u7BC7\u5E45\u4E0E\u9644\u5F55\u89C4\u5219\uFF0C\u518D\u4F7F\u7528\u4E94\u6B65 Prompt \u5B8C\u6210\u6DF1\u5EA6\u7CBE\u4FEE\u3002",
+    subtitle: "\u9009\u62E9\u8BBA\u6587\u7C7B\u578B\u3001\u53EF\u9009\u7BC7\u5E45\u5EFA\u8BAE\u4E0E\u9644\u5F55\u89C4\u5219\uFF0C\u518D\u4F7F\u7528\u4E94\u6B65 Prompt \u5B8C\u6210\u6DF1\u5EA6\u7CBE\u4FEE\u3002",
     generalPreset: "\u901A\u7528\u4EA7\u54C1\u9884\u8BBE \xB7 \u975E venue \u5B98\u65B9\u8981\u6C42",
     language: "\u7F51\u7AD9\u8BED\u8A00",
     chinese: "\u4E2D\u6587",
     english: "English",
     paperStyle: "\u8BBA\u6587\u98CE\u683C",
-    targetWords: "\u5EFA\u8BAE\u6B63\u6587\u5B57\u6570",
-    targetWordsHint: "\u5F00\u542F\u540E\u663E\u793A\u5EFA\u8BAE\u7AE0\u8282\u9884\u7B97\uFF1B\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\uFF0C\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 200 \u8BCD\u6298\u7B97\u3002",
-    wordLimitOn: "\u63D0\u4F9B\u5EFA\u8BAE\u5B57\u6570",
-    wordLimitOff: "\u4E0D\u8BBE\u7BC7\u5E45\u5EFA\u8BAE",
-    noWordLimitHint: "\u5173\u95ED\u540E\u4E0D\u663E\u793A\u7AE0\u8282\u9884\u7B97\uFF0C\u4E94\u6B65 Prompt \u4E5F\u4E0D\u5305\u542B\u6B63\u6587\u603B\u6570\u6216\u7AE0\u8282\u7BC7\u5E45\u5EFA\u8BAE\u3002",
+    targetWords: "\u5EFA\u8BAE\u6B63\u6587\u53C2\u8003\u503C",
+    targetWordsHint: "\u5F00\u542F\u540E\u663E\u793A\u53EF\u9009\u7AE0\u8282\u5EFA\u8BAE\uFF1B\u53EF\u6839\u636E\u8BBA\u6587\u5185\u5BB9\u91C7\u7EB3\u3001\u8C03\u6574\u6216\u5FFD\u7565\u3002\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\uFF0C\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 200 \u8BCD\u4F30\u7B97\u3002",
+    wordLimitOn: "\u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE",
+    wordLimitOff: "\u9ED8\u8BA4\u4E0D\u8BBE\u7BC7\u5E45\u5EFA\u8BAE",
+    noWordLimitHint: "\u9ED8\u8BA4\u72B6\u6001\u3002\u5173\u95ED\u540E\u4E0D\u663E\u793A\u7AE0\u8282\u5EFA\u8BAE\uFF0C\u4E94\u6B65 Prompt \u4E5F\u4E0D\u5305\u542B\u6B63\u6587\u603B\u6570\u6216\u7AE0\u8282\u7BC7\u5E45\u6570\u5B57\u3002",
     introNavigation: "Introduction \u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
     introNavigationOn: "\u4FDD\u7559\u4E00\u6761\u7B80\u6D01\u5BFC\u822A\u53E5",
     introNavigationOff: "\u4E0D\u5199\u7EAF\u7AE0\u8282\u5BFC\u822A\u53E5",
@@ -417,22 +417,22 @@ var UI_COPY = {
     chatRuntimePolicy: "\u4E0D\u9501\u5B9A GPT \u578B\u53F7\u540D\u79F0\uFF1B\u63D2\u4EF6\u6BCF\u8F6E\u8BFB\u53D6 ChatGPT \u5F53\u524D\u53EF\u89C1\u9009\u9879\u3002\u53D1\u751F\u56DE\u9000\u65F6\u5148\u660E\u786E\u63D0\u793A\uFF0C\u540D\u79F0\u65E0\u6CD5\u5224\u65AD\u65F6\u9009\u62E9\u6700\u5F3A\u53EF\u7528\u6863\u4F4D\u3002",
     exportAutomation: "\u5BFC\u51FA\u684C\u9762\u914D\u7F6E",
     exportedAutomation: "\u914D\u7F6E\u5DF2\u4E0B\u8F7D",
-    exportAutomationHint: "\u4E0B\u8F7D\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u3001\u5B57\u6570\u3001\u7AE0\u8282\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C Prompt \u8BED\u8A00\u8BBE\u7F6E\uFF0C\u4F9B YanShu \u63D2\u4EF6\u76F4\u63A5\u8BFB\u53D6\u3002",
+    exportAutomationHint: "\u4E0B\u8F7D\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u7AE0\u8282\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C Prompt \u8BED\u8A00\u8BBE\u7F6E\uFF0C\u4F9B YanShu \u63D2\u4EF6\u76F4\u63A5\u8BFB\u53D6\u3002",
     resetDefaults: "\u6062\u590D\u9ED8\u8BA4\u914D\u7F6E",
-    resetHint: "\u91CD\u7F6E\u8BBA\u6587\u7C7B\u578B\u3001\u6B63\u6587\u5B57\u6570\u6A21\u5F0F\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C\u7AE0\u8282\u9884\u7B97\uFF1B\u4FDD\u7559\u5F53\u524D\u8BED\u8A00\u3002",
-    plannerTitle: "\u5EFA\u8BAE\u6B63\u6587\u4E0E\u7AE0\u8282\u9884\u7B97",
-    plannerBody: "\u8BBE\u7F6E\u5EFA\u8BAE\u7BC7\u5E45\uFF1B\u65B9\u6CD5\u548C\u5B9E\u9A8C\u9ED8\u8BA4\u4E0D\u8BBE\u5B57\u6570\u8303\u56F4\u3002",
-    targetTotal: "\u5EFA\u8BAE\u6B63\u6587\u603B\u5B57\u6570",
-    unlimitedMainText: "\u6B63\u6587\u603B\u6570\u4E0D\u9650",
-    limitedSectionsTotal: "\u53D7\u9650\u7AE0\u8282\u5408\u8BA1",
-    unlimitedCoreSections: "\u4E0D\u9650\u5236\u65B9\u6CD5\u548C\u5B9E\u9A8C\u7684\u5B57\u6570",
-    unlimitedCoreSectionsHint: "\u5F00\u542F\u540E\u6B63\u6587\u4E0D\u8BBE\u603B\u6570\uFF0C\u4EC5\u4E3A\u5176\u4ED6\u7AE0\u8282\u63D0\u4F9B\u5EFA\u8BAE\u8303\u56F4\u3002",
-    unlimitedSection: "\u4E0D\u9650",
-    visualCountingRule: `\u8BA1\u8BCD\u89C4\u5219\uFF1A\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 ${WORD_COUNT_POLICY.visualWordEquivalent} \u8BCD\u8BA1\u5165\u6240\u5728\u7AE0\u8282\u53CA\u6B63\u6587\u603B\u6570\u3002`,
+    resetHint: "\u91CD\u7F6E\u8BBA\u6587\u7C7B\u578B\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C\u7AE0\u8282\u5EFA\u8BAE\uFF1B\u4FDD\u7559\u5F53\u524D\u8BED\u8A00\u3002",
+    plannerTitle: "\u6B63\u6587\u4E0E\u7AE0\u8282\u7BC7\u5E45\u5EFA\u8BAE",
+    plannerBody: "\u6240\u6709\u6570\u503C\u4EC5\u4F9B\u53C2\u8003\uFF0C\u53EF\u6309\u8BBA\u6587\u5185\u5BB9\u63A5\u53D7\u3001\u8C03\u6574\u6216\u5FFD\u7565\uFF1B\u65B9\u6CD5\u548C\u5B9E\u9A8C\u9ED8\u8BA4\u4E0D\u8BBE\u7F6E\u5EFA\u8BAE\u8303\u56F4\u3002",
+    targetTotal: "\u5EFA\u8BAE\u6B63\u6587\u53C2\u8003\u503C",
+    unlimitedMainText: "\u4E0D\u8BBE\u6B63\u6587\u603B\u5EFA\u8BAE",
+    limitedSectionsTotal: "\u6709\u5EFA\u8BAE\u7AE0\u8282\u5408\u8BA1",
+    unlimitedCoreSections: "\u65B9\u6CD5\u548C\u5B9E\u9A8C\u4E0D\u8BBE\u7F6E\u5EFA\u8BAE\u5B57\u6570",
+    unlimitedCoreSectionsHint: "\u5F00\u542F\u540E\u4E0D\u63D0\u4F9B\u6B63\u6587\u603B\u5EFA\u8BAE\uFF0C\u4EC5\u4E3A\u5176\u4ED6\u7AE0\u8282\u751F\u6210\u53EF\u9009\u53C2\u8003\u8303\u56F4\u3002",
+    unlimitedSection: "\u65E0\u5EFA\u8BAE",
+    visualCountingRule: `\u5EFA\u8BAE\u4F30\u7B97\u89C4\u5219\uFF1A\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 ${WORD_COUNT_POLICY.visualWordEquivalent} \u8BCD\u8BA1\u5165\u6240\u5728\u7AE0\u8282\u53CA\u6B63\u6587\u53C2\u8003\u503C\u3002`,
     resetAllocation: "\u6309\u6BD4\u4F8B\u91CD\u7B97",
     presetAllocation: "\u9884\u8BBE\u6BD4\u4F8B",
     customAllocation: "\u81EA\u5B9A\u4E49\u5206\u914D",
-    budget: "\u5B57\u6570\u9884\u7B97",
+    budget: "\u5EFA\u8BAE\u5B57\u6570",
     editAllocation: "\u7F16\u8F91\u7AE0\u8282",
     hideAllocation: "\u6536\u8D77",
     expand: "\u5C55\u5F00",
@@ -445,9 +445,9 @@ var UI_COPY = {
     reconfigure: "\u91CD\u65B0\u914D\u7F6E",
     promptConfig: "\u5F53\u524D\u914D\u7F6E",
     promptStyle: "\u5199\u4F5C\u6A21\u5F0F",
-    promptTarget: "\u6B63\u6587\u76EE\u6807",
+    promptTarget: "\u6B63\u6587\u7BC7\u5E45\u5EFA\u8BAE",
     promptAppendix: "\u9644\u5F55",
-    promptSections: "\u7AE0\u8282\u9884\u7B97",
+    promptSections: "\u7AE0\u8282\u5EFA\u8BAE",
     promptTask: "\u672C\u8F6E\u4EFB\u52A1",
     promptOutput: "\u8F93\u51FA\u8981\u6C42",
     promptBoundary: "\u8FB9\u754C\uFF1A\u4E0D\u8981\u865A\u6784\u4E8B\u5B9E\u3001\u5F15\u7528\u3001\u6570\u636E\u6216 venue \u89C4\u5219\uFF1B\u65E0\u6CD5\u786E\u8BA4\u7684\u5185\u5BB9\u5FC5\u987B\u660E\u786E\u6807\u8BB0\u3002",
@@ -467,17 +467,17 @@ var UI_COPY = {
     comingSoon: "Coming soon",
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "Paper reconstruction",
-    subtitle: "Choose the paper type, suggested main-text length, appendix rule, and overview layout, then deeply refine the manuscript with five prompts.",
+    subtitle: "Choose the paper type, optional length guidance, appendix rule, and overview layout, then deeply refine the manuscript with five prompts.",
     generalPreset: "General product preset \xB7 not an official venue rule",
     language: "Site language",
     chinese: "\u4E2D\u6587",
     english: "English",
     paperStyle: "Paper style",
-    targetWords: "Suggested main-text length",
-    targetWordsHint: "When enabled, suggested section budgets appear. The appendix is excluded; each table or figure counts as 200 words.",
-    wordLimitOn: "Provide a length target",
-    wordLimitOff: "No length recommendation",
-    noWordLimitHint: "When disabled, section budgets are hidden and all five prompts omit main-text and section-length recommendations.",
+    targetWords: "Suggested main-text reference",
+    targetWordsHint: "When enabled, optional section suggestions appear; accept, adjust, or ignore them according to the paper. The appendix is excluded, and each table or figure is estimated as 200 words.",
+    wordLimitOn: "Enable length guidance",
+    wordLimitOff: "No length guidance by default",
+    noWordLimitHint: "This is the default. Section suggestions are hidden, and all five prompts omit main-text and section-length numbers.",
     introNavigation: "Pure Introduction roadmap sentence",
     introNavigationOn: "Include one concise roadmap sentence",
     introNavigationOff: "No pure roadmap sentence",
@@ -504,22 +504,22 @@ var UI_COPY = {
     chatRuntimePolicy: "GPT model names are never pinned. The plugin inspects the options currently visible in ChatGPT for every round, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
     exportAutomation: "Export desktop config",
     exportedAutomation: "Config downloaded",
-    exportAutomationHint: "Download the current paper type, length, section, appendix, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
+    exportAutomationHint: "Download the current paper type, optional length guidance, section, appendix, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
     resetDefaults: "Restore defaults",
-    resetHint: "Resets paper type, length mode, appendix, framework figure, ChatGPT reasoning preference, and section budgets while keeping the current language.",
-    plannerTitle: "Suggested main-text and section lengths",
-    plannerBody: "Set suggested lengths; Method and Experiments are unlimited by default.",
-    targetTotal: "Suggested main-text total",
-    unlimitedMainText: "No main-text total",
-    limitedSectionsTotal: "Limited sections",
-    unlimitedCoreSections: "Do not limit Method or Experiments",
-    unlimitedCoreSectionsHint: "When enabled, there is no main-text total and only the other sections receive suggested ranges.",
-    unlimitedSection: "Unlimited",
-    visualCountingRule: `Counting rule: each table or figure counts as ${WORD_COUNT_POLICY.visualWordEquivalent} words toward its section and the main-text total.`,
+    resetHint: "Resets paper type, length guidance, appendix, framework figure, ChatGPT reasoning preference, and section suggestions while keeping the current language.",
+    plannerTitle: "Main-text and section length guidance",
+    plannerBody: "Every value is optional guidance that may be accepted, adjusted, or ignored according to the paper; Method and Experiments receive no suggestion by default.",
+    targetTotal: "Suggested main-text reference",
+    unlimitedMainText: "No main-text suggestion",
+    limitedSectionsTotal: "Sections with guidance",
+    unlimitedCoreSections: "No suggested length for Method or Experiments",
+    unlimitedCoreSectionsHint: "When enabled, no main-text total is suggested and only the other sections receive optional reference ranges.",
+    unlimitedSection: "No suggestion",
+    visualCountingRule: `Guidance estimate: each table or figure counts as ${WORD_COUNT_POLICY.visualWordEquivalent} words toward its section and the suggested main-text reference.`,
     resetAllocation: "Recalculate by ratio",
     presetAllocation: "Preset ratios",
     customAllocation: "Custom allocation",
-    budget: "Word budget",
+    budget: "Suggested words",
     editAllocation: "Edit sections",
     hideAllocation: "Collapse",
     expand: "Expand",
@@ -532,9 +532,9 @@ var UI_COPY = {
     reconfigure: "Reconfigure",
     promptConfig: "Current configuration",
     promptStyle: "Writing mode",
-    promptTarget: "Main-text target",
+    promptTarget: "Main-text length guidance",
     promptAppendix: "Appendix",
-    promptSections: "Section budgets",
+    promptSections: "Section suggestions",
     promptTask: "Task for this round",
     promptOutput: "Required output",
     promptBoundary: "Boundary: do not invent facts, citations, data, or venue rules. Mark anything that cannot be verified.",
@@ -1381,8 +1381,8 @@ var PROMPT_TEMPLATES = [
         en: "Conference prose is compact and claim-first. Use paragraph when a third heading level is genuinely needed, and otherwise keep exposition continuous. Related Work uses three one-paragraph subsections; Method has no standalone Overview; the model selects three to five evidence-driven Discussion topics, followed by an approximately 100-word Limitations subsection."
       },
       journal: {
-        zh: "\u671F\u520A\u8BBA\u6587\u91C7\u7528\u7D2F\u79EF\u5F0F\u3001\u89E3\u91CA\u5145\u5206\u7684\u5199\u6CD5\u3002\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF0C\u53D9\u8FF0\u529F\u80FD\u4F7F\u7528\u4E3B\u9898\u53E5\u4E0E\u8FC7\u6E21\u8868\u8FBE\u3002Related Work \u4F7F\u7528\u4E09\u4E2A\u53CC\u6BB5\u5C0F\u8282\uFF1BMethod \u5355\u8BBE\u4E24\u6BB5\u4E14\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF1BDiscussion \u7531\u6A21\u578B\u6309\u8BC1\u636E\u9009\u62E9 3\u20135 \u4E2A\u4E3B\u9898\u5C0F\u8282\u3002",
-        en: "Journal prose is cumulative and sufficiently explanatory. Stop the heading hierarchy at subsubsection by default and express discourse functions through topic sentences and transitions. Related Work uses three two-paragraph subsections; Method has a two-paragraph Overview capped at 80 words; the model selects three to five evidence-driven Discussion topics."
+        zh: "\u671F\u520A\u8BBA\u6587\u91C7\u7528\u7D2F\u79EF\u5F0F\u3001\u89E3\u91CA\u5145\u5206\u7684\u5199\u6CD5\u3002\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF0C\u53D9\u8FF0\u529F\u80FD\u4F7F\u7528\u4E3B\u9898\u53E5\u4E0E\u8FC7\u6E21\u8868\u8FBE\u3002Related Work \u4F7F\u7528\u4E09\u4E2A\u53CC\u6BB5\u5C0F\u8282\uFF1BMethod \u5355\u8BBE\u4E24\u6BB5 Overview\uFF0C\u7BC7\u5E45\u53EF\u53C2\u8003 80 \u8BCD\u5E76\u6309\u5185\u5BB9\u8C03\u6574\uFF1BDiscussion \u7531\u6A21\u578B\u6309\u8BC1\u636E\u9009\u62E9 3\u20135 \u4E2A\u4E3B\u9898\u5C0F\u8282\u3002",
+        en: "Journal prose is cumulative and sufficiently explanatory. Stop the heading hierarchy at subsubsection by default and express discourse functions through topic sentences and transitions. Related Work uses three two-paragraph subsections; Method has a two-paragraph Overview using 80 words only as an optional reference; the model selects three to five evidence-driven Discussion topics."
       }
     },
     tasks: [
@@ -1450,7 +1450,7 @@ The core idea must remain meaningful without component names. Do not relabel ord
       }
     ],
     deliverables: {
-      zh: `\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u4E2D\u6587\u62A5\u544A\u81F3\u5C11\u5305\u542B\uFF1AScientific Positioning Contract\u3001\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u5BA1\u8BA1\uFF08\u5982\u6709\u5019\u9009\u5219\u9644 high-risk diff \u548C\u672A\u6388\u6743\u72B6\u6001\uFF09\u3001\u4E00\u53E5\u8BDD\u4E3B\u65E8\u4E0E\u75DB\u70B9\u3001\u65E7/\u65B0\u4E3B\u7EBF\u5BF9\u7167\u3001\u8D21\u732E\u5206\u5C42\u3001Claim\u2013Evidence Map\u3001\u672F\u8BED\u8868\u3001\u7AE0\u8282\u529F\u80FD\u4E0E\u9884\u7B97\u8868\u3001\u56FE\u8868\u89D2\u8272\u3001\u7ED3\u6784\u64CD\u4F5C\u6E05\u5355\u3001\u8054\u7F51\u6838\u9A8C\u3001\u6587\u732E\u8BB0\u5F55\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
+      zh: `\u751F\u6210\u5B8C\u6574\u82F1\u6587 .tex\u3001\u4E2D\u6587\u62A5\u544A\u548C\u5B8C\u6574\u5F53\u524D BibTeX \u6587\u732E\u5E93\u3002\u4E2D\u6587\u62A5\u544A\u81F3\u5C11\u5305\u542B\uFF1AScientific Positioning Contract\u3001\u6807\u9898\u4E0E\u8BBA\u6587\u54C1\u724C\u5BA1\u8BA1\uFF08\u5982\u6709\u5019\u9009\u5219\u9644 high-risk diff \u548C\u672A\u6388\u6743\u72B6\u6001\uFF09\u3001\u4E00\u53E5\u8BDD\u4E3B\u65E8\u4E0E\u75DB\u70B9\u3001\u65E7/\u65B0\u4E3B\u7EBF\u5BF9\u7167\u3001\u8D21\u732E\u5206\u5C42\u3001Claim\u2013Evidence Map\u3001\u672F\u8BED\u8868\u3001\u7AE0\u8282\u529F\u80FD\u4E0E\u53EF\u9009\u7BC7\u5E45\u5EFA\u8BAE\u8868\u3001\u56FE\u8868\u89D2\u8272\u3001\u7ED3\u6784\u64CD\u4F5C\u6E05\u5355\u3001\u8054\u7F51\u6838\u9A8C\u3001\u6587\u732E\u8BB0\u5F55\u548C\u4E0B\u4E00\u6B65\u4EA4\u63A5\u6458\u8981\u3002`,
       en: `Create a complete English .tex, a Chinese report, and a complete current BibTeX library. The report must include the Scientific Positioning Contract; title and paper-brand audit, with a high-risk diff and unauthorized status for any candidate; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim\u2013Evidence Map; terminology table; section functions and budgets; visual roles; structural operations; web verification; bibliography changes; and a self-contained handoff.`
     },
     fileNames: {
@@ -1513,8 +1513,8 @@ The core idea must remain meaningful without component names. Do not relabel ord
         en: "Conference prose is compact and claim-first. The available hierarchy is section \u2192 subsection \u2192 paragraph, but headings are reserved for substantive scientific units. Method has no standalone Overview and introduces the framework where it serves the argument. Experimental setup covers Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order without mechanically turning all four into headings."
       },
       journal: {
-        zh: "\u671F\u520A\u8BBA\u6587\u91C7\u7528\u7D2F\u79EF\u5F0F\u3001\u89E3\u91CA\u5145\u5206\u7684\u5199\u6CD5\u3002\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF1B\u5176\u4E0B\u4F7F\u7528\u4E3B\u9898\u53E5\u3001\u8FC7\u6E21\u548C\u81EA\u7136\u6BB5\u3002Method \u5355\u8BBE\u4E24\u6BB5\u3001\u603B\u8BA1\u4E0D\u8D85\u8FC7 80 \u8BCD\u7684 Overview\uFF0C\u89E3\u91CA\u79D1\u5B66\u903B\u8F91\u4F46\u4E0D\u590D\u8FF0\u6846\u67B6\u56FE\u3002\u5B9E\u9A8C\u8BBE\u7F6E\u4F9D\u6B21\u8986\u76D6 Datasets\u3001Evaluation Metrics\u3001Experimental Configuration \u548C Baselines\uFF0C\u53EA\u5728\u5185\u5BB9\u786E\u5B9E\u6784\u6210\u72EC\u7ACB\u5355\u5143\u65F6\u8BBE\u7F6E subsubsection\u3002",
-        en: "Journal prose is cumulative and sufficiently explanatory. Stop the hierarchy at subsubsection by default and use topic sentences and transitions below it. Method has a two-paragraph Overview capped at 80 words that explains the scientific logic without narrating the figure. Experimental setup covers Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order, using subsubsections only for genuinely independent units."
+        zh: "\u671F\u520A\u8BBA\u6587\u91C7\u7528\u7D2F\u79EF\u5F0F\u3001\u89E3\u91CA\u5145\u5206\u7684\u5199\u6CD5\u3002\u76EE\u5F55\u5C42\u7EA7\u9ED8\u8BA4\u6B62\u4E8E subsubsection\uFF1B\u5176\u4E0B\u4F7F\u7528\u4E3B\u9898\u53E5\u3001\u8FC7\u6E21\u548C\u81EA\u7136\u6BB5\u3002Method \u5355\u8BBE\u4E24\u6BB5 Overview\uFF0C\u603B\u8BCD\u6570\u53EF\u53C2\u8003 80 \u8BCD\u5E76\u6309\u5185\u5BB9\u8C03\u6574\uFF0C\u89E3\u91CA\u79D1\u5B66\u903B\u8F91\u4F46\u4E0D\u590D\u8FF0\u6846\u67B6\u56FE\u3002\u5B9E\u9A8C\u8BBE\u7F6E\u4F9D\u6B21\u8986\u76D6 Datasets\u3001Evaluation Metrics\u3001Experimental Configuration \u548C Baselines\uFF0C\u53EA\u5728\u5185\u5BB9\u786E\u5B9E\u6784\u6210\u72EC\u7ACB\u5355\u5143\u65F6\u8BBE\u7F6E subsubsection\u3002",
+        en: "Journal prose is cumulative and sufficiently explanatory. Stop the hierarchy at subsubsection by default and use topic sentences and transitions below it. Method has a two-paragraph Overview using 80 words only as an optional reference and explaining scientific logic without narrating the figure. Experimental setup covers Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in order, using subsubsections only for genuinely independent units."
       }
     },
     tasks: [
@@ -1670,9 +1670,9 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
         },
         body: {
           zh: `Introduction \u4F7F\u7528\u4E94\u4E2A\u6838\u5FC3\u6BB5\u843D\uFF1AP1 \u8FDB\u5165\u4EFB\u52A1\u4E0E\u73B0\u5B9E\u7EA6\u675F\uFF1BP2 \u7EFC\u5408\u76F8\u5173\u8DEF\u7EBF\u5E76\u5F62\u6210\u7F3A\u53E3\uFF1BP3 \u660E\u786E\u4ECA\u5929\u4ECD\u672A\u89E3\u51B3\u3001\u4E14\u771F\u6B63\u51B3\u5B9A\u8BBE\u8BA1\u7684\u6311\u6218\uFF1BP4 \u56DE\u7B54 P3\uFF0C\u7ED9\u51FA\u6838\u5FC3\u601D\u60F3\u3001\u603B\u4F53\u673A\u5236\u548C\u8BBE\u8BA1\u76F4\u89C9\uFF1BP5 \u7528\u8D21\u732E\u53E5\u6536\u675F\uFF0C\u6BCF\u6761\u9ED8\u8BA4\u4EE5 We \u5F00\u5934\u5E76\u5BF9\u5E94\u771F\u5B9E\u673A\u5236\u4E0E\u8BC1\u636E\u3002\u662F\u5426\u589E\u52A0\u72EC\u7ACB\u7684\u8BBA\u6587\u7ED3\u6784\u5BFC\u822A\u53E5\u7531\u5F53\u524D\u914D\u7F6E\u51B3\u5B9A\u3002P3 \u53EA\u5B9A\u4E49\u672A\u89E3\u95EE\u9898\uFF0CP4 \u53EA\u89E3\u91CA\u672C\u6587\u5982\u4F55\u56DE\u5E94\uFF0C\u907F\u514D\u91CD\u590D\u3002
-Related Work \u6070\u597D\u4E09\u4E2A\u5C0F\u8282\uFF0C\u5E76\u6309\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u4F7F\u7528\u5355\u6BB5\u6216\u53CC\u6BB5\u7ED3\u6784\uFF1B\u6309\u7814\u7A76\u8303\u5F0F\u3001\u8BAD\u7EC3\u4FE1\u53F7\u3001\u7ED3\u6784\u5047\u8BBE\u3001\u6548\u7387\u6216\u6CDB\u5316\u6743\u8861\u7EFC\u5408\u3002\u6BCF\u4E2A\u5C0F\u8282\u6700\u540E\u7528\u4E0D\u8D85\u8FC7 18 \u8BCD\u7684\u65E0 \u201Cwe\u201D\u3001\u65E0\u672C\u6587\u65B9\u6CD5\u540D\u603B\u7ED3\u53E5\u6536\u675F\u3002\u5148\u5728\u62A5\u544A\u4E2D\u89C4\u5212\u4E3B\u9898\u548C\u73B0\u6709 BibTeX key\uFF0C\u518D\u5199\u5165 TeX\uFF1B\u4E0D\u5F97\u9010\u7BC7\u6D41\u6C34\u8D26\u3002`,
+Related Work \u6070\u597D\u4E09\u4E2A\u5C0F\u8282\uFF0C\u5E76\u6309\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u4F7F\u7528\u5355\u6BB5\u6216\u53CC\u6BB5\u7ED3\u6784\uFF1B\u6309\u7814\u7A76\u8303\u5F0F\u3001\u8BAD\u7EC3\u4FE1\u53F7\u3001\u7ED3\u6784\u5047\u8BBE\u3001\u6548\u7387\u6216\u6CDB\u5316\u6743\u8861\u7EFC\u5408\u3002\u6BCF\u4E2A\u5C0F\u8282\u6700\u540E\u7528\u5EFA\u8BAE\u63A7\u5236\u5728 18 \u8BCD\u4EE5\u5185\u3001\u4E14\u4E0D\u4F7F\u7528 \u201Cwe\u201D \u6216\u672C\u6587\u65B9\u6CD5\u540D\u7684\u603B\u7ED3\u53E5\u6536\u675F\uFF1B\u5FC5\u8981\u65F6\u53EF\u6309\u5185\u5BB9\u8C03\u6574\u3002\u5148\u5728\u62A5\u544A\u4E2D\u89C4\u5212\u4E3B\u9898\u548C\u73B0\u6709 BibTeX key\uFF0C\u518D\u5199\u5165 TeX\uFF1B\u4E0D\u5F97\u9010\u7BC7\u6D41\u6C34\u8D26\u3002`,
           en: `Use five core Introduction paragraphs: P1 enters the task and practical constraints; P2 synthesizes related lines into the gap; P3 states the unresolved challenges that still determine the design today; P4 answers P3 with the core idea, overall mechanism, and design intuition; P5 closes with contribution sentences, each beginning with We by default and aligned with a real mechanism and evidence. Add a separate paper-roadmap sentence only when the current configuration enables it. P3 defines the unresolved problem; P4 explains this paper's response, so they must not repeat each other.
-Related Work has exactly three subsections and follows the current paper type's one- or two-paragraph rule. Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. End each subsection with a synthesis sentence of at most 18 words that uses neither \u201Cwe\u201D nor the method name. Plan themes and existing BibTeX keys in the report before drafting; do not narrate papers one by one.`
+Related Work has exactly three subsections and follows the current paper type's one- or two-paragraph rule. Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. End each subsection with a synthesis sentence that preferably stays within 18 words but may adjust to the content and uses neither \u201Cwe\u201D nor the method name. Plan themes and existing BibTeX keys in the report before drafting; do not narrate papers one by one.`
         }
       },
       {
@@ -2030,12 +2030,12 @@ var PROMPT_STEP_POLICIES = {
     protectedSectionIds: ["method", "experiments-results"],
     appendixTriage: {
       enabled: {
-        zh: "\u5F53\u524D\u914D\u7F6E\u53EA\u5141\u8BB8\u3001\u5E76\u4E0D\u8981\u6C42\u4F7F\u7528\u9644\u5F55\u3002\u82E5\u6B63\u6587\u80FD\u591F\u6EE1\u8DB3\u5F53\u524D\u9002\u7528\u7684\u603B\u91CF\u4E0E\u7AE0\u8282\u9884\u7B97\uFF0C\u4E0D\u5F97\u4F7F\u7528\u9644\u5F55\uFF1B\u53EA\u6709\u53D7\u9650\u7AE0\u8282\u4ECD\u8D85\u989D\uFF0C\u4E14\u9010\u9879\u5206\u6790\u786E\u8BA4\u5185\u5BB9\u5E76\u975E\u79D1\u5B66\u4E3B\u7EBF\u6240\u5FC5\u9700\u65F6\uFF0C\u624D\u53EF\u8003\u8651\u79FB\u5165\u9644\u5F55\u3002\u9664 {{protected_sections}} \u5916\uFF0C\u79FB\u52A8\u4EFB\u4F55\u5185\u5BB9\u90FD\u4E0D\u5F97\u524A\u5F31\u5B9A\u4E49\u5B8C\u6574\u6027\u548C\u8BBA\u8BC1\u95ED\u73AF\uFF0C\u4E14\u6B63\u6587\u5FC5\u987B\u4FDD\u6301\u81EA\u6D3D\u3002",
-        en: "The current configuration permits but does not require an appendix. Do not use one when the main text satisfies every applicable total and section budget. Consider moving material only when a limited section remains over budget and itemized review confirms that it is not essential to the scientific throughline. Outside {{protected_sections}}, no move may weaken complete definitions or argumentative closure, and the main text must remain self-contained."
+        zh: "\u5F53\u524D\u914D\u7F6E\u53EA\u5141\u8BB8\u3001\u5E76\u4E0D\u8981\u6C42\u4F7F\u7528\u9644\u5F55\u3002\u4E0D\u5F97\u53EA\u4E3A\u547D\u4E2D\u5EFA\u8BAE\u5B57\u6570\u800C\u79FB\u52A8\u5185\u5BB9\uFF1B\u6B63\u6587\u5DF2\u7ECF\u6E05\u695A\u3001\u5B8C\u6574\u4E14\u7ED3\u6784\u7D27\u51D1\u65F6\u4E0D\u4F7F\u7528\u9644\u5F55\u3002\u53EA\u6709\u6750\u6599\u672C\u8EAB\u786E\u5C5E\u8865\u5145\u5185\u5BB9\u3001\u653E\u5728\u6B63\u6587\u4F1A\u524A\u5F31\u4E3B\u7EBF\u65F6\u624D\u53EF\u8003\u8651\u79FB\u5165\u3002\u9664 {{protected_sections}} \u5916\uFF0C\u4EFB\u4F55\u79FB\u52A8\u90FD\u4E0D\u5F97\u524A\u5F31\u5B9A\u4E49\u5B8C\u6574\u6027\u548C\u8BBA\u8BC1\u95ED\u73AF\uFF0C\u4E14\u6B63\u6587\u5FC5\u987B\u4FDD\u6301\u81EA\u6D3D\u3002",
+        en: "The configuration permits but does not require an appendix. Never move content merely to hit a suggested length, and omit the appendix when the main text is clear, complete, and focused. Move material only when it is genuinely supplementary and would weaken the main throughline. Outside {{protected_sections}}, no move may weaken complete definitions or argumentative closure, and the main text must remain self-contained."
       },
       disabled: {
-        zh: "\u5F53\u524D\u914D\u7F6E\u672A\u542F\u7528\u9644\u5F55\uFF1A\u4E0D\u5F97\u628A\u4EFB\u4F55\u5185\u5BB9\u8F6C\u79FB\u5230\u9644\u5F55\u3002\u53D7\u9650\u7AE0\u8282\u8D85\u989D\u65F6\uFF0C\u5E94\u5220\u9664\u91CD\u590D\u3001\u5408\u5E76\u975E\u6838\u5FC3\u53D9\u8FF0\u6216\u5728\u62A5\u544A\u4E2D\u767B\u8BB0\u98CE\u9669\uFF0C\u5E76\u9075\u5B88\u5F53\u524D\u9002\u7528\u7684\u7AE0\u8282\u9884\u7B97\uFF1B\u82E5\u5F53\u524D\u6A21\u5F0F\u53E6\u6709\u603B\u91CF\u6216\u4E34\u65F6\u4E0A\u9650\uFF0C\u4E5F\u5FC5\u987B\u9075\u5B88\u3002",
-        en: "The current configuration disables the appendix. Do not move material outside the main text. When a limited section is over budget, remove repetition, consolidate non-core exposition, or record the risk, while respecting every applicable section budget and any total or temporary ceiling defined by the current mode."
+        zh: "\u5F53\u524D\u914D\u7F6E\u672A\u542F\u7528\u9644\u5F55\uFF1A\u4E0D\u5F97\u628A\u4EFB\u4F55\u5185\u5BB9\u8F6C\u79FB\u5230\u9644\u5F55\u3002\u53EF\u4EE5\u5220\u9664\u771F\u5B9E\u91CD\u590D\u5E76\u5408\u5E76\u975E\u6838\u5FC3\u53D9\u8FF0\uFF0C\u4F46\u7BC7\u5E45\u5EFA\u8BAE\u4E0D\u6784\u6210\u5220\u51CF\u6838\u5FC3\u5185\u5BB9\u7684\u7406\u7531\uFF1B\u5FC5\u8981\u65F6\u76F4\u63A5\u504F\u79BB\u5EFA\u8BAE\u5E76\u5728\u62A5\u544A\u4E2D\u8BF4\u660E\u3002",
+        en: "The current configuration disables the appendix. Do not move material outside the main text. Remove genuine repetition and consolidate non-core exposition when useful, but never treat length guidance as a reason to delete core content; deviate from the suggestion when necessary and record why."
       }
     }
   }
@@ -2254,63 +2254,63 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
       {
         marker: "title_word_limits",
         standard: {
-          zh: "- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0C\u6807\u9898\u63A7\u5236\u5728 8\u201316 \u4E2A\u82F1\u6587\u5355\u8BCD\u3002",
-          en: "- When a word limit is enabled, keep the title between 8 and 16 English words."
+          zh: "- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0C\u6807\u9898\u53EF\u53C2\u8003 8\u201316 \u4E2A\u82F1\u6587\u5355\u8BCD\uFF1B\u4EE5\u51C6\u786E\u3001\u81EA\u7136\u548C\u6709\u8FA8\u8BC6\u5EA6\u4E3A\u5148\uFF0C\u53EF\u6839\u636E\u8BBA\u6587\u5185\u5BB9\u504F\u79BB\u3002",
+          en: "- When length guidance is enabled, use 8\u201316 English words as an optional title reference; accuracy, naturalness, and distinctiveness take priority, and the paper may justify a different length."
         }
       },
       {
         marker: "scientific_overview_word_limits",
         standard: {
-          zh: "- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0C\u671F\u520A Method \u7684 Overview \u603B\u8BA1\u4E0D\u8D85\u8FC7 80 \u8BCD\u3002",
-          en: "- When a word limit is enabled, cap the journal Method Overview at 80 words in total."
+          zh: "- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0C\u671F\u520A Method Overview \u5EFA\u8BAE\u7EA6 80 \u8BCD\uFF1B\u82E5\u79D1\u5B66\u903B\u8F91\u9700\u8981\uFF0C\u53EF\u9002\u5EA6\u8C03\u6574\u3002",
+          en: "- When length guidance is enabled, about 80 words is suggested for the journal Method Overview; adjust when the scientific logic requires it."
         }
       },
       {
         marker: "scientific_limitations_word_limits",
         standard: {
-          zh: "- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0C\u4F1A\u8BAE\u8BBA\u6587\u7684 Limitations subsection \u7EA6 100 \u8BCD\u3002",
-          en: "- When a word limit is enabled, keep the conference-paper Limitations subsection at approximately 100 words."
+          zh: "- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0C\u4F1A\u8BAE\u8BBA\u6587\u7684 Limitations subsection \u53EF\u53C2\u8003\u7EA6 100 \u8BCD\uFF0C\u5E76\u6309\u771F\u5B9E\u5C40\u9650\u6570\u91CF\u4E0E\u91CD\u8981\u6027\u8C03\u6574\u3002",
+          en: "- When length guidance is enabled, use about 100 words as an optional reference for conference-paper Limitations and adjust to the number and importance of genuine limitations."
         }
       }
     ],
     wordLimitPlacement: "after-budget",
     wordLimit: {
-      zh: `### \u672C\u6B65\u9AA4\u4E34\u65F6\u4E0A\u9650\u4E0E\u9644\u5F55\u5206\u6D41\u89C4\u5219
+      zh: `### \u672C\u6B65\u9AA4\u7BC7\u5E45\u5EFA\u8BAE\u4E0E\u9644\u5F55\u5206\u6D41
 
-- \u5B8C\u6574\u7406\u89E3\u5F53\u524D\u8BBA\u6587\u540E\uFF0C\u628A\u6B63\u6587\u91CD\u6784\u5230\u4E0E\u5F53\u524D\u76EE\u6807\u603B\u5B57\u6570\u548C\u7AE0\u8282\u9884\u7B97\u5927\u4F53\u4E00\u81F4\uFF1B
-- \u5F53\u524D\u6B63\u5F0F\u76EE\u6807\u4E0D\u53D8\u3002\u672C\u6B65\u9AA4\u5141\u8BB8\u6B63\u6587\u4E34\u65F6\u4E0A\u6D6E {{temporary_ceiling_percent}}%\uFF0C\u4E34\u65F6\u4E0A\u9650\u4E3A {{temporary_ceiling_words}} \u8BCD\uFF1B\u8BE5\u4E0A\u9650\u4E0D\u662F\u65B0\u7684\u76EE\u6807\u5B57\u6570\uFF1B
-- \u5BF9\u8D85\u51FA\u6B63\u5F0F\u76EE\u6807\u7684\u5185\u5BB9\u9010\u9879\u5EFA\u7ACB\u201C\u4FDD\u7559\u6B63\u6587 / \u79FB\u5165\u9644\u5F55 / \u5220\u9664\u91CD\u590D\u201D\u6E05\u5355\uFF0C\u5E76\u8BF4\u660E\u4F9D\u636E\uFF1B
+- \u5B8C\u6574\u7406\u89E3\u5F53\u524D\u8BBA\u6587\u540E\uFF0C\u628A\u9875\u9762\u7ED9\u51FA\u7684\u603B\u5B57\u6570\u548C\u7AE0\u8282\u6570\u5B57\u4EC5\u4F5C\u4E3A\u7ED3\u6784\u53C2\u8003\uFF0C\u4E0D\u4F5C\u4E3A\u786C\u4E0A\u9650\u6216\u9A8C\u6536\u6761\u4EF6\uFF1B
+- \u82E5\u672C\u6B65\u9AA4\u4E3A\u7406\u987A\u7ED3\u6784\u800C\u9700\u8981\u6269\u5C55\u6B63\u6587\uFF0C\u53EF\u628A\u5EFA\u8BAE\u503C\u4E0A\u6D6E {{temporary_ceiling_percent}}%\uFF08\u7EA6 {{temporary_ceiling_words}} \u8BCD\uFF09\u4F5C\u4E3A\u89C2\u5BDF\u533A\u95F4\uFF1B\u5B83\u4ECD\u662F\u53EF\u9009\u53C2\u8003\uFF0C\u4E0D\u662F\u4E34\u65F6\u4E0A\u9650\uFF1B
+- \u5BF9\u660E\u663E\u8D85\u51FA\u5EFA\u8BAE\u4E14\u53EF\u80FD\u5F71\u54CD\u805A\u7126\u5EA6\u7684\u5185\u5BB9\u5EFA\u7ACB\u201C\u4FDD\u7559\u6B63\u6587 / \u79FB\u5165\u9644\u5F55 / \u5220\u9664\u91CD\u590D\u201D\u6E05\u5355\uFF0C\u5E76\u6309\u79D1\u5B66\u5FC5\u8981\u6027\u8BF4\u660E\u4F9D\u636E\uFF1B\u504F\u79BB\u5EFA\u8BAE\u672C\u8EAB\u4E0D\u662F\u9519\u8BEF\uFF1B
 - {{appendix_triage_rule}}
 - {{protected_sections}} \u662F\u6B63\u6587\u6838\u5FC3\u4FDD\u62A4\u533A\u3002Method \u7684\u95EE\u9898\u5B9A\u4E49\u3001\u5FC5\u8981\u673A\u5236\u3001\u516C\u5F0F\u63A5\u53E3\u548C\u8BAD\u7EC3/\u63A8\u7406\u8BF4\u660E\u4E0D\u5F97\u56E0\u538B\u7F29\u800C\u6B8B\u7F3A\uFF0C\u4E5F\u4E0D\u5F97\u79FB\u5165\u9644\u5F55\uFF1B
 - Experiments and Results \u7684\u73B0\u6709\u5185\u5BB9\u4E0D\u5F97\u7CBE\u7B80\u3001\u5220\u9664\u3001\u5F31\u5316\u6216\u79FB\u5165\u9644\u5F55\uFF0C\u5305\u62EC\u5B9E\u9A8C\u8BBE\u7F6E\u3001\u6BD4\u8F83\u534F\u8BAE\u3001\u4E3B\u7ED3\u679C\u3001\u6D88\u878D\u3001\u7A33\u5065\u6027\u3001\u654F\u611F\u6027\u3001\u5B9A\u6027\u7ED3\u679C\u3001\u5931\u8D25\u6848\u4F8B\u548C\u5FC5\u8981\u89E3\u91CA\uFF1B
 - Abstract \u4FDD\u6301\u4E3A\u4E34\u65F6\u7248\u672C\uFF1B\u5176\u4ED6\u7AE0\u8282\u4F18\u5148\u5220\u9664\u91CD\u590D\u80CC\u666F\u3001\u504F\u79BB\u4E3B\u7EBF\u7684\u94FA\u9648\u548C\u91CD\u590D\u7ED3\u8BBA\uFF1B
-- \u4E2D\u6587\u62A5\u544A\u5FC5\u987B\u8BB0\u5F55\u5F53\u524D\u603B\u8BCD\u6570\u3001\u6B63\u5F0F\u76EE\u6807\u3001\u4E34\u65F6\u4E0A\u9650\u3001\u9010\u8282\u8BCD\u6570\uFF0C\u4EE5\u53CA\u6BCF\u9879\u4FDD\u7559\u3001\u5220\u9664\u91CD\u590D\u6216\u79FB\u5165\u9644\u5F55\u7684\u51B3\u5B9A\uFF1B
-- \u540E\u7EED\u6B65\u9AA4\u4ECD\u4EE5\u5F53\u524D\u6B63\u5F0F\u76EE\u6807\u548C\u7AE0\u8282\u9884\u7B97\u4E3A\u6700\u7EC8\u7EA6\u675F\uFF0C\u4E0D\u5F97\u628A\u672C\u6B65\u9AA4\u7684\u4E34\u65F6\u4E0A\u9650\u5F53\u4F5C\u6C38\u4E45\u7BC7\u5E45\u3002`,
-      en: `### Temporary Ceiling and Appendix-triage Rules for This Step
+- \u4E2D\u6587\u62A5\u544A\u8BB0\u5F55\u5F53\u524D\u603B\u8BCD\u6570\u3001\u5EFA\u8BAE\u53C2\u8003\u503C\u3001\u9010\u8282\u8BCD\u6570\u3001\u504F\u79BB\u5EFA\u8BAE\u7684\u5FC5\u8981\u7406\u7531\uFF0C\u4EE5\u53CA\u6BCF\u9879\u4FDD\u7559\u3001\u5220\u9664\u91CD\u590D\u6216\u79FB\u5165\u9644\u5F55\u7684\u51B3\u5B9A\uFF1B
+- \u540E\u7EED\u6B65\u9AA4\u7EE7\u7EED\u628A\u7BC7\u5E45\u6570\u5B57\u89C6\u4E3A\u53EF\u9009\u5EFA\u8BAE\uFF0C\u5E76\u6309\u5185\u5BB9\u9700\u8981\u91CD\u65B0\u5224\u65AD\u662F\u5426\u91C7\u7EB3\u3002`,
+      en: `### Length Guidance and Appendix Triage for This Step
 
-- After understanding the complete manuscript, reconstruct the main text so that its total and sections broadly align with the current configured budgets;
-- The formal target remains unchanged. This step permits a temporary increase of {{temporary_ceiling_percent}}%, producing a temporary ceiling of {{temporary_ceiling_words}} words; this ceiling is not a new target;
-- Create an itemized keep-in-main-text / move-to-appendix / remove-duplication ledger for every item above the formal target and justify each decision;
+- After understanding the complete manuscript, use the configured total and section numbers only as structural references, never as hard caps or acceptance criteria;
+- If restructuring benefits from temporary expansion, a {{temporary_ceiling_percent}}% increase (about {{temporary_ceiling_words}} words) may serve as an observation range. It remains optional guidance, not a temporary ceiling;
+- For content far above the suggestion that may weaken focus, create an itemized keep-in-main-text / move-to-appendix / remove-duplication ledger and justify decisions by scientific necessity. Deviation itself is not an error;
 - {{appendix_triage_rule}}
 - {{protected_sections}} are protected core sections. Do not make Method's problem definition, necessary mechanisms, equation interfaces, or training/inference description incomplete through compression, and do not move them to the appendix;
 - Do not condense, delete, weaken, or move any existing Experiments and Results content to the appendix, including settings, comparison protocols, main results, ablations, robustness, sensitivity, qualitative findings, failure cases, and necessary interpretation;
 - Keep Abstract temporary. In other sections, remove repeated background, off-throughline exposition, and repeated conclusions first;
-- The Chinese report must record the current total, formal target, temporary ceiling, per-section counts, and every keep, duplication-removal, or appendix-move decision;
-- Later steps must return to the current formal target and section budgets. Never treat this temporary ceiling as a permanent length allowance.`
+- The Chinese report must record the current total, suggested reference, per-section counts, necessary reasons for deviations, and every keep, duplication-removal, or appendix-move decision;
+- Later steps continue to treat all length numbers as optional guidance and reassess them against the content.`
     },
     flexibleCoreWordLimit: {
-      zh: `### \u65B9\u6CD5\u4E0E\u5B9E\u9A8C\u4E0D\u9650\u5B57\u6570\u6A21\u5F0F
+      zh: `### \u4EC5\u4E3A\u975E\u6838\u5FC3\u7AE0\u8282\u63D0\u4F9B\u7BC7\u5E45\u5EFA\u8BAE
 
-- \u56E0\u6B63\u6587\u6CA1\u6709\u603B\u91CF\u4E0A\u9650\uFF0C20% \u4E34\u65F6\u4E0A\u6D6E\u89C4\u5219\u4E0D\u9002\u7528\uFF1B
+- \u6B63\u6587\u4E0D\u8BBE\u603B\u91CF\u5EFA\u8BAE\uFF0C20% \u89C2\u5BDF\u533A\u95F4\u4E0D\u9002\u7528\uFF1B
 - Method \u4E0E Experiments and Results \u5FC5\u987B\u6309\u79D1\u5B66\u5B8C\u6574\u6027\u548C\u8BC1\u636E\u9700\u8981\u5145\u5206\u4FDD\u7559\uFF0C\u4E0D\u5F97\u56E0\u7BC7\u5E45\u7CBE\u7B80\u3001\u5220\u9664\u3001\u5F31\u5316\u6216\u79FB\u5165\u9644\u5F55\uFF1B
 - {{appendix_triage_rule}}
-- \u4E2D\u6587\u62A5\u544A\u8BB0\u5F55\u9010\u8282\u8BCD\u6570\u3001\u8868\u683C\u4E0E\u56FE\u7247\u6298\u7B97\u6570\u3001\u53D7\u9650\u7AE0\u8282\u662F\u5426\u5408\u89C4\uFF0C\u4EE5\u53CA\u6BCF\u9879\u4FDD\u7559\u3001\u5220\u9664\u91CD\u590D\u6216\u79FB\u5165\u9644\u5F55\u7684\u51B3\u5B9A\u3002`,
-      en: `### Unlimited Method and Experiments Mode
+- \u5176\u4ED6\u7AE0\u8282\u7684\u6570\u5B57\u4E5F\u53EA\u662F\u53EF\u9009\u5EFA\u8BAE\uFF1B\u4E2D\u6587\u62A5\u544A\u8BB0\u5F55\u9010\u8282\u8BCD\u6570\u3001\u8868\u683C\u4E0E\u56FE\u7247\u6298\u7B97\u6570\u3001\u662F\u5426\u91C7\u7EB3\u5EFA\u8BAE\u53CA\u7406\u7531\uFF0C\u4EE5\u53CA\u6BCF\u9879\u4FDD\u7559\u3001\u5220\u9664\u91CD\u590D\u6216\u79FB\u5165\u9644\u5F55\u7684\u51B3\u5B9A\u3002`,
+      en: `### Length Guidance Only Outside Method and Experiments
 
-- Because there is no main-text cap, the temporary 20% allowance does not apply;
+- Because no main-text total is suggested, the 20% observation range does not apply;
 - Preserve Method and Experiments & Results as scientific completeness and evidence require; never condense, delete, weaken, or move their content to the appendix merely for length;
 - {{appendix_triage_rule}}
-- The Chinese report must record per-section counts, table/figure equivalents, compliance of every limited section, and every keep, duplication-removal, or appendix-move decision.`
+- Numbers for all other sections are optional guidance as well. The Chinese report records per-section counts, table/figure equivalents, whether each suggestion was adopted and why, and every keep, duplication-removal, or appendix-move decision.`
     }
   },
   "method-experiments": {
@@ -2415,30 +2415,30 @@ The report must contain the Method logic map, old/new Method subsection comparis
       {
         marker: "journal_overview_word_limits",
         standard: {
-          zh: "- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0C\u671F\u520A Overview \u4E24\u6BB5\u5408\u8BA1\u4E0D\u8D85\u8FC7 80 \u8BCD\u3002",
-          en: "- When a word limit is enabled, cap the two journal Overview paragraphs at 80 words in total."
+          zh: "- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0C\u671F\u520A Overview \u4E24\u6BB5\u53EF\u53C2\u8003\u7EA6 80 \u8BCD\uFF0C\u5E76\u6309\u79D1\u5B66\u903B\u8F91\u9700\u8981\u8C03\u6574\u3002",
+          en: "- When length guidance is enabled, use about 80 words as an optional reference for the two journal Overview paragraphs and adjust to the scientific logic."
         }
       },
       {
         marker: "method_word_limits",
         standard: {
-          zh: `- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0CProblem Definition \u4E3A {{problem_definition_min}}\u2013{{problem_definition_max}} \u8BCD\uFF1BMethod \u603B\u91CF\u843D\u5728\u5F53\u524D\u914D\u7F6E\u8303\u56F4\u5185\uFF0C\u6BCF\u4E2A\u82F1\u6587\u53E5\u5B50\u4E0D\u8D85\u8FC7 24 \u8BCD\u3002`,
-          en: `- When a word limit is enabled, Problem Definition contains {{problem_definition_min}}\u2013{{problem_definition_max}} words; Method stays within its configured range, and no English sentence exceeds 24 words.`
+          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CProblem Definition \u53EF\u53C2\u8003 {{problem_definition_min}}\u2013{{problem_definition_max}} \u8BCD\uFF0CMethod \u53EF\u53C2\u8003\u5F53\u524D\u914D\u7F6E\u8303\u56F4\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 24 \u8BCD\uFF1B\u5747\u53EF\u6309\u673A\u5236\u5B8C\u6574\u6027\u8C03\u6574\u3002`,
+          en: `- When length guidance is enabled, use {{problem_definition_min}}\u2013{{problem_definition_max}} words as an optional reference for Problem Definition and the configured range for Method; English sentences are generally suggested to stay within 24 words. Adjust all of these for mechanism completeness.`
         },
         flexibleCore: {
-          zh: `- \u5F53\u524D Method \u4E0D\u8BBE\u8BCD\u6570\u8303\u56F4\uFF1BProblem Definition \u4E0E\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u89C4\u5B9A\u7684 Overview \u7ED3\u6784\u4ECD\u987B\u6EE1\u8DB3\uFF0C\u6BCF\u4E2A\u82F1\u6587\u53E5\u5B50\u4E0D\u8D85\u8FC7 24 \u8BCD\u3002\u6309\u673A\u5236\u5B8C\u6574\u6027\u5C55\u5F00\u5E76\u5220\u9664\u91CD\u590D\uFF0C\u4E0D\u5F97\u4E3A\u4E86\u6269\u5199\u589E\u52A0\u65E0\u8BC1\u636E\u5185\u5BB9\u3002`,
-          en: `- Method currently has no word range. Problem Definition and the Overview structure defined for the current paper type still apply, and no English sentence exceeds 24 words. Develop only what mechanism completeness requires, remove repetition, and never add unsupported material merely to expand the section.`
+          zh: `- \u5F53\u524D Method \u4E0D\u8BBE\u8BCD\u6570\u5EFA\u8BAE\uFF1BProblem Definition \u4E0E\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u89C4\u5B9A\u7684 Overview \u7ED3\u6784\u4ECD\u987B\u6EE1\u8DB3\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 24 \u8BCD\u3002\u6309\u673A\u5236\u5B8C\u6574\u6027\u5C55\u5F00\u5E76\u5220\u9664\u91CD\u590D\uFF0C\u4E0D\u5F97\u4E3A\u4E86\u6269\u5199\u589E\u52A0\u65E0\u8BC1\u636E\u5185\u5BB9\u3002`,
+          en: `- Method has no suggested word range. Problem Definition and the Overview structure defined for the current paper type still apply, while English sentences are generally suggested to stay within 24 words. Develop only what mechanism completeness requires, remove repetition, and never add unsupported material merely to expand the section.`
         }
       },
       {
         marker: "experiments_word_limits",
         standard: {
-          zh: `- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0CExperiments and Results \u603B\u91CF\u843D\u5728\u5F53\u524D\u914D\u7F6E\u8303\u56F4\u5185\uFF0C\u6BCF\u4E2A\u82F1\u6587\u53E5\u5B50\u4E0D\u8D85\u8FC7 24 \u8BCD\u3002`,
-          en: `- When a word limit is enabled, Experiments and Results stays within its configured range, and no English sentence exceeds 24 words.`
+          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CExperiments and Results \u53EF\u53C2\u8003\u5F53\u524D\u914D\u7F6E\u8303\u56F4\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 24 \u8BCD\uFF1B\u5E94\u6309\u5B9E\u9A8C\u534F\u8BAE\u548C\u8BC1\u636E\u94FE\u9700\u8981\u8C03\u6574\u3002`,
+          en: `- When length guidance is enabled, use the configured range as an optional reference for Experiments and Results; English sentences are generally suggested to stay within 24 words. Adjust to the experimental protocol and evidence chain.`
         },
         flexibleCore: {
-          zh: `- \u5F53\u524D Experiments and Results \u4E0D\u8BBE\u8BCD\u6570\u8303\u56F4\uFF0C\u6BCF\u4E2A\u82F1\u6587\u53E5\u5B50\u4ECD\u4E0D\u8D85\u8FC7 24 \u8BCD\u3002\u6309\u5B9E\u9A8C\u534F\u8BAE\u4E0E\u8BC1\u636E\u94FE\u9700\u8981\u5145\u5206\u5C55\u5F00\u5E76\u5220\u9664\u91CD\u590D\uFF0C\u4E0D\u5F97\u56E0\u7BC7\u5E45\u538B\u7F29\u3001\u5220\u9664\u6216\u5F31\u5316\u73B0\u6709\u5B9E\u9A8C\u5185\u5BB9\u3002`,
-          en: `- Experiments and Results currently has no word range, while each English sentence remains at most 24 words. Develop the section as fully as its protocols and evidence chain require, remove repetition, and never condense, delete, or weaken existing experimental content merely for length.`
+          zh: `- \u5F53\u524D Experiments and Results \u4E0D\u8BBE\u8BCD\u6570\u5EFA\u8BAE\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 24 \u8BCD\u3002\u6309\u5B9E\u9A8C\u534F\u8BAE\u4E0E\u8BC1\u636E\u94FE\u9700\u8981\u5145\u5206\u5C55\u5F00\u5E76\u5220\u9664\u91CD\u590D\uFF0C\u4E0D\u5F97\u56E0\u7BC7\u5E45\u538B\u7F29\u3001\u5220\u9664\u6216\u5F31\u5316\u73B0\u6709\u5B9E\u9A8C\u5185\u5BB9\u3002`,
+          en: `- Experiments and Results has no suggested word range, while English sentences are generally suggested to stay within 24 words. Develop the section as fully as its protocols and evidence chain require, remove repetition, and never condense, delete, or weaken existing experimental content merely for length.`
         }
       }
     ]
@@ -2483,7 +2483,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 {{narrative_related_work_structure}}
 - \u7B2C\u4E00\u53E5\u7528\u4E3B\u52A8\u8BED\u6001\u548C\u4E00\u822C\u73B0\u5728\u65F6\u6982\u62EC\u7A33\u5B9A\u89C2\u5BDF\uFF1B
 - \u6709\u4E14\u4EC5\u6709\u4E00\u53E5\u7528\u4E00\u822C\u8FC7\u53BB\u65F6\u63CF\u8FF0\u4EE3\u8868\u6027\u4F5C\u8005\u884C\u4E3A\uFF1B
-- \u6BCF\u4E2A subsection \u7684\u6700\u540E\u4E00\u53E5\u4E0D\u8D85\u8FC7 18 \u8BCD\uFF0C\u5FC5\u987B\u662F\u5BF9\u672C\u5C0F\u8282\u6587\u732E\u7684\u7EFC\u5408\u5206\u6790\u6216\u603B\u7ED3\uFF1B\u53EA\u6709\u5206\u6790\u81EA\u7136\u652F\u6301\u65F6\u624D\u53EF\u843D\u5230\u672C\u6587\u5B9A\u4F4D\uFF0C\u4F46\u4E0D\u5F97\u51FA\u73B0\u672C\u6587\u65B9\u6CD5\u540D\uFF0C\u4E0D\u5F97\u4F7F\u7528 "we"\uFF1B
+- \u6BCF\u4E2A subsection \u7684\u6700\u540E\u4E00\u53E5\u5EFA\u8BAE\u63A7\u5236\u5728 18 \u8BCD\u4EE5\u5185\u5E76\u53EF\u6309\u5185\u5BB9\u8C03\u6574\uFF0C\u5FC5\u987B\u662F\u5BF9\u672C\u5C0F\u8282\u6587\u732E\u7684\u7EFC\u5408\u5206\u6790\u6216\u603B\u7ED3\uFF1B\u53EA\u6709\u5206\u6790\u81EA\u7136\u652F\u6301\u65F6\u624D\u53EF\u843D\u5230\u672C\u6587\u5B9A\u4F4D\uFF0C\u4F46\u4E0D\u5F97\u51FA\u73B0\u672C\u6587\u65B9\u6CD5\u540D\uFF0C\u4E0D\u5F97\u4F7F\u7528 "we"\uFF1B
 - \u6309\u7814\u7A76\u8303\u5F0F\u3001\u8BAD\u7EC3\u4FE1\u53F7\u3001\u7ED3\u6784\u5047\u8BBE\u3001\u6548\u7387\u6216\u6CDB\u5316\u6743\u8861\u7EFC\u5408\uFF0C\u7981\u6B62\u9010\u7BC7\u4E32\u8BB2\uFF1B
 - \u6574\u8282\u5EFA\u8BAE\u4F7F\u7528 15\u201325 \u4E2A\u771F\u5B9E BibTeX key\uFF0C\u81F3\u5C11 60% \u4F18\u5148\u6765\u81EA\u8FD1\u4E09\u5E74\uFF1B\u66F4\u65E9\u5DE5\u4F5C\u53EA\u7528\u4E8E\u4EFB\u52A1\u5B9A\u4E49\u6216\u5960\u57FA\u80CC\u666F\uFF1B\u6BCF\u53E5\u6700\u591A 3 \u4E2A key\uFF1B\u9664\u4E0A\u8FF0\u5C0F\u8282\u672B\u53E5\u5916\uFF0C\u5168\u6587 we \u6700\u591A\u4E09\u6B21\uFF1B
 - \u6B63\u5F0F\u91CD\u5199\u524D\u5148\u5728\u62A5\u544A\u4E2D\u7ED9\u51FA\u4E09\u4E2A\u5C0F\u8282\u4E3B\u9898\u3001\u9009\u62E9\u7406\u7531\u548C\u8BA1\u5212\u4F7F\u7528\u7684\u73B0\u6709 key\u3002
@@ -2537,7 +2537,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 {{narrative_related_work_structure}}
 - The first sentence uses active voice and present tense to summarize a stable observation;
 - Exactly one sentence uses simple past tense to describe a representative author action;
-- The final sentence of each subsection contains no more than 18 words and synthesizes or summarizes that subsection's literature. It may lead naturally to the paper's position only when the analysis warrants it, but must not name the paper's method or use "we";
+- The final sentence of each subsection preferably stays within 18 words but may adjust to the content, and it synthesizes or summarizes that subsection's literature. It may lead naturally to the paper's position only when the analysis warrants it, but must not name the paper's method or use "we";
 - Synthesize paradigms, training signals, structural assumptions, efficiency, or generalization trade-offs. Never narrate papers one by one;
 - Recommend 15\u201325 real BibTeX keys across the section, prioritizing at least 60% from the last three years. Use older work only for task definition or foundations, at most three keys per sentence, and "we" no more than three times outside the prohibited subsection-final sentences;
 - Before drafting, plan the three subsection themes, rationale, and existing keys in the report.
@@ -2602,43 +2602,43 @@ The report must contain the fact base, preservation list for high-value original
       {
         marker: "abstract_word_limits",
         standard: {
-          zh: `- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0CAbstract \u4E3A {{abstract_min}}\u2013{{abstract_max}} \u8BCD\uFF1BBackground \u6BCF\u53E5 16\u201324 \u8BCD\uFF1BBridge \u4E3A 12\u201318 \u8BCD\uFF1BMethod \u6BCF\u53E5 16\u201324 \u8BCD\uFF1BResults \u6BCF\u53E5 14\u201322 \u8BCD\uFF1BImplication \u4E3A 12\u201318 \u8BCD\u3002`,
-          en: `- When a word limit is enabled, Abstract contains {{abstract_min}}\u2013{{abstract_max}} words; each Background sentence contains 16\u201324 words; Bridge contains 12\u201318; each Method sentence 16\u201324; each Results sentence 14\u201322; and Implication 12\u201318.`
+          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CAbstract \u53EF\u53C2\u8003 {{abstract_min}}\u2013{{abstract_max}} \u8BCD\uFF1BBackground \u6BCF\u53E5\u5EFA\u8BAE 16\u201324 \u8BCD\uFF0CBridge 12\u201318 \u8BCD\uFF0CMethod \u6BCF\u53E5 16\u201324 \u8BCD\uFF0CResults \u6BCF\u53E5 14\u201322 \u8BCD\uFF0CImplication 12\u201318 \u8BCD\u3002\u6240\u6709\u533A\u95F4\u5747\u53EF\u6309\u5185\u5BB9\u4E0E\u53EF\u8BFB\u6027\u8C03\u6574\u3002`,
+          en: `- When length guidance is enabled, use {{abstract_min}}\u2013{{abstract_max}} words as an optional Abstract reference; suggested sentence ranges are 16\u201324 words for Background, 12\u201318 for Bridge, 16\u201324 for Method, 14\u201322 for Results, and 12\u201318 for Implication. Adjust every range for content and readability.`
         }
       },
       {
         marker: "introduction_word_limits",
         standard: {
-          zh: `- \u542F\u7528\u5EFA\u8BAE\u5B57\u6570\u65F6\uFF0CIntroduction \u603B\u8BA1 {{introduction_min}}\u2013{{introduction_max}} \u8BCD\uFF0C\u6BCF\u53E5\u4E0D\u8D85\u8FC7 25 \u8BCD\uFF1BP1\u2013P4 \u4F9D\u6B21\u4E3A {{intro_p1_min}}\u2013{{intro_p1_max}}\u3001{{intro_p2_min}}\u2013{{intro_p2_max}}\u3001{{intro_p3_min}}\u2013{{intro_p3_max}}\u3001{{intro_p4_min}}\u2013{{intro_p4_max}} \u8BCD\uFF1BP5 \u7EA6 {{intro_p5_min}}\u2013{{intro_p5_max}} \u8BCD\uFF0C\u6BCF\u6761\u8D21\u732E 15\u201325 \u8BCD\u3002\u5BFC\u822A\u53E5\u4E0D\u4F5C\u4E3A\u72EC\u7ACB\u6BB5\u843D\u3002`,
-          en: `- When suggested lengths are enabled, Introduction totals {{introduction_min}}\u2013{{introduction_max}} words with no sentence over 25 words. P1\u2013P4 contain {{intro_p1_min}}\u2013{{intro_p1_max}}, {{intro_p2_min}}\u2013{{intro_p2_max}}, {{intro_p3_min}}\u2013{{intro_p3_max}}, and {{intro_p4_min}}\u2013{{intro_p4_max}} words; P5 contains approximately {{intro_p5_min}}\u2013{{intro_p5_max}} words, with 15\u201325 words per contribution. A roadmap sentence is not a separate paragraph.`
+          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CIntroduction \u603B\u91CF\u53EF\u53C2\u8003 {{introduction_min}}\u2013{{introduction_max}} \u8BCD\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 25 \u8BCD\uFF1BP1\u2013P4 \u53EF\u5206\u522B\u53C2\u8003 {{intro_p1_min}}\u2013{{intro_p1_max}}\u3001{{intro_p2_min}}\u2013{{intro_p2_max}}\u3001{{intro_p3_min}}\u2013{{intro_p3_max}}\u3001{{intro_p4_min}}\u2013{{intro_p4_max}} \u8BCD\uFF0CP5 \u53EF\u53C2\u8003 {{intro_p5_min}}\u2013{{intro_p5_max}} \u8BCD\uFF0C\u6BCF\u6761\u8D21\u732E\u5EFA\u8BAE 15\u201325 \u8BCD\u3002\u6240\u6709\u6570\u5B57\u53EF\u6309\u5185\u5BB9\u8C03\u6574\uFF0C\u5BFC\u822A\u53E5\u4E0D\u4F5C\u4E3A\u72EC\u7ACB\u6BB5\u843D\u3002`,
+          en: `- When length guidance is enabled, use {{introduction_min}}\u2013{{introduction_max}} words as an optional Introduction reference, with English sentences generally suggested to stay within 25 words. Optional references for P1\u2013P4 are {{intro_p1_min}}\u2013{{intro_p1_max}}, {{intro_p2_min}}\u2013{{intro_p2_max}}, {{intro_p3_min}}\u2013{{intro_p3_max}}, and {{intro_p4_min}}\u2013{{intro_p4_max}} words; P5 may use {{intro_p5_min}}\u2013{{intro_p5_max}}, with 15\u201325 words suggested per contribution. Adjust all numbers to the content. A roadmap sentence is not a separate paragraph.`
         }
       },
       {
         marker: "related_work_word_limits_conference",
         standard: {
-          zh: `- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0CRelated Work \u603B\u8BA1 {{related_work_min}}\u2013{{related_work_max}} \u8BCD\uFF1B\u6BCF\u4E2A subsection \u7684\u552F\u4E00\u6BB5\u843D\u4E3A {{related_subsection_min}}\u2013{{related_subsection_max}} \u8BCD\uFF0C\u6BCF\u53E5\u4E0D\u8D85\u8FC7 22 \u8BCD\u3002`,
-          en: `- When a word limit is enabled, Related Work totals {{related_work_min}}\u2013{{related_work_max}} words; each subsection's sole paragraph contains {{related_subsection_min}}\u2013{{related_subsection_max}} words, and no sentence exceeds 22 words.`
+          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CRelated Work \u603B\u91CF\u53EF\u53C2\u8003 {{related_work_min}}\u2013{{related_work_max}} \u8BCD\uFF0C\u6BCF\u4E2A subsection \u7684\u552F\u4E00\u6BB5\u843D\u53EF\u53C2\u8003 {{related_subsection_min}}\u2013{{related_subsection_max}} \u8BCD\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 22 \u8BCD\uFF1B\u5747\u53EF\u6309\u6587\u732E\u5BC6\u5EA6\u8C03\u6574\u3002`,
+          en: `- When length guidance is enabled, use {{related_work_min}}\u2013{{related_work_max}} words as an optional Related Work reference, {{related_subsection_min}}\u2013{{related_subsection_max}} for each subsection's sole paragraph, and generally no more than 22 words per English sentence. Adjust to the literature density.`
         }
       },
       {
         marker: "related_work_word_limits_journal",
         standard: {
-          zh: `- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0CRelated Work \u603B\u8BA1 {{related_work_min}}\u2013{{related_work_max}} \u8BCD\uFF1B\u6BCF\u4E2A subsection \u4E3A {{related_subsection_min}}\u2013{{related_subsection_max}} \u8BCD\uFF0C\u6BCF\u6BB5\u4E3A {{related_paragraph_min}}\u2013{{related_paragraph_max}} \u8BCD\uFF0C\u6BCF\u53E5\u4E0D\u8D85\u8FC7 22 \u8BCD\u3002`,
-          en: `- When a word limit is enabled, Related Work totals {{related_work_min}}\u2013{{related_work_max}} words; each subsection contains {{related_subsection_min}}\u2013{{related_subsection_max}} words, each paragraph {{related_paragraph_min}}\u2013{{related_paragraph_max}}, and no sentence exceeds 22 words.`
+          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CRelated Work \u603B\u91CF\u53EF\u53C2\u8003 {{related_work_min}}\u2013{{related_work_max}} \u8BCD\uFF0C\u6BCF\u4E2A subsection \u53EF\u53C2\u8003 {{related_subsection_min}}\u2013{{related_subsection_max}} \u8BCD\uFF0C\u6BCF\u6BB5\u53EF\u53C2\u8003 {{related_paragraph_min}}\u2013{{related_paragraph_max}} \u8BCD\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 22 \u8BCD\uFF1B\u5747\u53EF\u6309\u6587\u732E\u5BC6\u5EA6\u8C03\u6574\u3002`,
+          en: `- When length guidance is enabled, optional references are {{related_work_min}}\u2013{{related_work_max}} words for Related Work, {{related_subsection_min}}\u2013{{related_subsection_max}} per subsection, {{related_paragraph_min}}\u2013{{related_paragraph_max}} per paragraph, and generally no more than 22 words per English sentence. Adjust to the literature density.`
         }
       },
       {
         marker: "narrative_limitations_word_limits",
         standard: {
-          zh: "- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0C\u4F1A\u8BAE\u8BBA\u6587\u7684 Limitations subsection \u7EA6 100 \u8BCD\u3002",
-          en: "- When a word limit is enabled, keep the conference-paper Limitations subsection at approximately 100 words."
+          zh: "- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0C\u4F1A\u8BAE\u8BBA\u6587\u7684 Limitations subsection \u53EF\u53C2\u8003\u7EA6 100 \u8BCD\uFF0C\u5E76\u6309\u771F\u5B9E\u5C40\u9650\u6570\u91CF\u4E0E\u91CD\u8981\u6027\u8C03\u6574\u3002",
+          en: "- When length guidance is enabled, use about 100 words as an optional reference for conference-paper Limitations and adjust to the number and importance of genuine limitations."
         }
       },
       {
         marker: "discussion_conclusion_word_limits",
         standard: {
-          zh: `- \u542F\u7528\u5B57\u6570\u9650\u5236\u65F6\uFF0CDiscussion \u603B\u8BA1 {{discussion_min}}\u2013{{discussion_max}} \u8BCD\uFF1BConclusion \u603B\u8BA1 {{conclusion_min}}\u2013{{conclusion_max}} \u8BCD\uFF0C\u6BCF\u53E5\u4E0D\u8D85\u8FC7 24 \u8BCD\uFF0C\u7B2C\u4E00\u6BB5\u4E3A {{conclusion_p1_min}}\u2013{{conclusion_p1_max}} \u8BCD\uFF0C\u7B2C\u4E8C\u6BB5\u4E3A {{conclusion_p2_min}}\u2013{{conclusion_p2_max}} \u8BCD\u3002`,
-          en: `- When a word limit is enabled, Discussion totals {{discussion_min}}\u2013{{discussion_max}} words. Conclusion totals {{conclusion_min}}\u2013{{conclusion_max}} words with no sentence over 24 words; Paragraph 1 contains {{conclusion_p1_min}}\u2013{{conclusion_p1_max}} words and Paragraph 2 {{conclusion_p2_min}}\u2013{{conclusion_p2_max}}.`
+          zh: `- \u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE\u65F6\uFF0CDiscussion \u603B\u91CF\u53EF\u53C2\u8003 {{discussion_min}}\u2013{{discussion_max}} \u8BCD\uFF1BConclusion \u53EF\u53C2\u8003 {{conclusion_min}}\u2013{{conclusion_max}} \u8BCD\uFF0C\u82F1\u6587\u53E5\u5B50\u901A\u5E38\u5EFA\u8BAE\u4E0D\u8D85\u8FC7 24 \u8BCD\uFF0C\u7B2C\u4E00\u6BB5\u53EF\u53C2\u8003 {{conclusion_p1_min}}\u2013{{conclusion_p1_max}} \u8BCD\uFF0C\u7B2C\u4E8C\u6BB5\u53EF\u53C2\u8003 {{conclusion_p2_min}}\u2013{{conclusion_p2_max}} \u8BCD\u3002\u6240\u6709\u6570\u5B57\u5747\u53EF\u6309\u8BBA\u8BC1\u9700\u8981\u8C03\u6574\u3002`,
+          en: `- When length guidance is enabled, use {{discussion_min}}\u2013{{discussion_max}} words as an optional Discussion reference and {{conclusion_min}}\u2013{{conclusion_max}} for Conclusion. English sentences are generally suggested to stay within 24 words; optional paragraph references are {{conclusion_p1_min}}\u2013{{conclusion_p1_max}} and {{conclusion_p2_min}}\u2013{{conclusion_p2_max}} words. Adjust every number to the argument.`
         }
       }
     ]
@@ -2881,8 +2881,8 @@ var LABELS = {
     role: "## \u4F60\u7684\u89D2\u8272",
     configuration: "## \u5F53\u524D\u914D\u7F6E",
     paperStyle: "\u8BBA\u6587\u7C7B\u578B",
-    lengthMode: "\u5B57\u6570\u6A21\u5F0F",
-    flexibleCoreMode: "\u6B63\u6587\u603B\u6570\u4E0D\u9650\uFF1B\u4EC5\u9650\u5236\u65B9\u6CD5\u548C\u5B9E\u9A8C\u4EE5\u5916\u7684\u7AE0\u8282",
+    lengthMode: "\u7BC7\u5E45\u5EFA\u8BAE",
+    flexibleCoreMode: "\u4E0D\u8BBE\u6B63\u6587\u603B\u5EFA\u8BAE\uFF1B\u4EC5\u4E3A\u65B9\u6CD5\u548C\u5B9E\u9A8C\u4EE5\u5916\u7684\u7AE0\u8282\u63D0\u4F9B\u53C2\u8003\u8303\u56F4",
     targetType: "\u6295\u7A3F\u7C7B\u578B",
     appendix: "\u9644\u5F55",
     styleDirective: "\u5199\u4F5C\u4FA7\u91CD",
@@ -2914,14 +2914,14 @@ var LABELS = {
     citationAndWeb: "## \u5F15\u7528\u4E0E\u8054\u7F51\u6838\u9A8C",
     scope: "## \u672C\u8F6E\u8FB9\u754C",
     styleBranch: "### \u5F53\u524D\u7C7B\u578B\u7684\u6267\u884C\u91CD\u70B9",
-    length: "## \u5EFA\u8BAE\u6B63\u6587\u4E0E\u7AE0\u8282\u7BC7\u5E45",
-    mainTextTarget: "\u5EFA\u8BAE\u6B63\u6587\u76EE\u6807",
-    unlimited: "\u4E0D\u9650",
-    countingScope: `\u8BA1\u8BCD\u8303\u56F4\u4E3A Abstract \u81F3 Conclusion\u3002\u6807\u9898\u3001\u4F5C\u8005\u4FE1\u606F\u3001\u5173\u952E\u8BCD\u3001\u516C\u5F0F\u3001\u7B97\u6CD5\u3001\u53C2\u8003\u6587\u732E\u3001\u9644\u5F55\u548C\u8865\u5145\u6750\u6599\u4E0D\u8BA1\u5165\uFF1B\u56FE\u6CE8\u4E0E\u8868\u683C\u5355\u5143\u683C\u4E0D\u9010\u8BCD\u7EDF\u8BA1\uFF0C\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 ${WORD_COUNT_POLICY.visualWordEquivalent} \u8BCD\u8BA1\u5165\u6240\u5728\u7AE0\u8282\u53CA\u6B63\u6587\u603B\u6570`,
-    sectionBudgets: "\u7AE0\u8282\u9884\u7B97",
-    recommendedRange: "\u63A8\u8350\u8303\u56F4",
-    lengthInstruction: "\u4EE5\u4E0A\u662F\u5F3A\u5DE5\u4F5C\u5EFA\u8BAE\u800C\u975E venue \u5B98\u65B9\u786C\u4E0A\u9650\u3002\u5E94\u5C3D\u91CF\u843D\u5728\u5EFA\u8BAE\u8303\u56F4\u5185\uFF0C\u4F46\u79D1\u5B66\u5B8C\u6574\u6027\u3001\u5B9E\u9A8C\u534F\u8BAE\u4E0E\u771F\u5B9E\u5C40\u9650\u4F18\u5148\uFF1B\u82E5\u672C\u6B65\u9AA4\u53E6\u8BBE\u4E34\u65F6\u4E0A\u6D6E\u8303\u56F4\uFF0C\u53EA\u7528\u4E8E\u9636\u6BB5\u6027\u7ED3\u6784\u8C03\u6574\u3002",
-    flexibleLengthInstruction: "\u4EC5\u4E3A\u6807\u6709\u6570\u5B57\u7684\u7AE0\u8282\u63D0\u4F9B\u5EFA\u8BAE\u8303\u56F4\uFF1BMethod \u4E0E Experiments and Results \u6309\u79D1\u5B66\u5B8C\u6574\u6027\u548C\u8BC1\u636E\u9700\u8981\u5C55\u5F00\uFF0C\u4FDD\u7559\u6838\u5FC3\u5185\u5BB9\u5E76\u5220\u9664\u771F\u5B9E\u91CD\u590D\u3002",
+    length: "## \u53EF\u9009\u6B63\u6587\u4E0E\u7AE0\u8282\u7BC7\u5E45\u5EFA\u8BAE",
+    mainTextTarget: "\u5EFA\u8BAE\u6B63\u6587\u53C2\u8003\u503C",
+    unlimited: "\u4E0D\u8BBE\u5EFA\u8BAE",
+    countingScope: `\u5EFA\u8BAE\u4F30\u7B97\u8303\u56F4\u4E3A Abstract \u81F3 Conclusion\u3002\u6807\u9898\u3001\u4F5C\u8005\u4FE1\u606F\u3001\u5173\u952E\u8BCD\u3001\u516C\u5F0F\u3001\u7B97\u6CD5\u3001\u53C2\u8003\u6587\u732E\u3001\u9644\u5F55\u548C\u8865\u5145\u6750\u6599\u4E0D\u8BA1\u5165\uFF1B\u56FE\u6CE8\u4E0E\u8868\u683C\u5355\u5143\u683C\u4E0D\u9010\u8BCD\u7EDF\u8BA1\uFF0C\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 ${WORD_COUNT_POLICY.visualWordEquivalent} \u8BCD\u8BA1\u5165\u6240\u5728\u7AE0\u8282\u53CA\u6B63\u6587\u53C2\u8003\u503C`,
+    sectionBudgets: "\u7AE0\u8282\u5EFA\u8BAE",
+    recommendedRange: "\u53EF\u9009\u53C2\u8003\u533A\u95F4",
+    lengthInstruction: "\u4EE5\u4E0A\u6570\u503C\u5747\u4E3A\u53EF\u9009\u5199\u4F5C\u5EFA\u8BAE\uFF0C\u4E0D\u662F\u4E0A\u9650\u3001\u6700\u4F4E\u8981\u6C42\u6216\u9A8C\u6536\u6761\u4EF6\u3002\u8BF7\u6839\u636E\u8BBA\u6587\u5185\u5BB9\u3001\u8BC1\u636E\u5BC6\u5EA6\u548C\u76EE\u6807\u7248\u9762\u81EA\u884C\u51B3\u5B9A\u91C7\u7EB3\u3001\u8C03\u6574\u6216\u5FFD\u7565\uFF1B\u82E5\u504F\u79BB\u5EFA\u8BAE\u66F4\u6709\u5229\u4E8E\u79D1\u5B66\u5B8C\u6574\u6027\uFF0C\u53EF\u76F4\u63A5\u504F\u79BB\u5E76\u5728\u62A5\u544A\u4E2D\u7B80\u8981\u8BF4\u660E\uFF0C\u4E0D\u5F97\u4E3A\u547D\u4E2D\u6570\u5B57\u5220\u51CF\u6838\u5FC3\u5185\u5BB9\u3002",
+    flexibleLengthInstruction: "\u4EC5\u4E3A\u6807\u6709\u6570\u5B57\u7684\u7AE0\u8282\u63D0\u4F9B\u53EF\u9009\u53C2\u8003\u8303\u56F4\uFF1BMethod \u4E0E Experiments and Results \u4E0D\u8BBE\u7F6E\u7BC7\u5E45\u5EFA\u8BAE\uFF0C\u6309\u79D1\u5B66\u5B8C\u6574\u6027\u548C\u8BC1\u636E\u9700\u8981\u5C55\u5F00\u3002\u6240\u6709\u5EFA\u8BAE\u5747\u53EF\u6839\u636E\u8BBA\u6587\u5185\u5BB9\u8C03\u6574\u6216\u5FFD\u7565\u3002",
     tasks: "## \u672C\u8F6E\u4EFB\u52A1",
     detailedConstraints: "## \u672C\u8F6E\u4E13\u7528\u89C4\u5219",
     deliverables: "## \u8F93\u51FA\u4E0E\u6587\u4EF6\u8981\u6C42",
@@ -2935,8 +2935,8 @@ var LABELS = {
     role: "## Your Role",
     configuration: "## Current Configuration",
     paperStyle: "Paper type",
-    lengthMode: "Length mode",
-    flexibleCoreMode: "No main-text total; only sections other than Method and Experiments are limited",
+    lengthMode: "Length guidance",
+    flexibleCoreMode: "No suggested main-text total; optional ranges only for sections other than Method and Experiments",
     targetType: "Submission type",
     appendix: "Appendix",
     styleDirective: "Writing emphasis",
@@ -2968,14 +2968,14 @@ var LABELS = {
     citationAndWeb: "## Citations and Web Verification",
     scope: "## Scope of This Round",
     styleBranch: "### Execution Priorities for the Current Type",
-    length: "## Suggested Main-text and Section Lengths",
-    mainTextTarget: "Suggested main-text target",
-    unlimited: "Unlimited",
-    countingScope: `Count content from Abstract through Conclusion. Exclude the title, authors, keywords, equations, algorithms, references, appendix, and supplementary material. Do not count captions or table cells word by word; count each table or figure as ${WORD_COUNT_POLICY.visualWordEquivalent} words toward its section and the main-text total`,
-    sectionBudgets: "Section budgets",
-    recommendedRange: "recommended range",
-    lengthInstruction: "Treat these as strong working recommendations rather than official venue hard caps. Stay near them when possible, but preserve scientific completeness, experimental protocols, and genuine limitations. Any step-specific temporary allowance serves only interim structural work.",
-    flexibleLengthInstruction: "Numeric sections receive suggested ranges only. Develop Method and Experiments & Results as scientific completeness and evidence require, preserve core content, and remove genuine repetition.",
+    length: "## Optional Main-text and Section Length Guidance",
+    mainTextTarget: "Suggested main-text reference",
+    unlimited: "No suggestion",
+    countingScope: `Estimate content from Abstract through Conclusion. Exclude the title, authors, keywords, equations, algorithms, references, appendix, and supplementary material. Do not count captions or table cells word by word; estimate each table or figure as ${WORD_COUNT_POLICY.visualWordEquivalent} words toward its section and the suggested main-text reference`,
+    sectionBudgets: "Section suggestions",
+    recommendedRange: "optional reference range",
+    lengthInstruction: "Every number above is optional writing guidance, not a cap, minimum, or acceptance criterion. Accept, adjust, or ignore it according to the paper's content, evidence density, and target layout. Deviate whenever that better preserves scientific completeness, and briefly record the reason instead of deleting core content to hit a number.",
+    flexibleLengthInstruction: "Numeric sections receive optional reference ranges only. Method and Experiments & Results receive no length suggestion and should follow scientific completeness and evidence needs. Every suggestion may be adjusted or ignored according to the paper.",
     tasks: "## Tasks for This Round",
     detailedConstraints: "## Round-specific Rules",
     deliverables: "## Output and File Requirements",
@@ -3327,7 +3327,7 @@ function buildPrompt(template, context) {
 }
 
 // content/prompts/version.ts
-var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.12";
+var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.13";
 
 // content/prompts/pluginExport.ts
 function getReconstructionConfigurationModel() {
@@ -3399,7 +3399,7 @@ function normalizeInput(input = {}) {
     throw new Error(`Unsupported paper style: ${String(styleId)}.`);
   }
   const style = PRODUCT_CONFIG.paperStyles[styleId];
-  const hasWordLimit = input.hasWordLimit ?? true;
+  const hasWordLimit = input.hasWordLimit ?? PRODUCT_CONFIG.wordCount.defaultMode === "target";
   const unlimitedCoreSections = input.unlimitedCoreSections ?? PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections;
   const includeSectionNavigationSentence = input.includeSectionNavigationSentence ?? style.defaultIncludeSectionNavigationSentence;
   const allowTitleBrandCandidates = input.allowTitleBrandCandidates ?? PRODUCT_CONFIG.titleBrand.defaultAllowCandidates;
@@ -3419,7 +3419,7 @@ function normalizeInput(input = {}) {
       const supplied = input.sectionBudgets?.[section.id];
       if (supplied !== void 0 && !Number.isFinite(supplied)) {
         throw new Error(
-          `Section budget "${section.id}" must be a finite number.`
+          `Section length suggestion "${section.id}" must be a finite number.`
         );
       }
       return [
@@ -3435,7 +3435,7 @@ function normalizeInput(input = {}) {
     );
     if (sectionTotal !== targetWords) {
       throw new Error(
-        `Section budgets total ${sectionTotal}, but targetWords is ${targetWords}.`
+        `Section length suggestions total ${sectionTotal}, but the suggested main-text reference is ${targetWords}.`
       );
     }
   }

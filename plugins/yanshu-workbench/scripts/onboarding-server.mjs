@@ -103,14 +103,7 @@ function localizedSelection(config, model) {
 }
 
 function normalizedRequestedWorkflow(body, engine) {
-  const requestedWorkflow = {
-    ...(body.workflow ?? {}),
-    unlimitedCoreSections:
-      body.workflow?.hasWordLimit === false
-        ? false
-        : body.workflow?.unlimitedCoreSections,
-  };
-  return engine.buildReconstructionWorkflow(requestedWorkflow);
+  return engine.buildReconstructionWorkflow(body.workflow ?? {});
 }
 
 async function main() {

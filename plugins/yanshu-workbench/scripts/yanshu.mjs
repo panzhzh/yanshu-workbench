@@ -347,9 +347,9 @@ async function init(flags) {
   const lengthValue = stringFlag(
     flags,
     "word-limit",
-    fileConfig.workflow?.hasWordLimit === false
-      ? "none"
-      : String(fileConfig.workflow?.targetWords ?? ""),
+    fileConfig.workflow?.hasWordLimit === true
+      ? String(fileConfig.workflow?.targetWords ?? "")
+      : "none",
   );
   const hasWordLimit = lengthValue !== "none";
   const targetWords =

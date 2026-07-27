@@ -654,14 +654,12 @@ export async function validateRoundConsistency({
       "main-text-word-budget",
       targetDifference === null
         ? "not-applicable"
-        : relativeDifference <= 0.05
-          ? "passed"
-          : "warning",
+        : "passed",
       targetDifference === null
-        ? "No total main-text word limit applies."
+        ? "No suggested main-text length is configured."
         : relativeDifference <= 0.05
-          ? "The estimated main-text count is within 5% of the configured target."
-          : "The estimated main-text count differs from the configured target by more than 5%.",
+          ? "The estimated main-text count is within 5% of the optional reference."
+          : "The estimated main-text count differs from the optional reference by more than 5%; this is advisory and does not fail validation.",
       {
         ...words,
         targetWords,
