@@ -1,0 +1,4 @@
+interface:
+  display_name: "YanShu Scientific Figure"
+  short_description: "Design one publication-ready research figure"
+  default_prompt: "Use $scientific-figure to configure and create one publication-ready research figure."

@@ -1,208 +1,169 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { RECONSTRUCTION_WORKFLOW_VERSION } from "../content/prompts/version";
+import { useEffect, useMemo, useState } from "react";
+import { YANSHU_SKILL_CATALOG } from "../content/workflows/skillWorkflows";
 import { PRODUCT_CONFIG, type Language } from "./config";
-import { NAVIGATION_GROUPS } from "./navigation";
 import SiteNavigation from "./SiteNavigation";
+
+const INSTALL_COMMAND = `codex plugin marketplace add panzhzh/yanshu-workbench --ref main
+codex plugin add yanshu-workbench@yanshu-workbench`;
 
 const HOME_COPY = {
   zh: {
     eyebrow: "CS RESEARCH WORKBENCH",
     title: "从实验完成，到论文可投稿。",
     subtitle:
-      "把选题、论文写作与重构、实验复现、科研图表和投稿审校，组织成清楚、可配置、可审计的科研任务。",
-    startDraft: "生成论文初稿",
-    reconstruct: "重构现有论文",
-    releaseEyebrow: "PAPER RECONSTRUCTION",
-    releaseStatus: "全流程已验证",
-    releaseTitle: "五轮重构，支持断点继续。",
-    releaseBody:
-      "官网配置、插件执行与每轮交付使用同一套 Prompt 规则。每一轮只接收上一轮的必要成果，并把可继续使用的完整论文资产交给下一轮。",
-    releaseAction: "查看五轮重构工作台",
-    releasePoints: [
+      "安装一次 YanShu，在新的 Codex 任务中说出你要完成的科研工作。YanShu 会确认工作区、打开配置页，再把写作与绘图交给可见的 ChatGPT。",
+    primaryAction: "查看 3 步使用方法",
+    secondaryAction: "不安装，直接使用网站",
+    demoLabel: "真实启动流程",
+    demoStatus: "本地工作区 · 可见 ChatGPT",
+    demoSteps: ["说出任务", "页面配置", "自动执行"],
+    demoFrames: [
       {
-        title: "同一份 Prompt",
-        description: "官网与插件逐字节同步；旧运行继续使用已保存快照。",
+        label: "01 · CODEX TASK",
+        title: "一句话启动",
+        lines: [
+          "使用 $paper-drafting，",
+          "根据这个实验目录撰写论文初稿。",
+        ],
+        footnote: "无需记住参数，也不会在聊天里逐项问配置。",
       },
       {
-        title: "最小材料链",
-        description: "按轮传递 TeX、完整 Bib 与 PDF，不重复上传已渲染配图。",
+        label: "02 · LOCAL CONFIG",
+        title: "在一页中完成设置",
+        lines: ["目标模板　arXiv", "Prompt 语言　中文", "执行方式　全自动"],
+        footnote: "右侧实时显示与官网同源的完整 Prompt。",
       },
       {
-        title: "一次交接",
-        description: "优先直接写入；回退时只需下载一个经过校验的 ZIP。",
-      },
-    ],
-    modulesEyebrow: "AVAILABLE WORKBENCHES",
-    modulesTitle: "选择当前最需要完成的一步",
-    modulesBody:
-      "每个工作台只负责一个明确阶段；配置实时写入 Prompt，长流程则保存轮次、材料与交付状态。",
-    directoryEyebrow: "ALL WORKBENCHES",
-    directoryTitle: "覆盖一篇论文的完整研究流程",
-    directoryBody:
-      "从 Idea 到返修，每一项都可以独立使用。页面只保留当前任务真正需要的配置。",
-    directoryOpen: "打开",
-    available: "已开放",
-    open: "进入工作台",
-    modules: [
-      {
-        index: "01",
-        title: "Idea 查找",
-        description:
-          "从近年可信文献、数据条件和资源边界中发现并核验候选研究 Idea。",
-        href: "/ideas/discovery",
-        meta: "检索去重 · 最小验证实验",
-      },
-      {
-        index: "02",
-        title: "Idea 评估与优化",
-        description:
-          "用最近邻论文与执行条件压力测试 Idea，并形成一份完整优化稿。",
-        href: "/ideas/evaluation",
-        meta: "证据评估 · Pursue / Pivot / Stop",
-      },
-      {
-        index: "03",
-        title: "论文初稿",
-        description:
-          "实验完成后，基于证据材料生成可编译的英文 LaTeX 初稿。",
-        href: "/draft",
-        meta: "arXiv 默认 · 顶会官方模板",
-      },
-      {
-        index: "04",
-        title: "论文重构",
-        description:
-          "用可恢复的五轮流程重建科学定位、结构、方法、实验、叙事与框架图。",
-        href: "/reconstruction",
-        meta: "官网同源 Prompt · 断点恢复",
-      },
-      {
-        index: "05",
-        title: "科研绘图",
-        description:
-          "从论文中生成引言图、方法总览或一张核心机制细节图。",
-        href: "/figures",
-        meta: "单图任务 · 精确术语",
-      },
-      {
-        index: "06",
-        title: "投稿策略",
-        description:
-          "建立期刊候选池，并核验范围、分区、收录、费用与文章类型。",
-        href: "/submission",
-        meta: "官网核验 · 动态筛选",
+        label: "03 · VISIBLE CHATGPT",
+        title: "确认后直接执行",
+        lines: ["读取已确认材料", "保存版本化产物", "编译、核验并返回结果"],
+        footnote: "长任务保留会话与产物；Codex 不替代 Chat 写论文。",
       },
     ],
-    flowEyebrow: "HOW IT WORKS",
-    flowTitle: "Prompt 与执行分层，规则始终一致",
-    flow: ["准备证据", "配置边界", "选择复制或自动执行", "逐轮保存与恢复"],
+    guideEyebrow: "QUICK START",
+    guideTitle: "第一次使用，只需三步",
+    guideBody:
+      "首页只说明如何开始。全部功能仍可从顶部导航进入，但不再在这里重复一遍目录。",
+    installTitle: "安装 YanShu",
+    installBody:
+      "在 Codex 中执行一次。更新后的工作流会随插件一起载入。",
+    copyInstall: "复制安装命令",
+    copied: "已复制",
+    newTaskTitle: "新建 Codex 任务",
+    newTaskBody:
+      "安装或更新后新建任务，输入 $子技能名称并说明目录。",
+    exampleCommand:
+      "使用 $paper-reconstruction 重构这个论文目录。",
+    copyExample: "复制示例",
+    configureTitle: "在页面中配置并开始",
+    configureBody:
+      "YanShu 自动打开仅本机可见的配置页。检查 Prompt 后点击“全自动开始”；若只想手动使用，复制 Prompt 后退出即可。",
+    workflowEyebrow: "START WITH ONE SENTENCE",
+    workflowTitle: "四个最重要的全链路入口",
+    workflowBody:
+      "四个独立子 Skill 均支持 $ 调用，并先打开对应配置页。网站与插件使用同一份 Prompt 数据。",
+    inputLabel: "准备",
+    outputLabel: "得到",
+    openWorkbench: "查看配置页",
+    copyCommand: "复制启动语",
+    copiedCommand: "已复制",
+    modesEyebrow: "TWO WAYS TO USE",
+    modesTitle: "自动执行，或只复制 Prompt",
+    automaticTitle: "安装插件 · 全链路",
+    automaticBody:
+      "适合需要读取本地材料、长时间运行、下载产物、编译和断点恢复的任务。",
+    manualTitle: "直接打开网站 · 手动",
+    manualBody:
+      "适合先调整 Prompt，或把 Prompt 复制到任意模型中自行执行。网站不读取、不上传论文文件。",
     boundary:
-      "论文文件始终在你选择的模型对话与本地工作区中处理。研术台不把产品预设冒充任何 venue 的官方规则；投稿前始终以最新官网为准。",
+      "YanShu 负责配置、材料边界、状态与验证；论文写作和科研绘图由用户可见的 ChatGPT 完成。所有 venue 规则仍以最新官网为准。",
+    installFailed: "复制失败，请手动选择命令。",
   },
   en: {
     eyebrow: "CS RESEARCH WORKBENCH",
     title: "From completed experiments to a submission-ready paper.",
     subtitle:
-      "Turn ideation, writing and reconstruction, experiments, research figures and tables, and submission review into focused, configurable, auditable tasks.",
-    startDraft: "Generate a paper draft",
-    reconstruct: "Reconstruct an existing paper",
-    releaseEyebrow: "PAPER RECONSTRUCTION",
-    releaseStatus: "End-to-end verified",
-    releaseTitle: "Five-round reconstruction with checkpoint resumption.",
-    releaseBody:
-      "Website configuration, plugin execution, and round handoffs now use the same prompt rules. Each round receives only the necessary outputs from the previous round and passes forward a complete, usable manuscript state.",
-    releaseAction: "Open the five-round workbench",
-    releasePoints: [
+      "Install YanShu once, then state the research job in a new Codex task. YanShu confirms the workspace, opens one configuration page, and delegates writing or figure generation to visible ChatGPT.",
+    primaryAction: "See the three-step guide",
+    secondaryAction: "Use the website without installing",
+    demoLabel: "Actual launch flow",
+    demoStatus: "Local workspace · visible ChatGPT",
+    demoSteps: ["State the task", "Configure once", "Run automatically"],
+    demoFrames: [
       {
-        title: "One prompt source",
-        description:
-          "Website and plugin stay byte-identical; existing runs retain their saved snapshots.",
+        label: "01 · CODEX TASK",
+        title: "Start with one sentence",
+        lines: [
+          "Use $paper-drafting",
+          "to draft a paper from this experiment directory.",
+        ],
+        footnote:
+          "No flags to memorize and no setting-by-setting interview in chat.",
       },
       {
-        title: "Minimal material chain",
-        description:
-          "Pass TeX, the complete Bib, and PDF by round without re-uploading rendered figures.",
+        label: "02 · LOCAL CONFIG",
+        title: "Set everything on one page",
+        lines: [
+          "Target template　arXiv",
+          "Prompt language　English",
+          "Execution　Full automation",
+        ],
+        footnote:
+          "The right rail shows the complete website-sourced Prompt live.",
       },
       {
-        title: "One handoff",
-        description:
-          "Write artifacts directly when possible, or fall back to one validated ZIP.",
-      },
-    ],
-    modulesEyebrow: "AVAILABLE WORKBENCHES",
-    modulesTitle: "Choose the step that matters now",
-    modulesBody:
-      "Each workbench owns one clear stage. Settings update the prompt in real time, while long workflows preserve rounds, materials, and delivery state.",
-    directoryEyebrow: "ALL WORKBENCHES",
-    directoryTitle: "A complete research path for one paper",
-    directoryBody:
-      "Use any task independently, from idea discovery through revision. Each page exposes only settings that matter to that job.",
-    directoryOpen: "Open",
-    available: "Available",
-    open: "Open workbench",
-    modules: [
-      {
-        index: "01",
-        title: "Idea discovery",
-        description:
-          "Find and verify candidate research ideas from recent trustworthy literature, data conditions, and resource limits.",
-        href: "/ideas/discovery",
-        meta: "Search and deduplicate · minimum decisive test",
-      },
-      {
-        index: "02",
-        title: "Idea evaluation & refinement",
-        description:
-          "Stress-test an idea against nearest work and execution limits, then produce one coherent optimized version.",
-        href: "/ideas/evaluation",
-        meta: "Evidence review · Pursue / Pivot / Stop",
-      },
-      {
-        index: "03",
-        title: "Paper draft",
-        description:
-          "Turn completed experiments and evidence into a compilable English LaTeX draft.",
-        href: "/draft",
-        meta: "arXiv default · official venue templates",
-      },
-      {
-        index: "04",
-        title: "Paper reconstruction",
-        description:
-          "Use a resumable five-round workflow to rebuild positioning, structure, methods, experiments, narrative, and the framework figure.",
-        href: "/reconstruction",
-        meta: "Website-synced prompts · resumable",
-      },
-      {
-        index: "05",
-        title: "Research figures",
-        description:
-          "Generate an Introduction figure, Method Overview, or one decisive Core Mechanism Detail figure.",
-        href: "/figures",
-        meta: "One image · exact terminology",
-      },
-      {
-        index: "06",
-        title: "Submission strategy",
-        description:
-          "Build and verify a journal pool by scope, rankings, indexing, fees, and article type.",
-        href: "/submission",
-        meta: "Official verification · live filters",
+        label: "03 · VISIBLE CHATGPT",
+        title: "Confirm, then run",
+        lines: [
+          "Read approved evidence",
+          "Save versioned artifacts",
+          "Compile, verify, and return",
+        ],
+        footnote:
+          "Long jobs retain their Chat and outputs; Codex does not replace Chat as the paper writer.",
       },
     ],
-    flowEyebrow: "HOW IT WORKS",
-    flowTitle: "Separate prompting from execution, keep one rule set",
-    flow: [
-      "Prepare evidence",
-      "Set constraints",
-      "Choose copy or automatic execution",
-      "Save and resume each round",
-    ],
+    guideEyebrow: "QUICK START",
+    guideTitle: "Your first run takes three steps",
+    guideBody:
+      "The homepage now explains how to begin. The full capability directory remains in the top navigation instead of being repeated here.",
+    installTitle: "Install YanShu",
+    installBody:
+      "Run these once in Codex. Updated workflows load with the plugin.",
+    copyInstall: "Copy install commands",
+    copied: "Copied",
+    newTaskTitle: "Create a new Codex task",
+    newTaskBody:
+      "After installing or updating, create a task and invoke a $sub-skill with its directory.",
+    exampleCommand:
+      "Use $paper-reconstruction to reconstruct this paper directory.",
+    copyExample: "Copy example",
+    configureTitle: "Configure on one page and start",
+    configureBody:
+      "YanShu opens a loopback-only setup page. Review the Prompt and choose “Start full automation”; for manual use, copy the Prompt and exit.",
+    workflowEyebrow: "START WITH ONE SENTENCE",
+    workflowTitle: "Four essential end-to-end entry points",
+    workflowBody:
+      "All four independent sub-skills support $ invocation and open their matching configuration page first. Website and plugin share one Prompt source.",
+    inputLabel: "Prepare",
+    outputLabel: "Receive",
+    openWorkbench: "Open configuration",
+    copyCommand: "Copy start phrase",
+    copiedCommand: "Copied",
+    modesEyebrow: "TWO WAYS TO USE",
+    modesTitle: "Run automatically or copy only the Prompt",
+    automaticTitle: "Install the plugin · end to end",
+    automaticBody:
+      "Best for local evidence, long-running tasks, downloads, compilation, and resumable progress.",
+    manualTitle: "Open the website · manual",
+    manualBody:
+      "Best for adjusting a Prompt first or running it in any model yourself. The website never reads or uploads paper files.",
     boundary:
-      "Paper files remain in the model conversation and local workspace you choose. YanShu provides general research workflows, never venue rules disguised as product presets. Always verify the latest official requirements before submission.",
+      "YanShu owns configuration, evidence boundaries, state, and validation; visible ChatGPT performs manuscript writing and scientific figure generation. Always verify current venue rules on the official site.",
+    installFailed: "Copy failed. Select the commands manually.",
   },
 } as const;
 
@@ -211,12 +172,48 @@ export default function HomePage() {
     PRODUCT_CONFIG.defaultLanguage,
   );
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [demoStep, setDemoStep] = useState(0);
+  const [copiedKey, setCopiedKey] = useState<string | null>(null);
   const copy = HOME_COPY[language];
+
+  const workflows = useMemo(
+    () =>
+      YANSHU_SKILL_CATALOG.map((workflow) => ({
+        ...workflow,
+        title: workflow.title[language],
+        description: workflow.description[language],
+        command: workflow.command[language],
+        input: workflow.input[language],
+        output: workflow.output[language],
+      })),
+    [language],
+  );
 
   useEffect(() => {
     document.documentElement.lang = language === "zh" ? "zh-CN" : "en";
     document.body.dataset.language = language;
   }, [language]);
+
+  useEffect(() => {
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      return;
+    }
+    const timer = window.setInterval(() => {
+      setDemoStep((current) => (current + 1) % copy.demoFrames.length);
+    }, 4200);
+    return () => window.clearInterval(timer);
+  }, [copy.demoFrames.length]);
+
+  async function copyText(value: string, key: string) {
+    try {
+      await navigator.clipboard.writeText(value);
+      setCopiedKey(key);
+      window.setTimeout(() => setCopiedKey(null), 1500);
+    } catch {
+      setCopiedKey("error");
+      window.setTimeout(() => setCopiedKey(null), 2200);
+    }
+  }
 
   return (
     <div className="site-shell">
@@ -231,128 +228,202 @@ export default function HomePage() {
 
       <main className="site-main home-site-main" id="main-content">
         <section className="home-hero">
-          <p className="eyebrow">{copy.eyebrow}</p>
-          <h1>{copy.title}</h1>
-          <p className="home-hero-copy">{copy.subtitle}</p>
-          <div className="home-hero-actions">
-            <Link className="primary-button" href="/draft">
-              {copy.startDraft}
-              <span aria-hidden="true">→</span>
-            </Link>
-            <Link className="home-secondary-link" href="/reconstruction">
-              {copy.reconstruct}
-            </Link>
-          </div>
-          <div className="home-notation" aria-hidden="true">
-            <span>evidence</span>
-            <i>→</i>
-            <span>structure</span>
-            <i>→</i>
-            <span>manuscript</span>
-          </div>
-        </section>
-
-        <section className="home-release" aria-labelledby="release-title">
-          <div className="home-release-heading">
-            <div>
-              <p className="eyebrow">{copy.releaseEyebrow}</p>
-              <div className="home-release-version">
-                <span>Workflow {RECONSTRUCTION_WORKFLOW_VERSION}</span>
-                <small>{copy.releaseStatus}</small>
-              </div>
-              <h2 id="release-title">{copy.releaseTitle}</h2>
-            </div>
-            <div className="home-release-intro">
-              <p>{copy.releaseBody}</p>
-              <Link href="/reconstruction">
-                {copy.releaseAction}
-                <span aria-hidden="true">→</span>
+          <div className="home-hero-copy-column">
+            <p className="eyebrow">{copy.eyebrow}</p>
+            <h1>{copy.title}</h1>
+            <p className="home-hero-copy">{copy.subtitle}</p>
+            <div className="home-hero-actions">
+              <a className="primary-button" href="#quick-start">
+                {copy.primaryAction}
+                <span aria-hidden="true">↓</span>
+              </a>
+              <Link className="home-secondary-link" href="/ideas/discovery">
+                {copy.secondaryAction}
               </Link>
             </div>
           </div>
-          <div className="home-release-grid">
-            {copy.releasePoints.map((point, index) => (
-              <article key={point.title}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <h3>{point.title}</h3>
-                <p>{point.description}</p>
+
+          <div className="home-demo" aria-label={copy.demoLabel}>
+            <div className="home-demo-bar">
+              <div aria-hidden="true">
+                <i />
+                <i />
+                <i />
+              </div>
+              <span>{copy.demoStatus}</span>
+            </div>
+            <div className="home-demo-body" aria-live="polite">
+              {copy.demoFrames.map((frame, index) => (
+                <article
+                  className={index === demoStep ? "active" : ""}
+                  key={frame.label}
+                  aria-hidden={index !== demoStep}
+                >
+                  <small>{frame.label}</small>
+                  <h2>{frame.title}</h2>
+                  <div>
+                    {frame.lines.map((line) => (
+                      <p key={line}>{line}</p>
+                    ))}
+                  </div>
+                  <footer>{frame.footnote}</footer>
+                </article>
+              ))}
+            </div>
+            <div className="home-demo-controls">
+              {copy.demoSteps.map((step, index) => (
+                <button
+                  type="button"
+                  className={index === demoStep ? "active" : ""}
+                  aria-pressed={index === demoStep}
+                  onClick={() => setDemoStep(index)}
+                  key={step}
+                >
+                  <span>{String(index + 1).padStart(2, "0")}</span>
+                  {step}
+                </button>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section
+          className="home-guide"
+          id="quick-start"
+          aria-labelledby="quick-start-title"
+        >
+          <div className="home-section-intro">
+            <div>
+              <p className="eyebrow">{copy.guideEyebrow}</p>
+              <h2 id="quick-start-title">{copy.guideTitle}</h2>
+            </div>
+            <p>{copy.guideBody}</p>
+          </div>
+
+          <ol className="home-guide-grid">
+            <li>
+              <header>
+                <span>01</span>
+                <h3>{copy.installTitle}</h3>
+              </header>
+              <p>{copy.installBody}</p>
+              <pre>{INSTALL_COMMAND}</pre>
+              <button
+                type="button"
+                onClick={() => void copyText(INSTALL_COMMAND, "install")}
+              >
+                {copiedKey === "install" ? copy.copied : copy.copyInstall}
+              </button>
+            </li>
+            <li>
+              <header>
+                <span>02</span>
+                <h3>{copy.newTaskTitle}</h3>
+              </header>
+              <p>{copy.newTaskBody}</p>
+              <blockquote>{copy.exampleCommand}</blockquote>
+              <button
+                type="button"
+                onClick={() =>
+                  void copyText(copy.exampleCommand, "example")
+                }
+              >
+                {copiedKey === "example" ? copy.copied : copy.copyExample}
+              </button>
+            </li>
+            <li>
+              <header>
+                <span>03</span>
+                <h3>{copy.configureTitle}</h3>
+              </header>
+              <p>{copy.configureBody}</p>
+              <div className="home-config-miniature" aria-hidden="true">
+                <span />
+                <span />
+                <span />
+                <strong>{language === "zh" ? "全自动开始" : "Start"}</strong>
+              </div>
+            </li>
+          </ol>
+          {copiedKey === "error" ? (
+            <p className="home-copy-error" role="alert">
+              {copy.installFailed}
+            </p>
+          ) : null}
+        </section>
+
+        <section className="home-skill-starts">
+          <div className="home-section-intro">
+            <div>
+              <p className="eyebrow">{copy.workflowEyebrow}</p>
+              <h2>{copy.workflowTitle}</h2>
+            </div>
+            <p>{copy.workflowBody}</p>
+          </div>
+
+          <div className="home-skill-grid">
+            {workflows.map((workflow) => (
+              <article key={workflow.id}>
+                <header>
+                  <span>{workflow.index}</span>
+                  <small>
+                    ${workflow.id} · {workflow.skillName}
+                  </small>
+                </header>
+                <h3>{workflow.title}</h3>
+                <p>{workflow.description}</p>
+                <dl>
+                  <div>
+                    <dt>{copy.inputLabel}</dt>
+                    <dd>{workflow.input}</dd>
+                  </div>
+                  <div>
+                    <dt>{copy.outputLabel}</dt>
+                    <dd>{workflow.output}</dd>
+                  </div>
+                </dl>
+                <blockquote>{workflow.command}</blockquote>
+                <footer>
+                  <Link href={workflow.websitePath}>
+                    {copy.openWorkbench}
+                    <span aria-hidden="true">↗</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      void copyText(
+                        workflow.command,
+                        `workflow-${workflow.id}`,
+                      )
+                    }
+                  >
+                    {copiedKey === `workflow-${workflow.id}`
+                      ? copy.copiedCommand
+                      : copy.copyCommand}
+                  </button>
+                </footer>
               </article>
             ))}
           </div>
         </section>
 
-        <section className="home-modules">
-          <div className="home-section-heading">
-            <div>
-              <p className="eyebrow">{copy.modulesEyebrow}</p>
-              <h2>{copy.modulesTitle}</h2>
-            </div>
-            <p>{copy.modulesBody}</p>
-          </div>
-          <div className="home-module-grid">
-            {copy.modules.map((module) => (
-              <Link className="home-module-card" href={module.href} key={module.href}>
-                <div className="home-module-meta">
-                  <span>{module.index}</span>
-                  <small>{copy.available}</small>
-                </div>
-                <h3>{module.title}</h3>
-                <p>{module.description}</p>
-                <div>
-                  <small>{module.meta}</small>
-                  <strong>
-                    {copy.open}
-                    <span aria-hidden="true">↗</span>
-                  </strong>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        <section className="home-directory">
-          <div className="home-section-heading">
-            <div>
-              <p className="eyebrow">{copy.directoryEyebrow}</p>
-              <h2>{copy.directoryTitle}</h2>
-            </div>
-            <p>{copy.directoryBody}</p>
-          </div>
-          <div className="home-directory-grid">
-            {NAVIGATION_GROUPS.map((group) => (
-              <section key={group.id}>
-                <h3>{group.label[language]}</h3>
-                <div>
-                  {group.items.map((item) =>
-                    item.status === "available" && item.href ? (
-                      <Link href={item.href} key={item.id}>
-                        <span>{item.label[language]}</span>
-                        <small>
-                          {copy.directoryOpen}
-                          <span aria-hidden="true">↗</span>
-                        </small>
-                      </Link>
-                    ) : null,
-                  )}
-                </div>
-              </section>
-            ))}
-          </div>
-        </section>
-
-        <section className="home-flow">
+        <section className="home-use-modes">
           <div>
-            <p className="eyebrow">{copy.flowEyebrow}</p>
-            <h2>{copy.flowTitle}</h2>
+            <p className="eyebrow">{copy.modesEyebrow}</p>
+            <h2>{copy.modesTitle}</h2>
           </div>
-          <ol>
-            {copy.flow.map((step, index) => (
-              <li key={step}>
-                <span>{String(index + 1).padStart(2, "0")}</span>
-                <strong>{step}</strong>
-              </li>
-            ))}
-          </ol>
+          <div className="home-mode-grid">
+            <article>
+              <span aria-hidden="true">A</span>
+              <h3>{copy.automaticTitle}</h3>
+              <p>{copy.automaticBody}</p>
+            </article>
+            <article>
+              <span aria-hidden="true">B</span>
+              <h3>{copy.manualTitle}</h3>
+              <p>{copy.manualBody}</p>
+            </article>
+          </div>
           <p className="home-boundary">{copy.boundary}</p>
         </section>
 

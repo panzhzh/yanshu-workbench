@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <title>YanShu · Local Configuration</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-inner">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">研</span>
+          <div>
+            <strong id="brand-label">研术台 · YanShu</strong>
+            <small id="local-label">本地配置</small>
+          </div>
+        </div>
+        <div class="language-switch" aria-label="Interface language">
+          <button type="button" data-ui-language="zh">中文</button>
+          <button type="button" data-ui-language="en">English</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="configuration-shell">
+      <section class="configuration-pane" aria-labelledby="workflow-title">
+        <div class="workflow-heading">
+          <p id="workflow-eyebrow" class="eyebrow">YANSHU</p>
+          <h1 id="workflow-title">Loading…</h1>
+          <p id="workflow-description"></p>
+          <div class="workspace-line">
+            <span id="project-label">当前工作区</span>
+            <strong id="project-name">—</strong>
+          </div>
+        </div>
+
+        <aside class="materials-card" aria-labelledby="materials-title">
+          <div>
+            <p class="eyebrow">INPUT</p>
+            <h2 id="materials-title">材料</h2>
+          </div>
+          <div>
+            <ul id="material-list"></ul>
+            <p id="material-hint"></p>
+          </div>
+        </aside>
+
+        <form id="configuration-form">
+          <div id="configuration-sections"></div>
+          <div class="configuration-actions">
+            <button id="reset-button" class="quiet-button" type="button">
+              恢复默认
+            </button>
+            <div>
+              <button id="exit-button" class="quiet-button" type="button">
+                退出
+              </button>
+              <button id="confirm-button" class="primary-button" type="submit">
+                全自动开始
+              </button>
+            </div>
+          </div>
+          <p id="submit-note" class="submit-note"></p>
+          <p id="submit-error" class="submit-error" role="alert"></p>
+        </form>
+      </section>
+
+      <aside class="prompt-pane" aria-labelledby="prompt-title">
+        <div class="prompt-toolbar">
+          <div>
+            <p class="eyebrow">LIVE PROMPT</p>
+            <h2 id="prompt-title">执行 Prompt</h2>
+          </div>
+          <div class="prompt-language" aria-labelledby="prompt-language-label">
+            <span id="prompt-language-label">Prompt 语言</span>
+            <div>
+              <button type="button" data-prompt-language="zh">中文</button>
+              <button type="button" data-prompt-language="en">English</button>
+            </div>
+          </div>
+        </div>
+        <p id="prompt-hint" class="prompt-hint"></p>
+        <pre id="prompt-content" tabindex="0">Loading…</pre>
+        <div class="prompt-footer">
+          <span id="output-description"></span>
+          <button id="copy-button" class="copy-button" type="button">
+            复制 Prompt
+          </button>
+        </div>
+      </aside>
+    </main>
+
+    <div id="completion-overlay" class="completion-overlay" hidden>
+      <div role="status">
+        <span aria-hidden="true">✓</span>
+        <h2 id="completion-title"></h2>
+      </div>
+    </div>
+
+    <script src="/app.js" defer></script>
+  </body>
+</html>

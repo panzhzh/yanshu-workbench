@@ -96,6 +96,10 @@ function help() {
         "Open the local one-page configuration UI for a confirmed full-automation paper.",
       "configure-status":
         "Read whether the local configuration page is waiting, confirmed, cancelled, or expired.",
+      "workflow-configure-start":
+        "Open the shared local configuration page for Idea Discovery, Paper Drafting, or Scientific Figure.",
+      "workflow-configure-status":
+        "Read whether a shared workflow configuration page is waiting, confirmed, cancelled, or expired.",
       init: "Create a resumable five-round reconstruction run.",
       status: "Read compact progress for an existing run.",
       next: "Return the next round, prompt, and approved attachments.",
@@ -153,6 +157,21 @@ async function loadPromptEngine() {
   return import(pathToFileURL(enginePath).href);
 }
 
+async function loadSkillWorkflowEngine() {
+  const enginePath = path.join(
+    pluginRoot,
+    "runtime",
+    "skill-workflow-engine.mjs",
+  );
+  if (!(await pathExists(enginePath))) {
+    throw new CliError(
+      "The bundled skill workflow engine is missing. Rebuild the plugin runtime before use.",
+      "missing_skill_workflow_runtime",
+    );
+  }
+  return import(pathToFileURL(enginePath).href);
+}
+
 async function probeDynamicImportPaths() {
   const root = await mkdtemp(path.join(tmpdir(), "yanshu-import-"));
   try {
@@ -199,6 +218,7 @@ async function doctor(flags) {
   const nodeMajor = Number(process.versions.node.split(".")[0]);
   const dynamicImportPaths = await probeDynamicImportPaths();
   let promptRuntime;
+  let skillWorkflowRuntime;
   try {
     const engine = await loadPromptEngine();
     const workflow = engine.buildReconstructionWorkflow({
@@ -214,6 +234,29 @@ async function doctor(flags) {
     promptRuntime = {
       ok: false,
       workflowVersion: null,
+      error: error instanceof Error ? error.message : String(error),
+    };
+  }
+  try {
+    const engine = await loadSkillWorkflowEngine();
+    const workflows = engine.CONFIGURABLE_SKILL_WORKFLOW_IDS.map((id) => {
+      const built = engine.buildSkillWorkflowConfiguration(id, {}, "zh");
+      return {
+        id,
+        workflowVersion: built.workflowVersion,
+        promptLength: built.prompt.length,
+      };
+    });
+    skillWorkflowRuntime = {
+      ok: workflows.every((item) => item.promptLength > 0),
+      workflows,
+      generatedFrom:
+        "site Idea Discovery, Paper Drafting, and Scientific Figure canonical configuration sources",
+    };
+  } catch (error) {
+    skillWorkflowRuntime = {
+      ok: false,
+      workflows: [],
       error: error instanceof Error ? error.message : String(error),
     };
   }
@@ -233,6 +276,7 @@ async function doctor(flags) {
       nodeMajor >= 22 &&
       !inputError &&
       promptRuntime.ok &&
+      skillWorkflowRuntime.ok &&
       dynamicImportPaths.ok &&
       promptRelease.ok,
     checks: {
@@ -252,6 +296,7 @@ async function doctor(flags) {
         error: inputError,
       },
       promptRuntime,
+      skillWorkflowRuntime,
       promptRelease,
       dynamicImportPaths,
       versionHandshake: {
@@ -325,6 +370,47 @@ async function configureStart(flags) {
 }
 
 async function configureStatus(flags) {
+  return onboardingStatus(requiredFlag(flags, "session"));
+}
+
+async function workflowConfigureStart(flags) {
+  const fileConfig = await loadConfig(flags);
+  const projectRoot = path.resolve(
+    stringFlag(flags, "project", fileConfig.projectRoot ?? process.cwd()),
+  );
+  if (!(await pathExists(projectRoot))) {
+    throw new CliError(`Workspace directory does not exist: ${projectRoot}`);
+  }
+  const workflowId = enumFlag(
+    flags,
+    "workflow",
+    ["idea-discovery", "paper-drafting", "scientific-figure"],
+    fileConfig.workflowId,
+  );
+  if (!workflowId) {
+    throw new CliError(
+      "Missing required option --workflow.",
+      "missing_workflow",
+    );
+  }
+  const uiLanguage = enumFlag(
+    flags,
+    "ui-language",
+    ["zh", "en"],
+    fileConfig.uiLanguage ?? fileConfig.promptLanguage ?? "zh",
+  );
+  return startOnboardingSession({
+    pluginRoot,
+    projectRoot,
+    inputs: fileConfig.inputs ?? {},
+    workflowId,
+    uiLanguage,
+    prefillWorkflow: fileConfig.preferences ?? {},
+    openBrowser: booleanFlag(flags, "open", true),
+  });
+}
+
+async function workflowConfigureStatus(flags) {
   return onboardingStatus(requiredFlag(flags, "session"));
 }
 
@@ -839,6 +925,12 @@ async function main() {
       break;
     case "configure-status":
       result = await configureStatus(flags);
+      break;
+    case "workflow-configure-start":
+      result = await workflowConfigureStart(flags);
+      break;
+    case "workflow-configure-status":
+      result = await workflowConfigureStatus(flags);
       break;
     case "init":
       result = await init(flags);

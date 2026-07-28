@@ -38,15 +38,38 @@ GitHub `main` 是网站源码的唯一事实来源。ChatGPT Sites 中保存的�
 
 YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正文，让 Codex 负责本地文件、轮次状态、编译和错误回传。它使用用户可见且已登录的 ChatGPT 会话，不以 Codex 的写作结果替代 Chat。
 
+## 三步开始
+
+1. 在 Codex 中安装 YanShu：
+
+   ```bash
+   codex plugin marketplace add panzhzh/yanshu-workbench --ref main
+   codex plugin add yanshu-workbench@yanshu-workbench
+   ```
+
+2. 安装或更新后新建一个 Codex 任务，用一句自然语言说明工作流与目录，例如：
+
+   ```text
+   使用 $paper-drafting 根据这个实验目录撰写论文初稿。
+   ```
+
+3. YanShu 会确认工作区并自动打开仅在本机运行的配置页。所有选项与完整 Prompt
+   都在这一页完成；点击“全自动开始”后直接执行，不再在聊天中逐项确认。若只想
+   手动使用，复制右侧 Prompt 后退出即可。
+
+首页也提供相同的动态三步演示和四个核心工作流的可复制启动语。
+
 ## 一个 YanShu，多项科研工作流
 
-`YanShu` 是总品牌和总插件，不等同于某一个具体任务。网站可以持续增加工作台，插件则可以在同一个入口下持续增加独立 Workflow：
+`YanShu` 是总品牌和总插件，不等同于某一个具体任务。插件包含多个可独立触发的子 Skill；输入 `$skill-name` 即可精确调用：
 
-| 层级 | 当前名称 | 作用 |
-| --- | --- | --- |
-| 总入口 | **YanShu** | 安装、发现和协调科研工作流 |
-| 首个插件工作流 | **Paper Reconstruction** | 五轮论文重构、框架图重构、产物恢复与编译检查 |
-| 后续工作流 | 规划中 | 论文初稿、科研绘图、投稿与审稿相关流程 |
+| 层级 | 当前名称 | `$` 调用 | 作用 |
+| --- | --- | --- | --- |
+| 总入口 | **YanShu** | — | 安装、发现和协调科研工作流 |
+| 选题 | **Idea Discovery** | `$idea-discovery` | 近期文献检索、候选去重、风险判断与最小验证实验 |
+| 写作 | **Paper Drafting** | `$paper-drafting` | 从完成的实验材料生成可编译 LaTeX 初稿 |
+| 重构 | **Paper Reconstruction** | `$paper-reconstruction` | 五轮论文重构、框架图重构、产物恢复与编译检查 |
+| 绘图 | **Scientific Figure** | `$scientific-figure` | 从论文证据生成一张高清科研示意图 |
 
 插件清单、Skill 文件和内部标识统一使用英文，便于公开分发；与用户的问答语言以及 Prompt 输出语言仍可选择中文或英文。
 
@@ -75,7 +98,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [投稿前终检](https://yanshu-workbench.pages.dev/submission/check/) | 即将提交 | 以目标 venue 最新官方规则为准，检查格式、匿名、材料、伦理、可复现性和阻塞项 |
 | [投稿材料](https://yanshu-workbench.pages.dev/submission/materials/) | 需要准备附加材料 | 仅生成所选 cover letter、highlights、声明等材料；作者元数据缺失时保留明确占位，不得补造 |
 | [审稿与返修](https://yanshu-workbench.pages.dev/submission/review/) | 收到审稿意见后 | 逐条映射评论、证据、修改位置和回复，支持 rebuttal、major/minor revision 与可追踪差异 |
-| YanShu 插件 | 需要全链路执行 | 通过 **Paper Reconstruction** 创建可恢复的五轮目录，保存 Chat 会话与产物状态；当前为开发者预览 |
+| YanShu 插件 | 需要全链路执行 | Idea Discovery、Paper Drafting、Paper Reconstruction 与 Scientific Figure 均先打开同源本地配置页，再协调可见 ChatGPT 与本地产物；当前为开发者预览 |
 
 ## 设计原则
 
@@ -96,7 +119,19 @@ Idea 工作台参考了若干许可清晰的开源研究流程：[NoviScl/AI-Res
 
 ## 安装 YanShu 插件
 
-仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件的开发者预览版。当前包含一个正式命名的工作流：**Paper Reconstruction**。
+仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件的开发者预览版。当前包含四个正式命名的核心工作流：
+
+| Skill | 启动语示例 |
+| --- | --- |
+| **Idea Discovery** | `使用 $idea-discovery 在当前工作区查找研究 Idea。` |
+| **Paper Drafting** | `使用 $paper-drafting 根据这个实验目录撰写论文初稿。` |
+| **Paper Reconstruction** | `使用 $paper-reconstruction 重构这个论文目录。` |
+| **Scientific Figure** | `使用 $scientific-figure 为这个论文目录绘制一张科研配图。` |
+
+Idea Discovery、Paper Drafting 与 Scientific Figure 的本地配置运行时由网站对应
+页面的 TypeScript 配置和 Prompt 构建器自动生成；Paper Reconstruction 继续由
+`site/content/prompts` 生成。`npm run plugin:check` 会逐字节检查两套运行时，
+任何网站与 Skill 不同步的提交都无法通过发布检查。
 
 - 从网站同一份配置源生成五轮 Paper Reconstruction Prompt，其中第四轮复用科研绘图的 Method Overview 规则；
 - 自动识别或显式接收 TeX、BibTeX、PDF 与 figures 路径；
@@ -136,19 +171,25 @@ codex plugin add yanshu-workbench@yanshu-workbench
 
 当前预览版从 **Codex 任务**启动；普通 Chat 对话本身不会直接加载本地插件。启动后，YanShu 再通过可见桥接把论文写作交给 ChatGPT Chat，这正是“Codex 管文件、Chat 写论文”的分层。
 
-安装后必须**新建一个任务**，这样 Codex 才会载入新 Skill。然后直接说：
+安装后必须**新建一个任务**，这样 Codex 才会载入新 Skills。然后直接说出任一工作流，例如：
 
 ```text
-Use YanShu → Paper Reconstruction.
+Use $paper-drafting to draft a paper from this experiment directory.
 ```
 
 也可以用中文：
 
 ```text
-使用 YanShu 的 Paper Reconstruction 重构这个论文目录。
+使用 $idea-discovery 在当前工作区查找研究 Idea。
+使用 $paper-drafting 根据这个实验目录撰写论文初稿。
+使用 $paper-reconstruction 重构这个论文目录。
+使用 $scientific-figure 为这个论文目录绘制一张科研配图。
 ```
 
-YanShu 会先确认论文目录；若目录中有多篇论文，只需选择目标论文一次。TeX、BibTeX、PDF 与 figures 唯一后，它会立即打开一个仅运行在 `127.0.0.1` 的本地配置页，不再询问“全自动还是只输出 Prompt”。论文类型、字数、章节预算、附录、框架图、Prompt 语言与推理偏好都在同一页完成，右侧实时展示可切换语言、展开和复制的五轮 Prompt。点击“全自动开始”后，YanShu 检查 ChatGPT/Chrome 环境并直接执行；若只想手动使用 Prompt，复制后点击“退出”即可，且不会创建重构目录或传输论文文件。
+所有核心 Skill 都先确认工作区，再立即打开一个仅运行在 `127.0.0.1` 的本地配置页，
+不在聊天中逐项收集设置。Idea、初稿和绘图页实时展示各自唯一的执行 Prompt；
+全文重构页展示五轮 Prompt。点击“全自动开始”后直接执行；若只想手动使用，
+复制后点击“退出”即可，且不会创建运行目录或传输论文文件。
 
 当前 GitHub 技术安装 ID 仍为 `yanshu-workbench`，用户看到的插件名称是 **YanShu**。未来进入 OpenAI 公共插件目录后，安装路径将简化为 **Plugins → 搜索 YanShu → 安装 → 新建任务**。插件的官方安装与使用方式可参考 [OpenAI Plugins 文档](https://learn.chatgpt.com/docs/plugins)。
 
@@ -220,6 +261,7 @@ yanshu-workbench/
     │   ├── submission/         # 投稿定位、终检、材料与审稿返修
     │   └── workbench/          # 配置式工作台共用组件
     ├── content/prompts/        # 重构模板、变量模型与字数规则
+    ├── content/workflows/      # 网站与核心 Skills 共用的工作流目录与配置导出
     ├── public/                 # 站点静态资源
     └── tests/                  # 构建产物与产品约束测试
 ```
@@ -234,8 +276,9 @@ yanshu-workbench/
 - [x] 科学示意图、实验绘图、论文表格与图表审计
 - [x] 投稿定位、投稿前终检、投稿材料与审稿返修
 - [x] 可恢复的五轮论文重构插件基础
+- [x] Idea Discovery、Paper Drafting 与 Scientific Figure 同源配置 Skills
 - [ ] 浏览器桥接的一体化安装与首次使用向导
-- [ ] 为新增工作台补充可恢复的全链路插件执行
+- [ ] 为更多专项工作台补充可恢复的全链路插件执行
 - [ ] 更细的会议、期刊和出版商配置
 - [ ] 面向真实项目的端到端回归样例
 

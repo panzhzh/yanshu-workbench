@@ -15,13 +15,20 @@ compatibility. The product shown to users is **YanShu**.
 
 ## Workflows
 
-| Workflow | Skill ID | Status |
+| Workflow | Direct invocation | Status |
 | --- | --- | --- |
-| **Paper Reconstruction** | `paper-reconstruction` | Developer preview |
+| **Idea Discovery** | `$idea-discovery` | Developer preview |
+| **Paper Drafting** | `$paper-drafting` | Developer preview |
+| **Paper Reconstruction** | `$paper-reconstruction` | Developer preview |
+| **Scientific Figure** | `$scientific-figure` | Developer preview |
 
-Paper Reconstruction runs five resumable rounds, including a dedicated Method
-Overview figure round. More YanShu workflows can be added later without turning
-each workflow into a separate plugin.
+These are four independent sub-skills in the YanShu plugin, not modes inside
+one skill. Every workflow supports direct `$skill-name` invocation and opens
+one loopback-only configuration page before execution.
+Idea Discovery, Paper Drafting, and Scientific Figure are bundled directly from
+the website's canonical configuration and Prompt builders. Paper Reconstruction
+runs five resumable rounds, including a dedicated Method Overview figure round.
+The sync check fails when any bundled plugin runtime is stale.
 
 ## Language
 
@@ -62,10 +69,14 @@ codex plugin marketplace upgrade yanshu-workbench
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
-Then start a **new Codex task** so the installed skill is loaded. Ask:
+Then start a **new Codex task** so the installed skills are loaded. Ask for any
+core workflow:
 
 ```text
-Use YanShu → Paper Reconstruction.
+Use $idea-discovery to find research ideas in this workspace.
+Use $paper-drafting to draft a paper from this experiment directory.
+Use $paper-reconstruction to reconstruct this paper directory.
+Use $scientific-figure to create one research figure for this paper.
 ```
 
 The current preview starts from Codex; an ordinary Chat conversation does not
@@ -75,19 +86,18 @@ writing to a visible ChatGPT Chat session through its bridge.
 Chinese is equally valid:
 
 ```text
-使用 YanShu 的 Paper Reconstruction 重构这个论文目录。
+使用 $idea-discovery 在当前工作区查找研究 Idea。
+使用 $paper-drafting 根据这个实验目录撰写论文初稿。
+使用 $paper-reconstruction 重构这个论文目录。
+使用 $scientific-figure 为这个论文目录绘制一张科研配图。
 ```
 
-YanShu asks for the paper directory first and asks the user to choose only when
-the directory contains multiple plausible papers or inputs. As soon as TeX,
-BibTeX, PDF, and figures are unambiguous, YanShu opens a loopback-only setup page
-on `127.0.0.1`; it does not ask whether the user wants automation or Prompt-only
-handoff. Paper type, length and section budgets, appendix, Prompt language,
-framework figure, and ChatGPT reasoning are selected once on that page. The
-right rail rebuilds and displays all five Prompts live, with per-round language,
-expand, and copy controls. **Start full automation** is the sole launch
-authorization. **Exit** closes the setup without creating a reconstruction
-directory or transmitting files, so manual users can simply copy the Prompts first.
+YanShu asks for the workspace once and asks the user to choose only when it
+contains multiple plausible paper roots. It then opens a setup page on
+`127.0.0.1` instead of collecting options one by one in chat. The right rail
+shows the exact website-sourced Prompt live. Paper Reconstruction shows all
+five round Prompts. **Start full automation** is the sole launch authorization;
+**Exit** closes the page without creating a run or transmitting files.
 
 Once YanShu is accepted into the public directory, installation can use the
 normal **Plugins → search “YanShu” → + → new task** flow described in the

@@ -35,16 +35,32 @@ test("server-renders the concise YanShu home page", async () => {
   const html = await response.text();
   assert.match(html, /<title>研术台 · YanShu<\/title>/i);
   assert.match(html, /从实验完成，到论文可投稿/);
-  assert.match(html, /五轮重构，支持断点继续/);
-  assert.match(html, /Workflow\s*(?:<!-- -->)?2026\.07\.28/);
-  assert.match(html, /同一份 Prompt/);
-  assert.match(html, /最小材料链/);
-  assert.match(html, /一次交接/);
-  assert.match(html, /选择当前最需要完成的一步/);
-  assert.match(html, /论文初稿/);
-  assert.match(html, /论文重构/);
-  assert.match(html, /科研绘图/);
-  assert.match(html, /投稿策略/);
+  assert.match(html, /第一次使用，只需三步/);
+  assert.match(html, /安装 YanShu/);
+  assert.match(html, /新建 Codex 任务/);
+  assert.match(html, /在页面中配置并开始/);
+  assert.match(html, /codex plugin marketplace add panzhzh\/yanshu-workbench/);
+  assert.match(html, /codex plugin add yanshu-workbench@yanshu-workbench/);
+  assert.match(html, /一句话启动/);
+  assert.match(html, /在一页中完成设置/);
+  assert.match(html, /确认后直接执行/);
+  assert.match(html, /四个最重要的全链路入口/);
+  assert.match(html, /Idea Discovery/);
+  assert.match(html, /Paper Drafting/);
+  assert.match(html, /Paper Reconstruction/);
+  assert.match(html, /Scientific Figure/);
+  assert.match(
+    html,
+    /使用 \$paper-drafting 根据这个实验目录撰写论文初稿/,
+  );
+  assert.match(
+    html,
+    /使用 \$paper-reconstruction 重构这个论文目录/,
+  );
+  assert.match(html, /\$idea-discovery/);
+  assert.match(html, /\$scientific-figure/);
+  assert.match(html, /自动执行，或只复制 Prompt/);
+  assert.match(html, /网站与插件使用同一份 Prompt 数据/);
   assert.match(html, /论文写作/);
   assert.match(html, /实验与复现/);
   assert.match(html, /科研图表/);
@@ -92,8 +108,11 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/submission\/check"/);
   assert.match(html, /href="\/submission\/materials"/);
   assert.match(html, /href="\/submission\/review"/);
-  assert.match(html, /class="home-module-grid"/);
-  assert.match(html, /class="home-directory-grid"/);
+  assert.match(html, /class="home-demo"/);
+  assert.match(html, /class="home-guide-grid"/);
+  assert.match(html, /class="home-skill-grid"/);
+  assert.doesNotMatch(html, /class="home-module-grid"/);
+  assert.doesNotMatch(html, /class="home-directory-grid"/);
   assert.doesNotMatch(html, /class="prompt-resize-handle"/);
   assert.doesNotMatch(html, /写作风格|Writing style/);
 });
@@ -1685,6 +1704,7 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
     navigation,
     navigationConfig,
     homePage,
+    skillWorkflows,
   ] =
     await Promise.all([
       readFile(new URL("../app/draft/config.ts", import.meta.url), "utf8"),
@@ -1696,6 +1716,10 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
       readFile(new URL("../app/SiteNavigation.tsx", import.meta.url), "utf8"),
       readFile(new URL("../app/navigation.ts", import.meta.url), "utf8"),
       readFile(new URL("../app/HomePage.tsx", import.meta.url), "utf8"),
+      readFile(
+        new URL("../content/workflows/skillWorkflows.ts", import.meta.url),
+        "utf8",
+      ),
     ]);
 
   assert.match(draftConfig, /DEFAULT_DRAFT_TEMPLATE_ID[^;]*"arxiv"/s);
@@ -1724,8 +1748,9 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
   assert.match(draftPage, /<DraftWorkbench \/>/);
   assert.match(navigation, /NAVIGATION_GROUPS/);
   assert.match(navigationConfig, /href:\s*"\/draft"/);
-  assert.match(homePage, /href="\/draft"/);
-  assert.match(homePage, /href="\/reconstruction"/);
+  assert.match(homePage, /YANSHU_SKILL_CATALOG/);
+  assert.match(skillWorkflows, /websitePath:\s*"\/draft"/);
+  assert.match(skillWorkflows, /websitePath:\s*"\/reconstruction"/);
 });
 
 test("keeps idea discovery and evaluation evidence-grounded and configuration-driven", async () => {
@@ -1736,6 +1761,7 @@ test("keeps idea discovery and evaluation evidence-grounded and configuration-dr
     evaluationPage,
     navigationConfig,
     homePage,
+    skillWorkflows,
     styles,
   ] = await Promise.all([
     readFile(new URL("../app/ideas/config.ts", import.meta.url), "utf8"),
@@ -1753,6 +1779,10 @@ test("keeps idea discovery and evaluation evidence-grounded and configuration-dr
     ),
     readFile(new URL("../app/navigation.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/HomePage.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../content/workflows/skillWorkflows.ts", import.meta.url),
+      "utf8",
+    ),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
   ]);
 
@@ -1806,8 +1836,8 @@ test("keeps idea discovery and evaluation evidence-grounded and configuration-dr
   assert.match(evaluationPage, /mode="evaluation"/);
   assert.match(navigationConfig, /href:\s*"\/ideas\/discovery"/);
   assert.match(navigationConfig, /href:\s*"\/ideas\/evaluation"/);
-  assert.match(homePage, /href:\s*"\/ideas\/discovery"/);
-  assert.match(homePage, /href:\s*"\/ideas\/evaluation"/);
+  assert.match(homePage, /YANSHU_SKILL_CATALOG/);
+  assert.match(skillWorkflows, /websitePath:\s*"\/ideas\/discovery"/);
   assert.match(styles, /\.idea-control-grid/);
   assert.match(styles, /\.idea-output-card/);
 });

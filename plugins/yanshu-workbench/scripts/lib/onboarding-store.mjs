@@ -64,10 +64,13 @@ export async function loadOnboardingState(sessionPath) {
 }
 
 function summarizeOnboardingState(state, opened = undefined) {
+  const isReconstruction =
+    !state.workflowId || state.workflowId === "paper-reconstruction";
   return {
     ok: state.status !== "error",
     sessionId: state.sessionId,
     sessionPath: state.sessionPath,
+    workflowId: state.workflowId ?? "paper-reconstruction",
     status: state.status,
     url: state.url,
     opened,
@@ -77,10 +80,14 @@ function summarizeOnboardingState(state, opened = undefined) {
     expiresAt: state.expiresAt,
     instruction:
       state.status === "confirmed"
-        ? "The local page confirmation is the start authorization. Run the Chat bridge preflight, then initialize from configPath without asking configuration questions again."
+        ? isReconstruction
+          ? "The local page confirmation is the start authorization. Run the Chat bridge preflight, then initialize from configPath without asking configuration questions again."
+          : "The local page confirmation is the start authorization. Read configPath, use its exact saved Prompt and preferences, then execute the selected workflow without asking configuration questions again."
         : state.status === "cancelled"
           ? "The user exited the local page. Stop without initializing, uploading files, or asking replacement workflow questions."
-          : "Keep this session path and poll configure-status. The user completes all remaining workflow choices and can inspect every Prompt in the local page.",
+          : isReconstruction
+            ? "Keep this session path and poll configure-status. The user completes all remaining workflow choices and can inspect every Prompt in the local page."
+            : "Keep this session path and poll workflow-configure-status. The user completes all remaining choices and can inspect the exact execution Prompt on the local page.",
   };
 }
 
@@ -153,6 +160,7 @@ export async function startOnboardingSession({
   pluginRoot,
   projectRoot,
   inputs,
+  workflowId = "paper-reconstruction",
   uiLanguage = "zh",
   prefillWorkflow = {},
   openBrowser = true,
@@ -171,6 +179,7 @@ export async function startOnboardingSession({
     updatedAt: now.toISOString(),
     expiresAt: new Date(now.getTime() + ttlMs).toISOString(),
     token: randomBytes(24).toString("hex"),
+    workflowId,
     projectRoot: path.resolve(projectRoot),
     inputs,
     uiLanguage,
@@ -188,7 +197,9 @@ export async function startOnboardingSession({
   const serverPath = path.join(
     path.resolve(pluginRoot),
     "scripts",
-    "onboarding-server.mjs",
+    workflowId === "paper-reconstruction"
+      ? "onboarding-server.mjs"
+      : "workflow-configuration-server.mjs",
   );
   const child = spawn(process.execPath, [serverPath, "--session", sessionPath], {
     detached: true,

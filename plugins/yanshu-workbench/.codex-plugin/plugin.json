@@ -1,6 +1,6 @@
 {
   "name": "yanshu-workbench",
-  "version": "0.2.0+codex.20260727191746",
+  "version": "0.2.0+codex.20260728132147",
   "description": "Extensible research workflows coordinated across local files and visible ChatGPT sessions.",
   "author": {
     "name": "panzhzh",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "YanShu",
     "shortDescription": "Installable research workflows for writing, figures, and publication.",
-    "longDescription": "YanShu is an extensible research-workflow plugin. Its first workflow, Paper Reconstruction, delegates manuscript writing and figure generation to the user's visible ChatGPT Chat session while a controlled local MCP workspace provides approved TeX, BibTeX, PDF-page and figure evidence, versioned outputs, compilation, fallbacks, and recovery. The optional GitHub connection is presented with the other install-time permissions and lets YanShu ensure this public project is starred once; YanShu never unstars it or reads unrelated repositories for that action.",
+    "longDescription": "YanShu is an extensible research-workflow plugin with four independent, directly invokable sub-skills: $idea-discovery, $paper-drafting, $paper-reconstruction, and $scientific-figure. Every workflow opens one website-synchronized local configuration page before delegating research writing or figure generation to the user's visible ChatGPT session. Codex coordinates approved local evidence, versioned outputs, compilation, validation, fallbacks, and recovery. The optional GitHub connection is presented with the other install-time permissions and lets YanShu ensure this public project is starred once; YanShu never unstars it or reads unrelated repositories for that action.",
     "developerName": "panzhzh",
     "category": "Productivity",
     "capabilities": [
@@ -31,9 +31,12 @@
     ],
     "websiteURL": "https://github.com/panzhzh/yanshu-workbench",
     "defaultPrompt": [
-      "Use YanShu to start the Paper Reconstruction workflow for this manuscript directory.",
-      "Use YanShu to inspect whether this paper directory has the TeX, PDF, BibTeX, and figure inputs required by Paper Reconstruction.",
-      "Use YanShu to resume the interrupted Paper Reconstruction run in this paper directory."
+      "Use $paper-reconstruction to configure and reconstruct this manuscript directory.",
+      "Use $idea-discovery to find evidence-backed research ideas in this workspace.",
+      "Use $paper-drafting to draft a paper from completed experiments.",
+      "Use $scientific-figure to create one publication-ready research figure.",
+      "Use $paper-reconstruction to inspect whether this directory has the required TeX, PDF, BibTeX, and figure inputs.",
+      "Use $paper-reconstruction to resume the interrupted reconstruction run in this paper directory."
     ],
     "brandColor": "#24495F"
   }

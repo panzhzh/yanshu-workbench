@@ -1,0 +1,4 @@
+interface:
+  display_name: "YanShu Idea Discovery"
+  short_description: "Find evidence-backed research ideas"
+  default_prompt: "Use $idea-discovery to configure and run an evidence-backed research idea search."

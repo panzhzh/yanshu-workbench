@@ -1,0 +1,2289 @@
+// content/prompts/promptAgency.ts
+var PROMPT_JUDGMENT_DIRECTIVE = {
+  zh: "\u8BF7\u4ECE\u6574\u4F53\u7406\u89E3\u672C Prompt \u7684\u76EE\u6807\u3001\u8BC1\u636E\u8FB9\u754C\u4E0E\u4EA4\u4ED8\u8981\u6C42\uFF1B\u5728\u4E0D\u6539\u53D8\u4E8B\u5B9E\u548C\u786C\u6027\u7EA6\u675F\u7684\u524D\u63D0\u4E0B\uFF0C\u4E3B\u52A8\u91C7\u7528\u4F60\u5224\u65AD\u66F4\u4E25\u8C28\u3001\u66F4\u6709\u6548\u7684\u65B9\u6848\uFF0C\u5E76\u5728\u6709\u52A9\u4E8E\u63D0\u5347\u7ED3\u679C\u65F6\u6BD4\u5B57\u9762\u8981\u6C42\u601D\u8003\u5F97\u66F4\u6DF1\u5165\u3002",
+  en: "Understand this Prompt's objectives, evidence boundaries, and deliverables as a whole. Without changing facts or hard constraints, use any more rigorous and effective approach you judge appropriate, and reason beyond the literal wording when that improves the result."
+};
+function withPromptJudgmentDirective(prompt, language) {
+  return `${PROMPT_JUDGMENT_DIRECTIVE[language]}
+
+${prompt}`;
+}
+
+// app/ideas/config.ts
+var IDEA_DIRECTION_IDS = [
+  "general-cs",
+  "ai-ml",
+  "nlp",
+  "computer-vision",
+  "data-mining",
+  "systems",
+  "software-engineering",
+  "security",
+  "hci",
+  "robotics",
+  "theory",
+  "custom"
+];
+var IDEA_DIRECTIONS = {
+  "general-cs": {
+    label: { zh: "\u8BA1\u7B97\u673A\u79D1\u5B66\uFF08\u5F00\u653E\uFF09", en: "Computer Science \u2014 Open" },
+    prompt: {
+      zh: "\u8BA1\u7B97\u673A\u79D1\u5B66\uFF1B\u6839\u636E\u7528\u6237\u7ED9\u51FA\u7684\u5177\u4F53\u5174\u8DA3\u8FDB\u4E00\u6B65\u6536\u7A84\uFF0C\u4E0D\u8DE8\u5230\u975E CS \u5B66\u79D1",
+      en: "Computer science; narrow the scope from the user's stated interests and do not drift into non-CS disciplines"
+    }
+  },
+  "ai-ml": {
+    label: { zh: "\u4EBA\u5DE5\u667A\u80FD\u4E0E\u673A\u5668\u5B66\u4E60", en: "AI & Machine Learning" },
+    prompt: {
+      zh: "\u4EBA\u5DE5\u667A\u80FD\u4E0E\u673A\u5668\u5B66\u4E60",
+      en: "artificial intelligence and machine learning"
+    }
+  },
+  nlp: {
+    label: { zh: "\u81EA\u7136\u8BED\u8A00\u5904\u7406", en: "Natural Language Processing" },
+    prompt: {
+      zh: "\u81EA\u7136\u8BED\u8A00\u5904\u7406",
+      en: "natural language processing"
+    }
+  },
+  "computer-vision": {
+    label: { zh: "\u8BA1\u7B97\u673A\u89C6\u89C9", en: "Computer Vision" },
+    prompt: {
+      zh: "\u8BA1\u7B97\u673A\u89C6\u89C9",
+      en: "computer vision"
+    }
+  },
+  "data-mining": {
+    label: { zh: "\u6570\u636E\u6316\u6398\u4E0E\u6570\u636E\u5E93", en: "Data Mining & Databases" },
+    prompt: {
+      zh: "\u6570\u636E\u6316\u6398\u3001\u77E5\u8BC6\u53D1\u73B0\u4E0E\u6570\u636E\u5E93",
+      en: "data mining, knowledge discovery, and databases"
+    }
+  },
+  systems: {
+    label: { zh: "\u8BA1\u7B97\u673A\u7CFB\u7EDF\u4E0E\u7F51\u7EDC", en: "Systems & Networking" },
+    prompt: {
+      zh: "\u8BA1\u7B97\u673A\u7CFB\u7EDF\u3001\u5206\u5E03\u5F0F\u7CFB\u7EDF\u4E0E\u7F51\u7EDC",
+      en: "computer systems, distributed systems, and networking"
+    }
+  },
+  "software-engineering": {
+    label: { zh: "\u8F6F\u4EF6\u5DE5\u7A0B", en: "Software Engineering" },
+    prompt: {
+      zh: "\u8F6F\u4EF6\u5DE5\u7A0B\u4E0E\u7A0B\u5E8F\u5206\u6790",
+      en: "software engineering and program analysis"
+    }
+  },
+  security: {
+    label: { zh: "\u5B89\u5168\u4E0E\u9690\u79C1", en: "Security & Privacy" },
+    prompt: {
+      zh: "\u8BA1\u7B97\u673A\u5B89\u5168\u3001\u9690\u79C1\u4E0E\u53EF\u4FE1\u8BA1\u7B97",
+      en: "computer security, privacy, and trustworthy computing"
+    }
+  },
+  hci: {
+    label: { zh: "\u4EBA\u673A\u4EA4\u4E92", en: "Human\u2013Computer Interaction" },
+    prompt: {
+      zh: "\u4EBA\u673A\u4EA4\u4E92\u4E0E\u8BA1\u7B97\u673A\u652F\u6301\u7684\u534F\u4F5C",
+      en: "human\u2013computer interaction and computer-supported collaboration"
+    }
+  },
+  robotics: {
+    label: { zh: "\u673A\u5668\u4EBA\u4E0E\u5177\u8EAB\u667A\u80FD", en: "Robotics & Embodied AI" },
+    prompt: {
+      zh: "\u673A\u5668\u4EBA\u3001\u5177\u8EAB\u667A\u80FD\u4E0E\u81EA\u4E3B\u7CFB\u7EDF",
+      en: "robotics, embodied intelligence, and autonomous systems"
+    }
+  },
+  theory: {
+    label: { zh: "\u7406\u8BBA\u8BA1\u7B97\u673A\u79D1\u5B66", en: "Theoretical Computer Science" },
+    prompt: {
+      zh: "\u7406\u8BBA\u8BA1\u7B97\u673A\u79D1\u5B66\u4E0E\u7B97\u6CD5",
+      en: "theoretical computer science and algorithms"
+    }
+  },
+  custom: {
+    label: { zh: "\u81EA\u5B9A\u4E49\u65B9\u5411", en: "Custom Direction" },
+    prompt: {
+      zh: "\u4EE5\u7528\u6237\u586B\u5199\u7684\u81EA\u5B9A\u4E49 CS \u65B9\u5411\u4E3A\u51C6",
+      en: "use the custom CS direction supplied by the user"
+    }
+  }
+};
+var IDEA_COUNT_OPTIONS = [2, 3, 5, 8];
+var NOVELTY_POSTURE_IDS = [
+  "grounded",
+  "balanced",
+  "frontier"
+];
+var NOVELTY_POSTURES = {
+  grounded: {
+    label: { zh: "\u7A33\u5065\u589E\u91CF", en: "Grounded" },
+    prompt: {
+      zh: "\u4F18\u5148\u53EF\u6267\u884C\u4E14\u6709\u6E05\u695A\u8BC1\u636E\u7F3A\u53E3\u7684\u7A33\u5065\u589E\u91CF\u8D21\u732E\uFF0C\u4F46\u4E0D\u5F97\u628A\u5FAE\u5C0F\u6539\u52A8\u5305\u88C5\u6210\u65B0 Idea",
+      en: "favor executable, evidence-backed incremental contributions without dressing minor variations up as new ideas"
+    }
+  },
+  balanced: {
+    label: { zh: "\u5E73\u8861\u63A2\u7D22", en: "Balanced" },
+    prompt: {
+      zh: "\u5728\u65B0\u9896\u6027\u3001\u79D1\u5B66\u610F\u4E49\u4E0E\u53EF\u6267\u884C\u6027\u4E4B\u95F4\u4FDD\u6301\u5E73\u8861",
+      en: "balance novelty, scientific significance, and executability"
+    }
+  },
+  frontier: {
+    label: { zh: "\u9AD8\u98CE\u9669\u524D\u6CBF", en: "Frontier" },
+    prompt: {
+      zh: "\u5141\u8BB8\u63D0\u51FA\u9AD8\u98CE\u9669\u3001\u9AD8\u6F5C\u529B\u65B9\u5411\uFF0C\u4F46\u5FC5\u987B\u660E\u786E\u672A\u7ECF\u9A8C\u8BC1\u7684\u5173\u952E\u5047\u8BBE\u3001\u8D44\u6E90\u4EE3\u4EF7\u4E0E\u6700\u5FEB\u5426\u8BC1\u8DEF\u5F84",
+      en: "allow high-risk, high-upside directions only when their unverified assumptions, resource costs, and fastest falsification paths are explicit"
+    }
+  }
+};
+var REFINEMENT_FREEDOMS = {
+  preserve: {
+    label: { zh: "\u4FDD\u7559\u6838\u5FC3", en: "Preserve Core" },
+    description: {
+      zh: "\u4FDD\u7559\u7814\u7A76\u95EE\u9898\u4E0E\u6838\u5FC3\u673A\u5236\uFF0C\u53EA\u4F18\u5316\u8303\u56F4\u3001\u8BBA\u8BC1\u548C\u9A8C\u8BC1\u65B9\u6848\u3002",
+      en: "Keep the question and core mechanism; refine scope, argument, and validation."
+    },
+    prompt: {
+      zh: "\u4FDD\u7559\u539F Idea \u7684\u6838\u5FC3\u7814\u7A76\u95EE\u9898\u548C\u6838\u5FC3\u673A\u5236\uFF1B\u53EA\u5141\u8BB8\u4F18\u5316\u8303\u56F4\u3001\u5047\u8BBE\u3001\u5B9A\u4F4D\u548C\u9A8C\u8BC1\u8BBE\u8BA1",
+      en: "preserve the idea's core research question and mechanism; refine only its scope, hypothesis, positioning, and validation design"
+    }
+  },
+  reframe: {
+    label: { zh: "\u5141\u8BB8\u91CD\u6784", en: "Allow Reframing" },
+    description: {
+      zh: "\u4FDD\u7559\u6700\u6709\u4EF7\u503C\u7684\u6D1E\u5BDF\uFF0C\u5141\u8BB8\u91CD\u5199\u95EE\u9898\u3001\u673A\u5236\u6216\u5B9E\u9A8C\u4E3B\u7EBF\u3002",
+      en: "Keep the strongest insight while allowing the question, mechanism, or experiment story to change."
+    },
+    prompt: {
+      zh: "\u4FDD\u7559\u6700\u6709\u4EF7\u503C\u4E14\u6709\u8BC1\u636E\u652F\u6491\u7684\u6D1E\u5BDF\uFF1B\u5141\u8BB8\u6574\u4F53\u91CD\u6784\u7814\u7A76\u95EE\u9898\u3001\u673A\u5236\u3001\u6570\u636E\u6216\u5B9E\u9A8C\u4E3B\u7EBF",
+      en: "retain the most valuable evidence-supported insight while allowing an integrated reframing of the question, mechanism, data, or experimental throughline"
+    }
+  },
+  pivot: {
+    label: { zh: "\u5141\u8BB8\u8F6C\u5411", en: "Allow Pivot" },
+    description: {
+      zh: "\u5F53\u539F Idea \u4E0D\u6210\u7ACB\u65F6\uFF0C\u53EF\u63D0\u51FA\u66F4\u503C\u5F97\u6267\u884C\u7684\u76F8\u90BB\u65B9\u5411\u3002",
+      en: "When the original idea fails, propose a more defensible adjacent direction."
+    },
+    prompt: {
+      zh: "\u5F53\u539F Idea \u7684\u6838\u5FC3\u547D\u9898\u4E0D\u6210\u7ACB\u6216\u4E0D\u503C\u5F97\u6295\u5165\u65F6\uFF0C\u5141\u8BB8\u8F6C\u5411\u76F8\u90BB\u4F46\u66F4\u53EF\u8FA9\u62A4\u7684\u7814\u7A76\u65B9\u5411\uFF1B\u5FC5\u987B\u6E05\u695A\u8BF4\u660E\u8F6C\u5411\u539F\u56E0\u548C\u4FDD\u7559\u4E86\u4EC0\u4E48",
+      en: "when the core proposition is unsound or not worth pursuing, allow a pivot to a more defensible adjacent direction and state exactly why the pivot is needed and what is retained"
+    }
+  }
+};
+var BASE_IDEA_PREFERENCES = {
+  directionId: "general-cs",
+  focus: "",
+  seed: "",
+  dataset: "",
+  recentYears: 5,
+  topConferences: true,
+  topJournals: true,
+  customVenues: "",
+  pursueSota: false,
+  resourceConstraints: "",
+  ideaCount: 5,
+  noveltyPosture: "balanced",
+  refinementFreedom: "preserve",
+  additionalCriteria: ""
+};
+var DEFAULT_IDEA_PREFERENCES_BY_MODE = {
+  discovery: {
+    ...BASE_IDEA_PREFERENCES,
+    recentYears: 2,
+    ideaCount: 2
+  },
+  evaluation: {
+    ...BASE_IDEA_PREFERENCES
+  }
+};
+function getDefaultIdeaPreferences(mode) {
+  return { ...DEFAULT_IDEA_PREFERENCES_BY_MODE[mode] };
+}
+function clean(value) {
+  return value.trim();
+}
+function optionalValue(value, language, fallbackZh, fallbackEn) {
+  return clean(value) || (language === "zh" ? fallbackZh : fallbackEn);
+}
+function directionValue(preferences, language) {
+  const base = IDEA_DIRECTIONS[preferences.directionId].prompt[language];
+  const focus = clean(preferences.focus);
+  return focus ? `${base}\uFF1B${focus}` : base;
+}
+function venueValue(preferences, language) {
+  const scopes = [];
+  if (preferences.topConferences) {
+    scopes.push(language === "zh" ? "\u5F53\u524D\u5B50\u9886\u57DF\u516C\u8BA4\u9876\u4F1A" : "established top conferences in the subfield");
+  }
+  if (preferences.topJournals) {
+    scopes.push(language === "zh" ? "\u5F53\u524D\u5B50\u9886\u57DF\u516C\u8BA4\u9876\u520A" : "established top journals in the subfield");
+  }
+  if (clean(preferences.customVenues)) {
+    scopes.push(
+      language === "zh" ? `\u7528\u6237\u6307\u5B9A venue\uFF1A${clean(preferences.customVenues)}` : `user-specified venues: ${clean(preferences.customVenues)}`
+    );
+  }
+  return scopes.join(language === "zh" ? "\uFF1B" : "; ") || (language === "zh" ? "\u4E0D\u9650\u5B9A venue\uFF0C\u4F46\u5FC5\u987B\u4F18\u5148\u53EF\u9760\u7684\u4E00\u624B\u5B66\u672F\u6765\u6E90" : "no venue restriction, but prioritize reliable primary scholarly sources");
+}
+function discoveryPrompt(preferences, language) {
+  const direction = directionValue(preferences, language);
+  const dataset = optionalValue(
+    preferences.dataset,
+    language,
+    "\u672A\u6307\u5B9A\uFF1B\u6839\u636E\u4EFB\u52A1\u8BC1\u636E\u63A8\u8350\uFF0C\u4E0D\u5F97\u4E3A\u4E86\u8FC1\u5C31\u73B0\u6210 benchmark \u53CD\u5411\u865A\u6784\u95EE\u9898",
+    "not specified; recommend from task evidence and never invent a problem merely to fit an available benchmark"
+  );
+  const seed = optionalValue(
+    preferences.seed,
+    language,
+    "\u672A\u63D0\u4F9B\uFF1B\u4ECE\u5DF2\u914D\u7F6E\u65B9\u5411\u5F00\u5C55\u8BC1\u636E\u9A71\u52A8\u68C0\u7D22",
+    "not supplied; begin evidence-grounded search from the configured direction"
+  );
+  const resources = optionalValue(
+    preferences.resourceConstraints,
+    language,
+    "\u672A\u6307\u5B9A\uFF1B\u6309\u666E\u901A\u9AD8\u6821 CS \u7814\u7A76\u56E2\u961F\u53EF\u83B7\u5F97\u7684\u8D44\u6E90\u8FDB\u884C\u4FDD\u5B88\u4F30\u8BA1\uFF0C\u5E76\u663E\u5F0F\u6807\u6CE8\u5047\u8BBE",
+    "not specified; make conservative assumptions for an ordinary academic CS team and label them explicitly"
+  );
+  const criteria = optionalValue(
+    preferences.additionalCriteria,
+    language,
+    "\u65E0\u989D\u5916\u7EA6\u675F",
+    "none"
+  );
+  const venues = venueValue(preferences, language);
+  const novelty = NOVELTY_POSTURES[preferences.noveltyPosture].prompt[language];
+  if (language === "zh") {
+    return `# \u4E3A\u8BA1\u7B97\u673A\u79D1\u5B66\u7814\u7A76\u53D1\u73B0\u53EF\u9A8C\u8BC1\u7684 Idea
+
+\u4F60\u662F\u4E00\u540D\u4E25\u8C28\u7684 CS \u7814\u7A76\u7B56\u7565\u4E13\u5BB6\u3002\u4F60\u7684\u4EFB\u52A1\u4E0D\u662F\u51ED\u5173\u952E\u8BCD\u201C\u8111\u66B4\u201D\uFF0C\u800C\u662F\u5148\u5EFA\u7ACB\u53EF\u6838\u9A8C\u7684\u8FD1\u671F\u7814\u7A76\u56FE\u666F\uFF0C\u518D\u63D0\u51FA\u503C\u5F97\u6295\u5165\u5B9E\u9A8C\u7684\u5019\u9009 Idea\u3002\u6240\u6709\u65B0\u9896\u6027\u3001SOTA \u4E0E\u6587\u732E\u5224\u65AD\u5FC5\u987B\u7531\u771F\u5B9E\u6765\u6E90\u652F\u6491\u3002
+
+## \u5F53\u524D\u914D\u7F6E
+- \u7814\u7A76\u65B9\u5411\uFF1A${direction}
+- \u95EE\u9898\u7EBF\u7D22\uFF1A${seed}
+- \u6570\u636E\u96C6\u6216\u6570\u636E\u6761\u4EF6\uFF1A${dataset}
+- \u6587\u732E\u65F6\u95F4\u7A97\uFF1A\u4EE5\u6267\u884C\u5F53\u5929\u4E3A\u57FA\u51C6\uFF0C\u91CD\u70B9\u68C0\u7D22\u8FD1 ${preferences.recentYears} \u5E74
+- venue \u8303\u56F4\uFF1A${venues}
+- SOTA \u76EE\u6807\uFF1A${preferences.pursueSota ? "\u662F\uFF1B\u5FC5\u987B\u5B9A\u4E49\u660E\u786E\u6570\u636E\u96C6\u3001\u6307\u6807\u3001\u5F3A\u57FA\u7EBF\u4E0E\u53EF\u6838\u9A8C\u76EE\u6807\uFF0C\u4E0D\u63A5\u53D7\u53EA\u8FFD\u6C42\u65E0\u89E3\u91CA\u7684\u5FAE\u5C0F\u6DA8\u70B9" : "\u5426\uFF1B\u4E0D\u5F97\u56E0\u4E0D\u8FFD\u6C42\u6392\u884C\u699C\u7B2C\u4E00\u800C\u964D\u4F4E\u5BF9\u8D21\u732E\u6E05\u6670\u5EA6\u7684\u8981\u6C42"}
+- \u8D44\u6E90\u4E0E\u6267\u884C\u8FB9\u754C\uFF1A${resources}
+- \u63A2\u7D22\u5E45\u5EA6\uFF1A${novelty}
+- \u6700\u7EC8\u5019\u9009\u6570\u91CF\uFF1A${preferences.ideaCount}
+- \u8865\u5145\u7EA6\u675F\uFF1A${criteria}
+
+## \u68C0\u7D22\u4E0E\u8BC1\u636E\u89C4\u5219
+1. \u5148\u786E\u8BA4\u6267\u884C\u5F53\u5929\u65E5\u671F\uFF0C\u5E76\u56F4\u7ED5\u4EFB\u52A1\u3001\u5047\u8BBE\u3001\u65B9\u6CD5\u3001\u6570\u636E\u96C6\u3001\u6307\u6807\u548C\u5931\u8D25\u73B0\u8C61\u8BBE\u8BA1\u591A\u7EC4\u68C0\u7D22\u5F0F\u3002\u91CD\u70B9\u68C0\u7D22\u8FD1 ${preferences.recentYears} \u5E74\u8BBA\u6587\uFF1B\u53EA\u6709\u4E0D\u53EF\u66FF\u4EE3\u7684\u5960\u57FA\u5DE5\u4F5C\u624D\u53EF\u8D85\u51FA\u7A97\u53E3\u5E76\u5355\u72EC\u6807\u8BB0\u3002
+2. \u201C\u9876\u4F1A/\u9876\u520A\u201D\u5FC5\u987B\u6309\u5F53\u524D\u5B50\u9886\u57DF\u8BC6\u522B\u5E76\u7B80\u8981\u8BF4\u660E\u9009\u62E9\u4F9D\u636E\uFF0C\u4E0D\u5F97\u628A\u4EFB\u610F venue \u81EA\u79F0\u4E3A\u9876\u7EA7\u3002\u9ED8\u8BA4\u4F18\u5148\u68C0\u7D22\u4E0E\u5F53\u524D\u95EE\u9898\u76F4\u63A5\u76F8\u5173\u7684\u516C\u8BA4\u9876\u4F1A\u8BBA\u6587\uFF0C\u518D\u4EE5\u9876\u520A\u548C\u5FC5\u8981\u7684\u5960\u57FA\u5DE5\u4F5C\u8865\u8DB3\u8BC1\u636E\uFF1B\u4F18\u5148\u4F7F\u7528\u5B98\u65B9 proceedings\u3001OpenReview\u3001\u51FA\u7248\u793E\u9875\u9762\u3001arXiv \u539F\u6587\u3001\u9879\u76EE\u4E3B\u9875\u548C\u5B98\u65B9\u4EE3\u7801\u4ED3\u5E93\u3002
+3. \u6BCF\u7BC7\u5B9E\u8D28\u6027\u76F8\u5173\u5DE5\u4F5C\u987B\u6838\u9A8C\u6807\u9898\u3001\u4F5C\u8005\u3001\u5E74\u4EFD\u3001venue \u548C\u7A33\u5B9A\u94FE\u63A5\u3002\u65E0\u6CD5\u6838\u9A8C\u7684\u4FE1\u606F\u4E0D\u5F97\u8865\u5199\uFF1B\u9884\u5370\u672C\u4E0E\u6B63\u5F0F\u53D1\u8868\u7248\u672C\u987B\u533A\u5206\u3002
+4. \u4E0D\u5F97\u628A\u201C\u6CA1\u6709\u641C\u5230\u201D\u5199\u6210\u201C\u4ECE\u672A\u6709\u4EBA\u7814\u7A76\u201D\u3002\u53EA\u80FD\u62A5\u544A\u5728\u660E\u786E\u68C0\u7D22\u8303\u56F4\u5185\u672A\u53D1\u73B0\u9AD8\u5EA6\u91CD\u5408\u5DE5\u4F5C\uFF0C\u5E76\u5217\u51FA\u68C0\u7D22\u8FB9\u754C\u4E0E\u4E0D\u786E\u5B9A\u6027\u3002
+5. \u82E5\u6307\u5B9A\u516C\u5F00\u6570\u636E\u96C6\uFF0C\u6838\u9A8C\u5176\u5B98\u65B9\u6765\u6E90\u3001\u8BB8\u53EF\u6216\u8BBF\u95EE\u6761\u4EF6\u3001\u4EFB\u52A1\u5B9A\u4E49\u3001\u5212\u5206\u3001\u5E38\u7528\u6307\u6807\u3001\u6CC4\u6F0F\u98CE\u9669\u548C\u5F53\u524D\u5F3A\u57FA\u7EBF\u3002\u82E5\u662F\u79C1\u6709\u6216\u672A\u516C\u5F00\u6570\u636E\uFF0C\u53EA\u628A\u7528\u6237\u63D0\u4F9B\u7684\u4FE1\u606F\u89C6\u4E3A\u6761\u4EF6\uFF0C\u4E0D\u4F2A\u9020\u5916\u90E8\u4E8B\u5B9E\u3002
+6. \u4E0D\u5F97\u53D1\u660E\u5B9E\u9A8C\u7ED3\u679C\u3001SOTA \u6570\u5B57\u3001\u6570\u636E\u89C4\u6A21\u3001\u4EE3\u7801\u53EF\u7528\u6027\u6216\u8BBA\u6587\u7ED3\u8BBA\u3002\u5F15\u7528\u6570\u91CF\u4E0D\u7B49\u4E8E\u8BC1\u636E\u8D28\u91CF\u3002
+
+## \u5DE5\u4F5C\u6D41\u7A0B
+1. \u5EFA\u7ACB\u7814\u7A76\u56FE\u666F\uFF1A\u5F52\u7EB3\u5DF2\u89E3\u51B3\u95EE\u9898\u3001\u4ECD\u7136\u6210\u7ACB\u7684\u74F6\u9888\u3001\u5F7C\u6B64\u77DB\u76FE\u7684\u53D1\u73B0\u3001\u672A\u7ECF\u68C0\u9A8C\u7684\u5E38\u89C1\u5047\u8BBE\uFF0C\u4EE5\u53CA\u6570\u636E\u3001\u6307\u6807\u3001\u6CDB\u5316\u3001\u6548\u7387\u3001\u9C81\u68D2\u6027\u3001\u590D\u73B0\u6216\u771F\u5B9E\u90E8\u7F72\u4E2D\u7684\u7F3A\u53E3\u3002
+2. \u4ECE\u591A\u79CD\u8D21\u732E\u5F62\u6001\u53D1\u6563\u5185\u90E8\u5019\u9009\u6C60\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\u65B0\u95EE\u9898\u3001\u65B0\u673A\u5236\u3001\u65B0\u6D4B\u91CF\u6216\u6307\u6807\u3001\u65B0\u6570\u636E/\u4EFB\u52A1\u3001\u7A33\u5065\u6027\u4E0E\u8FB9\u754C\u5206\u6790\u3001\u7CFB\u7EDF\u6743\u8861\u3001\u590D\u73B0\u4E0E\u6709\u4EF7\u503C\u7684\u8D1F\u7ED3\u679C\uFF1B\u53EA\u4FDD\u7559\u9002\u5408\u5F53\u524D\u65B9\u5411\u548C\u8D44\u6E90\u7684\u7C7B\u578B\u3002
+3. \u5408\u5E76\u53EA\u662F\u6362\u672F\u8BED\u3001\u6362\u6A21\u578B\u6216\u6362\u6570\u636E\u96C6\u7684\u91CD\u590D\u5019\u9009\u3002\u5BF9\u5269\u4F59\u5019\u9009\u9010\u4E00\u68C0\u7D22\u6700\u63A5\u8FD1\u7684\u5DE5\u4F5C\uFF0C\u6BD4\u8F83\u95EE\u9898\u3001\u5047\u8BBE\u3001\u673A\u5236\u3001\u6570\u636E\u3001\u8BC4\u4EF7\u548C\u9884\u671F\u8D21\u732E\uFF0C\u800C\u4E0D\u662F\u53EA\u6BD4\u8F83\u6807\u9898\u5173\u952E\u8BCD\u3002
+4. \u5BF9\u6BCF\u4E2A\u5019\u9009\u6267\u884C\u6700\u5FEB\u5426\u8BC1\u6D4B\u8BD5\uFF1A\u6307\u51FA\u6700\u53EF\u80FD\u8BA9\u9879\u76EE\u5931\u8D25\u7684\u5355\u4E00\u5047\u8BBE\uFF0C\u4EE5\u53CA\u4E00\u5468\u5185\u6216\u6700\u5C0F\u9884\u7B97\u4E0B\u80FD\u591F\u68C0\u9A8C\u5B83\u7684\u5B9E\u9A8C\u3002
+5. \u7EFC\u5408\u8BC1\u636E\u540E\u53EA\u8F93\u51FA ${preferences.ideaCount} \u4E2A\u771F\u6B63\u4E0D\u540C\u7684\u5019\u9009\uFF0C\u5E76\u7ED9\u51FA\u660E\u786E\u6392\u5E8F\u3002\u4E0D\u5F97\u4E3A\u4E86\u51D1\u6570\u4FDD\u7559\u8BC1\u636E\u8584\u5F31 Idea\u3002
+
+## \u6BCF\u4E2A\u5019\u9009 Idea \u7684\u6700\u4F4E\u5408\u540C
+- \u6682\u5B9A\u6807\u9898\u4E0E\u4E00\u53E5\u8BDD\u6838\u5FC3\u6D1E\u5BDF\uFF1B
+- \u4ECA\u5929\u4ECD\u5B58\u5728\u7684\u5177\u4F53\u95EE\u9898\uFF0C\u4EE5\u53CA\u8FD1\u671F\u8BC1\u636E\u5982\u4F55\u652F\u6301\u8FD9\u4E00\u5224\u65AD\uFF1B
+- \u53EF\u8BC1\u4F2A\u7684\u7814\u7A76\u95EE\u9898\u6216\u5047\u8BBE\uFF1B
+- \u65B9\u6CD5\u6216\u7814\u7A76\u8BBE\u8BA1\u7684\u6838\u5FC3\u673A\u5236\uFF0C\u4E0D\u5199\u6210\u7A7A\u6CDB\u6A21\u5757\u7EC4\u5408\uFF1B
+- \u5EFA\u8BAE\u6570\u636E\u96C6\u3001\u6307\u6807\u3001\u5F3A\u57FA\u7EBF\u548C\u6700\u5C0F\u51B3\u5B9A\u6027\u5B9E\u9A8C\uFF1B
+- \u4E0E 2\u20134 \u7BC7\u6700\u63A5\u8FD1\u5DE5\u4F5C\u7684\u9010\u9879\u5DEE\u5F02\uFF0C\u4EE5\u53CA\u53EF\u80FD\u88AB\u5224\u5B9A\u201C\u4E0D\u65B0\u201D\u7684\u4F4D\u7F6E\uFF1B
+- \u9884\u671F\u8D21\u732E\u7C7B\u578B\uFF1B${preferences.pursueSota ? "\u660E\u786E SOTA \u6210\u529F\u6761\u4EF6\u548C\u5373\u4F7F\u672A\u8FBE\u5230 SOTA \u4ECD\u53EF\u6210\u7ACB\u7684\u79D1\u5B66\u4EF7\u503C" : "\u660E\u786E\u4E0D\u4F9D\u8D56 SOTA \u7684\u79D1\u5B66\u4EF7\u503C\uFF0C\u4E0D\u5F97\u6697\u793A\u672A\u7ECF\u9A8C\u8BC1\u7684\u6027\u80FD\u9886\u5148"}\uFF1B
+- \u6240\u9700\u6570\u636E\u3001\u8BA1\u7B97\u3001\u65F6\u95F4\u4E0E\u6280\u80FD\uFF0C\u6700\u5927\u6267\u884C\u98CE\u9669\u3001\u4F26\u7406\u6216\u8BB8\u53EF\u98CE\u9669\uFF1B
+- 1\u20135 \u5206\u7684\u6E05\u6670\u5EA6\u3001\u65B0\u9896\u6027\u3001\u79D1\u5B66\u610F\u4E49\u3001\u6709\u6548\u6027\u3001\u53EF\u884C\u6027\u3001\u65F6\u673A\u4E0E\u8BC1\u636E\u5C31\u7EEA\u5EA6\uFF1B\u6BCF\u9879\u7ED9\u4E00\u53E5\u4F9D\u636E\u548C\u7F6E\u4FE1\u5EA6\uFF0C\u4E0D\u7528\u5E73\u5747\u5206\u63A9\u76D6\u81F4\u547D\u95EE\u9898\u3002
+
+## \u6392\u5E8F\u4E0E\u63A8\u8350
+\u7ED9\u51FA\u5019\u9009\u6BD4\u8F83\u8868\uFF0C\u5E76\u9009\u62E9\u4E00\u4E2A\u201C\u6700\u503C\u5F97\u5148\u9A8C\u8BC1\u201D\u7684 Idea\u3002\u63A8\u8350\u7406\u7531\u5FC5\u987B\u540C\u65F6\u8003\u8651\u79D1\u5B66\u4EF7\u503C\u3001\u8FD1\u90BB\u7ADE\u4E89\u3001\u8D44\u6E90\u5339\u914D\u548C\u6700\u5FEB\u5426\u8BC1\u6210\u672C\u3002\u968F\u540E\u7ED9\u51FA\u7B2C\u4E00\u5468\u884C\u52A8\u6E05\u5355\u3001\u505C\u6B62\u6761\u4EF6\uFF0C\u4EE5\u53CA\u9700\u8981\u6301\u7EED\u76D1\u6D4B\u7684\u5173\u952E\u8BCD\u3001\u7814\u7A76\u56E2\u961F\u6216 venue\u3002
+
+## \u8F93\u51FA\u6587\u4EF6
+\u521B\u5EFA\u4E24\u4EFD\u8BED\u4E49\u4E00\u81F4\u3001\u53EF\u76F4\u63A5\u4E0B\u8F7D\u7684 Markdown \u6587\u4EF6\uFF0C\u4E0D\u8981\u53EA\u5728\u804A\u5929\u4E2D\u7ED9\u6458\u8981\uFF1A
+1. \`<topic_slug>_idea_discovery_zh.md\`
+2. \`<topic_slug>_idea_discovery_en.md\`
+
+\u4E24\u4EFD\u6587\u4EF6\u5747\u5305\u542B\uFF1A\u914D\u7F6E\u5FEB\u7167\u3001\u68C0\u7D22\u534F\u8BAE\u4E0E\u8986\u76D6\u8303\u56F4\u3001\u7814\u7A76\u673A\u4F1A\u56FE\u8C31\u3001\u5019\u9009 Idea \u5B8C\u6574\u5408\u540C\u3001\u8FD1\u90BB\u5DE5\u4F5C\u6BD4\u8F83\u3001\u8BC4\u5206\u4E0E\u4E0D\u786E\u5B9A\u6027\u3001\u6700\u7EC8\u63A8\u8350\u3001\u7B2C\u4E00\u5468\u9A8C\u8BC1\u8BA1\u5212\u548C\u5E26\u7A33\u5B9A\u94FE\u63A5\u7684\u53C2\u8003\u6587\u732E\u3002\u82F1\u6587\u7248\u5E94\u4E3A\u81EA\u7136\u5B66\u672F\u82F1\u8BED\uFF0C\u4E0D\u505A\u9010\u53E5\u673A\u5668\u5F0F\u7FFB\u8BD1\u3002
+
+\u4E0D\u5F97\u751F\u6210 \`.tex\`\u3001PDF\u3001DOCX\u3001BibTeX \u6216\u865A\u6784\u9644\u4EF6\u3002\u82E5\u5173\u952E\u4FE1\u606F\u4E0D\u8DB3\uFF0C\u5728\u62A5\u544A\u4E2D\u660E\u786E\u5047\u8BBE\u4E0E\u5F85\u6838\u9A8C\u9879\uFF0C\u4F46\u4ECD\u5B8C\u6210\u5728\u5F53\u524D\u8BC1\u636E\u4E0B\u80FD\u591F\u5B8C\u6210\u7684\u5206\u6790\u3002`;
+  }
+  return `# Discover Verifiable Computer Science Research Ideas
+
+You are a rigorous CS research strategist. Do not brainstorm from keywords. Build a verifiable picture of the recent field first, then propose ideas worth experimental investment. Every novelty, SOTA, and literature judgment must be grounded in authentic sources.
+
+## Configuration
+- Research direction: ${direction}
+- Problem seed: ${seed}
+- Dataset or data condition: ${dataset}
+- Literature window: focus on the most recent ${preferences.recentYears} years as of the execution date
+- Venue scope: ${venues}
+- SOTA objective: ${preferences.pursueSota ? "required; define the dataset, metric, strongest baselines, and a verifiable target, and reject unexplained marginal leaderboard chasing" : "not required; contribution clarity remains mandatory even without a leaderboard-first objective"}
+- Resources and execution limits: ${resources}
+- Exploration posture: ${novelty}
+- Final candidate count: ${preferences.ideaCount}
+- Additional constraints: ${criteria}
+
+## Search and evidence rules
+1. Establish the actual execution date. Design multiple queries around the task, assumptions, methods, datasets, metrics, and failure phenomena. Focus on the most recent ${preferences.recentYears} years; label indispensable older foundational work separately.
+2. Identify major conferences and journals for the selected subfield and briefly justify the choice. Never call an arbitrary venue \u201Ctop.\u201D By default, search established top-conference papers directly related to the problem first, then use top journals and indispensable foundational work to complete the evidence. Prefer official proceedings, OpenReview, publisher pages, original arXiv records, project pages, and official code repositories.
+3. Verify the title, authors, year, venue, and stable link for every materially relevant paper. Do not fill missing metadata. Distinguish preprints from formally published versions.
+4. Never turn \u201Cnot found\u201D into \u201Cnever studied.\u201D Report only that no close match was found within a documented search scope, and state the coverage limits and uncertainty.
+5. For a named public dataset, verify its official source, license or access conditions, task definition, split, common metrics, leakage risks, and current strong baselines. Treat private or unpublished data only as a user-supplied condition.
+6. Never invent results, SOTA values, dataset sizes, code availability, or paper conclusions. Citation volume is not evidence quality.
+
+## Workflow
+1. Map the landscape: established solutions, bottlenecks that still hold, conflicting findings, untested common assumptions, and gaps in data, metrics, generalization, efficiency, robustness, reproducibility, or deployment.
+2. Build a larger internal pool across contribution types\u2014new problem, mechanism, measurement or metric, dataset or task, robustness and boundary analysis, systems trade-off, replication, or valuable negative result\u2014keeping only types that fit the configured scope and resources.
+3. Merge candidates that merely rename a component, swap a model, or change a dataset. For every remaining candidate, retrieve the nearest work and compare the problem, assumptions, mechanism, data, evaluation, and contribution rather than title keywords.
+4. Apply a fastest-falsification test: identify the single assumption most likely to kill each project and the experiment that could test it within one week or the smallest practical budget.
+5. Return only ${preferences.ideaCount} substantively distinct candidates after evidence review. Do not keep weak ideas merely to satisfy the count.
+
+## Minimum contract for each idea
+- Working title and one-sentence nugget;
+- The concrete problem that still exists today and recent evidence for it;
+- A falsifiable research question or hypothesis;
+- The core mechanism or research design, not a generic stack of modules;
+- Recommended datasets, metrics, strong baselines, and minimum decisive experiment;
+- Point-by-point differentiation from 2\u20134 nearest papers and where reviewers may still judge it non-novel;
+- Contribution type; ${preferences.pursueSota ? "a precise SOTA success condition plus scientific value that can survive a non-SOTA outcome" : "scientific value independent of SOTA, with no unsupported claim of performance leadership"};
+- Data, compute, time, and skill needs; main execution, ethical, and licensing risks;
+- 1\u20135 ratings for clarity, novelty, significance, validity, feasibility, timing, and evidence readiness, each with a one-sentence rationale and confidence. Never let an average conceal a fatal weakness.
+
+## Ranking and recommendation
+Provide a comparison table and select one idea as \u201Cbest to test first.\u201D The recommendation must jointly consider scientific value, nearest competition, resource fit, and falsification cost. Give a first-week action list, stop conditions, and a watch list of queries, groups, or venues.
+
+## Output files
+Create two semantically aligned, directly downloadable Markdown files rather than only a chat summary:
+1. \`<topic_slug>_idea_discovery_zh.md\`
+2. \`<topic_slug>_idea_discovery_en.md\`
+
+Both files must contain the configuration snapshot, search protocol and coverage, opportunity map, complete idea contracts, nearest-work comparisons, ratings and uncertainty, final recommendation, first-week validation plan, and references with stable links. Write the Chinese version naturally and the English version in natural academic English; do not translate sentence by sentence mechanically.
+
+Do not create TeX, PDF, DOCX, BibTeX, or invented attachments. If critical information is missing, state assumptions and verification needs in the reports while completing everything the available evidence supports.`;
+}
+function evaluationPrompt(preferences, language) {
+  const direction = directionValue(preferences, language);
+  const dataset = optionalValue(
+    preferences.dataset,
+    language,
+    "\u4EE5 Idea \u539F\u6587\u4E3A\u51C6\uFF1B\u82E5\u672A\u6307\u5B9A\uFF0C\u53EA\u63D0\u51FA\u7ECF\u8FC7\u6765\u6E90\u6838\u9A8C\u7684\u5019\u9009\uFF0C\u4E0D\u64C5\u81EA\u9501\u5B9A\u6570\u636E\u96C6",
+    "use the idea as supplied; if unspecified, propose only source-verified candidates and do not silently lock in a dataset"
+  );
+  const idea = optionalValue(
+    preferences.seed,
+    language,
+    "\u8BF7\u8BFB\u53D6\u540C\u4E00\u5BF9\u8BDD\u4E2D\u63D0\u4F9B\u7684 Idea \u63CF\u8FF0\u6216 Markdown \u6587\u4EF6\uFF1B\u82E5\u4ECD\u4E0D\u5B58\u5728\uFF0C\u53EA\u8BE2\u95EE\u4E00\u6B21\u5E76\u7B49\u5F85\uFF0C\u4E0D\u5F97\u51ED\u7A7A\u8865\u9020",
+    "read the idea description or Markdown file supplied in the same conversation; if none exists, ask once and wait rather than inventing one"
+  );
+  const resources = optionalValue(
+    preferences.resourceConstraints,
+    language,
+    "\u672A\u6307\u5B9A\uFF1B\u6309\u666E\u901A\u9AD8\u6821 CS \u7814\u7A76\u56E2\u961F\u53EF\u83B7\u5F97\u7684\u8D44\u6E90\u8FDB\u884C\u4FDD\u5B88\u4F30\u8BA1\uFF0C\u5E76\u663E\u5F0F\u6807\u6CE8\u5047\u8BBE",
+    "not specified; make conservative assumptions for an ordinary academic CS team and label them explicitly"
+  );
+  const criteria = optionalValue(
+    preferences.additionalCriteria,
+    language,
+    "\u65E0\u989D\u5916\u6807\u51C6",
+    "none"
+  );
+  const venues = venueValue(preferences, language);
+  const freedom = REFINEMENT_FREEDOMS[preferences.refinementFreedom].prompt[language];
+  if (language === "zh") {
+    return `# \u8BC4\u4F30\u5E76\u4F18\u5316\u4E00\u4E2A\u8BA1\u7B97\u673A\u79D1\u5B66\u7814\u7A76 Idea
+
+\u4F60\u662F\u4E00\u540D\u4E25\u683C\u4F46\u5EFA\u8BBE\u6027\u7684 CS \u9886\u57DF\u4E13\u5BB6\u3001\u5BA1\u7A3F\u4EBA\u548C\u5B9E\u9A8C\u8D1F\u8D23\u4EBA\u3002\u5148\u628A\u7528\u6237\u7684 Idea \u8FD8\u539F\u6210\u53EF\u68C0\u9A8C\u7684\u7814\u7A76\u5408\u540C\uFF0C\u518D\u7528\u771F\u5B9E\u6587\u732E\u3001\u4EE3\u7801\u3001\u6570\u636E\u548C\u8D44\u6E90\u6761\u4EF6\u8FDB\u884C\u538B\u529B\u6D4B\u8BD5\u3002\u4E0D\u8981\u56E0\u4E3A\u63AA\u8F9E\u6D41\u7545\u800C\u9AD8\u4F30 Idea\uFF0C\u4E5F\u4E0D\u8981\u7528\u6CDB\u6CDB\u6279\u8BC4\u4EE3\u66FF\u8BC1\u636E\u3002
+
+## \u5F53\u524D\u914D\u7F6E
+- \u7814\u7A76\u65B9\u5411\uFF1A${direction}
+- \u5F85\u8BC4\u4F30 Idea\uFF1A${idea}
+- \u6570\u636E\u96C6\u6216\u6570\u636E\u6761\u4EF6\uFF1A${dataset}
+- \u6587\u732E\u65F6\u95F4\u7A97\uFF1A\u4EE5\u6267\u884C\u5F53\u5929\u4E3A\u57FA\u51C6\uFF0C\u91CD\u70B9\u68C0\u7D22\u8FD1 ${preferences.recentYears} \u5E74
+- venue \u8303\u56F4\uFF1A${venues}
+- SOTA \u76EE\u6807\uFF1A${preferences.pursueSota ? "\u662F\uFF1B\u4F18\u5316\u7A3F\u5FC5\u987B\u7ED9\u51FA\u53EF\u6838\u9A8C\u7684\u76EE\u6807\u6570\u636E\u96C6\u3001\u6307\u6807\u548C\u5F3A\u57FA\u7EBF\uFF0C\u540C\u65F6\u907F\u514D\u53EA\u9760\u5FAE\u5C0F\u6DA8\u70B9\u6210\u7ACB" : "\u5426\uFF1B\u7528\u79D1\u5B66\u610F\u4E49\u800C\u975E\u6392\u884C\u699C\u7B2C\u4E00\u5224\u65AD\u4EF7\u503C"}
+- \u8D44\u6E90\u4E0E\u6267\u884C\u8FB9\u754C\uFF1A${resources}
+- \u4F18\u5316\u81EA\u7531\u5EA6\uFF1A${freedom}
+- \u8865\u5145\u8BC4\u4F30\u6807\u51C6\uFF1A${criteria}
+
+## \u8BC1\u636E\u89C4\u5219
+1. \u786E\u8BA4\u6267\u884C\u5F53\u5929\u65E5\u671F\uFF0C\u5E76\u56F4\u7ED5 Idea \u7684\u95EE\u9898\u3001claim\u3001\u673A\u5236\u3001\u6570\u636E\u3001\u6307\u6807\u3001baseline \u548C\u5931\u8D25\u6761\u4EF6\u8BBE\u8BA1\u68C0\u7D22\u3002\u91CD\u70B9\u8986\u76D6\u8FD1 ${preferences.recentYears} \u5E74\uFF0C\u5FC5\u8981\u7684\u5960\u57FA\u5DE5\u4F5C\u5355\u72EC\u5217\u51FA\u3002
+2. \u4F18\u5148\u4F7F\u7528\u5B98\u65B9 proceedings\u3001OpenReview\u3001\u51FA\u7248\u793E\u9875\u9762\u3001\u539F\u59CB arXiv \u8BB0\u5F55\u3001\u9879\u76EE\u4E3B\u9875\u3001\u6570\u636E\u96C6\u4E3B\u9875\u548C\u5B98\u65B9\u4EE3\u7801\u4ED3\u5E93\u3002\u9010\u9879\u6838\u9A8C\u6807\u9898\u3001\u4F5C\u8005\u3001\u5E74\u4EFD\u3001venue\u3001\u7248\u672C\u548C\u7A33\u5B9A\u94FE\u63A5\u3002
+3. \u81F3\u5C11\u68C0\u7D22\u6700\u63A5\u8FD1\u7684\u76F4\u63A5\u7ADE\u4E89\u5DE5\u4F5C\uFF0C\u800C\u4E0D\u662F\u53EA\u627E\u540C\u4E3B\u9898\u8BBA\u6587\u3002\u6BD4\u8F83\u95EE\u9898\u5B9A\u4E49\u3001\u5173\u952E\u5047\u8BBE\u3001\u6280\u672F\u673A\u5236\u3001\u6570\u636E\u3001\u8BC4\u4EF7\u534F\u8BAE\u3001\u8BC1\u636E\u4E0E\u8D21\u732E\u8FB9\u754C\u3002
+4. \u4E0D\u5F97\u628A\u68C0\u7D22\u4E0D\u5230\u7B49\u540C\u4E8E\u7EDD\u5BF9\u65B0\u9896\uFF0C\u4E0D\u5F97\u53D1\u660E\u8BBA\u6587\u7ED3\u8BBA\u3001\u5B9E\u9A8C\u6570\u5B57\u3001SOTA\u3001\u6570\u636E\u89C4\u6A21\u3001\u8BB8\u53EF\u6216\u4EE3\u7801\u72B6\u6001\u3002\u5C06\u4E8B\u5B9E\u3001\u4F5C\u8005\u4E3B\u5F20\u548C\u4F60\u7684\u63A8\u65AD\u660E\u786E\u5206\u5F00\u3002
+5. \u82E5\u6307\u5B9A\u6570\u636E\u96C6\uFF0C\u6838\u9A8C\u6765\u6E90\u3001\u8BBF\u95EE/\u8BB8\u53EF\u3001\u5212\u5206\u3001\u6307\u6807\u3001\u6CC4\u6F0F\u98CE\u9669\u3001\u9971\u548C\u5EA6\u548C\u5F53\u524D\u5F3A\u57FA\u7EBF\uFF1B\u82E5\u4E3A\u79C1\u6709\u6570\u636E\uFF0C\u53EA\u80FD\u4F9D\u636E\u7528\u6237\u63D0\u4F9B\u7684\u4FE1\u606F\u8BC4\u4F30\u3002
+
+## \u7B2C\u4E00\u9636\u6BB5\uFF1A\u62BD\u53D6 Idea \u5408\u540C
+\u7528\u6700\u5F3A\u3001\u6700\u5177\u4F53\u4E14\u4E0D\u66FF\u4F5C\u8005\u8865\u9020\u4E8B\u5B9E\u7684\u65B9\u5F0F\u91CD\u8FF0\uFF1A
+- \u4ECA\u5929\u4ECD\u5B58\u5728\u7684\u7814\u7A76\u95EE\u9898\uFF1B
+- \u4E00\u53E5\u8BDD\u6838\u5FC3\u6D1E\u5BDF\uFF1B
+- \u53EF\u8BC1\u4F2A\u7684\u4E3B\u8981\u5047\u8BBE\u4E0E\u9884\u671F claim\uFF1B
+- \u673A\u5236\u6216\u7814\u7A76\u8BBE\u8BA1\uFF1B
+- \u6570\u636E\u3001\u6307\u6807\u3001baseline \u4E0E\u6700\u5C0F\u51B3\u5B9A\u6027\u5B9E\u9A8C\uFF1B
+- \u4F9D\u8D56\u6761\u4EF6\u3001\u9884\u671F\u8D21\u732E\u7C7B\u578B\u548C\u660E\u786E\u4E0D\u58F0\u79F0\u7684\u5185\u5BB9\u3002
+
+\u6807\u51FA\u539F Idea \u4E2D\u7F3A\u5931\u3001\u542B\u6DF7\u6216\u76F8\u4E92\u51B2\u7A81\u7684\u5B57\u6BB5\u3002\u4E0D\u8981\u7ACB\u5373\u4FEE\u6539\uFF0C\u5148\u786E\u4FDD\u8BC4\u4F30\u5BF9\u8C61\u51C6\u786E\u3002
+
+## \u7B2C\u4E8C\u9636\u6BB5\uFF1A\u591A\u8BC1\u636E\u538B\u529B\u6D4B\u8BD5
+\u5206\u522B\u4ECE\u9886\u57DF\u4E13\u5BB6\u3001\u6000\u7591\u578B\u5BA1\u7A3F\u4EBA\u548C\u5B9E\u9A8C\u8D1F\u8D23\u4EBA\u89C6\u89D2\u68C0\u67E5\uFF0C\u4F46\u6700\u7EC8\u5F62\u6210\u4E00\u4EFD\u7EDF\u4E00\u5224\u65AD\uFF1A
+1. \u6E05\u6670\u5EA6\uFF1A\u95EE\u9898\u3001\u5047\u8BBE\u3001\u673A\u5236\u548C\u6210\u529F\u6761\u4EF6\u662F\u5426\u53EF\u64CD\u4F5C\uFF1B
+2. \u65B0\u9896\u6027\uFF1A\u4E0E\u6700\u8FD1\u90BB\u5DE5\u4F5C\u7684\u5B9E\u8D28\u5DEE\u5F02\u662F\u5426\u6210\u7ACB\uFF0C\u662F\u5426\u53EA\u662F\u6362\u6A21\u578B\u3001\u6362\u6570\u636E\u96C6\u6216\u91CD\u65B0\u547D\u540D\uFF1B
+3. \u79D1\u5B66\u610F\u4E49\uFF1A\u5373\u4F7F\u7ED3\u679C\u4E0D\u7406\u60F3\uFF0C\u662F\u5426\u4ECD\u80FD\u4EA7\u751F\u53EF\u89E3\u91CA\u3001\u53EF\u7D2F\u79EF\u7684\u77E5\u8BC6\uFF1B
+4. \u6709\u6548\u6027\uFF1A\u673A\u5236\u4E0E\u5047\u8BBE\u662F\u5426\u4E00\u81F4\uFF0C\u6307\u6807\u662F\u5426\u771F\u7684\u6D4B\u91CF\u76EE\u6807\uFF0C\u56E0\u679C\u6216\u6CDB\u5316\u8868\u8FF0\u662F\u5426\u8D8A\u754C\uFF1B
+5. \u53EF\u884C\u6027\uFF1A\u6570\u636E\u3001\u7B97\u529B\u3001\u65F6\u95F4\u3001\u5DE5\u7A0B\u3001\u6807\u6CE8\u3001\u4F26\u7406\u548C\u8BB8\u53EF\u662F\u5426\u5339\u914D\uFF1B
+6. \u7ADE\u4E89\u4E0E\u65F6\u673A\uFF1A\u9886\u57DF\u662F\u5426\u62E5\u6324\u3001\u5BB9\u6613\u88AB\u62A2\u5148\uFF0C\u7528\u6237\u7684\u6BD4\u8F83\u4F18\u52BF\u662F\u4EC0\u4E48\uFF1B
+7. \u8BC1\u636E\u4E0E\u590D\u73B0\u5C31\u7EEA\u5EA6\uFF1A\u5F3A baseline\u3001\u5F00\u6E90\u5B9E\u73B0\u3001\u8BC4\u4EF7\u534F\u8BAE\u548C\u6700\u5C0F\u5B9E\u9A8C\u662F\u5426\u53EF\u83B7\u5F97\uFF1B
+8. SOTA \u4F9D\u8D56\uFF1A${preferences.pursueSota ? "SOTA \u76EE\u6807\u662F\u5426\u7CBE\u786E\u5B9A\u4E49\uFF0C\u8FBE\u5230\u5B83\u662F\u5426\u8DB3\u4EE5\u6784\u6210\u8D21\u732E\uFF0C\u672A\u8FBE\u5230\u65F6 Idea \u662F\u5426\u4ECD\u6709\u79D1\u5B66\u4EF7\u503C" : "Idea \u662F\u5426\u9519\u8BEF\u5730\u4F9D\u8D56\u6F5C\u5728\u6027\u80FD\u63D0\u5347\uFF1B\u82E5\u4E0D\u8FFD\u6C42 SOTA\uFF0C\u66FF\u4EE3\u4EF7\u503C\u662F\u5426\u8DB3\u591F\u6E05\u695A"}\u3002
+
+\u4E3A\u6BCF\u9879\u7ED9\u51FA 1\u20135 \u5206\u3001\u8BC1\u636E\u3001\u7F6E\u4FE1\u5EA6\u548C\u95EE\u9898\u7B49\u7EA7\uFF08\u81F4\u547D / \u91CD\u5927\u4F46\u53EF\u4FEE\u590D / \u6B21\u8981\uFF09\u3002\u4E0D\u8981\u7528\u5E73\u5747\u5206\u62B5\u6D88\u81F4\u547D\u7F3A\u9677\u3002\u589E\u52A0\u4E00\u5F20\u6700\u8FD1\u90BB\u6BD4\u8F83\u8868\uFF0C\u5E76\u660E\u786E\u6700\u5F3A\u53CD\u5BF9\u610F\u89C1\u548C\u80FD\u591F\u63A8\u7FFB\u5B83\u7684\u8BC1\u636E\u3002
+
+## \u7B2C\u4E09\u9636\u6BB5\uFF1A\u878D\u5408\u5F0F\u4F18\u5316
+\u7981\u6B62\u8865\u4E01\u5F0F\u4F18\u5316\uFF1A\u4E0D\u8981\u4FDD\u7559\u6709\u7F3A\u9677\u7684\u539F Idea\uFF0C\u518D\u8FFD\u52A0\u9650\u5B9A\u8BCD\u3001\u989D\u5916\u6A21\u5757\u3001\u66F4\u591A\u6570\u636E\u96C6\u6216\u4E00\u4E32\u514D\u8D23\u58F0\u660E\u8FDB\u884C\u8865\u6551\u3002\u5148\u8BC6\u522B\u6700\u5C0F\u5B8C\u6574\u7814\u7A76\u547D\u9898\uFF0C\u518D\u6574\u4F53\u91CD\u7EC4\u95EE\u9898\u3001\u5047\u8BBE\u3001\u673A\u5236\u3001\u8BC4\u4EF7\u4E0E\u8D21\u732E\uFF0C\u4F7F\u4F18\u5316\u7A3F\u50CF\u4E00\u6B21\u6210\u5F62\u7684\u7814\u7A76\u8BBE\u8BA1\u3002
+
+\u4F18\u5316\u8FB9\u754C\uFF1A${freedom}\u3002\u4E0D\u5F97\u865A\u6784\u6570\u636E\u3001\u7ED3\u679C\u3001\u8D44\u6E90\u6216\u6587\u732E\u3002\u6BCF\u9879\u6539\u53D8\u90FD\u8981\u5BF9\u5E94\u5DF2\u8BC6\u522B\u7684\u95EE\u9898\uFF1B\u5220\u9664\u6CA1\u6709\u72EC\u7ACB\u529F\u80FD\u7684\u590D\u6742\u5EA6\u3002
+
+\u8F93\u51FA\uFF1A
+- \u4FDD\u7559\u5185\u5BB9\u3001\u5220\u9664\u5185\u5BB9\u548C\u6539\u53D8\u5185\u5BB9\u53CA\u5176\u7406\u7531\uFF1B
+- \u4E00\u4EFD\u5B8C\u6574\u3001\u81EA\u6D3D\u3001\u53EF\u76F4\u63A5\u8BA8\u8BBA\u7684\u4F18\u5316\u7248 Idea \u5408\u540C\uFF1B
+- \u6700\u5C0F\u51B3\u5B9A\u6027\u5B9E\u9A8C\u3001\u7B2C\u4E00\u5468\u8BA1\u5212\u3001\u91CF\u5316\u6216\u53EF\u89C2\u5BDF\u7684\u6210\u529F/\u505C\u6B62\u6761\u4EF6\uFF1B
+- \u82E5\u5B58\u5728\u4E24\u6761\u90FD\u5408\u7406\u4F46\u4E92\u65A5\u7684\u8DEF\u7EBF\uFF0C\u53EA\u4FDD\u7559\u63A8\u8350\u8DEF\u7EBF\uFF0C\u628A\u53E6\u4E00\u6761\u5217\u4E3A\u5907\u9009\uFF0C\u4E0D\u5F97\u62FC\u6210\u81C3\u80BF\u65B9\u6848\u3002
+
+## \u6700\u7EC8\u51B3\u7B56
+\u53EA\u7ED9\u4E00\u4E2A\u4E3B\u51B3\u7B56\uFF1APursue\u3001Refine\u3001Pivot\u3001Park \u6216 Stop\u3002\u8BF4\u660E\u6700\u5173\u952E\u4F9D\u636E\u3001\u5269\u4F59\u6700\u5927\u4E0D\u786E\u5B9A\u6027\u548C\u4E0B\u4E00\u9879\u884C\u52A8\u3002Park \u5FC5\u987B\u5199\u660E\u91CD\u65B0\u8003\u8651\u7684\u89E6\u53D1\u6761\u4EF6\uFF1BPivot \u6216 Stop \u5FC5\u987B\u8BF4\u660E\u539F Idea \u4E3A\u4EC0\u4E48\u4E0D\u503C\u5F97\u7EE7\u7EED\u6295\u5165\u3002
+
+## \u8F93\u51FA\u6587\u4EF6
+\u521B\u5EFA\u4E24\u4EFD\u8BED\u4E49\u4E00\u81F4\u3001\u53EF\u76F4\u63A5\u4E0B\u8F7D\u7684 Markdown \u6587\u4EF6\uFF1A
+1. \`<topic_slug>_idea_evaluation_zh.md\`
+2. \`<topic_slug>_idea_evaluation_en.md\`
+
+\u4E24\u4EFD\u6587\u4EF6\u5747\u5305\u542B\uFF1A\u914D\u7F6E\u5FEB\u7167\u3001Idea \u5408\u540C\u3001\u68C0\u7D22\u534F\u8BAE\u4E0E\u8986\u76D6\u8303\u56F4\u3001\u6700\u8FD1\u90BB\u6BD4\u8F83\u3001\u591A\u7EF4\u8BC4\u4F30\u3001\u81F4\u547D\u4E0E\u53EF\u4FEE\u590D\u95EE\u9898\u3001\u4F18\u5316\u53D8\u66F4\u3001\u5B8C\u6574\u4F18\u5316\u7248 Idea\u3001\u6700\u5C0F\u9A8C\u8BC1\u8BA1\u5212\u3001\u6700\u7EC8\u51B3\u7B56\u548C\u5E26\u7A33\u5B9A\u94FE\u63A5\u7684\u53C2\u8003\u6587\u732E\u3002\u82F1\u6587\u7248\u4F7F\u7528\u81EA\u7136\u5B66\u672F\u82F1\u8BED\uFF0C\u4E0D\u505A\u673A\u68B0\u9010\u53E5\u7FFB\u8BD1\u3002
+
+\u4E0D\u5F97\u751F\u6210 \`.tex\`\u3001PDF\u3001DOCX\u3001BibTeX \u6216\u865A\u6784\u9644\u4EF6\u3002\u9664\u975E\u5F85\u8BC4\u4F30 Idea \u5B8C\u5168\u7F3A\u5931\uFF0C\u5426\u5219\u4E0D\u8981\u4EE5\u8FFD\u95EE\u4EE3\u66FF\u5206\u6790\uFF1B\u4FE1\u606F\u4E0D\u8DB3\u5904\u5E94\u660E\u786E\u5047\u8BBE\u3001\u964D\u4F4E\u7F6E\u4FE1\u5EA6\u5E76\u7ED9\u51FA\u6838\u9A8C\u65B9\u6CD5\u3002`;
+  }
+  return `# Evaluate and Refine a Computer Science Research Idea
+
+You are a strict but constructive CS domain expert, reviewer, and experimental lead. First recover the user's idea as a testable research contract, then stress-test it against authentic literature, code, data, and resource constraints. Do not mistake fluent wording for a strong idea, and do not replace evidence with generic criticism.
+
+## Configuration
+- Research direction: ${direction}
+- Idea to evaluate: ${idea}
+- Dataset or data condition: ${dataset}
+- Literature window: focus on the most recent ${preferences.recentYears} years as of the execution date
+- Venue scope: ${venues}
+- SOTA objective: ${preferences.pursueSota ? "required; the optimized idea must specify a verifiable dataset, metric, and strong baselines without depending on an unexplained marginal gain" : "not required; judge value by scientific contribution rather than leaderboard rank"}
+- Resources and execution limits: ${resources}
+- Optimization freedom: ${freedom}
+- Additional evaluation criteria: ${criteria}
+
+## Evidence rules
+1. Establish the execution date and search around the idea's problem, claims, mechanism, data, metrics, baselines, and failure conditions. Focus on the most recent ${preferences.recentYears} years and list indispensable foundational work separately.
+2. Prefer official proceedings, OpenReview, publisher pages, original arXiv records, project pages, dataset pages, and official repositories. Verify title, authors, year, venue, version, and stable link.
+3. Retrieve the nearest direct competitors, not merely papers sharing the topic. Compare problem definition, assumptions, mechanism, data, evaluation protocol, evidence, and contribution boundary.
+4. Never equate an unsuccessful search with absolute novelty. Never invent conclusions, results, SOTA values, dataset sizes, licenses, or code status. Separate source facts, author claims, and your inferences.
+5. For a named dataset, verify provenance, access or license, split, metrics, leakage risk, saturation, and current strong baselines. Evaluate private data only from user-supplied facts.
+
+## Stage 1 \u2014 Extract the idea contract
+Restate the idea in its strongest specific form without inventing facts:
+- The concrete problem that still exists today;
+- One-sentence nugget;
+- Falsifiable main hypothesis and expected claims;
+- Mechanism or research design;
+- Data, metrics, baselines, and minimum decisive experiment;
+- Dependencies, contribution type, and explicit non-claims.
+
+Mark missing, ambiguous, or contradictory fields. Do not optimize yet; first make the evaluation target accurate.
+
+## Stage 2 \u2014 Multi-evidence stress test
+Inspect the idea through the lenses of a domain expert, skeptical reviewer, and experimental lead, then synthesize one judgment:
+1. Clarity: are the problem, hypothesis, mechanism, and success condition operational?
+2. Novelty: does the substantive difference from nearest work survive, or is this a model swap, dataset swap, or renaming?
+3. Significance: can the work produce interpretable, cumulative knowledge even if the expected result is weak?
+4. Validity: do mechanism and hypothesis align, do metrics measure the intended construct, and do causal or generalization claims stay bounded?
+5. Feasibility: do data, compute, time, engineering, annotation, ethics, and licensing fit?
+6. Competition and timing: how crowded is the space, how likely is scooping, and what comparative advantage exists?
+7. Evidence and reproducibility readiness: are strong baselines, implementations, protocols, and a minimum experiment available?
+8. SOTA dependence: ${preferences.pursueSota ? "is the target precise, would reaching it constitute a contribution, and would the idea retain value if it misses?" : "does the idea secretly depend on hoped-for performance, and is its non-SOTA value explicit enough?"}
+
+For every dimension, provide a 1\u20135 rating, evidence, confidence, and severity (fatal / major but repairable / minor). Never let an average cancel a fatal flaw. Add a nearest-work comparison table, the strongest objection, and the evidence that could defeat that objection.
+
+## Stage 3 \u2014 Cohesive optimization
+Do not optimize by patching. Never keep a broken idea and compensate by appending qualifiers, extra modules, more datasets, or a list of disclaimers. Identify the smallest complete research proposition, then recompose the problem, hypothesis, mechanism, evaluation, and contribution so the optimized idea reads as one coherent research design.
+
+Optimization boundary: ${freedom}. Never invent data, results, resources, or literature. Every change must resolve an identified weakness; remove complexity with no independent function.
+
+Return:
+- What is retained, removed, and changed, with reasons;
+- One complete, self-consistent optimized idea contract ready for discussion;
+- The minimum decisive experiment, first-week plan, and measurable or observable success and stop conditions;
+- If two routes are valid but mutually exclusive, recommend one and list the other as an alternative rather than merging them into a bloated design.
+
+## Final decision
+Give exactly one primary decision: Pursue, Refine, Pivot, Park, or Stop. State the decisive reason, largest remaining uncertainty, and next action. Park requires explicit revisit triggers; Pivot or Stop requires a clear account of why the original idea is no longer worth the investment.
+
+## Output files
+Create two semantically aligned, directly downloadable Markdown files:
+1. \`<topic_slug>_idea_evaluation_zh.md\`
+2. \`<topic_slug>_idea_evaluation_en.md\`
+
+Both files must contain the configuration snapshot, extracted idea contract, search protocol and coverage, nearest-work comparison, multidimensional evaluation, fatal and repairable weaknesses, optimization changes, complete optimized idea, minimum validation plan, final decision, and references with stable links. Write the Chinese version naturally and the English version in natural academic English rather than translating sentence by sentence.
+
+Do not create TeX, PDF, DOCX, BibTeX, or invented attachments. Unless the idea itself is entirely missing, do not replace analysis with follow-up questions; state assumptions, lower confidence, and provide verification steps where information is incomplete.`;
+}
+function buildIdeaPrompt(mode, preferences, language) {
+  return withPromptJudgmentDirective(
+    mode === "discovery" ? discoveryPrompt(preferences, language) : evaluationPrompt(preferences, language),
+    language
+  );
+}
+
+// app/draft/config.ts
+var ARXIV_STYLE_REPOSITORY = "https://github.com/kourgeorge/arxiv-style";
+var DRAFT_TEMPLATES = {
+  arxiv: {
+    label: "arXiv",
+    group: "preprint"
+  },
+  neurips: {
+    label: "NeurIPS",
+    group: "conference",
+    searchHint: "NeurIPS official author instructions and style files"
+  },
+  icml: {
+    label: "ICML",
+    group: "conference",
+    searchHint: "ICML official author instructions and LaTeX template"
+  },
+  iclr: {
+    label: "ICLR",
+    group: "conference",
+    searchHint: "ICLR official author guide and LaTeX style"
+  },
+  cvpr: {
+    label: "CVPR",
+    group: "conference",
+    searchHint: "CVPR official author guidelines and author kit"
+  },
+  iccv: {
+    label: "ICCV",
+    group: "conference",
+    searchHint: "ICCV official author guidelines and author kit"
+  },
+  eccv: {
+    label: "ECCV",
+    group: "conference",
+    searchHint: "ECCV official author guidelines and template"
+  },
+  acl: {
+    label: "ACL",
+    group: "conference",
+    searchHint: "ACL official style files and author guidelines"
+  },
+  emnlp: {
+    label: "EMNLP",
+    group: "conference",
+    searchHint: "EMNLP official style files and author guidelines"
+  },
+  aaai: {
+    label: "AAAI",
+    group: "conference",
+    searchHint: "AAAI official author kit and LaTeX template"
+  },
+  kdd: {
+    label: "KDD",
+    group: "conference",
+    searchHint: "ACM KDD official call for papers and ACM template"
+  },
+  "acm-mm": {
+    label: "ACM Multimedia",
+    group: "conference",
+    searchHint: "ACM Multimedia official call for papers and ACM template"
+  },
+  custom: {
+    label: "\u81EA\u5B9A\u4E49\u9876\u4F1A / Custom venue",
+    group: "custom"
+  }
+};
+var DRAFT_TEMPLATE_IDS = Object.keys(
+  DRAFT_TEMPLATES
+);
+var DEFAULT_DRAFT_TEMPLATE_ID = "arxiv";
+function selectedVenue(templateId, customVenue) {
+  if (templateId !== "custom") return DRAFT_TEMPLATES[templateId].label;
+  return customVenue.trim() || "the custom top-tier CS conference named by the user";
+}
+function buildDraftPromptContent(templateId, customVenue, language) {
+  const venue = selectedVenue(templateId, customVenue);
+  const template = DRAFT_TEMPLATES[templateId];
+  const isArxiv = templateId === "arxiv";
+  const searchHint = template.group === "conference" ? template.searchHint : void 0;
+  if (language === "zh") {
+    const templateDirective2 = isArxiv ? `\u76EE\u6807\u4E3A arXiv \u9884\u5370\u672C\u3002\u4F7F\u7528 ${ARXIV_STYLE_REPOSITORY} \u5F53\u524D\u4ED3\u5E93\u4E2D\u7684 \`template.tex\` \u4E0E \`arxiv.sty\` \u4F5C\u4E3A\u9ED8\u8BA4\u6392\u7248\u57FA\u7840\uFF1B\u8BB0\u5F55\u4ED3\u5E93 URL \u4E0E\u53D6\u5F97\u65E5\u671F\uFF0C\u4E0D\u628A\u8BE5\u7B2C\u4E09\u65B9 MIT \u5F00\u6E90\u6837\u5F0F\u63CF\u8FF0\u6210 arXiv \u5B98\u65B9\u8981\u6C42\uFF0C\u4E5F\u4E0D\u8981\u4FEE\u6539\u6837\u5F0F\u6587\u4EF6\u6765\u6324\u538B\u7BC7\u5E45\u3002` : `\u76EE\u6807\u4E3A ${venue}\u3002\u5F00\u59CB\u5199\u4F5C\u524D\u5FC5\u987B\u8054\u7F51\u641C\u7D22 ${searchHint ?? `${venue} \u5B98\u65B9\u4F5C\u8005\u6307\u5357\u4E0E LaTeX \u6A21\u677F`}\uFF0C\u53EA\u4ECE\u4F1A\u8BAE\u5B98\u7F51\u3001\u5B98\u65B9 author kit \u6216\u4F1A\u8BAE\u7EC4\u7EC7\u65B9\u7EF4\u62A4\u7684\u4ED3\u5E93\u53D6\u5F97\u5F53\u524D\u5C4A\u6216\u6700\u8FD1\u4E00\u4E2A\u660E\u786E\u5F00\u653E\u5C4A\u6B21\u7684\u6700\u65B0\u5B98\u65B9 TeX \u6A21\u677F\u3002\u8BB0\u5F55 venue\u3001\u5C4A\u6B21/\u5E74\u4EFD\u3001\u6A21\u677F\u7248\u672C\u3001\u6838\u9A8C\u65E5\u671F\u548C\u5B98\u65B9 URL\uFF1B\u4E0D\u5F97\u6CBF\u7528\u65E7\u5C4A\u6A21\u677F\u6216\u975E\u5B98\u65B9\u955C\u50CF\u3002\u82E5\u5F53\u524D\u5B98\u65B9\u6A21\u677F\u786E\u5B9E\u65E0\u6CD5\u53D6\u5F97\uFF0C\u900F\u660E\u8BF4\u660E\u540E\u4E34\u65F6\u4F7F\u7528 ${ARXIV_STYLE_REPOSITORY} \u4F5C\u4E3A\u201C\u9884\u5370\u672C\u56DE\u9000\u201D\uFF0C\u5E76\u660E\u786E\u4EA7\u7269\u5C1A\u4E0D\u7B26\u5408 ${venue} \u6295\u7A3F\u683C\u5F0F\u3002`;
+    return `# \u57FA\u4E8E\u5B9E\u9A8C\u6750\u6599\u751F\u6210\u5B8C\u6574 CS \u8BBA\u6587\u521D\u7A3F
+
+## \u4F60\u7684\u89D2\u8272
+\u4F60\u662F\u4E25\u8C28\u7684 CS \u8BBA\u6587\u4F5C\u8005\u3001\u8BC1\u636E\u5BA1\u8BA1\u5458\u548C LaTeX \u5DE5\u7A0B\u5E08\u3002\u82E5\u5F53\u524D\u73AF\u5883\u63D0\u4F9B\u8BBA\u6587\u5199\u4F5C\u3001LaTeX\u3001\u6587\u4EF6\u751F\u6210\u6216\u7F16\u8BD1 Skill/\u5DE5\u5177\uFF0C\u5148\u4F7F\u7528\u8FD9\u4E9B\u80FD\u529B\uFF1B\u82E5\u6CA1\u6709\uFF0C\u4E5F\u6309\u76F8\u540C\u6807\u51C6\u5B8C\u6210\u3002\u4F60\u7684\u4EFB\u52A1\u662F\u628A\u5DF2\u5B8C\u6210\u5B9E\u9A8C\u53CA\u5176\u771F\u5B9E\u6750\u6599\u8F6C\u5316\u4E3A\u4E00\u4EFD\u5B8C\u6574\u82F1\u6587\u521D\u7A3F\uFF0C\u800C\u4E0D\u662F\u8865\u9020\u4E00\u7BC7\u201C\u770B\u8D77\u6765\u5B8C\u6574\u201D\u7684\u8BBA\u6587\u3002
+
+## \u672C\u8F6E\u8F93\u5165
+\u8BF7\u5B8C\u6574\u8BFB\u53D6\u6211\u5728\u540C\u4E00\u5BF9\u8BDD\u4E2D\u4E0A\u4F20\u7684\u5168\u90E8\u6750\u6599\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\uFF1A
+- \u5B9E\u9A8C\u7ED3\u679C\u3001\u8868\u683C\u3001\u7EDF\u8BA1\u8F93\u51FA\u3001\u65E5\u5FD7\u4E0E\u539F\u59CB\u5206\u6790\uFF1B
+- \u65B9\u6CD5\u8BBE\u8BA1\u3001\u516C\u5F0F\u3001\u7B97\u6CD5\u3001\u5B9E\u73B0\u8BF4\u660E\u3001\u4EE3\u7801\u6216 README\uFF1B
+- \u6570\u636E\u96C6\u3001baseline\u3001\u670D\u52A1\u5668\u3001\u8D85\u53C2\u6570\u4E0E\u8BC4\u4F30\u534F\u8BAE\uFF1B
+- \u5DF2\u6709\u56FE\u7247\u3001caption\u3001\u8865\u5145\u6750\u6599\u3001\u7814\u7A76\u7B14\u8BB0\u6216\u5C40\u90E8\u8349\u7A3F\uFF1B
+- \u771F\u5B9E\u4E14\u53EF\u6838\u9A8C\u7684 BibTeX \u6216\u53C2\u8003\u6587\u732E\u6E05\u5355\u3002
+
+\u6750\u6599\u4E4B\u95F4\u51B2\u7A81\u65F6\uFF0C\u4EE5\u53EF\u8FFD\u6EAF\u7684\u539F\u59CB\u5B9E\u9A8C\u8BC1\u636E\u548C\u4EE3\u7801\u5B9A\u4E49\u4E3A\u51C6\uFF0C\u5E76\u5728\u4EA4\u4ED8\u8BF4\u660E\u4E2D\u8BB0\u5F55\u51B2\u7A81\u3002\u4E0D\u5F97\u9759\u9ED8\u9009\u62E9\u5BF9\u53D9\u4E8B\u66F4\u6709\u5229\u7684\u7248\u672C\u3002
+
+## \u76EE\u6807\u6A21\u677F
+${templateDirective2}
+
+\u6A21\u677F\u89C4\u5219\u53EF\u80FD\u53D8\u5316\u3002\u4E0D\u5F97\u786C\u7F16\u7801\u5F80\u5E74\u9875\u6570\u3001\u533F\u540D\u89C4\u5219\u6216\u63D0\u4EA4\u8981\u6C42\uFF1B\u5FC5\u987B\u4EE5\u672C\u6B21\u6838\u9A8C\u5230\u7684\u5B98\u65B9\u6700\u65B0\u9875\u9762\u4E3A\u51C6\u3002\u6A21\u677F\u7C7B\u6587\u4EF6\u3001\u7248\u6743\u5757\u3001\u9875\u8FB9\u8DDD\u3001\u5B57\u53F7\u548C\u533F\u540D\u8BBE\u7F6E\u4E0D\u5F97\u4E3A\u5BB9\u7EB3\u5185\u5BB9\u800C\u79C1\u81EA\u4FEE\u6539\u3002
+
+## \u5199\u4F5C\u4EFB\u52A1
+1. \u5728\u5185\u90E8\u5EFA\u7ACB Evidence Ledger\uFF0C\u5C06\u6BCF\u9879\u6838\u5FC3 claim \u5BF9\u9F50\u5230\u65B9\u6CD5\u5B9A\u4E49\u3001\u8868\u683C\u3001\u56FE\u7247\u3001\u7EDF\u8BA1\u7ED3\u679C\u6216\u771F\u5B9E\u5F15\u7528\u3002\u4E0D\u8981\u628A\u8FD9\u4EFD\u5185\u90E8\u6E05\u5355\u5F53\u4F5C\u6B63\u6587\u8F93\u51FA\u3002
+2. \u4ECE\u8BC1\u636E\u4E2D\u786E\u5B9A\u4E00\u4E2A\u6E05\u695A\u3001\u53EF\u8FA9\u62A4\u7684\u79D1\u5B66\u5B9A\u4F4D\uFF0C\u5E76\u7ED9\u51FA\u786E\u5B9A\u7684\u82F1\u6587\u6807\u9898\u548C 4\u20137 \u4E2A\u5B57\u6BCD\u7684\u8BBA\u6587\u54C1\u724C\u7F29\u5199\u3002\u6807\u9898\u3001\u6458\u8981\u3001\u5F15\u8A00\u3001\u65B9\u6CD5\u3001\u5B9E\u9A8C\u3001\u8BA8\u8BBA\u548C\u7ED3\u8BBA\u5FC5\u987B\u56F4\u7ED5\u540C\u4E00\u4E3B\u7EBF\u3002
+3. \u76F4\u63A5\u64B0\u5199\u5B8C\u6574\u82F1\u6587\u8BBA\u6587\u521D\u7A3F\u3002\u7AE0\u8282\u6309\u76EE\u6807\u6A21\u677F\u548C\u8BBA\u6587\u5B9E\u9645\u5185\u5BB9\u7EC4\u7EC7\uFF1B\u65B9\u6CD5\u7AE0\u8282\u8981\u89E3\u91CA\u8BBE\u8BA1\u4E3A\u4F55\u6210\u7ACB\u5E76\u5F62\u6210\u8FDE\u8D2F\u53D9\u4E8B\uFF0C\u4E0D\u8981\u5199\u6210\u7EC4\u4EF6\u8BF4\u660E\u4E66\u3002Experiments and Results \u7684\u7B2C\u4E00\u4E2A\u5C0F\u8282\u4E3A Datasets and Experimental Setup\uFF0C\u5E76\u6309\u76EE\u6807\u6A21\u677F\u5141\u8BB8\u7684\u4E0B\u4E00\u5C42\u6807\u9898\u4F9D\u6B21\u7EC4\u7EC7 Datasets\u3001Evaluation Metrics\u3001Experimental Configuration \u548C Baselines\uFF1BEvaluation Metrics \u72EC\u7ACB\u8BF4\u660E\u6307\u6807\u5B9A\u4E49\u3001\u65B9\u5411\u3001\u5355\u4F4D\u6216\u5C3A\u5EA6\u3001\u805A\u5408\u65B9\u5F0F\u53CA\u5176\u4E0E\u4EFB\u52A1\u76EE\u6807\u7684\u5BF9\u5E94\u5173\u7CFB\u3002\u5B9E\u9A8C\u5FC5\u987B\u5B8C\u6574\u5448\u73B0\u5DF2\u6709\u8BBE\u7F6E\u4E0E\u8BC1\u636E\uFF0C\u4E0D\u5F97\u5220\u51CF\u4E0D\u5229\u7ED3\u679C\uFF0C\u4E5F\u4E0D\u5F97\u628A Discussion \u5199\u6210 Results \u7684\u590D\u8FF0\u3002
+4. Abstract \u53EA\u9648\u8FF0\u6B63\u6587\u80FD\u652F\u6301\u7684\u5185\u5BB9\uFF1BIntroduction \u8BF4\u660E\u4ECA\u5929\u4ECD\u5B58\u5728\u7684\u5177\u4F53\u95EE\u9898\u3001\u6838\u5FC3\u6D1E\u5BDF\u548C\u53EF\u9A8C\u8BC1\u8D21\u732E\uFF1BRelated Work \u7528\u771F\u5B9E\u5F15\u7528\u5EFA\u7ACB\u5DEE\u5F02\u5316\u5B9A\u4F4D\uFF1BDiscussion \u5206\u6790\u673A\u5236\u3001\u8FB9\u754C\u548C\u5C40\u9650\u3002
+5. \u53EA\u4F7F\u7528\u4E0A\u4F20\u6216\u7ECF\u8FC7\u53EF\u9760\u6765\u6E90\u9010\u9879\u6838\u9A8C\u7684\u6587\u732E\u3002\u4E0D\u5F97\u865A\u6784\u4F5C\u8005\u3001\u6807\u9898\u3001venue\u3001\u5E74\u4EFD\u3001DOI\u3001BibTeX key \u6216\u5F15\u7528\u5173\u7CFB\uFF1B\u7F3A\u5931\u4F46\u5FC5\u8981\u7684\u5F15\u7528\u7528\u6E05\u695A\u7684 \`TODO[citation: ...]\` \u6807\u8BB0\u3002
+6. \u4E0D\u5F97\u53D1\u660E\u5B9E\u9A8C\u6570\u5B57\u3001\u6570\u636E\u96C6\u3001baseline\u3001\u6D88\u878D\u3001\u663E\u8457\u6027\u3001\u590D\u6742\u5EA6\u3001\u786C\u4EF6\u3001\u8D85\u53C2\u6570\u3001\u7528\u6237\u7814\u7A76\u6216\u7ED3\u8BBA\u3002\u8BC1\u636E\u7F3A\u53E3\u4F7F\u7528\u7CBE\u786E TODO\uFF0C\u8BF4\u660E\u7F3A\u4EC0\u4E48\u4EE5\u53CA\u5B83\u5F71\u54CD\u54EA\u9879 claim\uFF0C\u4E0D\u5F97\u7528\u542B\u7CCA\u5360\u4F4D\u53E5\u63A9\u76D6\u3002
+7. \u56FE\u8868\u4E0E\u6B63\u6587\u4EA4\u53C9\u5F15\u7528\u3001\u672F\u8BED\u3001\u7F29\u5199\u3001\u53D8\u91CF\u3001\u6570\u5B57\u3001\u5355\u4F4D\u548C\u5927\u5C0F\u5199\u5FC5\u987B\u4E00\u81F4\u3002\u6240\u6709\u8868\u683C\u6570\u5B57\u5E94\u80FD\u56DE\u6EAF\u5230\u8F93\u5165\u8BC1\u636E\u3002
+
+## \u4EA4\u4ED8\u4E0E\u7F16\u8BD1
+\u751F\u6210\u4E00\u4E2A\u53EF\u4E0B\u8F7D\u7684\u5B8C\u6574 LaTeX \u5DE5\u7A0B\uFF0C\u81F3\u5C11\u5305\u542B\uFF1A
+- \`main.tex\`\uFF08\u7BC7\u5E45\u8F83\u957F\u65F6\u53EF\u62C6\u5206\u6E05\u695A\u547D\u540D\u7684 section \u6587\u4EF6\uFF09\uFF1B
+- \`references.bib\`\uFF1B
+- \u76EE\u6807\u6A21\u677F\u6240\u9700\u4E14\u6765\u6E90\u660E\u786E\u7684\u7C7B\u6587\u4EF6/\u6837\u5F0F\u6587\u4EF6\uFF1B
+- \`figures/\` \u4E2D\u7684\u5DF2\u6709\u56FE\u6216\u5F85\u8865\u56FE\u6E05\u5355\uFF0C\u4E0D\u5F97\u4F2A\u9020\u56FE\u7247\uFF1B
+- \`TEMPLATE_SOURCE.md\`\uFF0C\u8BB0\u5F55\u6A21\u677F\u540D\u79F0\u3001\u5C4A\u6B21/\u5E74\u4EFD\u3001\u6765\u6E90 URL\u3001\u53D6\u5F97\u65E5\u671F\u3001\u662F\u5426\u4E3A\u5B98\u65B9\u6A21\u677F\u53CA\u4EFB\u4F55\u56DE\u9000\uFF1B
+- \u6210\u529F\u7F16\u8BD1\u7684 PDF \u548C\u5305\u542B\u5168\u90E8\u6E90\u6587\u4EF6\u7684\u538B\u7F29\u5305\u3002
+
+\u5B9E\u9645\u8FD0\u884C LaTeX \u7F16\u8BD1\uFF0C\u4FEE\u590D\u7F3A\u5305\u3001\u5F15\u7528\u3001\u4EA4\u53C9\u5F15\u7528\u3001\u6D6E\u52A8\u4F53\u3001BibTeX/Biber \u548C\u7F16\u7801\u9519\u8BEF\uFF1B\u4E0D\u5F97\u901A\u8FC7\u5220\u9664\u79D1\u5B66\u5185\u5BB9\u201C\u4FEE\u590D\u201D\u6784\u5EFA\u3002\u6700\u7EC8\u76F4\u63A5\u7ED9\u51FA\u53EF\u4E0B\u8F7D\u6587\u4EF6\uFF0C\u5E76\u7528\u7B80\u77ED\u4E2D\u6587\u8BF4\u660E\uFF1A\u5B8C\u6210\u5185\u5BB9\u3001\u4ECD\u5B58\u5728\u7684 TODO\u3001\u8BC1\u636E\u51B2\u7A81\u3001\u6A21\u677F\u6765\u6E90\u548C\u7F16\u8BD1\u72B6\u6001\u3002
+
+## \u8F93\u51FA\u524D\u81EA\u68C0
+- \u6BCF\u4E2A\u6838\u5FC3 claim \u5747\u6709\u8F93\u5165\u8BC1\u636E\u6216\u660E\u786E TODO\uFF0C\u6CA1\u6709\u8865\u9020\u7ED3\u679C\u4E0E\u5F15\u7528\u3002
+- \u6807\u9898\u3001\u6458\u8981\u3001\u8D21\u732E\u3001\u65B9\u6CD5\u3001\u5B9E\u9A8C\u548C\u7ED3\u8BBA\u53D9\u4E8B\u4E00\u81F4\u3002
+- \u5B9E\u9A8C\u8BBE\u7F6E\u3001\u5BF9\u6BD4\u3001\u6570\u5B57\u3001\u56FE\u8868\u548C\u9650\u5236\u5FE0\u5B9E\u4E8E\u539F\u59CB\u6750\u6599\u3002
+- \u4F7F\u7528\u7684\u662F\u672C\u6B21\u6838\u9A8C\u7684\u76EE\u6807\u6A21\u677F\uFF0C\u672A\u79C1\u6539\u6837\u5F0F\u89C4\u5219\u3002
+- \u5DE5\u7A0B\u53EF\u4ECE\u5E72\u51C0\u73AF\u5883\u7F16\u8BD1\uFF0CPDF\u3001\u5F15\u7528\u548C\u4EA4\u53C9\u5F15\u7528\u65E0\u9519\u8BEF\u3002
+
+\u73B0\u5728\u5B8C\u6574\u8BFB\u53D6\u6750\u6599\u5E76\u76F4\u63A5\u751F\u6210\u6700\u7EC8\u521D\u7A3F\u5DE5\u7A0B\uFF1B\u4E0D\u8981\u5148\u7ED9\u63D0\u7EB2\u3001\u5199\u4F5C\u8BA1\u5212\u6216\u7B49\u5F85\u6211\u9010\u8282\u786E\u8BA4\u3002`;
+  }
+  const templateDirective = isArxiv ? `The target is an arXiv preprint. Use the current \`template.tex\` and \`arxiv.sty\` from ${ARXIV_STYLE_REPOSITORY} as the default typesetting base. Record the repository URL and retrieval date, do not describe this third-party MIT-licensed style as an official arXiv requirement, and do not alter the style file to squeeze content.` : `The target is ${venue}. Before writing, browse for ${searchHint ?? `${venue} official author instructions and LaTeX template`}. Obtain the latest official TeX template for the current or nearest explicitly open edition only from the conference website, official author kit, or organizer-maintained repository. Record the venue, edition/year, template version, verification date, and official URL. Never reuse an older edition or unofficial mirror when a current official source exists. If the official template genuinely cannot be obtained, disclose that limitation and temporarily use ${ARXIV_STYLE_REPOSITORY} as a \u201Cpreprint fallback,\u201D explicitly stating that the output is not yet ${venue}-compliant.`;
+  return `# Generate a Complete CS Paper Draft from Experimental Evidence
+
+## Your role
+Act as a rigorous CS paper author, evidence auditor, and LaTeX engineer. If the environment provides paper-writing, LaTeX, file-generation, or compilation skills/tools, use them first; otherwise follow the same standard manually. Convert completed experiments and authentic research materials into a complete English draft\u2014never manufacture a paper that merely looks complete.
+
+## Inputs
+Read every file uploaded in this conversation, including as applicable:
+- experimental results, tables, statistical outputs, logs, and raw analyses;
+- method designs, equations, algorithms, implementation notes, code, or README files;
+- datasets, baselines, servers, hyperparameters, and evaluation protocols;
+- existing figures, captions, supplementary materials, notes, or partial drafts;
+- authentic, verifiable BibTeX or a reference list.
+
+When sources conflict, prefer traceable raw experimental evidence and code-defined behavior, and record the conflict in the handoff. Never silently choose the version that creates a stronger story.
+
+## Target template
+${templateDirective}
+
+Template rules change over time. Do not hardcode a previous year's page limit, anonymity policy, or submission rule. Follow the latest official page verified in this run. Never alter class/style files, copyright blocks, margins, type sizes, or anonymity settings to force content to fit.
+
+## Drafting tasks
+1. Internally build an Evidence Ledger that maps every core claim to a method definition, table, figure, statistic, or authentic citation. Do not emit this internal ledger as manuscript prose.
+2. Derive one clear and defensible scientific position from the evidence, then commit to an English paper title and a 4\u20137-letter paper brand acronym. Keep the title, abstract, introduction, method, experiments, discussion, and conclusion on one throughline.
+3. Write the complete English manuscript directly. Organize sections according to the target template and the paper's actual needs. Explain why the method's design works through an integrated narrative rather than a component manual. Make Datasets and Experimental Setup the first Experiments and Results subsection, then use the next heading level permitted by the target template for Datasets, Evaluation Metrics, Experimental Configuration, and Baselines in that order. Evaluation Metrics independently defines every metric, its direction, unit or scale, aggregation, and relation to the task objective. Preserve all existing experimental evidence, including unfavorable results, and do not make Discussion a repetition of Results.
+4. Keep the Abstract evidence-bounded; make the Introduction state the specific problem that still exists today, the core insight, and verifiable contributions; use authentic citations in Related Work to establish differentiated positioning; analyze mechanisms, boundaries, and limitations in Discussion.
+5. Use only references supplied by the user or individually verified against reliable sources. Never invent authors, titles, venues, years, DOIs, BibTeX keys, or citation relationships. Mark a necessary missing source as \`TODO[citation: ...]\`.
+6. Never invent experimental numbers, datasets, baselines, ablations, significance tests, complexity, hardware, hyperparameters, user studies, or conclusions. Use precise TODOs that state what evidence is missing and which claim it affects.
+7. Keep terminology, acronyms, variables, numbers, units, capitalization, and all figure/table cross-references consistent. Every table value must trace back to input evidence.
+
+## Deliverables and compilation
+Create a downloadable, complete LaTeX project containing at least:
+- \`main.tex\` (split into clearly named section files only when scale warrants it);
+- \`references.bib\`;
+- provenance-backed class/style files required by the target template;
+- a \`figures/\` directory containing supplied figures or a missing-figure manifest\u2014never fabricated images;
+- \`TEMPLATE_SOURCE.md\` recording template name, edition/year, source URL, retrieval date, official status, and any fallback;
+- a successfully compiled PDF and an archive containing all source files.
+
+Run the LaTeX build and fix package, bibliography, cross-reference, float, BibTeX/Biber, and encoding errors. Never \u201Cfix\u201D a build by deleting scientific content. Return the downloadable files directly, followed by a concise Chinese handoff covering completed work, remaining TODOs, evidence conflicts, template provenance, and compilation status.
+
+## Final audit
+- Every core claim has input evidence or a precise TODO; no result or citation was fabricated.
+- Title, abstract, contributions, method, experiments, and conclusion tell one consistent story.
+- Setup, comparisons, numbers, figures, tables, and limitations faithfully represent the source materials.
+- The template was verified in this run and its style rules were not privately modified.
+- The project compiles cleanly, with working bibliography and cross-references.
+
+Read all materials now and generate the final draft project directly. Do not first provide an outline or writing plan, and do not wait for section-by-section approval.`;
+}
+function buildDraftPrompt(templateId, customVenue, language) {
+  return withPromptJudgmentDirective(
+    buildDraftPromptContent(templateId, customVenue, language),
+    language
+  );
+}
+
+// app/figures/extendedFigureAdapters.ts
+var EXTENDED_FIGURE_TYPE_ADAPTERS = {
+  "task-definition": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u4EFB\u52A1\u5B9A\u4E49\u56FE\uFF1A\u51C6\u786E\u8BF4\u660E\u7814\u7A76\u5BF9\u8C61\u3001\u53EF\u89C2\u5BDF\u8F93\u5165\u3001\u76EE\u6807\u8F93\u51FA\u3001\u5B9E\u4F53\u5173\u7CFB\u4E0E\u4EFB\u52A1\u8FB9\u754C\u3002
+
+\u4ECE Problem Formulation\u3001Task Definition \u6216 Method \u7684\u6B63\u5F0F\u5B9A\u4E49\u4E2D\u53D6\u8BC1\u3002\u9009\u62E9\u6700\u5408\u9002\u7684\u5B9E\u4F8B\u6620\u5C04\u3001\u5B9E\u4F53\u5173\u7CFB\u3001\u96C6\u5408\u6620\u5C04\u6216\u72B6\u6001\u2014\u52A8\u4F5C\u7ED3\u6784\uFF0C\u8BA9\u8BFB\u8005\u65E0\u9700\u4E86\u89E3\u5B9E\u73B0\u7EC6\u8282\u5C31\u80FD\u590D\u8FF0\u4EFB\u52A1\u3002`,
+    en: `Create a Task Definition figure that precisely explains the research objects, observable inputs, target outputs, entity relations, and task boundary.
+
+Use the formal definitions in Problem Formulation, Task Definition, or Method. Choose the clearest representative mapping, entity-relation view, set mapping, or state-action structure so readers can restate the task without knowing the implementation.`
+  },
+  "training-inference": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u8BAD\u7EC3\u2013\u63A8\u7406\u56FE\uFF1A\u533A\u5206\u8BAD\u7EC3\u4E13\u5C5E\u3001\u63A8\u7406\u4E13\u5C5E\u548C\u4E24\u8005\u5171\u4EAB\u7684\u90E8\u5206\uFF0C\u5E76\u8BF4\u660E\u6570\u636E\u3001\u53C2\u6570\u6216\u72B6\u6001\u600E\u6837\u4F20\u9012\u3002
+
+\u4F18\u5148\u4F7F\u7528\u4E0A\u4E0B\u53CC\u8F68\u6216\u5171\u4EAB\u4E2D\u5FC3\u7ED3\u6784\uFF1B\u660E\u786E\u76D1\u7763\u4FE1\u53F7\u3001\u53C2\u6570\u66F4\u65B0\u4E0E\u90E8\u7F72\u65F6\u771F\u5B9E\u4FDD\u7559\u7684\u8DEF\u5F84\u3002\u53EA\u6709\u8BBA\u6587\u786E\u5B9E\u5B58\u5728\u5FAA\u73AF\u6216\u53CD\u9988\u65F6\u624D\u753B\u56DE\u8DEF\u3002`,
+    en: `Create a Training\u2013Inference figure that separates training-only, inference-only, and shared elements while tracing data, parameters, or state across both phases.
+
+Prefer parallel lanes or a shared-center structure. Make supervision, parameter updates, and the actual deployment path explicit. Show a loop only when the paper truly defines one.`
+  },
+  "algorithm-protocol": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u7B97\u6CD5\uFF0F\u534F\u8BAE\u56FE\uFF1A\u5448\u73B0\u521D\u59CB\u5316\u3001\u89C2\u5BDF\u3001\u51B3\u7B56\u3001\u66F4\u65B0\u3001\u53CD\u9988\u4E0E\u505C\u6B62\u6761\u4EF6\u3002
+
+\u6839\u636E\u8BBA\u6587\u9009\u62E9\u72B6\u6001\u673A\u3001\u5FAA\u73AF\u6D41\u7A0B\u3001\u65F6\u5E8F\u56FE\u6216\u4EA4\u4E92\u534F\u8BAE\u3002\u7A81\u51FA\u6539\u53D8\u72B6\u6001\u7684\u5173\u952E\u51B3\u7B56\u548C\u7EC8\u6B62\u903B\u8F91\uFF1B\u666E\u901A\u8FDE\u7EED\u6B65\u9AA4\u53EF\u5408\u5E76\uFF0C\u53C2\u4E0E\u65B9\u4E0E\u6D88\u606F\u65B9\u5411\u5FC5\u987B\u660E\u786E\u3002`,
+    en: `Create an Algorithm / Protocol figure that shows initialization, observation, decision, update, feedback, and termination.
+
+Choose a state machine, iterative flow, sequence diagram, or interaction protocol according to the paper. Emphasize state-changing decisions and stopping logic; merge routine adjacent steps, and make actors and message directions unambiguous.`
+  },
+  "data-construction": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u6570\u636E\u6784\u5EFA\u56FE\uFF1A\u8FFD\u8E2A\u6570\u636E\u6765\u6E90\u3001\u7B5B\u9009\u6216\u6E05\u6D17\u3001\u8F6C\u6362\u3001\u6807\u6CE8\u3001\u8D28\u91CF\u63A7\u5236\u548C\u6700\u7EC8\u6837\u672C\u7ED3\u6784\u3002
+
+\u8BA9\u8BFB\u8005\u80FD\u5224\u65AD\u6BCF\u4E00\u6B65\u6539\u53D8\u4E86\u4EC0\u4E48\uFF0C\u4EE5\u53CA\u54EA\u4E9B\u6B65\u9AA4\u4F1A\u7B5B\u9664\u6216\u5206\u6D41\u6570\u636E\u3002\u7528\u4EE3\u8868\u6027\u6570\u636E\u5BF9\u8C61\u6216\u6837\u4F8B\u8F85\u52A9\u7406\u89E3\uFF1B\u53EA\u6709\u8BBA\u6587\u63D0\u4F9B\u6570\u5B57\u65F6\u624D\u663E\u793A\u6570\u91CF\u3002`,
+    en: `Create a Data Construction figure that traces provenance, filtering or cleaning, transformation, annotation, quality control, and the final sample structure.
+
+Make clear what each stage changes and where data is filtered or branched. Use representative data objects or examples when helpful, and show counts only when the paper provides them.`
+  },
+  "system-deployment": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u7CFB\u7EDF\uFF0F\u90E8\u7F72\u56FE\uFF1A\u8BF4\u660E\u8FD0\u884C\u5B9E\u4F53\u3001\u90E8\u7F72\u8FB9\u754C\u3001\u79BB\u7EBF\u51C6\u5907\u3001\u5728\u7EBF\u670D\u52A1\u548C\u901A\u4FE1\u5173\u7CFB\u3002
+
+\u4F18\u5148\u91C7\u7528\u5E26\u8FB9\u754C\u7684\u7CFB\u7EDF\u62D3\u6251\u6216\u79BB\u7EBF\uFF0F\u5728\u7EBF\u53CC\u533A\u7ED3\u6784\u3002\u6E05\u695A\u533A\u5206\u5B58\u50A8\u3001\u8BA1\u7B97\u3001\u5BA2\u6237\u7AEF\u3001\u670D\u52A1\u7AEF\u4E0E\u5916\u90E8\u7CFB\u7EDF\uFF0C\u5E76\u6807\u660E\u5173\u952E\u6D88\u606F\u6216\u6570\u636E\u6D41\u5411\u3002`,
+    en: `Create a System / Deployment figure that explains runtime entities, deployment boundaries, offline preparation, online serving, and communication.
+
+Prefer a bounded system topology or an offline/online split. Clearly distinguish storage, computation, clients, servers, and external systems, and label the important message or data directions.`
+  },
+  "theory-concept": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u7406\u8BBA\uFF0F\u6982\u5FF5\u5173\u7CFB\u56FE\uFF1A\u51C6\u786E\u8868\u8FBE\u5F62\u5F0F\u5BF9\u8C61\u4E4B\u95F4\u7684\u5305\u542B\u3001\u4F9D\u8D56\u3001\u7B49\u4EF7\u3001\u5206\u89E3\u3001\u7EA6\u675F\u6216\u63A8\u5BFC\u5173\u7CFB\u3002
+
+\u4ECE\u5B9A\u4E49\u3001\u547D\u9898\u6216\u5B9A\u7406\u4E2D\u9009\u62E9\u6700\u5408\u9002\u7684\u96C6\u5408\u5173\u7CFB\u3001\u4F9D\u8D56\u56FE\u3001\u63A8\u5BFC\u94FE\u6216\u6982\u5FF5\u683C\u3002\u89C6\u89C9\u7F16\u7801\u5FC5\u987B\u4E0E\u5173\u7CFB\u7C7B\u578B\u4E00\u81F4\uFF1B\u4E0D\u8981\u628A\u76F8\u5173\u6027\u753B\u6210\u56E0\u679C\u5173\u7CFB\u3002`,
+    en: `Create a Theory / Concept Relations figure that accurately represents inclusion, dependency, equivalence, decomposition, constraint, or derivation among formal objects.
+
+Choose a set relation, dependency graph, derivation chain, or concept lattice from the paper's definitions, propositions, or theorems. Match visual encoding to the actual relation type and never turn association into causality.`
+  },
+  "geometry-coordinate": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u51E0\u4F55\uFF0F\u5750\u6807\u5173\u7CFB\u56FE\uFF1A\u5C55\u793A\u5750\u6807\u7CFB\u3001\u7A7A\u95F4\u5B9E\u4F53\u3001\u5DF2\u77E5\u4E0E\u672A\u77E5\u53D8\u6362\u3001\u6295\u5F71\u5173\u7CFB\u4EE5\u53CA\u4F30\u8BA1\u76EE\u6807\u3002
+
+\u4F7F\u7528\u6E05\u695A\u7684\u5750\u6807\u6846\u67B6\u3001\u51E0\u4F55\u5BF9\u8C61\u3001\u89C6\u9525\u6216\u6295\u5F71\u8DEF\u5F84\u3002\u533A\u5206\u53C2\u8003\u7CFB\u5E76\u4FDD\u6301\u7BAD\u5934\u65B9\u5411\u3001\u4E0B\u6807\u548C\u53D8\u6362\u8BB0\u53F7\u4E0E\u8BBA\u6587\u4E00\u81F4\uFF1B\u53EA\u753B\u7406\u89E3\u76EE\u6807\u6240\u9700\u7684\u51E0\u4F55\u5143\u7D20\u3002`,
+    en: `Create a Geometry / Coordinate figure that shows coordinate frames, spatial entities, known and unknown transforms, projection relations, and the estimation target.
+
+Use clean coordinate frames, geometric objects, frusta, or projection paths. Distinguish reference frames and preserve the paper's arrow directions, subscripts, and transform notation. Draw only the geometry needed to understand the target.`
+  },
+  "survey-taxonomy": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u7EFC\u8FF0\uFF0F\u5206\u7C7B\u4F53\u7CFB\u56FE\uFF1A\u7EC4\u7EC7\u8BBA\u6587\u91C7\u7528\u7684\u5206\u7C7B\u8F74\u3001\u4E3B\u8981\u7C7B\u522B\u3001\u4EA4\u53C9\u5173\u7CFB\u548C\u7531\u6B63\u6587\u652F\u6301\u7684\u7814\u7A76\u7A7A\u767D\u3002
+
+\u6839\u636E\u771F\u5B9E\u5206\u7C7B\u7ED3\u6784\u9009\u62E9\u6811\u3001\u4E8C\u7EF4\u77E9\u9635\u3001\u5206\u5C42\u7248\u56FE\u6216\u591A\u8F74\u5730\u56FE\u3002\u7C7B\u522B\u91CD\u53E0\u65F6\u5FC5\u987B\u5982\u5B9E\u8868\u8FBE\uFF0C\u4E0D\u8981\u5F3A\u884C\u753B\u6210\u4E92\u65A5\u6811\uFF1B\u4EE3\u8868\u6027\u65B9\u6CD5\u540D\u53EA\u7528\u4E8E\u5E2E\u52A9\u5B9A\u4F4D\u3002`,
+    en: `Create a Survey / Taxonomy figure that organizes the paper's classification axes, principal categories, overlaps, and evidence-backed gaps.
+
+Choose a tree, two-dimensional matrix, layered landscape, or multi-axis map according to the actual taxonomy. Represent overlapping categories honestly instead of forcing an exclusive tree; use representative method names only as anchors.`
+  }
+};
+
+// app/figures/promptArchitecture.ts
+var COMMON_BASE = {
+  zh: (figureTypeLabel) => `\u4F60\u662F\u4E00\u540D\u9762\u5411\u8BA1\u7B97\u673A\u79D1\u5B66\u8BBA\u6587\u7684\u79D1\u7814\u914D\u56FE\u4E13\u5BB6\u3002\u6211\u4F1A\u63D0\u4F9B\u8BBA\u6587\u7684 \`.tex\`\u3001\`.pdf\`\uFF0C\u4E5F\u53EF\u80FD\u9644\u5E26\u73B0\u6709\u56FE\u7247\u3002
+
+\u82E5\u6211\u540C\u65F6\u63D0\u4F9B\u73B0\u6709\u6846\u67B6\u56FE\uFF0C\u8BF7\u5148\u6982\u62EC\u5176\u6784\u56FE\u3001\u914D\u8272\u3001\u7EBF\u6761\u3001\u5B57\u4F53\u4E0E\u6574\u4F53\u89C6\u89C9\u8BED\u8A00\uFF0C\u5E76\u6CBF\u7528\u540C\u4E00\u89C6\u89C9\u4F53\u7CFB\u7ED8\u5236\u672C\u56FE\u3002
+
+\u5F00\u59CB\u524D\uFF0C\u8BF7\u8054\u7F51\u6838\u67E5\u4E0E\u672C\u8BBA\u6587\u4E3B\u9898\u6700\u63A5\u8FD1\u7684\u9876\u4F1A\u6216\u9876\u520A\u8BBA\u6587\uFF0C\u91CD\u70B9\u89C2\u5BDF\u5176\u4E2D\u7684\u201C${figureTypeLabel}\u201D\u3002\u7528 2\u20134 \u70B9\u603B\u7ED3\u53EF\u501F\u9274\u7684\u6784\u56FE\u3001\u4FE1\u606F\u5C42\u7EA7\u548C\u89C6\u89C9\u8BED\u6CD5\uFF1B\u53EA\u501F\u9274\u901A\u7528\u8868\u8FBE\u65B9\u6CD5\uFF0C\u4E0D\u590D\u5236\u5177\u4F53\u5185\u5BB9\u6216\u54C1\u724C\u89C6\u89C9\u3002\u82E5\u5F53\u524D\u65E0\u6CD5\u8054\u7F51\uFF0C\u8BF7\u660E\u786E\u8BF4\u660E\uFF0C\u5E76\u4EC5\u4F9D\u636E\u5DF2\u63D0\u4F9B\u6750\u6599\u7EE7\u7EED\u3002
+
+\u5B8C\u6574\u9605\u8BFB\u6750\u6599\u540E\u518D\u8BBE\u8BA1\u3002\u4EE5 \`.tex\` \u4E3A\u65B9\u6CD5\u540D\u3001\u6A21\u5757\u540D\u3001\u7F29\u5199\u3001\u6570\u5B66\u7B26\u53F7\u548C\u7ED3\u6784\u7684\u4E3B\u8981\u4F9D\u636E\uFF0C\u4EE5 \`.pdf\` \u7406\u89E3\u4E0A\u4E0B\u6587\u548C\u73B0\u6709\u56FE\u8868\u3002\u56FE\u4E2D\u672F\u8BED\u5FC5\u987B\u4E0E\u8BBA\u6587\u9010\u5B57\u7B26\u4E00\u81F4\uFF0C\u53EA\u5448\u73B0\u8BBA\u6587\u8BC1\u636E\u652F\u6301\u7684\u5173\u7CFB\u3002
+
+\u5148\u786E\u5B9A\u8FD9\u5F20\u56FE\u7684\u552F\u4E00\u4E3B\u65E8\u548C\u4E3B\u8981\u9605\u8BFB\u8DEF\u5F84\uFF0C\u518D\u9009\u62E9\u6700\u7B26\u5408\u8BBA\u6587\u5BF9\u8C61\u7684\u89C6\u89C9\u8868\u8FBE\uFF0C\u4F8B\u5982 token\u3001matrix\u3001graph\u3001feature map\u3001state\u3001timeline\u3001coordinate frame \u6216\u4EE3\u8868\u6027\u6837\u4F8B\u3002\u4E0D\u8981\u628A\u6574\u5F20\u56FE\u753B\u6210\u6587\u5B57\u5361\u7247\uFF1B\u6807\u7B7E\u4F7F\u7528\u7B80\u77ED\u82F1\u6587\uFF0C\u4FDD\u8BC1\u7F29\u5C0F\u5230\u8BBA\u6587\u5C3A\u5BF8\u540E\u4ECD\u6E05\u695A\uFF0C\u5E76\u8BA9\u753B\u9762\u7D27\u51D1\u800C\u4E0D\u8FC7\u5EA6\u62E5\u6324\u3002`,
+  en: (figureTypeLabel) => `You are a scientific-figure specialist for computer-science papers. I will provide the paper's \`.tex\`, \`.pdf\`, and possibly existing figures.
+
+If I also provide an existing framework figure, first summarize its composition, palette, line work, typography, and overall visual language, then use the same visual system for this figure.
+
+Before designing, browse closely related papers from leading conferences or journals and inspect their \u201C${figureTypeLabel}\u201D figures. Summarize 2\u20134 transferable observations about composition, information hierarchy, and visual grammar. Borrow only general presentation patterns, never specific content or brand styling. If browsing is unavailable, say so and continue only from the supplied materials.
+
+Read the materials before designing. Treat the \`.tex\` as the primary source for method names, module names, abbreviations, mathematical symbols, and structure; use the \`.pdf\` for context and existing figures. Every term in the image must match the paper exactly, and every relationship must be supported by the paper.
+
+Choose one visual thesis and one main reading path, then use visual objects that fit the paper\u2014such as tokens, matrices, graphs, feature maps, states, timelines, coordinate frames, or representative examples. Do not reduce the figure to text boxes. Use short English labels, keep it legible at paper size, and compose a compact but uncrowded canvas.`
+};
+var CORE_FIGURE_TYPE_ADAPTERS = {
+  introduction: {
+    zh: `\u672C\u6B21\u7ED8\u5236\u5F15\u8A00\u56FE\uFF1A\u8BA9\u8BFB\u8005\u76F4\u89C2\u770B\u5230\u7814\u7A76\u573A\u666F\u3001\u5F53\u524D\u4ECD\u5B58\u5728\u7684\u5173\u952E\u95EE\u9898\uFF0C\u4EE5\u53CA\u672C\u6587\u5E26\u6765\u7684\u65B0\u89C2\u5BDF\u6216\u89E3\u51B3\u539F\u5219\u3002
+
+\u56F4\u7ED5\u4E00\u7EC4\u6E05\u695A\u7684\u201C\u73B0\u72B6\uFF0F\u5931\u8D25\u60C5\u5F62 \u2192 \u95EE\u9898\u672C\u8D28 \u2192 \u672C\u6587\u8F6C\u53D8\u201D\u7EC4\u7EC7\u753B\u9762\u3002\u4F18\u5148\u4F7F\u7528\u4EE3\u8868\u6027\u573A\u666F\u6216\u5BF9\u6BD4\u5173\u7CFB\uFF0C\u4E0D\u5C55\u5F00\u5B8C\u6574\u65B9\u6CD5\u6D41\u6C34\u7EBF\uFF0C\u4E5F\u4E0D\u653E\u5B9E\u9A8C\u7ED3\u679C\u3002`,
+    en: `Create an Introduction figure that makes the research setting, the key problem that still exists today, and the paper's new observation or solution principle immediately clear.
+
+Organize the image around one readable \u201Ccurrent situation or failure \u2192 underlying problem \u2192 paper's shift\u201D story. Prefer representative scenes or a meaningful comparison. Do not expand the full method pipeline or include experimental results.`
+  },
+  "method-overview": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u65B9\u6CD5\u603B\u89C8\u56FE\uFF1A\u56DE\u7B54\u8F93\u5165\u662F\u4EC0\u4E48\u3001\u4E3B\u8981\u9636\u6BB5\u6216\u7EC4\u4EF6\u5982\u4F55\u534F\u4F5C\u3001\u4FE1\u606F\u600E\u6837\u6D41\u52A8\uFF0C\u4EE5\u53CA\u8F93\u51FA\u662F\u4EC0\u4E48\u3002
+
+\u5148\u6839\u636E\u8BBA\u6587\u5224\u65AD\u5B83\u66F4\u9002\u5408 pipeline\u3001\u5206\u5C42\u67B6\u6784\u3001\u53CC\u6D41\u4EA4\u4E92\u3001\u8FED\u4EE3\u73AF\u3001\u5171\u4EAB\u9AA8\u5E72\u6216\u5176\u4ED6\u771F\u5B9E\u7ED3\u6784\u3002\u53EA\u4FDD\u7559\u4E00\u6761\u4E3B\u8981\u9605\u8BFB\u8DEF\u5F84\uFF1B\u8BA9\u5165\u53E3\u3001\u521B\u65B0\u673A\u5236\u548C\u8F93\u51FA\u6210\u4E3A\u4E09\u4E2A\u6E05\u695A\u7684\u89C6\u89C9\u951A\u70B9\u3002\u521B\u65B0\u90E8\u5206\u83B7\u5F97\u66F4\u591A\u7A7A\u95F4\uFF0C\u901A\u7528\u7EC4\u4EF6\u5F31\u5316\uFF0C\u5BB9\u5668\u5D4C\u5957\u4E0D\u8D85\u8FC7\u4E24\u5C42\u3002`,
+    en: `Create a Method Overview figure that answers what enters the method, how the main stages or components work together, how information moves, and what is produced.
+
+Infer the truthful visual form from the paper: a pipeline, layered architecture, dual-stream interaction, iterative loop, shared backbone, or another real structure. Keep one main reading path with three clear anchors: entry, novel mechanism, and output. Give the innovation more visual space, de-emphasize routine components, and keep container nesting to at most two levels.`
+  },
+  "technical-detail": {
+    zh: `\u672C\u6B21\u7ED8\u5236\u6838\u5FC3\u673A\u5236\u7EC6\u8282\u56FE\uFF1A\u4ECE\u8BBA\u6587\u4E2D\u9009\u62E9\u4E00\u4E2A\u533A\u522B\u4E8E\u65B9\u6CD5\u603B\u89C8\u3001\u6700\u503C\u5F97\u5355\u72EC\u89E3\u91CA\u7684\u521B\u65B0\u673A\u5236\u3002
+
+\u805A\u7126\u8BE5\u673A\u5236\u7684\u5C40\u90E8\u8F93\u5165\u3001\u4E2D\u95F4\u8868\u793A\u3001\u5173\u952E\u64CD\u4F5C\u548C\u5C40\u90E8\u8F93\u51FA\u3002\u628A\u6700\u96BE\u4EC5\u9760\u4E00\u53E5\u8BDD\u89E3\u91CA\u7684\u53D8\u6362\u6216\u4EA4\u4E92\u753B\u6E05\u695A\uFF1B\u53EA\u8865\u5145\u7406\u89E3\u8BE5\u673A\u5236\u6240\u5FC5\u9700\u7684\u516C\u5F0F\u6216\u7B26\u53F7\uFF0C\u4E0D\u91CD\u590D\u6574\u7BC7\u65B9\u6CD5\u6D41\u7A0B\u3002`,
+    en: `Create a Core Mechanism Detail figure for the single most important novel mechanism that deserves explanation beyond the Method Overview.
+
+Focus on its local input, intermediate representation, decisive operation, and local output. Visualize the transformation or interaction that prose alone cannot explain well. Include only the equations or symbols needed to understand this mechanism, and do not repeat the full method pipeline.`
+  }
+};
+var FIGURE_TYPE_ADAPTERS = {
+  ...CORE_FIGURE_TYPE_ADAPTERS,
+  ...EXTENDED_FIGURE_TYPE_ADAPTERS
+};
+function buildDirectProtocol(language, outputFileName) {
+  if (language === "zh") {
+    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u76F4\u63A5\u7ED8\u56FE\u3002\u5148\u5728\u5185\u90E8\u5B8C\u6210\u540C\u7C7B\u8BBA\u6587\u56FE\u98CE\u683C\u603B\u7ED3\uFF0C\u5E76\u636E\u6B64\u5F62\u6210\u4E00\u4EFD\u8BE6\u7EC6\u3001\u5B8C\u6574\u7684\u82F1\u6587\u751F\u56FE Prompt\uFF1B\u4E0D\u8981\u8F93\u51FA\u8BE5 Prompt\uFF0C\u4E5F\u4E0D\u8981\u7B49\u5F85\u786E\u8BA4\u3002\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u7EC6\u8282\u9510\u5229\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002\u751F\u6210\u540E\u6838\u5BF9\u672F\u8BED\u3001\u7BAD\u5934\u65B9\u5411\u3001\u7ED3\u6784\u5173\u7CFB\u548C\u7F29\u5C0F\u540E\u7684\u53EF\u8BFB\u6027\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
+  }
+  return `Execution mode: draw directly. Internally summarize the reference-figure patterns and form one detailed, self-contained English image-generation prompt from them. Do not print that prompt or wait for confirmation. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
+}
+function buildPromptFirstProtocol(language, outputFileName) {
+  if (language === "zh") {
+    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u5148\u770B Prompt\uFF0C\u672C\u8F6E\u4E0D\u8981\u751F\u6210\u56FE\u7247\u3002\u53EA\u8F93\u51FA\u4E24\u90E8\u5206\uFF1A
+
+REFERENCE STYLE SUMMARY
+\u7528 2\u20134 \u70B9\u6982\u62EC\u540C\u7C7B\u9876\u4F1A\u6216\u9876\u520A\u56FE\u7247\u4E2D\u53EF\u501F\u9274\u7684\u89C6\u89C9\u65B9\u6CD5\u3002
+
+FINAL IMAGE PROMPT
+\u5728\u4E00\u4E2A \`text\` \u4EE3\u7801\u5757\u4E2D\u7ED9\u51FA\u5B8C\u6574\u82F1\u6587\u751F\u56FE Prompt\uFF0C\u53EA\u9700\u4F9D\u6B21\u5199\u6E05\uFF1A\u56FE\u7684\u4E3B\u65E8\u4E0E\u6784\u56FE\u3001\u79D1\u5B66\u5BF9\u8C61\u4E0E\u4FE1\u606F\u6D41\u3001\u7CBE\u786E\u6807\u7B7E\u3001\u89C6\u89C9\u8BBE\u7F6E\u3002\u4E0D\u8981\u8F93\u51FA\u63A8\u7406\u8FC7\u7A0B\u6216\u5907\u9009\u65B9\u6848\u3002
+
+\u7136\u540E\u505C\u6B62\uFF0C\u7B49\u5F85\u6211\u8F93\u5165\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u3002\u6536\u5230\u540E\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u4F9D\u636E\u8FD9\u4EFD Prompt \u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u7EC6\u8282\u9510\u5229\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\uFF0C\u5E76\u6838\u5BF9\u672F\u8BED\u3001\u7ED3\u6784\u3001\u7BAD\u5934\u548C\u53EF\u8BFB\u6027\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
+  }
+  return `Execution mode: prompt first. Do not generate an image in this response. Output only:
+
+REFERENCE STYLE SUMMARY
+Give 2\u20134 transferable observations from comparable figures in leading conference or journal papers.
+
+FINAL IMAGE PROMPT
+Provide one complete English image-generation prompt in a \`text\` code block. Cover only the visual thesis and composition, scientific objects and flow, exact labels, and visual settings. Do not expose reasoning or alternatives.
+
+Then stop and wait for \u201CStart drawing\u201D or \u201C\u5F00\u59CB\u7ED8\u56FE\u201D. After that instruction, think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then use this prompt to render an ultra-high-resolution scientific figure with crisp details and legible text for publication; verify terminology, structure, arrows, and legibility.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
+}
+var OUTPUT_PROTOCOL = {
+  zh: ({ executionMode, outputFileName }) => executionMode === "direct" ? buildDirectProtocol("zh", outputFileName) : buildPromptFirstProtocol("zh", outputFileName),
+  en: ({ executionMode, outputFileName }) => executionMode === "direct" ? buildDirectProtocol("en", outputFileName) : buildPromptFirstProtocol("en", outputFileName)
+};
+
+// app/figures/config.ts
+var FIGURE_PROMPT_ORDER = [
+  "introduction",
+  "task-definition",
+  "method-overview",
+  "technical-detail",
+  "training-inference",
+  "algorithm-protocol",
+  "data-construction",
+  "system-deployment",
+  "theory-concept",
+  "geometry-coordinate",
+  "survey-taxonomy"
+];
+var FIGURE_TYPE_RECOMMENDATIONS = {
+  introduction: {
+    promptId: "introduction",
+    executionMode: "direct",
+    aspectRatioId: "landscape-16-9",
+    customAspectWidth: 16,
+    customAspectHeight: 9,
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: true,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "task-definition": {
+    promptId: "task-definition",
+    executionMode: "direct",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: true,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "method-overview": {
+    promptId: "method-overview",
+    executionMode: "direct",
+    aspectRatioId: "landscape-2-1",
+    customAspectWidth: 2,
+    customAspectHeight: 1,
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "neutral",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: true,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "technical-detail": {
+    promptId: "technical-detail",
+    executionMode: "direct",
+    aspectRatioId: "landscape-4-3",
+    customAspectWidth: 4,
+    customAspectHeight: 3,
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "neutral",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "training-inference": {
+    promptId: "training-inference",
+    executionMode: "direct",
+    aspectRatioId: "landscape-2-1",
+    customAspectWidth: 2,
+    customAspectHeight: 1,
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "algorithm-protocol": {
+    promptId: "algorithm-protocol",
+    executionMode: "direct",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "data-construction": {
+    promptId: "data-construction",
+    executionMode: "direct",
+    aspectRatioId: "landscape-2-1",
+    customAspectWidth: 2,
+    customAspectHeight: 1,
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: true,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "system-deployment": {
+    promptId: "system-deployment",
+    executionMode: "direct",
+    aspectRatioId: "landscape-16-9",
+    customAspectWidth: 16,
+    customAspectHeight: 9,
+    paletteId: "tol-bright",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: false,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "theory-concept": {
+    promptId: "theory-concept",
+    executionMode: "direct",
+    aspectRatioId: "landscape-4-3",
+    customAspectWidth: 4,
+    customAspectHeight: 3,
+    paletteId: "tol-muted",
+    fontFamilyId: "calibri",
+    lineColorMode: "neutral",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: false,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "geometry-coordinate": {
+    promptId: "geometry-coordinate",
+    executionMode: "direct",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    paletteId: "tol-vibrant",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: true,
+    cardFillPolicyId: "key-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  },
+  "survey-taxonomy": {
+    promptId: "survey-taxonomy",
+    executionMode: "direct",
+    aspectRatioId: "landscape-3-2",
+    customAspectWidth: 3,
+    customAspectHeight: 2,
+    paletteId: "tol-bright",
+    fontFamilyId: "calibri",
+    lineColorMode: "semantic",
+    accentColorMin: 2,
+    accentColorMax: 4,
+    allowLightIllustrations: false,
+    cardFillPolicyId: "semantic-regions",
+    fontSizeLevels: 3,
+    includeLargeTitle: false
+  }
+};
+var FIGURE_DEFAULT_LAYOUT = Object.fromEntries(
+  FIGURE_PROMPT_ORDER.map((promptId) => [
+    promptId,
+    {
+      aspectRatioId: FIGURE_TYPE_RECOMMENDATIONS[promptId].aspectRatioId
+    }
+  ])
+);
+var DEFAULT_FIGURE_PREFERENCES = {
+  ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"]
+};
+var RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES = {
+  ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"]
+};
+var FIGURE_ASPECT_RATIOS = {
+  "landscape-4-3": {
+    label: {
+      zh: "\u6A2A\u7248 4:3",
+      en: "Landscape 4:3"
+    },
+    ratio: "4:3",
+    shortDescription: {
+      zh: "\u7D27\u51D1\u5BF9\u7167\u4E0E\u5C40\u90E8\u673A\u5236",
+      en: "Compact comparisons and local mechanisms"
+    }
+  },
+  "landscape-3-2": {
+    label: {
+      zh: "\u6A2A\u7248 3:2",
+      en: "Landscape 3:2"
+    },
+    ratio: "3:2",
+    shortDescription: {
+      zh: "\u5E73\u8861\u6A2A\u5411\u6D41\u7A0B\u4E0E\u673A\u5236\u5C42\u7EA7",
+      en: "Balances horizontal flow and mechanism depth"
+    }
+  },
+  "landscape-16-9": {
+    label: {
+      zh: "\u6A2A\u7248 16:9",
+      en: "Landscape 16:9"
+    },
+    ratio: "16:9",
+    shortDescription: {
+      zh: "\u5F15\u8A00\u53D9\u4E8B\u4E0E\u6A2A\u5411\u8F6C\u6298",
+      en: "Introduction narratives and horizontal transitions"
+    }
+  },
+  "landscape-2-1": {
+    label: {
+      zh: "\u8D85\u5BBD 2:1",
+      en: "Ultra-wide 2:1"
+    },
+    ratio: "2:1",
+    shortDescription: {
+      zh: "\u8D85\u5BBD\u65B9\u6CD5\u603B\u89C8\u9996\u9009",
+      en: "Preferred for ultra-wide method overviews"
+    }
+  },
+  "portrait-3-4": {
+    label: {
+      zh: "\u7AD6\u7248 3:4",
+      en: "Portrait 3:4"
+    },
+    ratio: "3:4",
+    shortDescription: {
+      zh: "\u7EB5\u5411\u5C42\u7EA7\u4E0E\u673A\u5236\u5256\u9762",
+      en: "Vertical hierarchy and mechanism anatomy"
+    }
+  },
+  "portrait-9-16": {
+    label: {
+      zh: "\u7AD6\u7248 9:16",
+      en: "Portrait 9:16"
+    },
+    ratio: "9:16",
+    shortDescription: {
+      zh: "\u8F83\u6DF1\u7EB5\u5411\u6D41\u7A0B\uFF0C\u614E\u7528",
+      en: "Deep vertical flows; use sparingly"
+    }
+  },
+  custom: {
+    label: {
+      zh: "\u81EA\u5B9A\u4E49",
+      en: "Custom"
+    },
+    ratio: null,
+    shortDescription: {
+      zh: "\u8F93\u5165\u4EFB\u610F\u5BBD\u9AD8\u6BD4\u4F8B",
+      en: "Enter any width-to-height ratio"
+    }
+  }
+};
+var FIGURE_ASPECT_RATIO_IDS = Object.keys(
+  FIGURE_ASPECT_RATIOS
+);
+function greatestCommonDivisor(left, right) {
+  let a = Math.max(1, Math.round(Math.abs(left)));
+  let b = Math.max(1, Math.round(Math.abs(right)));
+  while (b !== 0) {
+    [a, b] = [b, a % b];
+  }
+  return a;
+}
+function getFigureAspectRatio(preferences) {
+  const presetRatio = FIGURE_ASPECT_RATIOS[preferences.aspectRatioId].ratio;
+  if (presetRatio) return presetRatio;
+  const width = Math.max(1, Math.round(preferences.customAspectWidth));
+  const height = Math.max(1, Math.round(preferences.customAspectHeight));
+  const divisor = greatestCommonDivisor(width, height);
+  return `${width / divisor}:${height / divisor}`;
+}
+var FIGURE_ACCENT_COLOR_COUNT_MIN = 1;
+var FIGURE_ACCENT_COLOR_COUNT_MAX = 4;
+function normalizeFigureAccentColorCount(value, fallback) {
+  const normalized = Number.isFinite(value) ? Math.round(value) : fallback;
+  return Math.min(
+    FIGURE_ACCENT_COLOR_COUNT_MAX,
+    Math.max(FIGURE_ACCENT_COLOR_COUNT_MIN, normalized)
+  );
+}
+function getFigureAccentColorRange(preferences) {
+  const requestedMin = normalizeFigureAccentColorCount(
+    preferences.accentColorMin,
+    2
+  );
+  const requestedMax = normalizeFigureAccentColorCount(
+    preferences.accentColorMax,
+    4
+  );
+  const min = Math.min(requestedMin, requestedMax);
+  const max = Math.max(requestedMin, requestedMax);
+  return {
+    min,
+    max,
+    label: `${min}\u2013${max}`
+  };
+}
+var FIGURE_COLOR_PALETTES = {
+  "tol-vibrant": {
+    label: { zh: "Tol \u9C9C\u660E \xB7 \u84DD\u6A59", en: "Tol Vibrant \xB7 blue\u2013orange" },
+    colors: ["#0077BB", "#EE7733", "#009988", "#CC3311"]
+  },
+  "tol-bright": {
+    label: {
+      zh: "Tol \u660E\u4EAE \xB7 \u84DD\u7EA2\u7EFF\u9EC4",
+      en: "Tol Bright \xB7 blue\u2013red\u2013green\u2013yellow"
+    },
+    colors: ["#4477AA", "#EE6677", "#228833", "#CCBB44"]
+  },
+  "tol-muted": {
+    label: {
+      zh: "Tol \u67D4\u548C \xB7 \u975B\u73AB\u7470\u9752\u6C99",
+      en: "Tol Muted \xB7 indigo\u2013rose\u2013teal\u2013sand"
+    },
+    colors: ["#332288", "#CC6677", "#44AA99", "#DDCC77"]
+  }
+};
+var FIGURE_COLOR_PALETTE_IDS = Object.keys(
+  FIGURE_COLOR_PALETTES
+);
+var FIGURE_FONT_FAMILIES = {
+  "times-new-roman": {
+    label: "Times New Roman"
+  },
+  arial: {
+    label: "Arial"
+  },
+  calibri: {
+    label: "Calibri"
+  },
+  helvetica: {
+    label: "Helvetica"
+  },
+  "comic-sans": {
+    label: "Comic Sans MS"
+  }
+};
+var FIGURE_FONT_FAMILY_IDS = Object.keys(
+  FIGURE_FONT_FAMILIES
+);
+var FIGURE_CARD_FILL_POLICIES = {
+  white: {
+    label: {
+      zh: "\u5168\u90E8\u7EAF\u767D",
+      en: "All white"
+    },
+    shortDescription: {
+      zh: "\u5BB9\u5668\u53EA\u7528\u8FB9\u6846\u3001\u5BF9\u9F50\u548C\u7559\u767D\u5206\u7EC4\u3002",
+      en: "Group containers only with borders, alignment, and whitespace."
+    },
+    compiledValue: "Keep every container card pure white; organize containers with borders, alignment, spacing, and group headings"
+  },
+  "key-regions": {
+    label: {
+      zh: "\u5173\u952E\u533A\u57DF\u6D45\u5E95",
+      en: "Pale key regions"
+    },
+    shortDescription: {
+      zh: "\u53EA\u4E3A\u89C6\u89C9\u7126\u70B9\u4F7F\u7528\u6781\u6D45\u8BED\u4E49\u5E95\u8272\u3002",
+      en: "Use extremely pale semantic tints only at the visual focus."
+    },
+    compiledValue: "Use extremely pale semantic tints only for key regions, intermediate states, or the core operator; keep all other container cards white"
+  },
+  "semantic-regions": {
+    label: {
+      zh: "\u6309\u8BED\u4E49\u533A\u57DF\u6D45\u5E95",
+      en: "Pale semantic regions"
+    },
+    shortDescription: {
+      zh: "\u4EE5\u6781\u6D45\u5E95\u8272\u533A\u5206\u5C11\u91CF\u771F\u5B9E\u8BED\u4E49\u533A\u57DF\u3002",
+      en: "Separate a few real semantic regions with extremely pale tints."
+    },
+    compiledValue: "Use extremely pale tints to distinguish a small number of real semantic regions; keep identical roles consistent and ordinary containers white"
+  }
+};
+var FIGURE_CARD_FILL_POLICY_IDS = Object.keys(
+  FIGURE_CARD_FILL_POLICIES
+);
+var FIGURE_PROMPTS = {
+  introduction: {
+    label: {
+      zh: "\u5F15\u8A00\u56FE",
+      en: "Introduction figure"
+    },
+    purpose: {
+      zh: "\u5448\u73B0\u73B0\u6709\u7406\u89E3\u7684\u5173\u952E\u4E0D\u8DB3\uFF0C\u4EE5\u53CA\u672C\u6587\u5E26\u6765\u7684\u79D1\u5B66\u89C2\u5BDF\u6216\u89E3\u51B3\u539F\u5219\u3002",
+      en: "Show the decisive limitation in current understanding and the paper\u2019s new observation or solution principle."
+    },
+    intent: {
+      zh: "\u4E3A\u4EC0\u4E48\u73B0\u6709\u7406\u89E3\u6216\u65B9\u6CD5\u4E0D\u591F\uFF1F",
+      en: "Why is the current understanding or method insufficient?"
+    }
+  },
+  "task-definition": {
+    label: {
+      zh: "\u4EFB\u52A1\u5B9A\u4E49\u56FE",
+      en: "Task definition"
+    },
+    purpose: {
+      zh: "\u5F62\u5F0F\u5316\u8BF4\u660E\u7814\u7A76\u5BF9\u8C61\u3001\u8F93\u5165\u8F93\u51FA\u3001\u5B9E\u4F53\u5173\u7CFB\u548C\u4EFB\u52A1\u8FB9\u754C\u3002",
+      en: "Formalize the research objects, inputs, outputs, entity relations, and task boundary."
+    },
+    intent: {
+      zh: "\u7814\u7A76\u4EFB\u52A1\u7A76\u7ADF\u662F\u4EC0\u4E48\uFF1F",
+      en: "What exactly is the research task?"
+    }
+  },
+  "method-overview": {
+    label: {
+      zh: "\u65B9\u6CD5\u603B\u89C8\u56FE",
+      en: "Method overview"
+    },
+    purpose: {
+      zh: "\u5EFA\u7ACB\u4ECE\u8F93\u5165\u3001\u5171\u4EAB\u8BA1\u7B97\u4E0E\u6838\u5FC3\u9636\u6BB5\u5230\u6B63\u5F0F\u8F93\u51FA\u7684\u6574\u4F53\u5FC3\u667A\u5730\u56FE\u3002",
+      en: "Build a system-level map from input and shared computation through the core stages to the formal output."
+    },
+    intent: {
+      zh: "\u6574\u4F53\u65B9\u6CD5\u600E\u6837\u8FD0\u884C\uFF1F",
+      en: "How does the overall method run?"
+    }
+  },
+  "technical-detail": {
+    label: {
+      zh: "\u6838\u5FC3\u673A\u5236\u7EC6\u8282\u56FE",
+      en: "Core mechanism detail"
+    },
+    purpose: {
+      zh: "\u5256\u5F00\u5C55\u793A\u4E00\u4E2A\u6700\u5173\u952E\u7684\u65B0\u673A\u5236\u5185\u90E8\u5982\u4F55\u53D8\u6362\u3001\u9009\u62E9\u3001\u4EA4\u4E92\u6216\u66F4\u65B0\u3002",
+      en: "Open up one decisive new mechanism to show how it transforms, selects, interacts, or updates internally."
+    },
+    intent: {
+      zh: "\u5C40\u90E8\u6838\u5FC3\u673A\u5236\u600E\u6837\u5DE5\u4F5C\uFF1F",
+      en: "How does the local core mechanism work?"
+    }
+  },
+  "training-inference": {
+    label: {
+      zh: "\u8BAD\u7EC3\u2013\u63A8\u7406\u56FE",
+      en: "Training\u2013inference"
+    },
+    purpose: {
+      zh: "\u533A\u5206\u8BAD\u7EC3\u4E13\u5C5E\u3001\u63A8\u7406\u4E13\u5C5E\u4E0E\u5171\u4EAB\u90E8\u5206\uFF0C\u8BF4\u660E\u53C2\u6570\u548C\u4FE1\u606F\u5728\u4E24\u4E2A\u9636\u6BB5\u5982\u4F55\u6D41\u52A8\u3002",
+      en: "Separate training-only, inference-only, and shared elements while tracing parameters and information across both phases."
+    },
+    intent: {
+      zh: "\u65B9\u6CD5\u600E\u6837\u8BAD\u7EC3\uFF0C\u53C8\u600E\u6837\u63A8\u7406\uFF1F",
+      en: "How is the method trained and then used for inference?"
+    }
+  },
+  "algorithm-protocol": {
+    label: {
+      zh: "\u7B97\u6CD5\uFF0F\u534F\u8BAE\u56FE",
+      en: "Algorithm / protocol"
+    },
+    purpose: {
+      zh: "\u8BF4\u660E\u8FC7\u7A0B\u5982\u4F55\u521D\u59CB\u5316\u3001\u89C2\u5BDF\u3001\u51B3\u7B56\u3001\u66F4\u65B0\u3001\u53CD\u9988\u5E76\u6EE1\u8DB3\u505C\u6B62\u6761\u4EF6\u3002",
+      en: "Show how a process initializes, observes, decides, updates, feeds back, and reaches a stopping condition."
+    },
+    intent: {
+      zh: "\u8FC7\u7A0B\u600E\u6837\u8FED\u4EE3\u3001\u51B3\u7B56\u4E0E\u505C\u6B62\uFF1F",
+      en: "How does the process iterate, decide, and stop?"
+    }
+  },
+  "data-construction": {
+    label: {
+      zh: "\u6570\u636E\u6784\u5EFA\u56FE",
+      en: "Data construction"
+    },
+    purpose: {
+      zh: "\u5448\u73B0\u6570\u636E\u6765\u6E90\u3001\u6E05\u6D17\u8F6C\u6362\u3001\u6807\u6CE8\u534F\u4F5C\u3001\u8D28\u91CF\u63A7\u5236\u548C\u6700\u7EC8\u6837\u672C\u7ED3\u6784\u3002",
+      en: "Trace data provenance, cleaning and transformation, annotation, quality control, and the final sample schema."
+    },
+    intent: {
+      zh: "\u6570\u636E\u4ECE\u54EA\u91CC\u6765\u3001\u600E\u6837\u6784\u5EFA\uFF1F",
+      en: "Where does the data come from and how is it constructed?"
+    }
+  },
+  "system-deployment": {
+    label: {
+      zh: "\u7CFB\u7EDF\uFF0F\u90E8\u7F72\u56FE",
+      en: "System / deployment"
+    },
+    purpose: {
+      zh: "\u8868\u8FBE\u8FD0\u884C\u5B9E\u4F53\u3001\u90E8\u7F72\u8FB9\u754C\u3001\u901A\u4FE1\u8BED\u4E49\uFF0C\u4EE5\u53CA\u79BB\u7EBF\u51C6\u5907\u548C\u5728\u7EBF\u670D\u52A1\u7684\u5206\u79BB\u3002",
+      en: "Map runtime entities, deployment boundaries, communication semantics, and the separation of offline preparation from online serving."
+    },
+    intent: {
+      zh: "\u7CFB\u7EDF\u5728\u54EA\u91CC\u8FD0\u884C\u3001\u600E\u6837\u901A\u4FE1\uFF1F",
+      en: "Where does the system run and how does it communicate?"
+    }
+  },
+  "theory-concept": {
+    label: {
+      zh: "\u7406\u8BBA\uFF0F\u6982\u5FF5\u5173\u7CFB\u56FE",
+      en: "Theory / concept relations"
+    },
+    purpose: {
+      zh: "\u51C6\u786E\u8868\u8FBE\u5F62\u5F0F\u5BF9\u8C61\u4E4B\u95F4\u7684\u5305\u542B\u3001\u4F9D\u8D56\u3001\u7B49\u4EF7\u3001\u5206\u89E3\u3001\u7EA6\u675F\u6216\u63A8\u5BFC\u5173\u7CFB\u3002",
+      en: "Represent inclusion, dependency, equivalence, decomposition, constraint, or derivation among formal objects."
+    },
+    intent: {
+      zh: "\u5F62\u5F0F\u5BF9\u8C61\u4E0E\u6982\u5FF5\u4E4B\u95F4\u662F\u4EC0\u4E48\u5173\u7CFB\uFF1F",
+      en: "How are the formal objects and concepts related?"
+    }
+  },
+  "geometry-coordinate": {
+    label: {
+      zh: "\u51E0\u4F55\uFF0F\u5750\u6807\u5173\u7CFB\u56FE",
+      en: "Geometry / coordinates"
+    },
+    purpose: {
+      zh: "\u51C6\u786E\u5C55\u793A\u5750\u6807\u7CFB\u3001\u7A7A\u95F4\u5B9E\u4F53\u3001\u5DF2\u77E5\u4E0E\u672A\u77E5\u53D8\u6362\u3001\u6295\u5F71\u5173\u7CFB\u548C\u4F30\u8BA1\u76EE\u6807\u3002",
+      en: "Show coordinate frames, spatial entities, known and unknown transforms, projections, and the estimation target."
+    },
+    intent: {
+      zh: "\u7A7A\u95F4\u3001\u5750\u6807\u4E0E\u53D8\u6362\u5173\u7CFB\u662F\u4EC0\u4E48\uFF1F",
+      en: "What are the spatial, coordinate, and transformation relations?"
+    }
+  },
+  "survey-taxonomy": {
+    label: {
+      zh: "\u7EFC\u8FF0\uFF0F\u5206\u7C7B\u4F53\u7CFB\u56FE",
+      en: "Survey / taxonomy"
+    },
+    purpose: {
+      zh: "\u7EC4\u7EC7\u7EFC\u8FF0\u4E2D\u7684\u5206\u7C7B\u8F74\u3001\u7C7B\u522B\u5173\u7CFB\u3001\u7814\u7A76\u8DEF\u7EBF\u548C\u7531\u6B63\u6587\u652F\u6301\u7684\u7248\u56FE\u7A7A\u767D\u3002",
+      en: "Organize survey dimensions, category relations, research paths, and evidence-backed gaps in the landscape."
+    },
+    intent: {
+      zh: "\u6587\u732E\u5E94\u5F53\u5982\u4F55\u5206\u7C7B\u4E0E\u5173\u8054\uFF1F",
+      en: "How should the literature be classified and connected?"
+    }
+  }
+};
+function buildVisualConfiguration(preferences, language) {
+  const selectedAspectRatio = getFigureAspectRatio(preferences);
+  const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
+  const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
+  const accentRange = getFigureAccentColorRange(preferences);
+  const cardFillPolicy = FIGURE_CARD_FILL_POLICIES[preferences.cardFillPolicyId];
+  const candidateColors = palette.colors.slice(0, accentRange.max).join(", ");
+  const linePolicy = preferences.lineColorMode === "semantic" ? language === "zh" ? "\u7ED3\u6784\u7EBF\u4EE5\u6DF1\u8272\u4E2D\u6027\u7EBF\u4E3A\u4E3B\uFF0C\u5C11\u91CF\u4FE1\u606F\u6D41\u53EF\u6309\u8BED\u4E49\u7740\u8272" : "mostly dark-neutral structural lines, with semantic colors only for a few information flows" : language === "zh" ? "\u8FB9\u6846\u3001\u7BAD\u5934\u548C\u8FDE\u63A5\u7EBF\u7EDF\u4E00\u4F7F\u7528\u6DF1\u8272\u4E2D\u6027\u7EBF" : "one dark-neutral color for borders, arrows, and connectors";
+  const iconPolicy = preferences.allowLightIllustrations ? language === "zh" ? "\u53EF\u4F7F\u7528\u4E0E\u8BBA\u6587\u5BF9\u8C61\u76F4\u63A5\u76F8\u5173\u7684\u8F7B\u91CF\u79D1\u5B66\u56FE\u5F62\u6216\u56FE\u6807" : "paper-specific lightweight scientific forms or icons are allowed" : language === "zh" ? "\u4E0D\u4F7F\u7528\u88C5\u9970\u56FE\u6807\uFF0C\u4F46\u53EF\u4F7F\u7528 matrix\u3001token\u3001graph \u7B49\u79D1\u5B66\u8868\u793A" : "no decorative icons; scientific forms such as matrices, tokens, and graphs remain allowed";
+  const typeHierarchy = preferences.fontSizeLevels === 2 ? language === "zh" ? "2 \u7EA7\u5B57\u53F7\uFF0C\u6BD4\u4F8B\u7EA6 1.00 : 1.30" : "2 type-size levels at about 1.00 : 1.30" : language === "zh" ? "3 \u7EA7\u5B57\u53F7\uFF0C\u6BD4\u4F8B\u7EA6 1.00 : 1.22 : 1.50" : "3 type-size levels at about 1.00 : 1.22 : 1.50";
+  const titlePolicy = preferences.includeLargeTitle ? language === "zh" ? "\u5141\u8BB8\u4E00\u4E2A\u6765\u81EA\u8BBA\u6587\u672F\u8BED\u7684\u7B80\u77ED\u56FE\u5185\u6807\u9898" : "allow one short in-figure title drawn from the paper terminology" : language === "zh" ? "\u4E0D\u4F7F\u7528\u56FE\u5185\u5927\u6807\u9898" : "no large in-figure title";
+  const cardPolicy = language === "zh" ? cardFillPolicy.label.zh : cardFillPolicy.label.en;
+  if (language === "zh") {
+    return `\u89C6\u89C9\u8BBE\u7F6E\uFF1A${selectedAspectRatio} \u753B\u5E03\uFF0C\u7EAF\u767D\u80CC\u666F\uFF1B\u4ECE ${palette.label.zh}\uFF08${candidateColors}\uFF09\u4E2D\u4F7F\u7528 ${accentRange.label} \u79CD\u5F3A\u8C03\u8272\uFF1B${linePolicy}\uFF1B\u5B57\u4F53 ${fontFamily.label}\uFF0C${typeHierarchy}\uFF0C\u6587\u5B57\u4F7F\u7528\u9ED1\u8272\u6216\u8FD1\u9ED1\u8272\uFF1B\u5BB9\u5668\u5E95\u8272\u91C7\u7528\u201C${cardPolicy}\u201D\uFF1B${iconPolicy}\uFF1B${titlePolicy}\u3002`;
+  }
+  return `Visual settings: ${selectedAspectRatio} canvas on pure white; use ${accentRange.label} accent colors from ${palette.label.en} (${candidateColors}); ${linePolicy}; ${fontFamily.label}, ${typeHierarchy}, with black or near-black text; container fill policy: ${cardPolicy}; ${iconPolicy}; ${titlePolicy}.`;
+}
+function buildFigurePrompt(promptId, preferences, language, options = {}) {
+  return withPromptJudgmentDirective([
+    COMMON_BASE[language](FIGURE_PROMPTS[promptId].label[language]),
+    FIGURE_TYPE_ADAPTERS[promptId][language],
+    buildVisualConfiguration(preferences, language),
+    OUTPUT_PROTOCOL[language]({
+      executionMode: preferences.executionMode,
+      outputFileName: options.outputFileName
+    })
+  ].join("\n\n"), language);
+}
+
+// content/workflows/skillWorkflows.ts
+var SKILL_WORKFLOW_VERSION = "2026.07.28";
+var YANSHU_SKILL_CATALOG = [
+  {
+    id: "idea-discovery",
+    index: "01",
+    skillName: "Idea Discovery",
+    websitePath: "/ideas/discovery",
+    title: { zh: "\u67E5\u627E\u7814\u7A76 Idea", en: "Discover a research idea" },
+    description: {
+      zh: "\u914D\u7F6E\u65B9\u5411\u3001\u8FD1\u5E74\u6587\u732E\u3001\u6570\u636E\u548C\u8D44\u6E90\u8FB9\u754C\uFF0C\u81EA\u52A8\u68C0\u7D22\u3001\u53BB\u91CD\u5E76\u7ED9\u51FA\u6700\u5C0F\u9A8C\u8BC1\u5B9E\u9A8C\u3002",
+      en: "Configure the field, recent literature, data, and resource limits, then search, deduplicate, and define a minimum decisive test."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $idea-discovery \u5728\u5F53\u524D\u5DE5\u4F5C\u533A\u67E5\u627E\u7814\u7A76 Idea\u3002",
+      en: "Use $idea-discovery to find research ideas in the current workspace."
+    },
+    input: {
+      zh: "\u65B9\u5411\u6216\u95EE\u9898\u7EBF\u7D22\uFF1B\u4E5F\u53EF\u4ECE\u7A7A\u767D\u5F00\u59CB",
+      en: "A field or problem seed, or start from scratch"
+    },
+    output: {
+      zh: "\u4E2D\u82F1\u6587 Idea Markdown",
+      en: "Chinese and English idea Markdown"
+    }
+  },
+  {
+    id: "paper-drafting",
+    index: "02",
+    skillName: "Paper Drafting",
+    websitePath: "/draft",
+    title: { zh: "\u64B0\u5199\u8BBA\u6587\u521D\u7A3F", en: "Draft a complete paper" },
+    description: {
+      zh: "\u8BFB\u53D6\u5DF2\u5B8C\u6210\u7684\u5B9E\u9A8C\u3001\u4EE3\u7801\u3001\u56FE\u8868\u548C\u5F15\u7528\uFF0C\u751F\u6210\u53EF\u7F16\u8BD1\u3001\u53EF\u7EE7\u7EED\u4FEE\u6539\u7684 LaTeX \u521D\u7A3F\u3002",
+      en: "Read completed experiments, code, figures, and references, then produce a compilable LaTeX draft that remains editable."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $paper-drafting \u6839\u636E\u8FD9\u4E2A\u5B9E\u9A8C\u76EE\u5F55\u64B0\u5199\u8BBA\u6587\u521D\u7A3F\u3002",
+      en: "Use $paper-drafting to draft a paper from this experiment directory."
+    },
+    input: {
+      zh: "\u5B9E\u9A8C\u76EE\u5F55\u3001\u7ED3\u679C\u3001\u4EE3\u7801\u3001\u56FE\u8868\u4E0E BibTeX",
+      en: "Experiment directory, results, code, figures, and BibTeX"
+    },
+    output: {
+      zh: "\u5B8C\u6574 LaTeX \u5DE5\u7A0B\u4E0E\u7F16\u8BD1 PDF",
+      en: "Complete LaTeX project and compiled PDF"
+    }
+  },
+  {
+    id: "paper-reconstruction",
+    index: "03",
+    skillName: "Paper Reconstruction",
+    websitePath: "/reconstruction",
+    title: { zh: "\u91CD\u6784\u73B0\u6709\u8BBA\u6587", en: "Reconstruct an existing paper" },
+    description: {
+      zh: "\u901A\u8FC7\u53EF\u6062\u590D\u7684\u4E94\u8F6E\u5DE5\u4F5C\u6D41\u91CD\u6784\u79D1\u5B66\u5B9A\u4F4D\u3001\u7ED3\u6784\u3001\u65B9\u6CD5\u5B9E\u9A8C\u53D9\u4E8B\u548C\u65B9\u6CD5\u603B\u89C8\u56FE\u3002",
+      en: "Use a resumable five-round workflow to rebuild positioning, structure, method and experiment narrative, and the method overview figure."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $paper-reconstruction \u91CD\u6784\u8FD9\u4E2A\u8BBA\u6587\u76EE\u5F55\u3002",
+      en: "Use $paper-reconstruction to reconstruct this paper directory."
+    },
+    input: {
+      zh: "TeX\u3001BibTeX\u3001PDF \u4E0E\u53EF\u9009 figures",
+      en: "TeX, BibTeX, PDF, and optional figures"
+    },
+    output: {
+      zh: "\u4E94\u8F6E\u7248\u672C\u3001\u6846\u67B6\u56FE\u4E0E\u6700\u7EC8\u53EF\u7F16\u8BD1\u8BBA\u6587",
+      en: "Five versioned rounds, a framework figure, and the final compilable paper"
+    }
+  },
+  {
+    id: "scientific-figure",
+    index: "04",
+    skillName: "Scientific Figure",
+    websitePath: "/figures",
+    title: { zh: "\u7ED8\u5236\u79D1\u7814\u914D\u56FE", en: "Create a scientific figure" },
+    description: {
+      zh: "\u4ECE\u8BBA\u6587\u8BC1\u636E\u4E2D\u9009\u62E9\u4E00\u79CD\u56FE\u578B\uFF0C\u914D\u7F6E\u753B\u5E03\u3001\u914D\u8272\u548C\u6587\u5B57\u89C4\u5219\uFF0C\u53EA\u751F\u6210\u4E00\u5F20\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002",
+      en: "Choose one figure role from the paper evidence, configure canvas, palette, and typography, and generate one high-resolution scientific figure."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $scientific-figure \u4E3A\u8FD9\u4E2A\u8BBA\u6587\u76EE\u5F55\u7ED8\u5236\u4E00\u5F20\u79D1\u7814\u914D\u56FE\u3002",
+      en: "Use $scientific-figure to create one research figure for this paper directory."
+    },
+    input: {
+      zh: "\u8BBA\u6587 TeX\u3001\u53EF\u9009 PDF \u4E0E\u53C2\u8003\u6846\u67B6\u56FE",
+      en: "Paper TeX, optional PDF, and an optional reference framework figure"
+    },
+    output: {
+      zh: "\u4E00\u5F20\u9AD8\u6E05 PNG \u4E0E\u914D\u7F6E\u5FEB\u7167",
+      en: "One high-resolution PNG and its configuration snapshot"
+    }
+  }
+];
+var CONFIGURATION_UI_COPY = {
+  zh: {
+    brand: "\u7814\u672F\u53F0 \xB7 YanShu",
+    local: "\u672C\u5730\u914D\u7F6E",
+    project: "\u5F53\u524D\u5DE5\u4F5C\u533A",
+    reset: "\u6062\u590D\u9ED8\u8BA4",
+    promptLanguage: "Prompt \u8BED\u8A00",
+    promptTitle: "\u6267\u884C Prompt",
+    promptHint: "\u53F3\u4FA7 Prompt \u4E0E\u5B98\u7F51\u4F7F\u7528\u540C\u4E00\u4EFD\u914D\u7F6E\u6E90\u3002",
+    copy: "\u590D\u5236 Prompt",
+    copied: "\u5DF2\u590D\u5236",
+    exit: "\u9000\u51FA",
+    start: "\u5168\u81EA\u52A8\u5F00\u59CB",
+    starting: "\u6B63\u5728\u786E\u8BA4\u2026",
+    ready: "\u786E\u8BA4\u540E YanShu \u5C06\u8FD4\u56DE Codex \u5E76\u76F4\u63A5\u6267\u884C\uFF1B\u4E0D\u4F1A\u518D\u6B21\u9010\u9879\u8BE2\u95EE\u914D\u7F6E\u3002",
+    loading: "\u6B63\u5728\u8F7D\u5165\u5DE5\u4F5C\u6D41\u2026",
+    loadFailed: "\u5DE5\u4F5C\u6D41\u8F7D\u5165\u5931\u8D25\u3002",
+    submitFailed: "\u914D\u7F6E\u672A\u80FD\u63D0\u4EA4\uFF0C\u8BF7\u68C0\u67E5\u5F53\u524D\u8BBE\u7F6E\u3002",
+    cancelled: "\u5DF2\u9000\u51FA\uFF1B\u6CA1\u6709\u521B\u5EFA\u8FD0\u884C\u76EE\u5F55\u6216\u53D1\u9001\u6750\u6599\u3002",
+    confirmed: "\u914D\u7F6E\u5DF2\u786E\u8BA4\uFF0C\u53EF\u4EE5\u5173\u95ED\u6B64\u9875\u9762\u3002"
+  },
+  en: {
+    brand: "YanShu Workbench",
+    local: "Local configuration",
+    project: "Current workspace",
+    reset: "Reset",
+    promptLanguage: "Prompt language",
+    promptTitle: "Execution prompt",
+    promptHint: "This prompt uses the same configuration source as the website.",
+    copy: "Copy prompt",
+    copied: "Copied",
+    exit: "Exit",
+    start: "Start full automation",
+    starting: "Confirming\u2026",
+    ready: "After confirmation, YanShu returns to Codex and runs directly without asking each setting again.",
+    loading: "Loading workflow\u2026",
+    loadFailed: "The workflow could not be loaded.",
+    submitFailed: "The configuration could not be submitted. Review the current settings.",
+    cancelled: "Exited without creating a run or sending materials.",
+    confirmed: "Configuration confirmed. You may close this page."
+  }
+};
+function localized(zh, en) {
+  return { zh, en };
+}
+function choice(value, label, description) {
+  return { value, label, description };
+}
+var ideaDefaults = getDefaultIdeaPreferences("discovery");
+var IDEA_DISCOVERY_MODEL = {
+  id: "idea-discovery",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "idea-discovery",
+  websitePath: "/ideas/discovery",
+  title: localized("Idea \u67E5\u627E", "Idea Discovery"),
+  eyebrow: "YANSHU \xB7 IDEA DISCOVERY",
+  description: localized(
+    "\u4ECE\u8FD1\u671F\u53EF\u4FE1\u6587\u732E\u3001\u771F\u5B9E\u6570\u636E\u6761\u4EF6\u548C\u8D44\u6E90\u8FB9\u754C\u4E2D\u53D1\u73B0\u53EF\u9A8C\u8BC1\u7684\u7814\u7A76\u673A\u4F1A\u3002",
+    "Find verifiable research opportunities from recent trustworthy literature, real data conditions, and resource limits."
+  ),
+  materialTitle: localized("\u53EF\u9009\u6750\u6599", "Optional materials"),
+  materialItems: {
+    zh: ["\u95EE\u9898\u7EBF\u7D22", "\u76F8\u5173\u8BBA\u6587", "\u6570\u636E\u96C6\u8BF4\u660E"],
+    en: ["Problem seed", "Related papers", "Dataset notes"]
+  },
+  materialHint: localized(
+    "\u6CA1\u6709\u73B0\u6210\u6750\u6599\u4E5F\u53EF\u4EE5\u5F00\u59CB\uFF1B\u6267\u884C\u65F6\u4F1A\u8054\u7F51\u68C0\u7D22\u5E76\u62A5\u544A\u641C\u7D22\u8986\u76D6\u8303\u56F4\u3002",
+    "You may start without attachments; execution searches the web and reports its coverage."
+  ),
+  output: localized(
+    "\u751F\u6210\u8BED\u4E49\u4E00\u81F4\u7684\u4E2D\u6587\u4E0E\u82F1\u6587 Markdown\uFF0C\u4E0D\u751F\u6210 TeX\u3002",
+    "Create semantically aligned Chinese and English Markdown files, not TeX."
+  ),
+  sections: [
+    {
+      id: "scope",
+      index: "01",
+      title: localized("\u7814\u7A76\u8303\u56F4", "Research scope"),
+      description: localized(
+        "\u7ED9\u51FA\u65B9\u5411\u6216\u95EE\u9898\u7EBF\u7D22\uFF1B\u7559\u7A7A\u65F6\u4ECE\u6240\u9009\u65B9\u5411\u5F00\u59CB\u3002",
+        "Provide a field or problem seed, or start from the selected field."
+      )
+    },
+    {
+      id: "evidence",
+      index: "02",
+      title: localized("\u6587\u732E\u4E0E\u6570\u636E", "Literature and data"),
+      description: localized(
+        "\u9650\u5B9A\u65F6\u95F4\u7A97\u3001\u4E3B\u8981 venue \u4E0E\u53EF\u7528\u6570\u636E\u3002",
+        "Set the time window, major venues, and available data."
+      )
+    },
+    {
+      id: "decision",
+      index: "03",
+      title: localized("\u751F\u6210\u4E0E\u5224\u65AD", "Generation and judgment"),
+      description: localized(
+        "\u63A7\u5236\u5019\u9009\u6570\u91CF\u3001\u63A2\u7D22\u5E45\u5EA6\u548C\u73B0\u5B9E\u8D44\u6E90\u8FB9\u754C\u3002",
+        "Control candidate count, exploration posture, and practical resource limits."
+      )
+    }
+  ],
+  fields: [
+    {
+      id: "directionId",
+      sectionId: "scope",
+      type: "select",
+      label: localized("\u65B9\u5411", "Direction"),
+      choices: IDEA_DIRECTION_IDS.map(
+        (id) => choice(id, IDEA_DIRECTIONS[id].label)
+      )
+    },
+    {
+      id: "focus",
+      sectionId: "scope",
+      type: "text",
+      label: localized("\u5177\u4F53\u65B9\u5411\u6216\u95EE\u9898", "Specific focus or problem"),
+      placeholder: localized(
+        "\u4F8B\u5982\uFF1A\u68C0\u7D22\u589E\u5F3A\u751F\u6210\u4E2D\u7684\u957F\u671F\u77E5\u8BC6\u66F4\u65B0",
+        "e.g. continual knowledge updates in retrieval-augmented generation"
+      )
+    },
+    {
+      id: "seed",
+      sectionId: "scope",
+      type: "textarea",
+      label: localized("\u95EE\u9898\u7EBF\u7D22", "Problem seed"),
+      placeholder: localized(
+        "\u53EF\u4EE5\u7559\u7A7A\uFF0C\u8BA9\u6A21\u578B\u4ECE\u65B9\u5411\u4E0E\u8FD1\u671F\u6587\u732E\u5F00\u59CB\u68C0\u7D22\u3002",
+        "Leave blank to start from the field and recent literature."
+      )
+    },
+    {
+      id: "recentYears",
+      sectionId: "evidence",
+      type: "number",
+      label: localized("\u91CD\u70B9\u68C0\u7D22\u8FD1 N \u5E74", "Prioritize the recent N years"),
+      min: 1,
+      max: 20,
+      step: 1
+    },
+    {
+      id: "topConferences",
+      sectionId: "evidence",
+      type: "boolean",
+      label: localized("\u4F18\u5148\u9876\u4F1A", "Prioritize top conferences"),
+      description: localized(
+        "\u9ED8\u8BA4\u5F00\u542F\uFF0C\u5E76\u8981\u6C42\u8BF4\u660E\u5F53\u524D\u5B50\u9886\u57DF\u7684 venue \u9009\u62E9\u4F9D\u636E\u3002",
+        "Enabled by default; explain the venue choices for the subfield."
+      )
+    },
+    {
+      id: "topJournals",
+      sectionId: "evidence",
+      type: "boolean",
+      label: localized("\u540C\u65F6\u68C0\u7D22\u9876\u520A", "Also search top journals")
+    },
+    {
+      id: "customVenues",
+      sectionId: "evidence",
+      type: "text",
+      label: localized("\u6307\u5B9A venue\uFF08\u53EF\u9009\uFF09", "Named venues (optional)"),
+      placeholder: localized("\u4F8B\u5982\uFF1AACL, EMNLP, TACL", "e.g. ACL, EMNLP, TACL")
+    },
+    {
+      id: "dataset",
+      sectionId: "evidence",
+      type: "text",
+      label: localized("\u6570\u636E\u96C6\u6216\u6570\u636E\u6761\u4EF6\uFF08\u53EF\u9009\uFF09", "Dataset or data condition (optional)"),
+      placeholder: localized(
+        "\u516C\u5F00\u6570\u636E\u96C6\u3001\u79C1\u6709\u6570\u636E\u6761\u4EF6\uFF0C\u6216\u8BA9\u6A21\u578B\u6839\u636E\u8BC1\u636E\u63A8\u8350",
+        "A public dataset, a private-data condition, or ask for evidence-based recommendations"
+      )
+    },
+    {
+      id: "ideaCount",
+      sectionId: "decision",
+      type: "choice",
+      label: localized("\u5019\u9009 Idea \u6570\u91CF", "Candidate idea count"),
+      choices: IDEA_COUNT_OPTIONS.map(
+        (count) => choice(count, localized(`${count} \u4E2A`, `${count}`))
+      )
+    },
+    {
+      id: "noveltyPosture",
+      sectionId: "decision",
+      type: "choice",
+      label: localized("\u63A2\u7D22\u5E45\u5EA6", "Exploration posture"),
+      choices: NOVELTY_POSTURE_IDS.map(
+        (id) => choice(id, NOVELTY_POSTURES[id].label)
+      )
+    },
+    {
+      id: "pursueSota",
+      sectionId: "decision",
+      type: "boolean",
+      label: localized("\u628A SOTA \u4F5C\u4E3A\u5FC5\u8981\u76EE\u6807", "Require a SOTA target"),
+      description: localized(
+        "\u5173\u95ED\u65F6\u4ECD\u8981\u6C42\u6E05\u695A\u8D21\u732E\uFF0C\u4F46\u4E0D\u628A\u6392\u884C\u699C\u63D0\u5347\u5F53\u4F5C\u552F\u4E00\u4EF7\u503C\u3002",
+        "When off, require a clear contribution without treating leaderboard gains as the only value."
+      )
+    },
+    {
+      id: "resourceConstraints",
+      sectionId: "decision",
+      type: "textarea",
+      label: localized("\u8D44\u6E90\u4E0E\u6267\u884C\u8FB9\u754C\uFF08\u53EF\u9009\uFF09", "Resources and execution limits (optional)"),
+      placeholder: localized(
+        "\u4F8B\u5982\uFF1A\u5355\u5F20 24GB GPU\u30018 \u5468\u3001\u4E0D\u80FD\u91C7\u96C6\u65B0\u6570\u636E",
+        "e.g. one 24GB GPU, eight weeks, no new data collection"
+      )
+    },
+    {
+      id: "additionalCriteria",
+      sectionId: "decision",
+      type: "textarea",
+      label: localized("\u8865\u5145\u7EA6\u675F\uFF08\u53EF\u9009\uFF09", "Additional constraints (optional)")
+    }
+  ],
+  defaults: { ...ideaDefaults }
+};
+var PAPER_DRAFTING_MODEL = {
+  id: "paper-drafting",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "paper-drafting",
+  websitePath: "/draft",
+  title: localized("\u8BBA\u6587\u521D\u7A3F", "Paper Drafting"),
+  eyebrow: "YANSHU \xB7 PAPER DRAFTING",
+  description: localized(
+    "\u628A\u5DF2\u5B8C\u6210\u7684\u5B9E\u9A8C\u3001\u65B9\u6CD5\u3001\u56FE\u8868\u548C\u771F\u5B9E\u5F15\u7528\u8F6C\u5316\u4E3A\u5B8C\u6574\u3001\u53EF\u7F16\u8BD1\u7684\u82F1\u6587 LaTeX \u521D\u7A3F\u3002",
+    "Turn completed experiments, methods, figures, and authentic references into a complete, compilable English LaTeX draft."
+  ),
+  materialTitle: localized("\u9700\u8981\u6750\u6599", "Required materials"),
+  materialItems: {
+    zh: ["\u5B9E\u9A8C\u7ED3\u679C\u4E0E\u4EE3\u7801", "\u65B9\u6CD5\u8BF4\u660E\u4E0E\u56FE\u8868", "\u771F\u5B9E BibTeX \u6216\u6587\u732E\u6E05\u5355"],
+    en: ["Experimental results and code", "Method notes and figures", "Authentic BibTeX or reference list"]
+  },
+  materialHint: localized(
+    "YanShu \u53EA\u4ECE\u786E\u8BA4\u7684\u5DE5\u4F5C\u533A\u9009\u62E9\u6750\u6599\uFF1B\u8BC1\u636E\u4E0D\u8DB3\u5904\u4FDD\u7559\u7CBE\u786E TODO\uFF0C\u4E0D\u8865\u9020\u7ED3\u679C\u3002",
+    "YanShu selects materials only from the confirmed workspace and leaves precise TODOs instead of inventing missing evidence."
+  ),
+  output: localized(
+    "\u5B8C\u6574 LaTeX \u5DE5\u7A0B\u3001\u6A21\u677F\u6765\u6E90\u8BB0\u5F55\u3001\u7F16\u8BD1 PDF \u4E0E\u538B\u7F29\u5305\u3002",
+    "A complete LaTeX project, template provenance, compiled PDF, and archive."
+  ),
+  sections: [
+    {
+      id: "template",
+      index: "01",
+      title: localized("\u76EE\u6807\u6A21\u677F", "Target template"),
+      description: localized(
+        "arXiv \u4F7F\u7528\u6307\u5B9A\u5F00\u6E90\u6837\u5F0F\uFF1B\u4F1A\u8BAE\u6A21\u677F\u5728\u6267\u884C\u65F6\u4ECE\u5F53\u5C4A\u5B98\u7F51\u6838\u9A8C\u3002",
+        "Use the specified open-source arXiv style or verify the current official conference template during execution."
+      )
+    }
+  ],
+  fields: [
+    {
+      id: "templateId",
+      sectionId: "template",
+      type: "select",
+      label: localized("\u6A21\u677F", "Template"),
+      choices: DRAFT_TEMPLATE_IDS.map(
+        (id) => choice(id, localized(DRAFT_TEMPLATES[id].label, DRAFT_TEMPLATES[id].label))
+      )
+    },
+    {
+      id: "customVenue",
+      sectionId: "template",
+      type: "text",
+      label: localized("\u4F1A\u8BAE\u540D\u79F0", "Venue name"),
+      placeholder: localized("\u4F8B\u5982\uFF1ASIGIR", "e.g. SIGIR"),
+      visibleWhen: { fieldId: "templateId", equals: "custom" }
+    }
+  ],
+  defaults: {
+    templateId: DEFAULT_DRAFT_TEMPLATE_ID,
+    customVenue: ""
+  }
+};
+var figureDefaults = { ...DEFAULT_FIGURE_PREFERENCES };
+var SCIENTIFIC_FIGURE_MODEL = {
+  id: "scientific-figure",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "scientific-figure",
+  websitePath: "/figures",
+  title: localized("\u79D1\u7814\u914D\u56FE", "Scientific Figure"),
+  eyebrow: "YANSHU \xB7 SCIENTIFIC FIGURE",
+  description: localized(
+    "\u5148\u7406\u89E3\u8BBA\u6587\u4E0E\u540C\u7C7B\u8BBA\u6587\u56FE\u7247\uFF0C\u518D\u6309\u7167\u5F53\u524D\u56FE\u578B\u548C\u89C6\u89C9\u914D\u7F6E\u751F\u6210\u4E00\u5F20\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002",
+    "Understand the paper and comparable published figures, then generate one high-resolution scientific figure from the selected role and visual settings."
+  ),
+  materialTitle: localized("\u9700\u8981\u6750\u6599", "Required materials"),
+  materialItems: {
+    zh: ["\u8BBA\u6587\u4E3B TeX", "\u53EF\u9009\u7F16\u8BD1 PDF", "\u53EF\u9009\u53C2\u8003\u6846\u67B6\u56FE"],
+    en: ["Main paper TeX", "Optional compiled PDF", "Optional reference framework figure"]
+  },
+  materialHint: localized(
+    "\u82E5\u63D0\u4F9B\u73B0\u6709\u6846\u67B6\u56FE\uFF0C\u6267\u884C\u65F6\u4F1A\u603B\u7ED3\u5176\u7ED3\u6784\u3001\u914D\u8272\u4E0E\u6392\u7248\u5E76\u4FDD\u6301\u4E00\u81F4\u3002",
+    "When a reference framework figure is provided, execution summarizes and follows its structure, color, and typography."
+  ),
+  output: localized(
+    "\u53EA\u751F\u6210\u4E00\u5F20\u9AD8\u6E05 PNG\uFF0C\u5E76\u4FDD\u5B58\u914D\u7F6E\u4E0E\u6700\u7EC8\u82F1\u6587\u751F\u56FE Prompt\u3002",
+    "Generate one high-resolution PNG and save its configuration and final English image prompt."
+  ),
+  sections: [
+    {
+      id: "purpose",
+      index: "01",
+      title: localized("\u56FE\u7684\u804C\u8D23", "Figure role"),
+      description: localized(
+        "\u4E00\u6B21\u53EA\u5B8C\u6210\u4E00\u79CD\u56FE\u578B\uFF0C\u9ED8\u8BA4\u65B9\u6CD5\u603B\u89C8\u56FE\u3002",
+        "Complete one figure role at a time; Method Overview is the default."
+      )
+    },
+    {
+      id: "canvas",
+      index: "02",
+      title: localized("\u753B\u5E03\u4E0E\u6267\u884C", "Canvas and execution"),
+      description: localized(
+        "\u9009\u62E9\u6BD4\u4F8B\u4EE5\u53CA\u76F4\u63A5\u7ED8\u56FE\u6216\u5148\u67E5\u770B\u82F1\u6587\u751F\u56FE Prompt\u3002",
+        "Choose the canvas ratio and whether to draw directly or review the English image prompt first."
+      )
+    },
+    {
+      id: "visual",
+      index: "03",
+      title: localized("\u89C6\u89C9\u7EA6\u675F", "Visual controls"),
+      description: localized(
+        "\u63A7\u5236\u79D1\u7814\u914D\u8272\u3001\u5B57\u4F53\u3001\u7EBF\u6761\u3001\u5F3A\u8C03\u8272\u8303\u56F4\u4E0E\u5BB9\u5668\u5E95\u8272\u3002",
+        "Control the research palette, typeface, lines, accent range, and container fills."
+      )
+    }
+  ],
+  fields: [
+    {
+      id: "promptId",
+      sectionId: "purpose",
+      type: "select",
+      label: localized("\u56FE\u578B", "Figure type"),
+      choices: FIGURE_PROMPT_ORDER.map(
+        (id) => choice(id, FIGURE_PROMPTS[id].label, FIGURE_PROMPTS[id].purpose)
+      )
+    },
+    {
+      id: "executionMode",
+      sectionId: "canvas",
+      type: "choice",
+      label: localized("\u6267\u884C\u65B9\u5F0F", "Execution"),
+      choices: [
+        choice(
+          "direct",
+          localized("\u76F4\u63A5\u7ED8\u56FE", "Draw directly"),
+          localized(
+            "\u5185\u90E8\u5B8C\u6210\u98CE\u683C\u603B\u7ED3\u548C\u82F1\u6587\u751F\u56FE Prompt\uFF0C\u7136\u540E\u76F4\u63A5\u751F\u6210\u56FE\u7247\u3002",
+            "Build the style summary and English image prompt internally, then generate the image."
+          )
+        ),
+        choice(
+          "prompt-first",
+          localized("\u5148\u770B\u82F1\u6587 Prompt", "Review prompt first"),
+          localized(
+            "\u5148\u5C55\u793A\u82F1\u6587\u751F\u56FE Prompt\uFF0C\u7B49\u5F85\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u3002",
+            "Show the English image prompt and wait for \u201CStart drawing\u201D."
+          )
+        )
+      ]
+    },
+    {
+      id: "aspectRatioId",
+      sectionId: "canvas",
+      type: "select",
+      label: localized("\u753B\u5E03\u6BD4\u4F8B", "Canvas ratio"),
+      choices: FIGURE_ASPECT_RATIO_IDS.map(
+        (id) => choice(
+          id,
+          FIGURE_ASPECT_RATIOS[id].label,
+          FIGURE_ASPECT_RATIOS[id].shortDescription
+        )
+      )
+    },
+    {
+      id: "customAspectWidth",
+      sectionId: "canvas",
+      type: "number",
+      label: localized("\u81EA\u5B9A\u4E49\u5BBD", "Custom width"),
+      min: 1,
+      max: 100,
+      step: 1,
+      visibleWhen: { fieldId: "aspectRatioId", equals: "custom" }
+    },
+    {
+      id: "customAspectHeight",
+      sectionId: "canvas",
+      type: "number",
+      label: localized("\u81EA\u5B9A\u4E49\u9AD8", "Custom height"),
+      min: 1,
+      max: 100,
+      step: 1,
+      visibleWhen: { fieldId: "aspectRatioId", equals: "custom" }
+    },
+    {
+      id: "paletteId",
+      sectionId: "visual",
+      type: "select",
+      label: localized("\u8272\u7CFB", "Color palette"),
+      choices: FIGURE_COLOR_PALETTE_IDS.map(
+        (id) => choice(id, FIGURE_COLOR_PALETTES[id].label)
+      )
+    },
+    {
+      id: "fontFamilyId",
+      sectionId: "visual",
+      type: "select",
+      label: localized("\u5168\u56FE\u5B57\u4F53", "Global typeface"),
+      choices: FIGURE_FONT_FAMILY_IDS.map(
+        (id) => choice(
+          id,
+          localized(
+            FIGURE_FONT_FAMILIES[id].label,
+            FIGURE_FONT_FAMILIES[id].label
+          )
+        )
+      )
+    },
+    {
+      id: "lineColorMode",
+      sectionId: "visual",
+      type: "choice",
+      label: localized("\u7EBF\u6761\u989C\u8272", "Line colors"),
+      choices: [
+        choice("neutral", localized("\u7EDF\u4E00\u6DF1\u8272", "One dark color")),
+        choice("semantic", localized("\u6309\u8BED\u4E49\u533A\u5206", "Semantic colors"))
+      ]
+    },
+    {
+      id: "accentColorMin",
+      sectionId: "visual",
+      type: "number",
+      label: localized("\u5F3A\u8C03\u8272\u6700\u5C11", "Minimum accents"),
+      min: 1,
+      max: 4,
+      step: 1
+    },
+    {
+      id: "accentColorMax",
+      sectionId: "visual",
+      type: "number",
+      label: localized("\u5F3A\u8C03\u8272\u6700\u591A", "Maximum accents"),
+      min: 1,
+      max: 4,
+      step: 1
+    },
+    {
+      id: "allowLightIllustrations",
+      sectionId: "visual",
+      type: "boolean",
+      label: localized("\u5141\u8BB8\u8BBA\u6587\u5BF9\u8C61\u56FE\u5F62", "Allow paper-specific forms"),
+      description: localized(
+        "\u5141\u8BB8\u4E0E\u8BBA\u6587\u5BF9\u8C61\u76F4\u63A5\u5BF9\u5E94\u7684\u7B80\u5316\u79D1\u5B66\u56FE\u5F62\uFF0C\u4E0D\u4F7F\u7528\u8425\u9500\u63D2\u753B\u3002",
+        "Allow simplified scientific forms tied directly to the paper, not marketing illustration."
+      )
+    },
+    {
+      id: "cardFillPolicyId",
+      sectionId: "visual",
+      type: "select",
+      label: localized("\u5BB9\u5668\u5361\u7247\u5E95\u8272", "Container fills"),
+      choices: FIGURE_CARD_FILL_POLICY_IDS.map(
+        (id) => choice(
+          id,
+          FIGURE_CARD_FILL_POLICIES[id].label,
+          FIGURE_CARD_FILL_POLICIES[id].shortDescription
+        )
+      )
+    },
+    {
+      id: "fontSizeLevels",
+      sectionId: "visual",
+      type: "choice",
+      label: localized("\u5B57\u53F7\u5C42\u7EA7", "Type-size levels"),
+      choices: [
+        choice(2, localized("2 \u7EA7", "2 levels")),
+        choice(3, localized("3 \u7EA7", "3 levels"))
+      ]
+    },
+    {
+      id: "includeLargeTitle",
+      sectionId: "visual",
+      type: "boolean",
+      label: localized("\u56FE\u5185\u5927\u6807\u9898", "Large in-figure title")
+    }
+  ],
+  defaults: { ...figureDefaults }
+};
+var CONFIGURABLE_MODELS = {
+  "idea-discovery": IDEA_DISCOVERY_MODEL,
+  "paper-drafting": PAPER_DRAFTING_MODEL,
+  "scientific-figure": SCIENTIFIC_FIGURE_MODEL
+};
+var CONFIGURABLE_SKILL_WORKFLOW_IDS = Object.keys(
+  CONFIGURABLE_MODELS
+);
+function textValue(value, fallback = "") {
+  return typeof value === "string" ? value : fallback;
+}
+function booleanValue(value, fallback) {
+  return typeof value === "boolean" ? value : fallback;
+}
+function numberValue(value, fallback, min, max) {
+  const parsed = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(parsed)) return fallback;
+  return Math.min(max, Math.max(min, Math.round(parsed)));
+}
+function allowedValue(value, allowed, fallback) {
+  return allowed.includes(value) ? value : fallback;
+}
+function normalizeIdeaPreferences(input) {
+  const defaults = DEFAULT_IDEA_PREFERENCES_BY_MODE.discovery;
+  return {
+    ...defaults,
+    directionId: allowedValue(
+      input.directionId,
+      IDEA_DIRECTION_IDS,
+      defaults.directionId
+    ),
+    focus: textValue(input.focus),
+    seed: textValue(input.seed),
+    dataset: textValue(input.dataset),
+    recentYears: numberValue(input.recentYears, defaults.recentYears, 1, 20),
+    topConferences: booleanValue(
+      input.topConferences,
+      defaults.topConferences
+    ),
+    topJournals: booleanValue(input.topJournals, defaults.topJournals),
+    customVenues: textValue(input.customVenues),
+    pursueSota: booleanValue(input.pursueSota, defaults.pursueSota),
+    resourceConstraints: textValue(input.resourceConstraints),
+    ideaCount: allowedValue(
+      input.ideaCount,
+      IDEA_COUNT_OPTIONS,
+      defaults.ideaCount
+    ),
+    noveltyPosture: allowedValue(
+      input.noveltyPosture,
+      NOVELTY_POSTURE_IDS,
+      defaults.noveltyPosture
+    ),
+    additionalCriteria: textValue(input.additionalCriteria)
+  };
+}
+function normalizeDraftPreferences(input) {
+  return {
+    templateId: allowedValue(
+      input.templateId,
+      DRAFT_TEMPLATE_IDS,
+      DEFAULT_DRAFT_TEMPLATE_ID
+    ),
+    customVenue: textValue(input.customVenue)
+  };
+}
+function normalizeFigurePreferences(input) {
+  const defaults = DEFAULT_FIGURE_PREFERENCES;
+  const rawAccentMin = numberValue(
+    input.accentColorMin,
+    defaults.accentColorMin,
+    1,
+    4
+  );
+  const rawAccentMax = numberValue(
+    input.accentColorMax,
+    defaults.accentColorMax,
+    1,
+    4
+  );
+  return {
+    promptId: allowedValue(
+      input.promptId,
+      FIGURE_PROMPT_ORDER,
+      defaults.promptId
+    ),
+    executionMode: allowedValue(
+      input.executionMode,
+      ["direct", "prompt-first"],
+      defaults.executionMode
+    ),
+    aspectRatioId: allowedValue(
+      input.aspectRatioId,
+      FIGURE_ASPECT_RATIO_IDS,
+      defaults.aspectRatioId
+    ),
+    customAspectWidth: numberValue(
+      input.customAspectWidth,
+      defaults.customAspectWidth,
+      1,
+      100
+    ),
+    customAspectHeight: numberValue(
+      input.customAspectHeight,
+      defaults.customAspectHeight,
+      1,
+      100
+    ),
+    paletteId: allowedValue(
+      input.paletteId,
+      FIGURE_COLOR_PALETTE_IDS,
+      defaults.paletteId
+    ),
+    fontFamilyId: allowedValue(
+      input.fontFamilyId,
+      FIGURE_FONT_FAMILY_IDS,
+      defaults.fontFamilyId
+    ),
+    lineColorMode: allowedValue(
+      input.lineColorMode,
+      ["neutral", "semantic"],
+      defaults.lineColorMode
+    ),
+    accentColorMin: Math.min(rawAccentMin, rawAccentMax),
+    accentColorMax: Math.max(rawAccentMin, rawAccentMax),
+    allowLightIllustrations: booleanValue(
+      input.allowLightIllustrations,
+      defaults.allowLightIllustrations
+    ),
+    cardFillPolicyId: allowedValue(
+      input.cardFillPolicyId,
+      FIGURE_CARD_FILL_POLICY_IDS,
+      defaults.cardFillPolicyId
+    ),
+    fontSizeLevels: allowedValue(
+      input.fontSizeLevels,
+      [2, 3],
+      defaults.fontSizeLevels
+    ),
+    includeLargeTitle: booleanValue(
+      input.includeLargeTitle,
+      defaults.includeLargeTitle
+    )
+  };
+}
+function getSkillWorkflowConfigurationModel(workflowId) {
+  const model = CONFIGURABLE_MODELS[workflowId];
+  if (!model) {
+    throw new Error(`Unknown YanShu skill workflow: ${workflowId}`);
+  }
+  return model;
+}
+function normalizeSkillWorkflowPreferences(workflowId, input = {}) {
+  if (workflowId === "idea-discovery") {
+    return normalizeIdeaPreferences(input);
+  }
+  if (workflowId === "paper-drafting") {
+    return normalizeDraftPreferences(input);
+  }
+  return normalizeFigurePreferences(input);
+}
+function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage = "zh") {
+  const model = getSkillWorkflowConfigurationModel(workflowId);
+  const preferences = normalizeSkillWorkflowPreferences(workflowId, input);
+  let prompt;
+  let selection;
+  if (workflowId === "idea-discovery") {
+    const ideaPreferences = preferences;
+    prompt = buildIdeaPrompt("discovery", ideaPreferences, promptLanguage);
+    selection = {
+      directionId: ideaPreferences.directionId,
+      recentYears: ideaPreferences.recentYears,
+      ideaCount: ideaPreferences.ideaCount,
+      noveltyPosture: ideaPreferences.noveltyPosture
+    };
+  } else if (workflowId === "paper-drafting") {
+    const draftPreferences = preferences;
+    prompt = buildDraftPrompt(
+      draftPreferences.templateId,
+      draftPreferences.customVenue,
+      promptLanguage
+    );
+    selection = {
+      templateId: draftPreferences.templateId,
+      customVenue: draftPreferences.customVenue
+    };
+  } else {
+    const figurePreferences = preferences;
+    prompt = buildFigurePrompt(
+      figurePreferences.promptId,
+      figurePreferences,
+      promptLanguage
+    );
+    selection = {
+      promptId: figurePreferences.promptId,
+      aspectRatio: getFigureAspectRatio(figurePreferences),
+      accentColors: getFigureAccentColorRange(figurePreferences).label,
+      paletteId: figurePreferences.paletteId
+    };
+  }
+  return {
+    schemaVersion: 1,
+    workflowId,
+    workflowVersion: model.version,
+    websitePath: model.websitePath,
+    promptLanguage,
+    preferences,
+    prompt,
+    selection
+  };
+}
+export {
+  CONFIGURABLE_SKILL_WORKFLOW_IDS,
+  CONFIGURATION_UI_COPY,
+  SKILL_WORKFLOW_VERSION,
+  YANSHU_SKILL_CATALOG,
+  buildSkillWorkflowConfiguration,
+  getSkillWorkflowConfigurationModel,
+  normalizeSkillWorkflowPreferences
+};
