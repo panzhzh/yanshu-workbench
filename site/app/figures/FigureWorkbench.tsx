@@ -307,6 +307,12 @@ export default function FigureWorkbench() {
                 <b>.pdf</b>
                 {copy.inputPdf}
               </span>
+              {preferences.hasReferenceImage && (
+                <span>
+                  <b>.png</b>
+                  {copy.referenceImage}
+                </span>
+              )}
             </div>
             <p>{copy.inputHint}</p>
           </div>
@@ -463,6 +469,35 @@ export default function FigureWorkbench() {
                 </button>
               </div>
               <small>{copy.executionHint}</small>
+              <div className="figure-reference-option">
+                <strong>{copy.referenceImage}</strong>
+                <button
+                  className={`figure-rule-switch ${
+                    preferences.hasReferenceImage ? "active" : ""
+                  }`}
+                  type="button"
+                  role="switch"
+                  aria-checked={preferences.hasReferenceImage}
+                  onClick={() =>
+                    updatePreferences((current) => ({
+                      ...current,
+                      hasReferenceImage: !current.hasReferenceImage,
+                    }))
+                  }
+                >
+                  <span className="switch-track" aria-hidden="true">
+                    <span />
+                  </span>
+                  {preferences.hasReferenceImage
+                    ? copy.referenceImageOn
+                    : copy.referenceImageOff}
+                </button>
+                <small>
+                  {preferences.hasReferenceImage
+                    ? copy.referenceImageOnHint
+                    : copy.referenceImageOffHint}
+                </small>
+              </div>
             </fieldset>
 
             <fieldset className="figure-control-card figure-canvas-control">

@@ -625,7 +625,7 @@ function buildDraftPromptContent(templateId, customVenue, language) {
     return `# \u57FA\u4E8E\u5B9E\u9A8C\u6750\u6599\u751F\u6210\u5B8C\u6574 CS \u8BBA\u6587\u521D\u7A3F
 
 ## \u4F60\u7684\u89D2\u8272
-\u4F60\u662F\u4E25\u8C28\u7684 CS \u8BBA\u6587\u4F5C\u8005\u3001\u8BC1\u636E\u5BA1\u8BA1\u5458\u548C LaTeX \u5DE5\u7A0B\u5E08\u3002\u82E5\u5F53\u524D\u73AF\u5883\u63D0\u4F9B\u8BBA\u6587\u5199\u4F5C\u3001LaTeX\u3001\u6587\u4EF6\u751F\u6210\u6216\u7F16\u8BD1 Skill/\u5DE5\u5177\uFF0C\u5148\u4F7F\u7528\u8FD9\u4E9B\u80FD\u529B\uFF1B\u82E5\u6CA1\u6709\uFF0C\u4E5F\u6309\u76F8\u540C\u6807\u51C6\u5B8C\u6210\u3002\u4F60\u7684\u4EFB\u52A1\u662F\u628A\u5DF2\u5B8C\u6210\u5B9E\u9A8C\u53CA\u5176\u771F\u5B9E\u6750\u6599\u8F6C\u5316\u4E3A\u4E00\u4EFD\u5B8C\u6574\u82F1\u6587\u521D\u7A3F\uFF0C\u800C\u4E0D\u662F\u8865\u9020\u4E00\u7BC7\u201C\u770B\u8D77\u6765\u5B8C\u6574\u201D\u7684\u8BBA\u6587\u3002
+\u4F60\u662F\u4E25\u8C28\u7684 CS \u8BBA\u6587\u4F5C\u8005\u3001\u8BC1\u636E\u5BA1\u8BA1\u5458\u548C LaTeX \u5DE5\u7A0B\u5E08\u3002\u82E5\u5F53\u524D\u73AF\u5883\u53EF\u7528\uFF0C\u9F13\u52B1\u4F7F\u7528 \`$research-paper-writing\` \u8F85\u52A9\u7EC4\u7EC7\u8BBA\u8BC1\u3001\u5B66\u672F\u884C\u6587\u548C\u8D28\u91CF\u81EA\u68C0\uFF1B\u672C Prompt \u7684\u8BC1\u636E\u8FB9\u754C\u3001\u76EE\u6807\u6A21\u677F\u3001\u7528\u6237\u914D\u7F6E\u4E0E\u4EA4\u4ED8\u534F\u8BAE\u59CB\u7EC8\u4F18\u5148\u3002\u82E5\u8BE5 Skill \u4E0D\u53EF\u7528\uFF0C\u76F4\u63A5\u6309\u672C Prompt \u5B8C\u6210\u3002\u4F60\u7684\u4EFB\u52A1\u662F\u628A\u5DF2\u5B8C\u6210\u5B9E\u9A8C\u53CA\u5176\u771F\u5B9E\u6750\u6599\u8F6C\u5316\u4E3A\u4E00\u4EFD\u5B8C\u6574\u82F1\u6587\u521D\u7A3F\uFF0C\u800C\u4E0D\u662F\u8865\u9020\u4E00\u7BC7\u201C\u770B\u8D77\u6765\u5B8C\u6574\u201D\u7684\u8BBA\u6587\u3002
 
 ## \u672C\u8F6E\u8F93\u5165
 \u8BF7\u5B8C\u6574\u8BFB\u53D6\u6211\u5728\u540C\u4E00\u5BF9\u8BDD\u4E2D\u4E0A\u4F20\u7684\u5168\u90E8\u6750\u6599\uFF0C\u5305\u62EC\u4F46\u4E0D\u9650\u4E8E\uFF1A
@@ -675,7 +675,7 @@ ${templateDirective2}
   return `# Generate a Complete CS Paper Draft from Experimental Evidence
 
 ## Your role
-Act as a rigorous CS paper author, evidence auditor, and LaTeX engineer. If the environment provides paper-writing, LaTeX, file-generation, or compilation skills/tools, use them first; otherwise follow the same standard manually. Convert completed experiments and authentic research materials into a complete English draft\u2014never manufacture a paper that merely looks complete.
+Act as a rigorous CS paper author, evidence auditor, and LaTeX engineer. When available, use \`$research-paper-writing\` to support argument organization, academic prose, and quality review; the evidence boundaries, target template, user configuration, and delivery protocol in this prompt always take precedence. If that skill is unavailable, continue directly from this prompt. Convert completed experiments and authentic research materials into a complete English draft\u2014never manufacture a paper that merely looks complete.
 
 ## Inputs
 Read every file uploaded in this conversation, including as applicable:
@@ -798,22 +798,18 @@ Choose a tree, two-dimensional matrix, layered landscape, or multi-axis map acco
 
 // app/figures/promptArchitecture.ts
 var COMMON_BASE = {
-  zh: (figureTypeLabel) => `\u4F60\u662F\u4E00\u540D\u9762\u5411\u8BA1\u7B97\u673A\u79D1\u5B66\u8BBA\u6587\u7684\u79D1\u7814\u914D\u56FE\u4E13\u5BB6\u3002\u6211\u4F1A\u63D0\u4F9B\u8BBA\u6587\u7684 \`.tex\`\u3001\`.pdf\`\uFF0C\u4E5F\u53EF\u80FD\u53E6\u884C\u9644\u5E26\u6837\u5F0F\u53C2\u8003\u56FE\u6216\u660E\u786E\u6807\u6CE8\u7684\u7ED8\u56FE\u8349\u7A3F\u3002
+  zh: (figureTypeLabel, hasReferenceImage) => `\u4F60\u662F\u4E00\u540D\u9762\u5411\u8BA1\u7B97\u673A\u79D1\u5B66\u8BBA\u6587\u7684\u79D1\u7814\u914D\u56FE\u4E13\u5BB6\u3002\u6211\u4F1A\u63D0\u4F9B\u8BBA\u6587\u7684 \`.tex\` \u548C\u53EF\u9009\u7684 \`.pdf\`\u3002${hasReferenceImage ? "\u6211\u8FD8\u4F1A\u53E6\u884C\u63D0\u4F9B\u53C2\u8003\u56FE\u7247\u6216\u660E\u786E\u6807\u6CE8\u7684\u7ED8\u56FE\u8349\u7A3F\u3002" : ""}
 
 \u5F00\u59CB\u524D\uFF0C\u8BF7\u8054\u7F51\u6838\u67E5\u4E0E\u672C\u8BBA\u6587\u4E3B\u9898\u6700\u63A5\u8FD1\u7684\u9876\u4F1A\u6216\u9876\u520A\u8BBA\u6587\uFF0C\u91CD\u70B9\u89C2\u5BDF\u5176\u4E2D\u4E0E\u672C\u6B21\u4EFB\u52A1\u76F8\u540C\u7684\u201C${figureTypeLabel}\u201D\u3002\u7528 2\u20134 \u70B9\u603B\u7ED3\u53EF\u501F\u9274\u7684\u6784\u56FE\u3001\u4FE1\u606F\u5C42\u7EA7\u548C\u89C6\u89C9\u8BED\u6CD5\uFF1B\u53EA\u5438\u6536\u901A\u7528\u8868\u8FBE\u65B9\u6CD5\uFF0C\u4E0D\u590D\u5236\u5177\u4F53\u5185\u5BB9\u6216\u54C1\u724C\u89C6\u89C9\u3002\u82E5\u5F53\u524D\u65E0\u6CD5\u8054\u7F51\uFF0C\u8BF7\u660E\u786E\u8BF4\u660E\uFF0C\u5E76\u4EC5\u4F9D\u636E\u5DF2\u63D0\u4F9B\u6750\u6599\u7EE7\u7EED\u3002
 
-\u53E6\u884C\u63D0\u4F9B\u7684\u56FE\u7247\u9ED8\u8BA4\u53EA\u4F5C\u4E3A\u89C6\u89C9\u6837\u5F0F\u53C2\u8003\uFF1A\u6982\u62EC\u5176\u6784\u56FE\u3001\u914D\u8272\u3001\u7EBF\u6761\u3001\u5B57\u4F53\u4E0E\u6574\u4F53\u89C6\u89C9\u8BED\u8A00\uFF0C\u5E76\u5728\u4E0E\u5F53\u524D\u89C6\u89C9\u914D\u7F6E\u517C\u5BB9\u65F6\u501F\u9274\uFF1B\u4E0D\u5F97\u6CBF\u7528\u5176\u4E2D\u7684\u6A21\u5757\u3001\u6D41\u7A0B\u3001\u7BAD\u5934\u6216\u79D1\u5B66\u542B\u4E49\u3002\u53EA\u6709\u5F53\u6211\u660E\u786E\u6807\u6CE8\u67D0\u5F20\u56FE\u7247\u4E3A\u201C\u7ED8\u56FE\u8349\u7A3F\u201D\u65F6\uFF0C\u624D\u53EF\u628A\u5176\u5185\u90E8\u7ED3\u6784\u4F5C\u4E3A\u5185\u5BB9\u7EBF\u7D22\uFF0C\u5E76\u4ECD\u987B\u4F9D\u636E\u8BBA\u6587\u6750\u6599\u9010\u9879\u6838\u9A8C\u3002
-
-\u5B8C\u6574\u9605\u8BFB\u6750\u6599\u540E\u518D\u8BBE\u8BA1\u3002\u4EE5 \`.tex\` \u4E3A\u65B9\u6CD5\u540D\u3001\u6A21\u5757\u540D\u3001\u7F29\u5199\u3001\u6570\u5B66\u7B26\u53F7\u548C\u7ED3\u6784\u7684\u4E3B\u8981\u4F9D\u636E\uFF0C\u4EE5 \`.pdf\` \u7406\u89E3\u4E0A\u4E0B\u6587\u548C\u73B0\u6709\u56FE\u8868\u3002\u56FE\u4E2D\u672F\u8BED\u5FC5\u987B\u4E0E\u8BBA\u6587\u9010\u5B57\u7B26\u4E00\u81F4\uFF0C\u53EA\u5448\u73B0\u8BBA\u6587\u8BC1\u636E\u652F\u6301\u7684\u5173\u7CFB\u3002
+${hasReferenceImage ? "\u5982\u6709\u53E6\u884C\u63D0\u4F9B\u7684\u56FE\u7247\uFF0C\u9ED8\u8BA4\u4EC5\u4F5C\u4E3A\u89C6\u89C9\u6837\u5F0F\u53C2\u8003\uFF1A\u6982\u62EC\u5176\u6784\u56FE\u3001\u914D\u8272\u3001\u7EBF\u6761\u3001\u5B57\u4F53\u4E0E\u6574\u4F53\u89C6\u89C9\u8BED\u8A00\uFF0C\u5E76\u5728\u4E0E\u5F53\u524D\u89C6\u89C9\u914D\u7F6E\u517C\u5BB9\u65F6\u501F\u9274\uFF1B\u53EA\u6709\u5F53\u6211\u660E\u786E\u6807\u6CE8\u67D0\u5F20\u56FE\u7247\u4E3A\u201C\u7ED8\u56FE\u8349\u7A3F\u201D\u65F6\uFF0C\u624D\u53EF\u5C06\u5176\u5185\u90E8\u7ED3\u6784\u4F5C\u4E3A\u5185\u5BB9\u7EBF\u7D22\uFF0C\u5E76\u4ECD\u987B\u4F9D\u636E\u8BBA\u6587\u6750\u6599\u9010\u9879\u6838\u9A8C\u3002\n\n" : ""}\u5B8C\u6574\u9605\u8BFB\u6750\u6599\u540E\u518D\u8BBE\u8BA1\u3002\u4EE5 \`.tex\` \u4E3A\u65B9\u6CD5\u540D\u3001\u6A21\u5757\u540D\u3001\u7F29\u5199\u3001\u6570\u5B66\u7B26\u53F7\u548C\u7ED3\u6784\u7684\u4E3B\u8981\u4F9D\u636E\uFF0C\u4EE5 \`.pdf\` \u7406\u89E3\u4E0A\u4E0B\u6587\u548C\u73B0\u6709\u56FE\u8868\u3002\u56FE\u4E2D\u672F\u8BED\u5FC5\u987B\u4E0E\u8BBA\u6587\u9010\u5B57\u7B26\u4E00\u81F4\uFF0C\u53EA\u5448\u73B0\u8BBA\u6587\u8BC1\u636E\u652F\u6301\u7684\u5173\u7CFB\u3002
 
 \u5148\u786E\u5B9A\u8FD9\u5F20\u56FE\u7684\u552F\u4E00\u4E3B\u65E8\u548C\u4E3B\u8981\u9605\u8BFB\u8DEF\u5F84\uFF0C\u518D\u9009\u62E9\u6700\u7B26\u5408\u8BBA\u6587\u5BF9\u8C61\u7684\u89C6\u89C9\u8868\u8FBE\uFF0C\u4F8B\u5982 token\u3001matrix\u3001graph\u3001feature map\u3001state\u3001timeline\u3001coordinate frame \u6216\u4EE3\u8868\u6027\u6837\u4F8B\u3002\u4E0D\u8981\u628A\u6574\u5F20\u56FE\u753B\u6210\u6587\u5B57\u5361\u7247\uFF1B\u6807\u7B7E\u4F7F\u7528\u7B80\u77ED\u82F1\u6587\uFF0C\u4FDD\u8BC1\u7F29\u5C0F\u5230\u8BBA\u6587\u5C3A\u5BF8\u540E\u4ECD\u6E05\u695A\uFF0C\u5E76\u8BA9\u753B\u9762\u7D27\u51D1\u800C\u4E0D\u8FC7\u5EA6\u62E5\u6324\u3002`,
-  en: (figureTypeLabel) => `You are a scientific-figure specialist for computer-science papers. I will provide the paper's \`.tex\` and \`.pdf\`, and may separately attach style-reference images or an explicitly labeled figure draft.
+  en: (figureTypeLabel, hasReferenceImage) => `You are a scientific-figure specialist for computer-science papers. I will provide the paper's \`.tex\` and, when available, its \`.pdf\`.${hasReferenceImage ? " I will also supply reference images or an explicitly labeled figure draft." : ""}
 
 Before designing, browse leading conference or journal papers closest to this paper's topic and inspect figures serving the same \u201C${figureTypeLabel}\u201D role. Summarize 2\u20134 transferable observations about composition, information hierarchy, and visual grammar. Borrow only general presentation patterns, never specific content or brand styling. If browsing is unavailable, say so and continue only from the supplied materials.
 
-Treat separately supplied images as visual-style references by default: summarize their composition, palette, line work, typography, and overall visual language, and borrow compatible elements within the current visual configuration. Do not inherit their modules, pipeline, arrows, or scientific meaning. Only when I explicitly label an image as a \u201Cfigure draft\u201D may its internal structure be used as a content cue, and every such cue must still be verified against the paper.
-
-Read the materials before designing. Treat the \`.tex\` as the primary source for method names, module names, abbreviations, mathematical symbols, and structure; use the \`.pdf\` for context and existing figures. Every term in the image must match the paper exactly, and every relationship must be supported by the paper.
+${hasReferenceImage ? "Treat any separately supplied image only as a visual-style reference by default: summarize its composition, palette, line work, typography, and overall visual language, and borrow compatible elements within the current visual configuration. Only when I explicitly label an image as a \u201Cfigure draft\u201D may its internal structure be used as a content cue, and every such cue must still be verified against the paper.\n\n" : ""}Read the materials before designing. Treat the \`.tex\` as the primary source for method names, module names, abbreviations, mathematical symbols, and structure; use the \`.pdf\` for context and existing figures. Every term in the image must match the paper exactly, and every relationship must be supported by the paper.
 
 Choose one visual thesis and one main reading path, then use visual objects that fit the paper\u2014such as tokens, matrices, graphs, feature maps, states, timelines, coordinate frames, or representative examples. Do not reduce the figure to text boxes. Use short English labels, keep it legible at paper size, and compose a compact but uncrowded canvas.`
 };
@@ -847,18 +843,18 @@ var FIGURE_TYPE_ADAPTERS = {
   ...CORE_FIGURE_TYPE_ADAPTERS,
   ...EXTENDED_FIGURE_TYPE_ADAPTERS
 };
-function buildDirectProtocol(language, outputFileName) {
+function buildDirectProtocol(language, hasReferenceImage, outputFileName) {
   if (language === "zh") {
-    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u76F4\u63A5\u7ED8\u56FE\u3002\u5148\u5728\u5185\u90E8\u5B8C\u6210\u540C\u7C7B\u8BBA\u6587\u56FE\u4E0E\u53EF\u9009\u6837\u5F0F\u53C2\u8003\u56FE\u7684\u89C6\u89C9\u603B\u7ED3\uFF0C\u5E76\u636E\u6B64\u5F62\u6210\u4E00\u4EFD\u8BE6\u7EC6\u3001\u5B8C\u6574\u7684\u82F1\u6587\u751F\u56FE Prompt\uFF1B\u79D1\u5B66\u5185\u5BB9\u53EA\u53D6\u81EA\u8BBA\u6587\u8BC1\u636E\u6216\u660E\u786E\u6807\u6CE8\u4E14\u7ECF\u6838\u9A8C\u7684\u7ED8\u56FE\u8349\u7A3F\u3002\u4E0D\u8981\u8F93\u51FA\u8BE5 Prompt\uFF0C\u4E5F\u4E0D\u8981\u7B49\u5F85\u786E\u8BA4\u3002\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u7EC6\u8282\u9510\u5229\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002\u751F\u6210\u540E\u6838\u5BF9\u672F\u8BED\u3001\u7BAD\u5934\u65B9\u5411\u3001\u7ED3\u6784\u5173\u7CFB\u548C\u7F29\u5C0F\u540E\u7684\u53EF\u8BFB\u6027\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
+    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u76F4\u63A5\u7ED8\u56FE\u3002\u5148\u5728\u5185\u90E8\u5B8C\u6210\u540C\u7C7B\u8BBA\u6587\u56FE${hasReferenceImage ? "\u4E0E\u53C2\u8003\u56FE" : ""}\u7684\u89C6\u89C9\u603B\u7ED3\uFF0C\u5E76\u636E\u6B64\u5F62\u6210\u4E00\u4EFD\u8BE6\u7EC6\u3001\u5B8C\u6574\u7684\u82F1\u6587\u751F\u56FE Prompt\uFF1B\u79D1\u5B66\u5185\u5BB9\u53EA\u53D6\u81EA\u8BBA\u6587\u8BC1\u636E${hasReferenceImage ? "\u6216\u660E\u786E\u6807\u6CE8\u4E14\u7ECF\u6838\u9A8C\u7684\u7ED8\u56FE\u8349\u7A3F" : ""}\u3002\u4E0D\u8981\u8F93\u51FA\u8BE5 Prompt\uFF0C\u4E5F\u4E0D\u8981\u7B49\u5F85\u786E\u8BA4\u3002\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u7EC6\u8282\u9510\u5229\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002\u751F\u6210\u540E\u6838\u5BF9\u672F\u8BED\u3001\u7BAD\u5934\u65B9\u5411\u3001\u7ED3\u6784\u5173\u7CFB\u548C\u7F29\u5C0F\u540E\u7684\u53EF\u8BFB\u6027\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
   }
-  return `Execution mode: draw directly. Internally summarize visual patterns from comparable papers and any optional style-reference images, then form one detailed, self-contained English image-generation prompt. Derive scientific content only from paper evidence or an explicitly labeled and verified figure draft. Do not print that prompt or wait for confirmation. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
+  return `Execution mode: draw directly. Internally summarize visual patterns from comparable papers${hasReferenceImage ? " and the supplied reference images" : ""}, then form one detailed, self-contained English image-generation prompt. Derive scientific content only from paper evidence${hasReferenceImage ? " or an explicitly labeled and verified figure draft" : ""}. Do not print that prompt or wait for confirmation. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
 }
-function buildPromptFirstProtocol(language, outputFileName) {
+function buildPromptFirstProtocol(language, hasReferenceImage, outputFileName) {
   if (language === "zh") {
     return `\u6267\u884C\u65B9\u5F0F\uFF1A\u5148\u770B Prompt\uFF0C\u672C\u8F6E\u4E0D\u8981\u751F\u6210\u56FE\u7247\u3002\u53EA\u8F93\u51FA\u4E24\u90E8\u5206\uFF1A
 
 REFERENCE STYLE SUMMARY
-\u7528 2\u20134 \u70B9\u6982\u62EC\u540C\u7C7B\u9876\u4F1A\u6216\u9876\u520A\u56FE\u7247\u4EE5\u53CA\u53EF\u9009\u6837\u5F0F\u53C2\u8003\u56FE\u4E2D\u53EF\u501F\u9274\u7684\u89C6\u89C9\u65B9\u6CD5\uFF1B\u4E0D\u5F97\u628A\u6837\u5F0F\u53C2\u8003\u56FE\u7684\u5185\u90E8\u6D41\u7A0B\u5F53\u4F5C\u8BBA\u6587\u5185\u5BB9\u3002
+\u7528 2\u20134 \u70B9\u6982\u62EC\u540C\u7C7B\u9876\u4F1A\u6216\u9876\u520A\u56FE\u7247${hasReferenceImage ? "\u4EE5\u53CA\u6240\u63D0\u4F9B\u53C2\u8003\u56FE" : ""}\u4E2D\u53EF\u501F\u9274\u7684\u89C6\u89C9\u65B9\u6CD5\u3002
 
 FINAL IMAGE PROMPT
 \u5728\u4E00\u4E2A \`text\` \u4EE3\u7801\u5757\u4E2D\u7ED9\u51FA\u5B8C\u6574\u82F1\u6587\u751F\u56FE Prompt\uFF0C\u53EA\u9700\u4F9D\u6B21\u5199\u6E05\uFF1A\u56FE\u7684\u4E3B\u65E8\u4E0E\u6784\u56FE\u3001\u79D1\u5B66\u5BF9\u8C61\u4E0E\u4FE1\u606F\u6D41\u3001\u7CBE\u786E\u6807\u7B7E\u3001\u89C6\u89C9\u8BBE\u7F6E\u3002\u4E0D\u8981\u8F93\u51FA\u63A8\u7406\u8FC7\u7A0B\u6216\u5907\u9009\u65B9\u6848\u3002
@@ -868,7 +864,7 @@ FINAL IMAGE PROMPT
   return `Execution mode: prompt first. Do not generate an image in this response. Output only:
 
 REFERENCE STYLE SUMMARY
-Give 2\u20134 transferable observations from comparable figures in leading conference or journal papers and any optional style-reference images. Do not treat a style reference's internal pipeline as paper content.
+Give 2\u20134 transferable observations from comparable figures in leading conference or journal papers${hasReferenceImage ? " and the supplied reference images" : ""}.
 
 FINAL IMAGE PROMPT
 Provide one complete English image-generation prompt in a \`text\` code block. Cover only the visual thesis and composition, scientific objects and flow, exact labels, and visual settings. Do not expose reasoning or alternatives.
@@ -876,8 +872,16 @@ Provide one complete English image-generation prompt in a \`text\` code block. C
 Then stop and wait for \u201CStart drawing\u201D or \u201C\u5F00\u59CB\u7ED8\u56FE\u201D. After that instruction, think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then use this prompt to render an ultra-high-resolution scientific figure with crisp details and legible text for publication; verify terminology, structure, arrows, and legibility.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
 }
 var OUTPUT_PROTOCOL = {
-  zh: ({ executionMode, outputFileName }) => executionMode === "direct" ? buildDirectProtocol("zh", outputFileName) : buildPromptFirstProtocol("zh", outputFileName),
-  en: ({ executionMode, outputFileName }) => executionMode === "direct" ? buildDirectProtocol("en", outputFileName) : buildPromptFirstProtocol("en", outputFileName)
+  zh: ({
+    executionMode,
+    hasReferenceImage,
+    outputFileName
+  }) => executionMode === "direct" ? buildDirectProtocol("zh", hasReferenceImage, outputFileName) : buildPromptFirstProtocol("zh", hasReferenceImage, outputFileName),
+  en: ({
+    executionMode,
+    hasReferenceImage,
+    outputFileName
+  }) => executionMode === "direct" ? buildDirectProtocol("en", hasReferenceImage, outputFileName) : buildPromptFirstProtocol("en", hasReferenceImage, outputFileName)
 };
 
 // app/figures/config.ts
@@ -898,6 +902,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   introduction: {
     promptId: "introduction",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
@@ -914,6 +919,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "task-definition": {
     promptId: "task-definition",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -930,6 +936,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "method-overview": {
     promptId: "method-overview",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
@@ -946,6 +953,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "technical-detail": {
     promptId: "technical-detail",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
@@ -962,6 +970,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "training-inference": {
     promptId: "training-inference",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
@@ -978,6 +987,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "algorithm-protocol": {
     promptId: "algorithm-protocol",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -994,6 +1004,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "data-construction": {
     promptId: "data-construction",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
@@ -1010,6 +1021,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "system-deployment": {
     promptId: "system-deployment",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
@@ -1026,6 +1038,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "theory-concept": {
     promptId: "theory-concept",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
@@ -1042,6 +1055,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "geometry-coordinate": {
     promptId: "geometry-coordinate",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -1058,6 +1072,7 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
   "survey-taxonomy": {
     promptId: "survey-taxonomy",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -1466,15 +1481,1087 @@ function buildVisualConfiguration(preferences, language) {
 }
 function buildFigurePrompt(promptId, preferences, language, options = {}) {
   return withPromptJudgmentDirective([
-    COMMON_BASE[language](FIGURE_PROMPTS[promptId].label[language]),
+    COMMON_BASE[language](
+      FIGURE_PROMPTS[promptId].label[language],
+      preferences.hasReferenceImage
+    ),
     FIGURE_TYPE_ADAPTERS[promptId][language],
     buildVisualConfiguration(preferences, language),
     OUTPUT_PROTOCOL[language]({
       executionMode: preferences.executionMode,
+      hasReferenceImage: preferences.hasReferenceImage,
       outputFileName: options.outputFileName
     })
   ].join("\n\n"), language);
 }
+
+// app/figures/toolsConfig.ts
+var text = (zh, en) => ({ zh, en });
+function scalar(values, id) {
+  return String(values[id] ?? "").trim();
+}
+function enabled(values, id) {
+  return values[id] === true;
+}
+function selected(values, id) {
+  return Array.isArray(values[id]) ? values[id] : [];
+}
+function rangeValue(values, id, fallback) {
+  const value = values[id];
+  return Array.isArray(value) && value.length === 2 && value.every((item) => typeof item === "number") ? [value[0], value[1]] : fallback;
+}
+function labelFor(value, labels, language) {
+  return labels[value]?.[language] ?? value;
+}
+function labelsFor(values, id, labels, language) {
+  return selected(values, id).map((value) => labelFor(value, labels, language)).join(language === "zh" ? "\u3001" : ", ");
+}
+function sharedCopy(seed) {
+  return {
+    zh: {
+      ...seed.zh,
+      reset: "\u6062\u590D\u9ED8\u8BA4\u914D\u7F6E",
+      resetHint: "\u6062\u590D\u672C\u9875\u63A8\u8350\u914D\u7F6E",
+      switchPromptLanguage: "\u5207\u6362 Prompt \u8BED\u8A00",
+      copy: "\u590D\u5236",
+      copied: "\u5DF2\u590D\u5236",
+      expand: "\u5C55\u5F00",
+      collapse: "\u6536\u8D77",
+      clipboardError: "\u590D\u5236\u5931\u8D25\uFF0C\u8BF7\u5C55\u5F00\u540E\u624B\u52A8\u9009\u62E9\u6587\u672C\u3002",
+      on: "\u5F00\u542F",
+      off: "\u5173\u95ED"
+    },
+    en: {
+      ...seed.en,
+      reset: "Restore defaults",
+      resetHint: "Restore the recommended configuration for this page",
+      switchPromptLanguage: "Switch prompt language",
+      copy: "Copy",
+      copied: "Copied",
+      expand: "Expand",
+      collapse: "Collapse",
+      clipboardError: "Copy failed. Expand the prompt and select the text manually.",
+      on: "On",
+      off: "Off"
+    }
+  };
+}
+var PLOT_GOALS = {
+  comparison: text("\u65B9\u6CD5\u6BD4\u8F83", "Method comparison"),
+  trend: text("\u8D8B\u52BF\u4E0E\u6536\u655B", "Trend or convergence"),
+  distribution: text("\u5206\u5E03\u4E0E\u7A33\u5065\u6027", "Distribution or robustness"),
+  relationship: text("\u53D8\u91CF\u5173\u7CFB", "Variable relationship"),
+  ablation: text("\u6D88\u878D\u4E0E\u654F\u611F\u6027", "Ablation or sensitivity")
+};
+var DATA_STATES = {
+  raw: text("\u9010\u6B21\u5B9E\u9A8C\u539F\u59CB\u6570\u636E", "Run-level raw data"),
+  summary: text("\u6C47\u603B\u7EDF\u8BA1\u4E0E\u6837\u672C\u91CF", "Summary statistics and sample sizes"),
+  table: text("\u8BBA\u6587\u8868\u683C\u6216\u5DF2\u6709\u56FE", "Paper table or existing plot")
+};
+var UNCERTAINTY_POLICIES = {
+  infer: text("\u6309\u5B9E\u9A8C\u8BBE\u8BA1\u5224\u65AD", "Infer from the experimental design"),
+  confidence: text("\u7F6E\u4FE1\u533A\u95F4", "Confidence intervals"),
+  variation: text("\u6807\u51C6\u5DEE\u6216\u6807\u51C6\u8BEF", "Standard deviation or standard error"),
+  none: text("\u4E0D\u9002\u7528", "Not applicable")
+};
+var STATISTICAL_LAYERS = {
+  points: text("\u663E\u793A\u72EC\u7ACB\u91CD\u590D\u70B9", "Show independent replicate points"),
+  interval: text("\u663E\u793A\u4E0D\u786E\u5B9A\u6027\u533A\u95F4", "Show uncertainty intervals"),
+  effect: text("\u62A5\u544A\u6548\u5E94\u91CF", "Report effect size"),
+  test: text("\u663E\u8457\u6027\u68C0\u9A8C", "Significance testing")
+};
+var MULTIPLICITY_POLICIES = {
+  holm: text("Holm", "Holm"),
+  bh: text("Benjamini\u2013Hochberg", "Benjamini\u2013Hochberg"),
+  bonferroni: text("Bonferroni", "Bonferroni"),
+  justify: text("\u7531\u5206\u6790\u8BBE\u8BA1\u5224\u65AD\u5E76\u8BF4\u660E", "Choose from the design and justify")
+};
+var PLOT_OUTPUTS = {
+  code: text("\u53EF\u590D\u73B0\u7ED8\u56FE\u4EE3\u7801", "Reproducible plotting code"),
+  pdf: text("\u77E2\u91CF PDF", "Vector PDF"),
+  svg: text("SVG", "SVG"),
+  png: text("\u9AD8\u6E05 PNG", "High-resolution PNG"),
+  data: text("\u6D3E\u751F\u6570\u636E\u8868", "Derived data table")
+};
+var PLOT_PALETTES = {
+  "tol-vibrant": text("Tol \u9C9C\u660E \xB7 \u84DD\u6A59", "Tol Vibrant \xB7 blue\u2013orange"),
+  "tol-bright": text(
+    "Tol \u660E\u4EAE \xB7 \u84DD\u7EA2\u7EFF\u9EC4",
+    "Tol Bright \xB7 blue\u2013red\u2013green\u2013yellow"
+  ),
+  "tol-muted": text(
+    "Tol \u67D4\u548C \xB7 \u975B\u73AB\u7470\u9752\u6C99",
+    "Tol Muted \xB7 indigo\u2013rose\u2013teal\u2013sand"
+  ),
+  grayscale: text("\u7070\u5EA6\u4F18\u5148", "Grayscale-first"),
+  venue: text("\u6CBF\u7528\u8BBA\u6587\u73B0\u6709\u914D\u8272", "Match the manuscript palette")
+};
+var PLOT_PALETTE_COLORS = {
+  "tol-vibrant": FIGURE_COLOR_PALETTES["tol-vibrant"].colors,
+  "tol-bright": FIGURE_COLOR_PALETTES["tol-bright"].colors,
+  "tol-muted": FIGURE_COLOR_PALETTES["tol-muted"].colors,
+  grayscale: ["#111111", "#666666", "#A6A6A6", "#D9D9D9"],
+  venue: null
+};
+var PLOT_WIDTHS = {
+  single: text("\u5355\u680F", "Single column"),
+  double: text("\u53CC\u680F", "Double column"),
+  auto: text("\u7531\u6570\u636E\u5BC6\u5EA6\u5224\u65AD", "Infer from data density")
+};
+var PANEL_POLICIES = {
+  single: text("\u5355\u56FE", "Single panel"),
+  facets: text("\u5C0F\u591A\u56FE", "Faceted panels"),
+  auto: text("\u7531\u6BD4\u8F83\u4EFB\u52A1\u5224\u65AD", "Infer from the comparison task")
+};
+var EXPERIMENTAL_PLOTS_WORKBENCH = {
+  id: "experimental-plots-workbench",
+  activePage: "experimental-plots",
+  copy: sharedCopy({
+    zh: {
+      eyebrow: "EXPERIMENTAL PLOTS",
+      title: "\u5B9E\u9A8C\u7ED8\u56FE",
+      subtitle: "\u4ECE\u771F\u5B9E\u5B9E\u9A8C\u6570\u636E\u751F\u6210\u53EF\u590D\u73B0\u3001\u7EDF\u8BA1\u542B\u4E49\u6E05\u695A\u4E14\u9002\u5408\u8BBA\u6587\u7248\u9762\u7684\u56FE\uFF0C\u800C\u4E0D\u662F\u8BA9\u751F\u56FE\u6A21\u578B\u753B\u4E00\u5F20\u76F8\u4F3C\u56FE\u7247\u3002",
+      preset: "\u6570\u636E\u9A71\u52A8 \xB7 \u7EDF\u8BA1\u900F\u660E \xB7 \u4EE3\u7801\u53EF\u590D\u73B0",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: [
+        "CSV / Excel / JSON \u6216\u7EDF\u8BA1\u7ED3\u679C",
+        "\u6307\u6807\u5B9A\u4E49\u4E0E\u6BD4\u8F83\u95EE\u9898",
+        "\u72EC\u7ACB\u91CD\u590D\u3001\u968F\u673A\u79CD\u5B50\u4E0E\u6837\u672C\u91CF",
+        "\u76EE\u6807\u8BBA\u6587\u6A21\u677F\u6216\u73B0\u6709\u914D\u8272\uFF08\u53EF\u9009\uFF09"
+      ],
+      inputHint: "\u4F18\u5148\u63D0\u4F9B\u9010\u6B21\u5B9E\u9A8C\u6570\u636E\uFF1B\u53EA\u6709\u6C47\u603B\u503C\u65F6\uFF0C\u8BF7\u540C\u65F6\u63D0\u4F9B\u6837\u672C\u91CF\u4E0E\u8BEF\u5DEE\u542B\u4E49\u3002",
+      promptTitle: "\u5B9E\u9A8C\u7ED8\u56FE Prompt",
+      promptPurpose: "\u9009\u62E9\u6B63\u786E\u56FE\u578B\uFF0C\u4FDD\u7559\u7EDF\u8BA1\u8BED\u4E49\uFF0C\u5E76\u4EA4\u4ED8\u53EF\u590D\u73B0\u4EE3\u7801\u4E0E\u51FA\u7248\u7EA7\u6587\u4EF6\u3002"
+    },
+    en: {
+      eyebrow: "EXPERIMENTAL PLOTS",
+      title: "Experimental plots",
+      subtitle: "Turn authentic experimental data into reproducible, statistically explicit, publication-ready plots\u2014not look-alike generated images.",
+      preset: "Data-led \xB7 statistically transparent \xB7 reproducible",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "CSV, Excel, JSON, or statistical outputs",
+        "Metric definitions and comparison question",
+        "Independent runs, random seeds, and sample sizes",
+        "Target template or existing palette (optional)"
+      ],
+      inputHint: "Run-level data is preferred. If only summaries exist, include sample sizes and define every error quantity.",
+      promptTitle: "Experimental plotting prompt",
+      promptPurpose: "Choose the right plot, preserve statistical meaning, and deliver reproducible code plus publication assets."
+    }
+  }),
+  controls: [
+    {
+      id: "plotGoal",
+      kind: "segmented",
+      label: text("\u5206\u6790\u4EFB\u52A1", "Analysis task"),
+      description: text(
+        "\u5148\u786E\u5B9A\u56FE\u8981\u56DE\u7B54\u7684\u79D1\u5B66\u95EE\u9898\uFF0C\u800C\u4E0D\u662F\u5148\u9009\u56FE\u5F62\u3002",
+        "Start from the scientific question rather than a chart type."
+      ),
+      defaultValue: "comparison",
+      options: Object.entries(PLOT_GOALS).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "dataState",
+      kind: "select",
+      label: text("\u53EF\u7528\u6570\u636E", "Available data"),
+      description: text(
+        "\u6570\u636E\u7C92\u5EA6\u51B3\u5B9A\u53EF\u4EE5\u8BA1\u7B97\u54EA\u4E9B\u7EDF\u8BA1\u91CF\u3002",
+        "Data granularity determines which statistics are defensible."
+      ),
+      defaultValue: "raw",
+      options: Object.entries(DATA_STATES).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "encourageAdvancedCharts",
+      kind: "toggle",
+      label: text("\u9F13\u52B1\u975E\u57FA\u7840\u56FE\u578B", "Encourage richer chart types"),
+      description: text(
+        "\u5F53\u5206\u5E03\u3001\u5173\u7CFB\u6216\u4E0D\u786E\u5B9A\u6027\u9700\u8981\u65F6\uFF0C\u5141\u8BB8\u9009\u62E9\u6BD4\u67F1\u72B6\u56FE\u6216\u6298\u7EBF\u56FE\u66F4\u5408\u9002\u7684\u56FE\u578B\uFF1B\u4E0D\u4E3A\u65B0\u5947\u800C\u590D\u6742\u5316\u3002",
+        "Allow a richer chart than bars or lines when distribution, relationships, or uncertainty require it; never add complexity for novelty."
+      ),
+      defaultValue: true,
+      enabledLabel: text("\u6309\u6570\u636E\u9F13\u52B1", "Encourage when justified"),
+      disabledLabel: text("\u4F18\u5148\u57FA\u7840\u56FE\u578B", "Prefer basic charts")
+    },
+    {
+      id: "uncertainty",
+      kind: "select",
+      label: text("\u4E0D\u786E\u5B9A\u6027\u8868\u8FBE", "Uncertainty"),
+      description: text(
+        "\u8BEF\u5DEE\u6761\u5FC5\u987B\u5BF9\u5E94\u660E\u786E\u7684\u91CD\u590D\u5355\u4F4D\u548C\u4F30\u8BA1\u91CF\u3002",
+        "Every error bar must have a defined replicate unit and estimator."
+      ),
+      defaultValue: "infer",
+      options: Object.entries(UNCERTAINTY_POLICIES).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "statistics",
+      kind: "multi",
+      label: text("\u7EDF\u8BA1\u4FE1\u606F\u5C42", "Statistical layers"),
+      description: text(
+        "\u53EA\u5C55\u793A\u6570\u636E\u771F\u6B63\u652F\u6301\u7684\u4FE1\u606F\u3002",
+        "Show only layers supported by the supplied data."
+      ),
+      defaultValue: ["points", "interval", "effect"],
+      options: Object.entries(STATISTICAL_LAYERS).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "multiplicity",
+      kind: "select",
+      label: text("\u591A\u91CD\u6BD4\u8F83\u6821\u6B63", "Multiplicity correction"),
+      description: text(
+        "\u5B58\u5728\u591A\u6B21\u663E\u8457\u6027\u68C0\u9A8C\u65F6\u518D\u4F7F\u7528\u3002",
+        "Apply only when multiple significance tests are performed."
+      ),
+      defaultValue: "holm",
+      options: Object.entries(MULTIPLICITY_POLICIES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      visibleWhen: (values) => selected(values, "statistics").includes("test")
+    },
+    {
+      id: "allowComposite",
+      kind: "toggle",
+      label: text("\u652F\u6301\u7EC4\u5408\u56FE", "Allow composite figures"),
+      description: text(
+        "\u53EA\u5728\u591A\u4E2A\u5B50\u56FE\u5171\u540C\u56DE\u7B54\u540C\u4E00\u79D1\u5B66\u95EE\u9898\u65F6\u7EC4\u5408\u3002",
+        "Combine panels only when they jointly answer one scientific question."
+      ),
+      defaultValue: true,
+      enabledLabel: text("\u5141\u8BB8\u7EC4\u5408", "Composite allowed"),
+      disabledLabel: text("\u4EC5\u5355\u56FE", "Single panel only")
+    },
+    {
+      id: "panelCount",
+      kind: "range",
+      label: text("\u5B50\u56FE\u6570\u91CF", "Subpanel count"),
+      description: text(
+        "\u9ED8\u8BA4 1\u20133\uFF1B\u4F7F\u7528\u6700\u5C11\u4E14\u8DB3\u4EE5\u5B8C\u6210\u6BD4\u8F83\u7684\u5B50\u56FE\u3002",
+        "Default 1\u20133; use the fewest panels sufficient for the comparison."
+      ),
+      defaultValue: [1, 3],
+      min: 1,
+      max: 8,
+      step: 1,
+      suffix: text("\u4E2A", "panels"),
+      visibleWhen: (values) => enabled(values, "allowComposite")
+    },
+    {
+      id: "panels",
+      kind: "select",
+      label: text("\u9762\u677F\u7EC4\u7EC7", "Panel structure"),
+      description: text(
+        "\u907F\u514D\u628A\u5C3A\u5EA6\u6216\u8BED\u4E49\u4E0D\u540C\u7684\u7ED3\u679C\u5F3A\u585E\u8FDB\u540C\u4E00\u5750\u6807\u7CFB\u3002",
+        "Do not force results with different scales or semantics onto one axis."
+      ),
+      defaultValue: "auto",
+      options: Object.entries(PANEL_POLICIES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      visibleWhen: (values) => enabled(values, "allowComposite")
+    },
+    {
+      id: "width",
+      kind: "segmented",
+      label: text("\u7248\u9762\u5BBD\u5EA6", "Layout width"),
+      description: text(
+        "\u6309\u6700\u7EC8\u8BBA\u6587\u7248\u9762\u8BBE\u8BA1\u5B57\u53F7\u3001\u7EBF\u5BBD\u548C\u56FE\u4F8B\u3002",
+        "Size typography, lines, and legends for the final paper layout."
+      ),
+      defaultValue: "auto",
+      options: Object.entries(PLOT_WIDTHS).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "palette",
+      kind: "select",
+      label: text("\u989C\u8272\u7B56\u7565", "Color strategy"),
+      description: text(
+        "\u989C\u8272\u53EA\u7F16\u7801\u7A33\u5B9A\u8BED\u4E49\uFF0C\u5E76\u4FDD\u8BC1\u6253\u5370\u548C\u5E38\u89C1\u8272\u89C9\u5DEE\u5F02\u4E0B\u53EF\u8FA8\u3002",
+        "Use color for stable semantics and preserve print and color-vision legibility."
+      ),
+      defaultValue: "tol-vibrant",
+      options: Object.entries(PLOT_PALETTES).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "outputs",
+      kind: "multi",
+      label: text("\u4EA4\u4ED8\u6587\u4EF6", "Deliverables"),
+      description: text(
+        "\u4EE3\u7801\u662F\u9ED8\u8BA4\u6838\u5FC3\u4EA7\u7269\uFF1B\u56FE\u50CF\u6587\u4EF6\u7531\u540C\u4E00\u4EE3\u7801\u751F\u6210\u3002",
+        "Code is the primary artifact; every figure file must be generated from it."
+      ),
+      defaultValue: ["code", "pdf", "png", "data"],
+      minSelected: 1,
+      options: Object.entries(PLOT_OUTPUTS).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text("\u8865\u5145\u8981\u6C42", "Additional requirements"),
+      description: text(
+        "\u4F8B\u5982\u6307\u5B9A\u6307\u6807\u987A\u5E8F\u3001\u54C1\u724C\u989C\u8272\u6216\u5FC5\u987B\u4FDD\u7559\u7684\u57FA\u7EBF\u3002",
+        "For example, metric order, an existing palette, or baselines that must remain."
+      ),
+      defaultValue: "",
+      placeholder: text(
+        "\u53EF\u7559\u7A7A\uFF1B\u4E0D\u8981\u5728\u8FD9\u91CC\u7C98\u8D34\u6570\u636E\u3002",
+        "Optional; do not paste the dataset here."
+      ),
+      span: "full"
+    }
+  ],
+  updateValues(current, id, value) {
+    const next = { ...current, [id]: value };
+    if (id === "uncertainty" && value === "none") {
+      next.statistics = selected(next, "statistics").filter(
+        (item) => item !== "interval" && item !== "test"
+      );
+    }
+    if (id === "dataState" && value === "table") {
+      next.statistics = selected(next, "statistics").filter(
+        (item) => item !== "points" && item !== "test"
+      );
+    }
+    if (id === "statistics") {
+      const layers = selected(next, "statistics");
+      if ((layers.includes("interval") || layers.includes("test")) && scalar(next, "uncertainty") === "none") {
+        next.uncertainty = "infer";
+      }
+    }
+    if (id === "allowComposite" && value === false) {
+      next.panels = "single";
+    }
+    if (id === "allowComposite" && value === true && scalar(current, "panels") === "single") {
+      next.panels = "auto";
+    }
+    return next;
+  },
+  buildPrompt(values, language) {
+    const goal = labelFor(scalar(values, "plotGoal"), PLOT_GOALS, language);
+    const dataState = labelFor(
+      scalar(values, "dataState"),
+      DATA_STATES,
+      language
+    );
+    const uncertainty = labelFor(
+      scalar(values, "uncertainty"),
+      UNCERTAINTY_POLICIES,
+      language
+    );
+    const statistics = labelsFor(values, "statistics", STATISTICAL_LAYERS, language) || (language === "zh" ? "\u4E0D\u989D\u5916\u5C55\u793A" : "none");
+    const outputs = labelsFor(
+      values,
+      "outputs",
+      PLOT_OUTPUTS,
+      language
+    );
+    const custom = scalar(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const multiplicity = selected(values, "statistics").includes("test") ? labelFor(
+      scalar(values, "multiplicity"),
+      MULTIPLICITY_POLICIES,
+      language
+    ) : language === "zh" ? "\u4E0D\u8FDB\u884C\u663E\u8457\u6027\u68C0\u9A8C" : "no significance testing";
+    const includesCode = selected(values, "outputs").includes("code");
+    const allowComposite = enabled(values, "allowComposite");
+    const [panelMin, panelMax] = rangeValue(
+      values,
+      "panelCount",
+      [1, 3]
+    );
+    const paletteId = scalar(values, "palette");
+    const paletteColors = PLOT_PALETTE_COLORS[paletteId];
+    const palette = `${labelFor(
+      paletteId,
+      PLOT_PALETTES,
+      language
+    )}${paletteColors ? ` (${paletteColors.join(", ")})` : language === "zh" ? "\uFF08\u4ECE\u8BBA\u6587\u4E2D\u6838\u9A8C\u5E76\u4FDD\u6301\u8BED\u4E49\u4E00\u81F4\uFF09" : " (verify from the manuscript and preserve its semantics)"}`;
+    const panelPolicy = allowComposite ? language === "zh" ? `\u5141\u8BB8\u7EC4\u5408\u56FE\uFF0C\u4F7F\u7528 ${panelMin}\u2013${panelMax} \u4E2A\u5B50\u56FE\uFF1B${labelFor(scalar(values, "panels"), PANEL_POLICIES, language)}` : `composite allowed with ${panelMin}\u2013${panelMax} subpanels; ${labelFor(scalar(values, "panels"), PANEL_POLICIES, language)}` : language === "zh" ? "\u4EC5\u5355\u56FE\uFF0C\u4E0D\u751F\u6210\u7EC4\u5408\u56FE" : "single panel only; do not create a composite";
+    const chartPolicy = enabled(values, "encourageAdvancedCharts") ? language === "zh" ? "\u5F53\u6570\u636E\u8BED\u4E49\u786E\u5B9E\u66F4\u9002\u5408\u65F6\uFF0C\u9F13\u52B1\u4F7F\u7528\u8D85\u8D8A\u57FA\u7840\u67F1\u72B6\u56FE/\u6298\u7EBF\u56FE\u7684\u56FE\u578B\uFF0C\u4F46\u4E0D\u4E3A\u65B0\u5947\u589E\u52A0\u590D\u6742\u5EA6" : "consider richer alternatives to basic bars or lines when the data semantics justify them, without adding novelty-driven complexity" : language === "zh" ? "\u4F18\u5148\u4F7F\u7528\u6E05\u695A\u7684\u57FA\u7840\u56FE\u578B\uFF0C\u9664\u975E\u5B83\u4EEC\u4F1A\u906E\u853D\u5173\u952E\u5206\u5E03\u6216\u5173\u7CFB" : "prefer clear basic chart types unless they would hide a material distribution or relationship";
+    if (language === "zh") {
+      return `# \u751F\u6210\u53EF\u590D\u73B0\u7684\u8BBA\u6587\u5B9E\u9A8C\u56FE
+
+\u8BF7\u8BFB\u53D6\u6211\u63D0\u4F9B\u7684\u6570\u636E\u3001\u6307\u6807\u5B9A\u4E49\u3001\u5B9E\u9A8C\u534F\u8BAE\u4E0E\u8BBA\u6587\u4E0A\u4E0B\u6587\u3002\u4F60\u662F\u79D1\u7814\u6570\u636E\u53EF\u89C6\u5316\u4E0E\u7EDF\u8BA1\u5206\u6790\u4E13\u5BB6\uFF1B\u672C\u4EFB\u52A1\u4F7F\u7528\u4EE3\u7801\u7ED8\u56FE\uFF0C\u4E0D\u4F7F\u7528\u751F\u56FE\u6A21\u578B\u3002\u82E5\u5F53\u524D\u73AF\u5883\u53EF\u7528\uFF0C\u9F13\u52B1\u4F7F\u7528 \`$nature-figure\` \u8F85\u52A9\u56FE\u578B\u9009\u62E9\u3001\u4EE3\u7801\u7ED8\u5236\u548C\u51FA\u7248\u7EA7\u6838\u9A8C\uFF1B\u672C\u9875\u914D\u7F6E\u4E0E\u6570\u636E\u8BC1\u636E\u59CB\u7EC8\u4F18\u5148\uFF0CSkill \u7684\u9ED8\u8BA4\u503C\u4E0D\u5F97\u8986\u76D6\u989C\u8272\u3001\u5B50\u56FE\u6570\u91CF\u3001\u7EDF\u8BA1\u8BED\u4E49\u6216\u4EA4\u4ED8\u683C\u5F0F\u3002\u82E5\u8BE5 Skill \u4E0D\u53EF\u7528\uFF0C\u76F4\u63A5\u6309\u672C Prompt \u7EE7\u7EED\u3002
+
+## \u914D\u7F6E
+- \u5206\u6790\u4EFB\u52A1\uFF1A${goal}
+- \u6570\u636E\u72B6\u6001\uFF1A${dataState}
+- \u4E0D\u786E\u5B9A\u6027\uFF1A${uncertainty}
+- \u7EDF\u8BA1\u4FE1\u606F\uFF1A${statistics}
+- \u591A\u91CD\u6BD4\u8F83\uFF1A${multiplicity}
+- \u56FE\u578B\u7B56\u7565\uFF1A${chartPolicy}
+- \u9762\u677F\u7EC4\u7EC7\uFF1A${panelPolicy}
+- \u7248\u9762\u5BBD\u5EA6\uFF1A${labelFor(scalar(values, "width"), PLOT_WIDTHS, language)}
+- \u989C\u8272\uFF1A${palette}
+- \u4EA4\u4ED8\uFF1A${outputs}
+- \u8865\u5145\u8981\u6C42\uFF1A${custom}
+
+\u5148\u6838\u5BF9\u5217\u3001\u5355\u4F4D\u3001\u91CD\u590D\u5355\u4F4D\u3001\u7F3A\u5931\u503C\u4E0E\u6307\u6807\u65B9\u5411\uFF0C\u518D\u9009\u62E9\u6700\u80FD\u56DE\u7B54\u7814\u7A76\u95EE\u9898\u7684\u56FE\u578B\u3002\u4E0D\u5F97\u8865\u9020\u6570\u636E\u3001\u628A\u4E0D\u72EC\u7ACB\u7684 seed \u6216\u6837\u672C\u4F2A\u88C5\u6210\u72EC\u7ACB\u91CD\u590D\u3001\u7528\u53CC\u8F74\u5236\u9020\u8D8B\u52BF\uFF0C\u6216\u7528\u663E\u8457\u6027\u66FF\u4EE3\u6548\u5E94\u91CF\uFF1B\u5E94\u660E\u786E\u771F\u6B63\u7684\u91CD\u590D\u5355\u4F4D\u3002\u8BEF\u5DEE\u3001\u533A\u95F4\u548C\u68C0\u9A8C\u5FC5\u987B\u5199\u660E\u5B9A\u4E49\u3001\u6837\u672C\u91CF\u4E0E\u8BA1\u7B97\u65B9\u5F0F\uFF1B\u6570\u636E\u4E0D\u8DB3\u65F6\u4FDD\u7559\u7F3A\u53E3\u5E76\u8BF4\u660E\u4E0D\u80FD\u652F\u6301\u7684\u7ED3\u8BBA\u3002
+
+\u4F7F\u7528\u786E\u5B9A\u6027\u4EE3\u7801\u751F\u6210\u56FE\u7247\uFF0C\u56FA\u5B9A\u73AF\u5883\u4E0E\u968F\u673A\u6027\uFF0C\u4FDD\u6301\u65B9\u6CD5\u989C\u8272\u8DE8\u9762\u677F\u4E00\u81F4\uFF0C\u5E76\u6309\u6700\u7EC8\u680F\u5BBD\u68C0\u67E5\u7F29\u5C0F\u540E\u7684\u5B57\u53F7\u3001\u7EBF\u578B\u3001\u6807\u8BB0\u548C\u56FE\u4F8B\u3002${includesCode ? "\u4EA4\u4ED8\u53EF\u590D\u73B0\u811A\u672C\u53CA\u8FD0\u884C\u8BF4\u660E\uFF1B" : "\u4EE3\u7801\u53EA\u4F5C\u4E3A\u751F\u6210\u8FC7\u7A0B\uFF0C\u4E0D\u989D\u5916\u4EA4\u4ED8\u6E90\u6587\u4EF6\uFF0C\u4F46\u9700\u8BB0\u5F55\u8F6F\u4EF6\u3001\u7248\u672C\u548C\u5173\u952E\u53C2\u6570\uFF1B"}\u53EA\u4EA4\u4ED8\u6240\u9009\u6587\u4EF6\u4E0E\u6240\u9700\u6D3E\u751F\u6570\u636E\u3002caption \u53EA\u8BF4\u660E\u56FE\u5C55\u793A\u4EC0\u4E48\u548C\u7EDF\u8BA1\u91CF\u5982\u4F55\u8BA1\u7B97\uFF0C\u4E0D\u8D8A\u8FC7\u6570\u636E\u4F5C\u7ED3\u8BBA\u3002`;
+    }
+    return `# Produce a Reproducible Experimental Plot
+
+Read the supplied data, metric definitions, protocol, and manuscript context. Act as a scientific visualization and statistical analysis expert. This is a code-based plotting task; do not use an image-generation model. When available, use \`$nature-figure\` to support chart selection, code generation, and publication-level QA. The configuration and data evidence in this prompt take precedence: never let skill defaults override the palette, subpanel count, statistical semantics, or deliverables. If that skill is unavailable, continue directly from this prompt.
+
+## Configuration
+- Analysis task: ${goal}
+- Data state: ${dataState}
+- Uncertainty: ${uncertainty}
+- Statistical layers: ${statistics}
+- Multiplicity: ${multiplicity}
+- Chart policy: ${chartPolicy}
+- Panel structure: ${panelPolicy}
+- Layout width: ${labelFor(scalar(values, "width"), PLOT_WIDTHS, language)}
+- Color: ${palette}
+- Deliverables: ${outputs}
+- Additional requirements: ${custom}
+
+Audit columns, units, replicate units, missing values, and metric direction before choosing the plot that best answers the research question. Never invent data, treat non-independent seeds or samples as independent replicates, manufacture trends with dual axes, or substitute significance for effect size; define the actual replicate unit. Define every error quantity, interval, test, sample size, and computation; when the data are insufficient, preserve the gap and state which inference is unsupported.
+
+Generate the figure with deterministic code and pinned dependencies and randomness. Keep method colors stable across panels and inspect typography, line styles, markers, and legends at final publication width. ${includesCode ? "Deliver the reproducible script and run instructions; " : "Use code as the generation process without delivering source, but record software, versions, and key parameters; "}return only the selected assets and required derived data. The caption should explain what is shown and how statistics were computed without claiming more than the data support.`;
+  }
+};
+function getDefaultExperimentalPlotValues() {
+  return Object.fromEntries(
+    EXPERIMENTAL_PLOTS_WORKBENCH.controls.map((control) => [
+      control.id,
+      Array.isArray(control.defaultValue) ? [...control.defaultValue] : control.defaultValue
+    ])
+  );
+}
+function normalizeExperimentalPlotValues(input = {}) {
+  const values = getDefaultExperimentalPlotValues();
+  const controls = EXPERIMENTAL_PLOTS_WORKBENCH.controls;
+  for (const control of controls) {
+    const value = input[control.id];
+    if (value === void 0) continue;
+    if (control.kind === "toggle") {
+      if (typeof value === "boolean") values[control.id] = value;
+      continue;
+    }
+    if (control.kind === "number") {
+      const numeric = Number(value);
+      if (Number.isFinite(numeric)) {
+        values[control.id] = Math.min(
+          control.max,
+          Math.max(control.min, numeric)
+        );
+      }
+      continue;
+    }
+    if (control.kind === "range") {
+      if (Array.isArray(value) && value.length === 2) {
+        const left = Math.min(
+          control.max,
+          Math.max(control.min, Number(value[0]))
+        );
+        const right = Math.min(
+          control.max,
+          Math.max(control.min, Number(value[1]))
+        );
+        if (Number.isFinite(left) && Number.isFinite(right)) {
+          values[control.id] = [
+            Math.min(left, right),
+            Math.max(left, right)
+          ];
+        }
+      }
+      continue;
+    }
+    if (control.kind === "multi") {
+      if (Array.isArray(value)) {
+        const allowed = new Set(
+          control.options.map((option) => option.value)
+        );
+        const next = value.map(String).filter((item) => allowed.has(item));
+        if (next.length >= (control.minSelected ?? 0)) {
+          values[control.id] = next;
+        }
+      }
+      continue;
+    }
+    if (control.kind === "select" || control.kind === "segmented") {
+      const next = String(value);
+      if (control.options.some((option) => option.value === next)) {
+        values[control.id] = next;
+      }
+      continue;
+    }
+    if (control.kind === "text" || control.kind === "textarea") {
+      values[control.id] = String(value);
+    }
+  }
+  if (scalar(values, "uncertainty") === "none") {
+    values.statistics = selected(values, "statistics").filter(
+      (item) => item !== "interval" && item !== "test"
+    );
+  }
+  if (scalar(values, "dataState") === "table") {
+    values.statistics = selected(values, "statistics").filter(
+      (item) => item !== "points" && item !== "test"
+    );
+  }
+  if (!enabled(values, "allowComposite")) {
+    values.panels = "single";
+  }
+  return values;
+}
+function buildExperimentalPlotPrompt(input, language) {
+  const values = normalizeExperimentalPlotValues(input);
+  return EXPERIMENTAL_PLOTS_WORKBENCH.buildPrompt(values, language);
+}
+var TABLE_PURPOSES = {
+  main: text("\u4E3B\u7ED3\u679C\u6BD4\u8F83", "Main comparison"),
+  ablation: text("\u6D88\u878D\u7814\u7A76", "Ablation study"),
+  efficiency: text("\u6548\u7387\u4E0E\u8D44\u6E90", "Efficiency and resources"),
+  dataset: text("\u6570\u636E\u96C6\u4E0E\u7EDF\u8BA1", "Dataset and statistics"),
+  setup: text("\u5B9E\u9A8C\u914D\u7F6E", "Experimental setup")
+};
+var TABLE_INPUTS = {
+  raw: text("\u539F\u59CB\u7ED3\u679C\u6587\u4EF6", "Raw result files"),
+  existing: text("\u5DF2\u6709\u8868\u683C", "Existing table"),
+  mixed: text("\u539F\u59CB\u7ED3\u679C + \u5DF2\u6709\u8868\u683C", "Raw results plus existing table")
+};
+var METRIC_DIRECTIONS = {
+  explicit: text("\u6309\u6211\u63D0\u4F9B\u7684\u65B9\u5411", "Use supplied directions"),
+  infer: text("\u7531\u6307\u6807\u5B9A\u4E49\u6838\u9A8C", "Verify from metric definitions"),
+  none: text("\u4E0D\u6392\u540D", "No ranking")
+};
+var EMPHASIS_POLICIES = {
+  bestSecond: text("\u6700\u4F73\u7C97\u4F53\u3001\u6B21\u4F73\u4E0B\u5212\u7EBF", "Bold best, underline second-best"),
+  best: text("\u4EC5\u7A81\u51FA\u6700\u4F73", "Emphasize best only"),
+  none: text("\u4E0D\u7A81\u51FA", "No emphasis")
+};
+var TABLE_WIDTHS = {
+  single: text("\u5355\u680F", "Single column"),
+  double: text("\u53CC\u680F", "Double column"),
+  landscape: text("\u6A2A\u5411\u9644\u5F55\u9875", "Landscape appendix page"),
+  auto: text("\u7531\u5217\u8BED\u4E49\u5224\u65AD", "Infer from column semantics")
+};
+var TABLE_DENSITIES = {
+  compact: text("\u7D27\u51D1", "Compact"),
+  balanced: text("\u5E73\u8861", "Balanced"),
+  readable: text("\u53EF\u8BFB\u6027\u4F18\u5148", "Readability-first")
+};
+var TABLE_OUTPUTS = {
+  latex: text("LaTeX", "LaTeX"),
+  markdown: text("Markdown \u9884\u89C8", "Markdown preview"),
+  csv: text("\u6838\u5BF9\u7528 CSV", "Verification CSV")
+};
+var PAPER_TABLES_WORKBENCH = {
+  id: "paper-tables-workbench",
+  activePage: "paper-tables",
+  copy: sharedCopy({
+    zh: {
+      eyebrow: "PAPER TABLES",
+      title: "\u8BBA\u6587\u8868\u683C",
+      subtitle: "\u628A\u771F\u5B9E\u7ED3\u679C\u6574\u7406\u4E3A\u5217\u8BED\u4E49\u6E05\u695A\u3001\u6392\u540D\u6B63\u786E\u4E14\u80FD\u5728\u76EE\u6807\u680F\u5BBD\u4E2D\u9605\u8BFB\u7684\u8BBA\u6587\u8868\u683C\u3002",
+      preset: "\u6570\u5B57\u5FE0\u5B9E \xB7 \u8BED\u4E49\u6E05\u695A \xB7 \u7248\u9762\u53EF\u8BFB",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: [
+        "\u539F\u59CB\u7ED3\u679C\u6216\u5DF2\u6709\u8868\u683C",
+        "\u6307\u6807\u5B9A\u4E49\u3001\u5355\u4F4D\u4E0E\u65B9\u5411",
+        "\u65B9\u6CD5\u5206\u7EC4\u4E0E\u6BD4\u8F83\u534F\u8BAE",
+        "\u76EE\u6807\u6A21\u677F\u6216\u680F\u5BBD"
+      ],
+      inputHint: "\u8BF7\u4FDD\u7559\u5B8C\u6574\u7CBE\u5EA6\u548C\u5B9E\u9A8C\u6807\u8BC6\uFF1B\u6A21\u578B\u4F1A\u5728\u6838\u5BF9\u540E\u51B3\u5B9A\u5C55\u793A\u7CBE\u5EA6\u3002",
+      promptTitle: "\u8BBA\u6587\u8868\u683C Prompt",
+      promptPurpose: "\u91CD\u7EC4\u5217\u4E0E\u5206\u7EC4\uFF0C\u4F46\u7EDD\u4E0D\u4E3A\u4E86\u7248\u9762\u6216\u6392\u540D\u6539\u52A8\u5B9E\u9A8C\u6570\u5B57\u3002"
+    },
+    en: {
+      eyebrow: "PAPER TABLES",
+      title: "Paper tables",
+      subtitle: "Turn authentic results into semantically clear, correctly ranked tables that remain legible at the target width.",
+      preset: "Faithful values \xB7 clear semantics \xB7 readable layout",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "Raw results or an existing table",
+        "Metric definitions, units, and directions",
+        "Method groups and comparison protocol",
+        "Target template or column width"
+      ],
+      inputHint: "Preserve full precision and experiment identifiers; display precision is chosen only after verification.",
+      promptTitle: "Paper table prompt",
+      promptPurpose: "Reorganize columns and groups without changing experimental values for layout or ranking."
+    }
+  }),
+  controls: [
+    {
+      id: "purpose",
+      kind: "segmented",
+      label: text("\u8868\u683C\u7528\u9014", "Table purpose"),
+      description: text(
+        "\u7528\u9014\u51B3\u5B9A\u5217\u987A\u5E8F\u3001\u5206\u7EC4\u4E0E caption \u7684\u4FE1\u606F\u91CD\u70B9\u3002",
+        "Purpose determines column order, grouping, and caption emphasis."
+      ),
+      defaultValue: "main",
+      options: Object.entries(TABLE_PURPOSES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "inputState",
+      kind: "select",
+      label: text("\u8F93\u5165\u72B6\u6001", "Input state"),
+      description: text(
+        "\u539F\u59CB\u7ED3\u679C\u4F18\u5148\uFF1B\u5DF2\u6709\u8868\u683C\u9700\u56DE\u6EAF\u6570\u5B57\u6765\u6E90\u3002",
+        "Prefer raw results; trace every existing cell to its source."
+      ),
+      defaultValue: "mixed",
+      options: Object.entries(TABLE_INPUTS).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "metricDirection",
+      kind: "select",
+      label: text("\u6307\u6807\u65B9\u5411", "Metric direction"),
+      description: text(
+        "\u6700\u4F73/\u6B21\u4F73\u5FC5\u987B\u6309\u6BCF\u4E00\u5217\u7684\u771F\u5B9E\u65B9\u5411\u8BA1\u7B97\u3002",
+        "Best and second-best must follow the true direction of each metric."
+      ),
+      defaultValue: "infer",
+      options: Object.entries(METRIC_DIRECTIONS).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "showUncertainty",
+      kind: "toggle",
+      label: text("\u5C55\u793A\u4E0D\u786E\u5B9A\u6027", "Show uncertainty"),
+      description: text(
+        "\u4EC5\u5728\u91CD\u590D\u5355\u4F4D\u548C\u8BEF\u5DEE\u5B9A\u4E49\u53EF\u6838\u9A8C\u65F6\u5C55\u793A\u3002",
+        "Show only when replicate units and error definitions are verifiable."
+      ),
+      defaultValue: true,
+      enabledLabel: text("\u5747\u503C\u4E0E\u8BEF\u5DEE", "Mean and error"),
+      disabledLabel: text("\u4EC5\u70B9\u4F30\u8BA1", "Point estimates only")
+    },
+    {
+      id: "emphasis",
+      kind: "select",
+      label: text("\u6392\u540D\u5F3A\u8C03", "Ranking emphasis"),
+      description: text(
+        "\u6392\u540D\u53EA\u5728\u534F\u8BAE\u3001\u6570\u636E\u96C6\u548C\u6307\u6807\u53EF\u76F4\u63A5\u6BD4\u8F83\u65F6\u4F7F\u7528\u3002",
+        "Rank only values that share a directly comparable protocol, dataset, and metric."
+      ),
+      defaultValue: "bestSecond",
+      options: Object.entries(EMPHASIS_POLICIES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      visibleWhen: (values) => scalar(values, "metricDirection") !== "none"
+    },
+    {
+      id: "width",
+      kind: "segmented",
+      label: text("\u76EE\u6807\u5BBD\u5EA6", "Target width"),
+      description: text(
+        "\u4F18\u5148\u91CD\u7EC4\u4FE1\u606F\uFF0C\u4E0D\u4F7F\u7528\u4E0D\u53EF\u8BFB\u7684\u6574\u4F53\u7F29\u653E\u3002",
+        "Reorganize information before resorting to unreadable scaling."
+      ),
+      defaultValue: "auto",
+      options: Object.entries(TABLE_WIDTHS).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "density",
+      kind: "select",
+      label: text("\u4FE1\u606F\u5BC6\u5EA6", "Information density"),
+      description: text(
+        "\u6309\u6B63\u6587\u89D2\u8272\u5E73\u8861\u5B8C\u6574\u6027\u4E0E\u6D4F\u89C8\u6548\u7387\u3002",
+        "Balance completeness and scanability for the table's manuscript role."
+      ),
+      defaultValue: "balanced",
+      options: Object.entries(TABLE_DENSITIES).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "groupMethods",
+      kind: "toggle",
+      label: text("\u65B9\u6CD5\u5206\u7EC4", "Method grouping"),
+      description: text(
+        "\u4EC5\u6309\u771F\u5B9E\u7C7B\u522B\u5206\u7EC4\uFF0C\u4F8B\u5982\u76D1\u7763\u4FE1\u53F7\u6216\u5916\u90E8\u8D44\u6E90\u3002",
+        "Group only by meaningful categories such as supervision or external resources."
+      ),
+      defaultValue: true,
+      enabledLabel: text("\u4FDD\u7559\u8BED\u4E49\u5206\u7EC4", "Use semantic groups"),
+      disabledLabel: text("\u5355\u4E00\u5217\u8868", "Single list")
+    },
+    {
+      id: "outputs",
+      kind: "multi",
+      label: text("\u4EA4\u4ED8\u683C\u5F0F", "Output formats"),
+      description: text(
+        "LaTeX \u4E3A\u4E3B\uFF0CCSV \u7528\u4E8E\u9010\u683C\u590D\u6838\u3002",
+        "LaTeX is primary; CSV supports cell-by-cell verification."
+      ),
+      defaultValue: ["latex", "markdown", "csv"],
+      minSelected: 1,
+      options: Object.entries(TABLE_OUTPUTS).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text("\u8865\u5145\u8981\u6C42", "Additional requirements"),
+      description: text(
+        "\u4F8B\u5982\u56FA\u5B9A\u884C\u987A\u5E8F\u3001\u5FC5\u987B\u4FDD\u7559\u7684\u5217\u6216\u6A21\u677F\u7981\u7528\u5B8F\u5305\u3002",
+        "For example, a fixed row order, required columns, or packages forbidden by the template."
+      ),
+      defaultValue: "",
+      placeholder: text("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    }
+  ],
+  updateValues(current, id, value) {
+    const next = { ...current, [id]: value };
+    if (id === "metricDirection" && value === "none") {
+      next.emphasis = "none";
+    }
+    if (id === "metricDirection" && value !== "none" && scalar(current, "emphasis") === "none") {
+      next.emphasis = "bestSecond";
+    }
+    return next;
+  },
+  buildPrompt(values, language) {
+    const purpose = labelFor(
+      scalar(values, "purpose"),
+      TABLE_PURPOSES,
+      language
+    );
+    const custom = scalar(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const metricDirection = scalar(values, "metricDirection");
+    const emphasis = metricDirection === "none" ? "none" : scalar(values, "emphasis");
+    const includesLatex = selected(values, "outputs").includes("latex");
+    if (language === "zh") {
+      return `# \u751F\u6210\u5FE0\u5B9E\u4E14\u53EF\u8BFB\u7684\u8BBA\u6587\u8868\u683C
+
+\u8BF7\u8BFB\u53D6\u6211\u63D0\u4F9B\u7684\u7ED3\u679C\u6587\u4EF6\u3001\u73B0\u6709\u8868\u683C\u3001\u6307\u6807\u5B9A\u4E49\u548C\u8BBA\u6587\u4E0A\u4E0B\u6587\u3002\u4F60\u7684\u4EFB\u52A1\u662F\u6574\u7406\u4E00\u5F20${purpose}\u8868\u683C\uFF0C\u4E0D\u662F\u6539\u5199\u5B9E\u9A8C\u7ED3\u679C\u3002
+
+## \u914D\u7F6E
+- \u8F93\u5165\uFF1A${labelFor(scalar(values, "inputState"), TABLE_INPUTS, language)}
+- \u6307\u6807\u65B9\u5411\uFF1A${labelFor(metricDirection, METRIC_DIRECTIONS, language)}
+- \u4E0D\u786E\u5B9A\u6027\uFF1A${enabled(values, "showUncertainty") ? "\u5C55\u793A\uFF0C\u4F46\u5FC5\u987B\u6838\u9A8C\u8BEF\u5DEE\u5B9A\u4E49\u4E0E\u91CD\u590D\u5355\u4F4D" : "\u53EA\u5C55\u793A\u70B9\u4F30\u8BA1"}
+- \u6392\u540D\u5F3A\u8C03\uFF1A${labelFor(emphasis, EMPHASIS_POLICIES, language)}
+- \u5BBD\u5EA6\uFF1A${labelFor(scalar(values, "width"), TABLE_WIDTHS, language)}
+- \u5BC6\u5EA6\uFF1A${labelFor(scalar(values, "density"), TABLE_DENSITIES, language)}
+- \u65B9\u6CD5\u5206\u7EC4\uFF1A${enabled(values, "groupMethods") ? "\u6309\u771F\u5B9E\u8BED\u4E49\u5206\u7EC4" : "\u5355\u4E00\u5217\u8868"}
+- \u4EA4\u4ED8\uFF1A${labelsFor(values, "outputs", TABLE_OUTPUTS, language)}
+- \u8865\u5145\u8981\u6C42\uFF1A${custom}
+
+\u5EFA\u7ACB\u9010\u683C\u6570\u636E\u6838\u5BF9\u8868\uFF0C\u786E\u8BA4\u6765\u6E90\u3001\u6307\u6807\u65B9\u5411\u3001\u5355\u4F4D\u3001\u5C3A\u5EA6\u3001\u6837\u672C\u91CF\u3001\u8BEF\u5DEE\u542B\u4E49\u548C\u53EF\u6BD4\u8303\u56F4\u3002\u4E0D\u5F97\u6539\u53D8\u6570\u503C\u3001\u7B26\u53F7\u6216\u7CBE\u5EA6\u6765\u5236\u9020\u6392\u540D\uFF1B\u7F3A\u5931\u503C\u3001\u672A\u8FD0\u884C\u548C\u4E0D\u9002\u7528\u5FC5\u987B\u533A\u5206\u3002${metricDirection === "none" ? "\u672C\u8868\u4E0D\u505A\u65B9\u6CD5\u6392\u540D\u6216\u6700\u4F73\u503C\u5F3A\u8C03\u3002" : "\u6700\u4F73/\u6B21\u4F73\u53EA\u5728\u540C\u4E00\u534F\u8BAE\u5185\u9010\u5217\u8BA1\u7B97\uFF0Cties \u4F7F\u7528\u4E00\u81F4\u89C4\u5219\u3002"}
+
+\u7528\u6E05\u695A\u7684\u5206\u7EC4\u8868\u5934\u3001\u5355\u4F4D\u4E0E\u65B9\u5411\u6807\u8BB0\u7EC4\u7EC7\u5217\u3002\u4F18\u5148\u5220\u53BB\u91CD\u590D\u6807\u7B7E\u3001\u62C6\u5206\u8BED\u4E49\u4E0D\u540C\u7684\u9762\u677F\u6216\u79FB\u81F3\u9644\u5F55\uFF0C\u4E0D\u8981\u9760\u7F29\u5C0F\u5B57\u4F53\u6216\u538B\u6241\u95F4\u8DDD\u585E\u5165\u680F\u5BBD\u3002${includesLatex ? "LaTeX \u5E94\u517C\u5BB9\u76EE\u6807\u6A21\u677F\uFF0C\u5E76\u53EA\u4F7F\u7528\u5FC5\u8981\u5B8F\u5305\u3002" : "\u672A\u9009\u62E9 LaTeX\uFF0C\u4E0D\u8F93\u51FA LaTeX \u4EE3\u7801\u6216\u6A21\u677F\u4F9D\u8D56\u3002"}\u53EA\u4EA4\u4ED8\u6240\u9009\u683C\u5F0F\u3001\u7B80\u6D01 caption\u3001\u9010\u683C\u6838\u5BF9\u7ED3\u679C\u4EE5\u53CA\u4EFB\u4F55\u65E0\u6CD5\u6838\u9A8C\u7684\u5355\u5143\u683C\uFF1Bcaption \u4E0D\u91CD\u590D\u6240\u6709\u6570\u5B57\uFF0C\u4E5F\u4E0D\u5F15\u5165\u8868\u4E2D\u6CA1\u6709\u7684 claim\u3002`;
+    }
+    return `# Produce a Faithful, Readable Paper Table
+
+Read the supplied result files, existing tables, metric definitions, and manuscript context. Create a ${purpose.toLowerCase()} table; do not rewrite the experimental record.
+
+## Configuration
+- Input: ${labelFor(scalar(values, "inputState"), TABLE_INPUTS, language)}
+- Metric direction: ${labelFor(metricDirection, METRIC_DIRECTIONS, language)}
+- Uncertainty: ${enabled(values, "showUncertainty") ? "show only after verifying the error definition and replicate unit" : "point estimates only"}
+- Ranking emphasis: ${labelFor(emphasis, EMPHASIS_POLICIES, language)}
+- Width: ${labelFor(scalar(values, "width"), TABLE_WIDTHS, language)}
+- Density: ${labelFor(scalar(values, "density"), TABLE_DENSITIES, language)}
+- Method grouping: ${enabled(values, "groupMethods") ? "meaningful semantic groups" : "one list"}
+- Deliverables: ${labelsFor(values, "outputs", TABLE_OUTPUTS, language)}
+- Additional requirements: ${custom}
+
+Build a cell-level verification ledger covering source, direction, unit, scale, sample size, error meaning, and comparability. Never change values, signs, or precision to manufacture a ranking. Distinguish missing, not run, and not applicable. ${metricDirection === "none" ? "Do not rank methods or emphasize best values in this table." : "Compute best and second-best per column only within a common protocol, with a consistent tie rule."}
+
+Use clear grouped headers, units, and direction marks. Remove duplicate labels, split semantically different panels, or move secondary detail to an appendix before shrinking typography or spacing. ${includesLatex ? "Keep LaTeX compatible with the target template and use only necessary packages." : "LaTeX is not selected, so return no LaTeX code or template dependency."} Return only the selected formats, a concise caption, cell-level checks, and every unverifiable cell. The caption should not restate all values or add unsupported claims.`;
+  }
+};
+var AUDIT_MODES = {
+  audit: text("\u4EC5\u5BA1\u8BA1", "Audit only"),
+  repair: text("\u5BA1\u8BA1\u5E76\u5B89\u5168\u4FEE\u590D", "Audit and safely repair")
+};
+var AUDIT_SCOPES = {
+  data: text("\u56FE\u8868\u4E0E\u539F\u59CB\u6570\u636E", "Figures/tables versus source data"),
+  manuscript: text("\u6B63\u6587\u5F15\u7528\u4E0E\u7ED3\u8BBA", "Manuscript references and claims"),
+  semantics: text("\u672F\u8BED\u3001\u5355\u4F4D\u4E0E\u56FE\u4F8B", "Terms, units, and legends"),
+  statistics: text("\u7EDF\u8BA1\u8868\u8FBE", "Statistical reporting"),
+  accessibility: text("\u53EF\u8BFB\u6027\u4E0E\u65E0\u969C\u788D", "Legibility and accessibility"),
+  layout: text("\u7248\u9762\u4E0E\u6D6E\u52A8\u4F53", "Layout and floats"),
+  provenance: text("\u6765\u6E90\u4E0E\u53EF\u590D\u73B0\u6027", "Provenance and reproducibility")
+};
+var AUDIT_SOURCES = {
+  complete: text("\u6E90\u6570\u636E + \u6E90\u7801 + PDF", "Source data, code, and PDF"),
+  manuscript: text("TeX + PDF", "TeX and PDF"),
+  rendered: text("\u4EC5 PDF / \u56FE\u7247", "PDF or rendered assets only")
+};
+var REPAIR_TARGETS = {
+  source: text("\u4FEE\u6539\u6E90\u6587\u4EF6\u5E76\u91CD\u65B0\u751F\u6210", "Repair source and regenerate"),
+  report: text("\u53EA\u7ED9\u7CBE\u786E\u8865\u4E01\u5EFA\u8BAE", "Return exact patch instructions only")
+};
+var FIGURE_TABLE_AUDIT_WORKBENCH = {
+  id: "figure-table-audit-workbench",
+  activePage: "figure-table-audit",
+  copy: sharedCopy({
+    zh: {
+      eyebrow: "FIGURE & TABLE AUDIT",
+      title: "\u56FE\u8868\u5BA1\u8BA1",
+      subtitle: "\u9010\u9879\u6838\u5BF9\u6570\u636E\u3001\u6B63\u6587\u3001caption\u3001\u7EDF\u8BA1\u542B\u4E49\u548C\u7248\u9762\uFF1B\u5B89\u5168\u4FEE\u590D\u65F6\u53EA\u6539\u786E\u5B9A\u9519\u8BEF\u3002",
+      preset: "\u8BC1\u636E\u5B9A\u4F4D \xB7 \u6700\u5C0F\u4FEE\u590D \xB7 \u53EF\u56DE\u6EAF\u5DEE\u5F02",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: [
+        "\u8BBA\u6587 TeX \u4E0E\u7F16\u8BD1 PDF",
+        "\u56FE\u8868\u6E90\u6587\u4EF6\u4E0E\u751F\u6210\u4EE3\u7801",
+        "\u539F\u59CB\u6570\u636E\u6216\u7ED3\u679C\u8868",
+        "\u76EE\u6807 venue \u89C4\u5219\uFF08\u53EF\u9009\uFF09"
+      ],
+      inputHint: "\u6750\u6599\u4E0D\u5B8C\u6574\u65F6\u4ECD\u53EF\u5BA1\u8BA1\uFF0C\u4F46\u5FC5\u987B\u628A\u201C\u65E0\u6CD5\u6838\u9A8C\u201D\u4E0E\u201C\u786E\u8BA4\u9519\u8BEF\u201D\u5206\u5F00\u3002",
+      promptTitle: "\u56FE\u8868\u5BA1\u8BA1 Prompt",
+      promptPurpose: "\u627E\u51FA\u771F\u5B9E\u9519\u8BEF\u4E0E\u8868\u8FBE\u98CE\u9669\uFF1B\u4FEE\u590D\u4E0D\u6269\u5199\u3001\u4E0D\u91CD\u7ED8\u65E0\u5173\u5185\u5BB9\u3002"
+    },
+    en: {
+      eyebrow: "FIGURE & TABLE AUDIT",
+      title: "Figure and table audit",
+      subtitle: "Cross-check data, prose, captions, statistics, and layout; in repair mode, change confirmed errors only.",
+      preset: "Evidence-located \xB7 minimal repair \xB7 traceable diff",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "Manuscript TeX and compiled PDF",
+        "Figure/table sources and generation code",
+        "Raw data or result sheets",
+        "Target venue rules (optional)"
+      ],
+      inputHint: "Incomplete material can still be audited, but unverifiable items must remain distinct from confirmed errors.",
+      promptTitle: "Figure and table audit prompt",
+      promptPurpose: "Find real errors and communication risks without expanding or redesigning unrelated content."
+    }
+  }),
+  controls: [
+    {
+      id: "mode",
+      kind: "segmented",
+      label: text("\u6267\u884C\u6A21\u5F0F", "Mode"),
+      description: text(
+        "\u5B89\u5168\u4FEE\u590D\u4E25\u683C\u9650\u5236\u4FEE\u6539\u8303\u56F4\u3002",
+        "Safe repair strictly limits the change surface."
+      ),
+      defaultValue: "audit",
+      options: Object.entries(AUDIT_MODES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "sourceLevel",
+      kind: "select",
+      label: text("\u53EF\u7528\u6750\u6599", "Available sources"),
+      description: text(
+        "\u51B3\u5B9A\u54EA\u4E9B\u95EE\u9898\u80FD\u88AB\u786E\u5B9A\u6027\u6838\u9A8C\u3002",
+        "Determines which checks can be conclusive."
+      ),
+      defaultValue: "complete",
+      options: Object.entries(AUDIT_SOURCES).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "scopes",
+      kind: "multi",
+      label: text("\u5BA1\u8BA1\u8303\u56F4", "Audit scope"),
+      description: text(
+        "\u53EF\u4E00\u6B21\u5B8C\u6210\u591A\u9879\uFF0C\u4F46\u6BCF\u9879\u72EC\u7ACB\u62A5\u544A\u8BC1\u636E\u3002",
+        "Audit multiple areas in one run while reporting evidence separately."
+      ),
+      defaultValue: [
+        "data",
+        "manuscript",
+        "semantics",
+        "statistics",
+        "accessibility"
+      ],
+      minSelected: 1,
+      options: Object.entries(AUDIT_SCOPES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "checkOrphans",
+      kind: "toggle",
+      label: text("\u5B64\u513F\u56FE\u8868", "Orphaned visuals"),
+      description: text(
+        "\u68C0\u67E5\u672A\u88AB\u6B63\u6587\u5F15\u7528\u3001\u5F15\u7528\u4E0D\u5B58\u5728\u6216\u7F16\u53F7\u9519\u4F4D\u7684\u56FE\u8868\u3002",
+        "Check unreferenced visuals, missing targets, and numbering drift."
+      ),
+      defaultValue: true,
+      enabledLabel: text("\u68C0\u67E5", "Check"),
+      disabledLabel: text("\u4E0D\u68C0\u67E5", "Skip")
+    },
+    {
+      id: "venueCompliance",
+      kind: "toggle",
+      label: text("\u76EE\u6807\u89C4\u5219", "Venue compliance"),
+      description: text(
+        "\u8054\u7F51\u6838\u9A8C\u5F53\u524D\u5B98\u65B9\u56FE\u8868\u3001\u533F\u540D\u4E0E\u8865\u5145\u6750\u6599\u89C4\u5219\u3002",
+        "Verify current official rules for visuals, anonymity, and supplements."
+      ),
+      defaultValue: false,
+      enabledLabel: text("\u8054\u7F51\u6838\u9A8C", "Verify online"),
+      disabledLabel: text("\u4E0D\u6838\u9A8C", "Skip")
+    },
+    {
+      id: "venue",
+      kind: "text",
+      label: text("\u76EE\u6807 venue", "Target venue"),
+      description: text(
+        "\u586B\u5199\u4F1A\u8BAE/\u671F\u520A\u5168\u79F0\u53CA\u5C4A\u6B21\u3002",
+        "Provide the full venue name and edition."
+      ),
+      defaultValue: "",
+      placeholder: text("\u4F8B\u5982\uFF1ANeurIPS 2026", "For example: NeurIPS 2026"),
+      visibleWhen: (values) => enabled(values, "venueCompliance")
+    },
+    {
+      id: "repairTarget",
+      kind: "select",
+      label: text("\u4FEE\u590D\u4EA4\u4ED8", "Repair deliverable"),
+      description: text(
+        "\u4F18\u5148\u4FEE\u6539\u53EF\u8FFD\u6EAF\u6E90\u6587\u4EF6\uFF0C\u4E0D\u76F4\u63A5\u6D82\u6539\u6E32\u67D3\u56FE\u3002",
+        "Prefer traceable source changes over editing rendered pixels."
+      ),
+      defaultValue: "source",
+      options: Object.entries(REPAIR_TARGETS).map(([value, label]) => ({
+        value,
+        label
+      })),
+      visibleWhen: (values) => scalar(values, "mode") === "repair"
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text("\u8865\u5145\u91CD\u70B9", "Additional focus"),
+      description: text(
+        "\u4F8B\u5982\u91CD\u70B9\u68C0\u67E5\u67D0\u5F20\u4E3B\u7ED3\u679C\u8868\u6216\u67D0\u4E2A\u7EDF\u8BA1\u5B9A\u4E49\u3002",
+        "For example, prioritize a main-results table or a statistical definition."
+      ),
+      defaultValue: "",
+      placeholder: text("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    }
+  ],
+  updateValues(current, id, value) {
+    const next = { ...current, [id]: value };
+    if (id === "sourceLevel" && value === "rendered") {
+      next.repairTarget = "report";
+    }
+    return next;
+  },
+  buildPrompt(values, language) {
+    const repair = scalar(values, "mode") === "repair";
+    const sourceLevel = scalar(values, "sourceLevel");
+    const requestedRepairTarget = scalar(values, "repairTarget");
+    const sourceRepair = repair && sourceLevel !== "rendered" && requestedRepairTarget === "source";
+    const venue = scalar(values, "venue");
+    const scopes = selected(values, "scopes");
+    const custom = scalar(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const scopeInstructions = {
+      zh: [
+        scopes.includes("data") ? "\u6838\u5BF9\u6E90\u6570\u636E\u4E0E\u56FE\u8868\u4E2D\u7684\u6570\u503C\u3001\u5355\u4F4D\u3001\u65B9\u5411\u548C\u805A\u5408\uFF1B\u6CA1\u6709\u6E90\u6570\u636E\u65F6\u6807\u4E3A\u65E0\u6CD5\u6838\u9A8C" : "",
+        scopes.includes("manuscript") ? "\u6838\u5BF9 caption\u3001\u6B63\u6587\u5F15\u7528\u4E0E claim \u662F\u5426\u51C6\u786E\u5BF9\u5E94\u56FE\u8868\u8BC1\u636E" : "",
+        scopes.includes("semantics") ? "\u6838\u5BF9\u672F\u8BED\u3001\u7B26\u53F7\u3001\u5355\u4F4D\u3001\u56FE\u4F8B\u4E0E\u8DE8\u56FE\u8868\u989C\u8272\u8BED\u4E49" : "",
+        scopes.includes("statistics") ? "\u6838\u5BF9\u91CD\u590D\u5355\u4F4D\u3001\u8BEF\u5DEE\u5B9A\u4E49\u3001\u6837\u672C\u91CF\u3001\u68C0\u9A8C\u4E0E\u663E\u8457\u6027\u8868\u8FBE" : "",
+        scopes.includes("accessibility") ? "\u68C0\u67E5\u7F29\u5C0F\u540E\u7684\u5B57\u53F7\u3001\u989C\u8272\u533A\u5206\u3001\u56FE\u4F8B\u548C\u5E38\u89C1\u8272\u89C9\u5DEE\u5F02\u4E0B\u53EF\u8BFB\u6027" : "",
+        scopes.includes("layout") ? "\u68C0\u67E5\u680F\u5BBD\u3001\u6D6E\u52A8\u4F53\u4F4D\u7F6E\u3001\u5206\u9875\u548C caption \u5360\u7528" : "",
+        scopes.includes("provenance") ? "\u8FFD\u8E2A\u751F\u6210\u4EE3\u7801\u3001\u7248\u672C\u3001\u8F93\u5165\u6587\u4EF6\u4E0E\u53EF\u91CD\u590D\u751F\u6210\u8DEF\u5F84" : ""
+      ].filter(Boolean).join("\uFF1B"),
+      en: [
+        scopes.includes("data") ? "trace values, units, direction, and aggregation from source data to visuals, marking them unverifiable when data are absent" : "",
+        scopes.includes("manuscript") ? "check captions, prose references, and claims against visual evidence" : "",
+        scopes.includes("semantics") ? "check terminology, symbols, units, legends, and cross-visual color semantics" : "",
+        scopes.includes("statistics") ? "check replicate units, error definitions, sample sizes, tests, and significance reporting" : "",
+        scopes.includes("accessibility") ? "check final-size typography, color distinctions, legends, and common color-vision differences" : "",
+        scopes.includes("layout") ? "check column width, float placement, page breaks, and caption footprint" : "",
+        scopes.includes("provenance") ? "trace generation code, versions, input files, and the reproducible regeneration path" : ""
+      ].filter(Boolean).join("; ")
+    };
+    const repairInstruction = sourceRepair ? {
+      zh: "\u4FEE\u6539\u53EF\u8FFD\u6EAF\u6E90\u6587\u4EF6\u5E76\u91CD\u65B0\u751F\u6210\u53D7\u5F71\u54CD\u56FE\u8868\u3002\u53EA\u6539\u5DF2\u786E\u8BA4\u9519\u8BEF\u53CA\u5176\u76F4\u63A5\u4F9D\u8D56\uFF1B\u5176\u4F59\u6587\u5B57\u3001\u6570\u5B57\u3001\u7248\u5F0F\u3001\u56FE\u8868\u548C\u4EE3\u7801\u4FDD\u6301\u4E0D\u53D8\u3002\u82E5\u6B63\u786E\u4FEE\u590D\u5FC5\u7136\u6539\u53D8\u79D1\u5B66\u7ED3\u8BBA\u3001\u5927\u8303\u56F4\u7ED3\u6784\u6216\u975E\u5C40\u90E8\u7248\u5F0F\uFF0C\u505C\u6B62\u81EA\u52A8\u4FEE\u6539\u5E76\u628A\u5B83\u5347\u7EA7\u4E3A high-risk \u51B3\u7B56\u3002\u4EA4\u4ED8\u9010\u9879 diff \u4E0E\u9A8C\u8BC1\u7ED3\u679C\u3002",
+      en: "Repair traceable source files and regenerate affected assets. Change only confirmed errors and their direct dependencies; preserve all other prose, values, layout, visuals, and code. If a correct fix necessarily changes a scientific conclusion, broad structure, or nonlocal layout, stop automatic repair and escalate it as a high-risk decision. Return an itemized diff and validation result."
+    } : {
+      zh: "\u4E0D\u4FEE\u6539\u4EFB\u4F55\u6587\u4EF6\uFF0C\u53EA\u7ED9\u5B9A\u4F4D\u5230\u6E90\u6587\u4EF6/\u9875\u7801/\u56FE\u8868\u7F16\u53F7\u7684\u7CBE\u786E\u4FEE\u590D\u5EFA\u8BAE\u4E0E\u9A8C\u8BC1\u6B65\u9AA4\uFF1B\u4EC5\u6709\u6E32\u67D3\u6587\u4EF6\u65F6\u7981\u6B62\u6D82\u6539\u50CF\u7D20\u6216\u58F0\u79F0\u5DF2\u7ECF\u4FEE\u590D\u3002",
+      en: "Modify no file. Return exact remediation and validation steps located to source file, page, and visual ID. When only rendered assets exist, do not edit pixels or claim that a repair was completed."
+    };
+    if (language === "zh") {
+      return `# \u5BA1\u8BA1\u8BBA\u6587\u56FE\u8868${repair ? "\u5E76\u5B89\u5168\u4FEE\u590D" : ""}
+
+\u8BF7\u5B8C\u6574\u8BFB\u53D6\u63D0\u4F9B\u7684\u8BBA\u6587\u3001\u56FE\u8868\u6E90\u6587\u4EF6\u3001\u751F\u6210\u4EE3\u7801\u4E0E\u6570\u636E\u3002\u9010\u9879\u5BA1\u8BA1\uFF1A${labelsFor(values, "scopes", AUDIT_SCOPES, language)}${enabled(values, "checkOrphans") ? "\uFF0C\u5E76\u68C0\u67E5\u5B64\u513F\u56FE\u8868\u3001\u65AD\u88C2\u5F15\u7528\u548C\u7F16\u53F7\u9519\u4F4D" : ""}\u3002
+
+- \u6750\u6599\u5C42\u7EA7\uFF1A${labelFor(scalar(values, "sourceLevel"), AUDIT_SOURCES, language)}
+- \u5B98\u65B9\u89C4\u5219\uFF1A${enabled(values, "venueCompliance") ? `\u8054\u7F51\u6838\u9A8C ${venue || "\u7528\u6237\u6307\u5B9A venue"} \u5F53\u524D\u5B98\u65B9\u9875\u9762\uFF0C\u8BB0\u5F55\u5C4A\u6B21\u3001\u6838\u9A8C\u65E5\u671F\u4E0E URL` : "\u4E0D\u4F5C\u4E3A\u672C\u8F6E\u8303\u56F4"}
+- \u8865\u5145\u91CD\u70B9\uFF1A${custom}
+
+\u628A\u53D1\u73B0\u5206\u4E3A\u201C\u786E\u8BA4\u9519\u8BEF\u3001\u8F83\u9AD8\u98CE\u9669\u3001\u6539\u8FDB\u5EFA\u8BAE\u3001\u6750\u6599\u4E0D\u8DB3\u65E0\u6CD5\u6838\u9A8C\u201D\uFF0C\u5E76\u4E3A\u6BCF\u9879\u7ED9\u51FA\u6587\u4EF6/\u9875\u7801/\u56FE\u8868\u7F16\u53F7\u3001\u8BC1\u636E\u3001\u5F71\u54CD\u4E0E\u6700\u5C0F\u5904\u7406\u65B9\u5F0F\u3002\u672C\u8F6E\u53EA\u6267\u884C\u6240\u9009\u8303\u56F4\uFF1A${scopeInstructions.zh || "\u65E0\u6709\u6548\u8303\u56F4"}\u3002${enabled(values, "checkOrphans") ? "\u53E6\u68C0\u67E5\u5B64\u513F\u56FE\u8868\u3001\u65AD\u88C2\u5F15\u7528\u548C\u7F16\u53F7\u9519\u4F4D\u3002" : ""}\u4E0D\u5F97\u628A\u5BA1\u7F8E\u504F\u597D\u5199\u6210\u9519\u8BEF\u3002
+
+${repair ? repairInstruction.zh : "\u53EA\u8F93\u51FA\u7ED3\u6784\u5316\u5BA1\u8BA1\u62A5\u544A\uFF0C\u4E0D\u4FEE\u6539\u4EFB\u4F55\u6587\u4EF6\u3002"}
+
+\u672A\u77E5\u9879\u4FDD\u6301\u672A\u77E5\uFF0C\u4E0D\u63A8\u6D4B\u7F3A\u5931\u6570\u636E\uFF0C\u4E5F\u4E0D\u865A\u6784\u91CD\u65B0\u8BA1\u7B97\u7ED3\u679C\u3002`;
+    }
+    return `# Audit Paper Figures and Tables${repair ? " and Repair Them Safely" : ""}
+
+Read the manuscript, visual sources, generation code, and data in full. Audit: ${labelsFor(values, "scopes", AUDIT_SCOPES, language)}${enabled(values, "checkOrphans") ? ", including orphaned visuals, broken references, and numbering drift" : ""}.
+
+- Source level: ${labelFor(scalar(values, "sourceLevel"), AUDIT_SOURCES, language)}
+- Official rules: ${enabled(values, "venueCompliance") ? `browse and verify the current official ${venue || "target venue"} pages, recording the edition, access date, and URLs` : "out of scope"}
+- Additional focus: ${custom}
+
+Classify every finding as confirmed error, material risk, optional improvement, or unverifiable due to missing evidence. Give the file/page/visual ID, evidence, impact, and smallest remedy. Perform only the selected scope: ${scopeInstructions.en || "no valid scope"}. ${enabled(values, "checkOrphans") ? "Also check orphaned visuals, broken references, and numbering drift." : ""} Never report an aesthetic preference as an error.
+
+${repair ? repairInstruction.en : "Return a structured audit report only and do not modify any file."}
+
+Keep unknowns unknown; never infer missing data or fabricate recomputed results.`;
+  }
+};
 
 // content/workflows/skillWorkflows.ts
 var SKILL_WORKFLOW_VERSION = "2026.07.28";
@@ -1563,12 +2650,35 @@ var YANSHU_SKILL_CATALOG = [
       en: "Use $scientific-figure to create one research figure for this paper directory."
     },
     input: {
-      zh: "\u8BBA\u6587 TeX\u3001\u53EF\u9009 PDF\u3001\u53EF\u9009\u6837\u5F0F\u53C2\u8003\u56FE\u6216\u7ED8\u56FE\u8349\u7A3F",
-      en: "Paper TeX, optional PDF, and an optional style reference or figure draft"
+      zh: "\u8BBA\u6587 TeX\u3001\u53EF\u9009 PDF\uFF0C\u4EE5\u53CA\u6309\u914D\u7F6E\u63D0\u4F9B\u7684\u53C2\u8003\u56FE",
+      en: "Paper TeX, optional PDF, and a reference image only when configured"
     },
     output: {
       zh: "\u4E00\u5F20\u9AD8\u6E05 PNG \u4E0E\u914D\u7F6E\u5FEB\u7167",
       en: "One high-resolution PNG and its configuration snapshot"
+    }
+  },
+  {
+    id: "experimental-plotting",
+    index: "05",
+    skillName: "Experimental Plotting",
+    websitePath: "/figures/plots",
+    title: { zh: "\u7ED8\u5236\u5B9E\u9A8C\u56FE", en: "Create an experimental plot" },
+    description: {
+      zh: "\u4ECE\u771F\u5B9E\u5B9E\u9A8C\u6570\u636E\u751F\u6210\u7EDF\u8BA1\u8BED\u4E49\u6E05\u695A\u3001\u53EF\u590D\u73B0\u4E14\u7B26\u5408\u8BBA\u6587\u7248\u9762\u7684\u4EE3\u7801\u7ED8\u56FE\u3002",
+      en: "Generate reproducible, statistically explicit publication plots from authentic experimental data."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $experimental-plotting \u6839\u636E\u8FD9\u4E2A\u5B9E\u9A8C\u76EE\u5F55\u7ED8\u5236\u8BBA\u6587\u5B9E\u9A8C\u56FE\u3002",
+      en: "Use $experimental-plotting to create a paper plot from this experiment directory."
+    },
+    input: {
+      zh: "\u539F\u59CB\u7ED3\u679C\u3001\u6307\u6807\u5B9A\u4E49\u3001\u7EDF\u8BA1\u534F\u8BAE\u4E0E\u8BBA\u6587\u4E0A\u4E0B\u6587",
+      en: "Raw results, metric definitions, statistical protocol, and manuscript context"
+    },
+    output: {
+      zh: "\u53EF\u590D\u73B0\u4EE3\u7801\u3001\u51FA\u7248\u7EA7\u56FE\u4EF6\u4E0E\u6D3E\u751F\u6570\u636E",
+      en: "Reproducible code, publication assets, and derived data"
     }
   }
 ];
@@ -1866,12 +2976,12 @@ var SCIENTIFIC_FIGURE_MODEL = {
   ),
   materialTitle: localized("\u9700\u8981\u6750\u6599", "Required materials"),
   materialItems: {
-    zh: ["\u8BBA\u6587\u4E3B TeX", "\u53EF\u9009\u7F16\u8BD1 PDF", "\u53EF\u9009\u6837\u5F0F\u53C2\u8003\u56FE\u6216\u660E\u786E\u6807\u6CE8\u7684\u7ED8\u56FE\u8349\u7A3F"],
-    en: ["Main paper TeX", "Optional compiled PDF", "Optional style reference or explicitly labeled figure draft"]
+    zh: ["\u8BBA\u6587\u4E3B TeX", "\u53EF\u9009\u7F16\u8BD1 PDF", "\u5F00\u542F\u201C\u63D0\u4F9B\u53C2\u8003\u56FE\u201D\u540E\u624D\u9700\u8981\u56FE\u7247"],
+    en: ["Main paper TeX", "Optional compiled PDF", "An image only when \u201CReference supplied\u201D is enabled"]
   },
   materialHint: localized(
-    "\u9644\u52A0\u56FE\u7247\u9ED8\u8BA4\u53EA\u53C2\u8003\u89C6\u89C9\u98CE\u683C\uFF0C\u4E0D\u8BFB\u53D6\u5185\u90E8\u6D41\u7A0B\uFF1B\u53EA\u6709\u660E\u786E\u6807\u6CE8\u4E3A\u201C\u7ED8\u56FE\u8349\u7A3F\u201D\u65F6\u624D\u53EF\u53C2\u8003\u7ED3\u6784\uFF0C\u5E76\u987B\u7528\u8BBA\u6587\u6838\u9A8C\u3002",
-    "Attached images supply visual style only by default. Their structure may be used only when explicitly labeled as a figure draft and verified against the paper."
+    "\u53C2\u8003\u56FE\u9ED8\u8BA4\u5173\u95ED\u3002\u5F00\u542F\u540E\uFF0C\u666E\u901A\u56FE\u7247\u53EA\u7528\u4E8E\u89C6\u89C9\u6837\u5F0F\uFF1B\u660E\u786E\u6807\u6CE8\u4E3A\u201C\u7ED8\u56FE\u8349\u7A3F\u201D\u65F6\u624D\u53EF\u628A\u7ED3\u6784\u4F5C\u4E3A\u7EBF\u7D22\uFF0C\u5E76\u987B\u7528\u8BBA\u6587\u6838\u9A8C\u3002",
+    "Reference images are off by default. When enabled, ordinary images supply visual style only; structure becomes a cue only for an explicitly labeled figure draft verified against the paper."
   ),
   output: localized(
     "\u53EA\u751F\u6210\u4E00\u5F20\u9AD8\u6E05 PNG\uFF0C\u5E76\u4FDD\u5B58\u914D\u7F6E\u4E0E\u6700\u7EC8\u82F1\u6587\u751F\u56FE Prompt\u3002",
@@ -1939,6 +3049,16 @@ var SCIENTIFIC_FIGURE_MODEL = {
           )
         )
       ]
+    },
+    {
+      id: "hasReferenceImage",
+      sectionId: "canvas",
+      type: "boolean",
+      label: localized("\u662F\u5426\u63D0\u4F9B\u53C2\u8003\u56FE", "Reference image"),
+      description: localized(
+        "\u9ED8\u8BA4\u5173\u95ED\uFF1B\u5F00\u542F\u540E\u624D\u628A\u53C2\u8003\u56FE\u89C4\u5219\u5199\u5165 Prompt \u5E76\u7EB3\u5165\u6750\u6599\u3002",
+        "Off by default; enable it to add reference-image guidance to the prompt and materials."
+      )
     },
     {
       id: "aspectRatioId",
@@ -2067,10 +3187,152 @@ var SCIENTIFIC_FIGURE_MODEL = {
   ],
   defaults: { ...figureDefaults }
 };
+var EXPERIMENTAL_PLOT_SECTIONS = [
+  {
+    id: "question",
+    index: "01",
+    title: localized("\u6570\u636E\u4E0E\u95EE\u9898", "Data and question"),
+    description: localized(
+      "\u4ECE\u771F\u5B9E\u6570\u636E\u72B6\u6001\u548C\u79D1\u5B66\u95EE\u9898\u51FA\u53D1\u9009\u62E9\u56FE\u578B\u3002",
+      "Choose the visual form from the scientific question and actual data state."
+    )
+  },
+  {
+    id: "statistics",
+    index: "02",
+    title: localized("\u7EDF\u8BA1\u8BED\u4E49", "Statistical semantics"),
+    description: localized(
+      "\u660E\u786E\u91CD\u590D\u5355\u4F4D\u3001\u4E0D\u786E\u5B9A\u6027\u3001\u6548\u5E94\u91CF\u548C\u68C0\u9A8C\u3002",
+      "Define replicate units, uncertainty, effect sizes, and tests."
+    )
+  },
+  {
+    id: "visual",
+    index: "03",
+    title: localized("\u56FE\u578B\u4E0E\u7248\u9762", "Chart and layout"),
+    description: localized(
+      "\u63A7\u5236\u7EC4\u5408\u56FE\u3001\u5B50\u56FE\u6570\u91CF\u3001\u680F\u5BBD\u4E0E\u7CBE\u786E\u914D\u8272\u3002",
+      "Control composites, subpanel count, publication width, and exact colors."
+    )
+  },
+  {
+    id: "delivery",
+    index: "04",
+    title: localized("\u4EA4\u4ED8", "Delivery"),
+    description: localized(
+      "\u9009\u62E9\u4EE3\u7801\u3001\u56FE\u7247\u4E0E\u6D3E\u751F\u6570\u636E\u4EA7\u7269\u3002",
+      "Select code, image, and derived-data artifacts."
+    )
+  }
+];
+var EXPERIMENTAL_PLOT_FIELD_SECTIONS = {
+  plotGoal: "question",
+  dataState: "question",
+  encourageAdvancedCharts: "question",
+  uncertainty: "statistics",
+  statistics: "statistics",
+  multiplicity: "statistics",
+  allowComposite: "visual",
+  panelCount: "visual",
+  panels: "visual",
+  width: "visual",
+  palette: "visual",
+  outputs: "delivery",
+  custom: "delivery"
+};
+function experimentalPlotWorkflowField(control) {
+  const base = {
+    id: control.id,
+    sectionId: EXPERIMENTAL_PLOT_FIELD_SECTIONS[control.id] ?? "delivery",
+    label: control.label,
+    description: control.description
+  };
+  if (control.kind === "toggle") {
+    return { ...base, type: "boolean" };
+  }
+  if (control.kind === "number") {
+    return {
+      ...base,
+      type: "number",
+      min: control.min,
+      max: control.max,
+      step: control.step
+    };
+  }
+  if (control.kind === "range") {
+    return {
+      ...base,
+      type: "range",
+      min: control.min,
+      max: control.max,
+      step: control.step
+    };
+  }
+  if (control.kind === "multi") {
+    return {
+      ...base,
+      type: "multi",
+      minSelected: control.minSelected,
+      choices: control.options.map(
+        (option) => choice(option.value, option.label, option.description)
+      )
+    };
+  }
+  if (control.kind === "select" || control.kind === "segmented") {
+    return {
+      ...base,
+      type: control.kind === "segmented" ? "choice" : "select",
+      choices: control.options.map(
+        (option) => choice(option.value, option.label, option.description)
+      )
+    };
+  }
+  if (control.kind === "text" || control.kind === "textarea") {
+    return {
+      ...base,
+      type: control.kind,
+      placeholder: control.placeholder
+    };
+  }
+  throw new Error(`Unsupported experimental plotting field: ${control.id}`);
+}
+var EXPERIMENTAL_PLOTTING_MODEL = {
+  id: "experimental-plotting",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "experimental-plotting",
+  websitePath: "/figures/plots",
+  title: localized("\u5B9E\u9A8C\u7ED8\u56FE", "Experimental Plotting"),
+  eyebrow: "YANSHU \xB7 EXPERIMENTAL PLOTTING",
+  description: localized(
+    "\u628A\u771F\u5B9E\u5B9E\u9A8C\u6570\u636E\u8F6C\u5316\u4E3A\u7EDF\u8BA1\u900F\u660E\u3001\u4EE3\u7801\u53EF\u590D\u73B0\u7684\u51FA\u7248\u7EA7\u8BBA\u6587\u56FE\u3002",
+    "Turn authentic experimental data into statistically transparent, code-reproducible publication plots."
+  ),
+  materialTitle: localized("\u9700\u8981\u6750\u6599", "Required materials"),
+  materialItems: {
+    zh: ["CSV / Excel / JSON \u6216\u7EDF\u8BA1\u7ED3\u679C", "\u6307\u6807\u5B9A\u4E49\u4E0E\u5B9E\u9A8C\u534F\u8BAE", "\u8BBA\u6587\u4E0A\u4E0B\u6587\u6216\u76EE\u6807\u6A21\u677F"],
+    en: ["CSV, Excel, JSON, or statistical outputs", "Metric definitions and experimental protocol", "Manuscript context or target template"]
+  },
+  materialHint: localized(
+    "\u4F18\u5148\u63D0\u4F9B\u9010\u6B21\u5B9E\u9A8C\u6570\u636E\uFF1B\u53EA\u6709\u6C47\u603B\u503C\u65F6\u540C\u65F6\u63D0\u4F9B\u6837\u672C\u91CF\u4E0E\u8BEF\u5DEE\u5B9A\u4E49\u3002",
+    "Prefer run-level data. When only summaries exist, include sample sizes and error definitions."
+  ),
+  output: localized(
+    "\u53EF\u590D\u73B0\u7ED8\u56FE\u4EE3\u7801\u3001\u6240\u9009\u51FA\u7248\u7EA7\u56FE\u4EF6\u3001caption \u4E0E\u5FC5\u8981\u6D3E\u751F\u6570\u636E\u3002",
+    "Reproducible plotting code, selected publication assets, a caption, and required derived data."
+  ),
+  sections: EXPERIMENTAL_PLOT_SECTIONS,
+  fields: EXPERIMENTAL_PLOTS_WORKBENCH.controls.map(
+    experimentalPlotWorkflowField
+  ),
+  defaults: {
+    ...getDefaultExperimentalPlotValues()
+  }
+};
 var CONFIGURABLE_MODELS = {
   "idea-discovery": IDEA_DISCOVERY_MODEL,
   "paper-drafting": PAPER_DRAFTING_MODEL,
-  "scientific-figure": SCIENTIFIC_FIGURE_MODEL
+  "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
+  "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL
 };
 var CONFIGURABLE_SKILL_WORKFLOW_IDS = Object.keys(
   CONFIGURABLE_MODELS
@@ -2158,6 +3420,10 @@ function normalizeFigurePreferences(input) {
       ["direct", "prompt-first"],
       defaults.executionMode
     ),
+    hasReferenceImage: booleanValue(
+      input.hasReferenceImage,
+      defaults.hasReferenceImage
+    ),
     aspectRatioId: allowedValue(
       input.aspectRatioId,
       FIGURE_ASPECT_RATIO_IDS,
@@ -2226,6 +3492,9 @@ function normalizeSkillWorkflowPreferences(workflowId, input = {}) {
   if (workflowId === "paper-drafting") {
     return normalizeDraftPreferences(input);
   }
+  if (workflowId === "experimental-plotting") {
+    return normalizeExperimentalPlotValues(input);
+  }
   return normalizeFigurePreferences(input);
 }
 function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage = "zh") {
@@ -2253,6 +3522,18 @@ function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage 
       templateId: draftPreferences.templateId,
       customVenue: draftPreferences.customVenue
     };
+  } else if (workflowId === "experimental-plotting") {
+    const plotPreferences = preferences;
+    prompt = buildExperimentalPlotPrompt(
+      plotPreferences,
+      promptLanguage
+    );
+    selection = {
+      plotGoal: plotPreferences.plotGoal,
+      allowComposite: plotPreferences.allowComposite,
+      panelCount: plotPreferences.panelCount,
+      palette: plotPreferences.palette
+    };
   } else {
     const figurePreferences = preferences;
     prompt = buildFigurePrompt(
@@ -2262,6 +3543,7 @@ function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage 
     );
     selection = {
       promptId: figurePreferences.promptId,
+      hasReferenceImage: figurePreferences.hasReferenceImage,
       aspectRatio: getFigureAspectRatio(figurePreferences),
       accentColors: getFigureAccentColorRange(figurePreferences).label,
       paletteId: figurePreferences.paletteId

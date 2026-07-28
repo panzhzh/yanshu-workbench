@@ -658,18 +658,11 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     workflow.rounds[3].prompt,
     /render an ultra-high-resolution scientific figure with crisp details and legible text for publication/,
   );
-  assert.match(
+  assert.doesNotMatch(
     workflow.rounds[3].prompt,
-    /Treat separately supplied images as visual-style references by default/,
+    /separately supplied image|figure draft/,
   );
-  assert.match(
-    workflow.rounds[3].prompt,
-    /Do not inherit their modules, pipeline, arrows, or scientific meaning/,
-  );
-  assert.match(
-    workflow.rounds[3].prompt,
-    /explicitly label an image as a “figure draft”/,
-  );
+  assert.doesNotMatch(workflow.rounds[3].prompt, /\$nature-figure/);
   assert.doesNotMatch(
     workflow.rounds[3].prompt,
     /If I also provide an existing framework figure/,

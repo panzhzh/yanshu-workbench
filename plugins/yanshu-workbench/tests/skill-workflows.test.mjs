@@ -21,11 +21,12 @@ import {
 
 const pluginRoot = path.resolve(new URL("..", import.meta.url).pathname);
 
-test("website-sourced runtime exposes the three configurable YanShu skills", () => {
+test("website-sourced runtime exposes the four configurable YanShu skills", () => {
   assert.deepEqual(CONFIGURABLE_SKILL_WORKFLOW_IDS, [
     "idea-discovery",
     "paper-drafting",
     "scientific-figure",
+    "experimental-plotting",
   ]);
   assert.deepEqual(
     YANSHU_SKILL_CATALOG.map((item) => item.id),
@@ -34,6 +35,7 @@ test("website-sourced runtime exposes the three configurable YanShu skills", () 
       "paper-drafting",
       "paper-reconstruction",
       "scientific-figure",
+      "experimental-plotting",
     ],
   );
 
@@ -54,6 +56,7 @@ test("website-sourced runtime exposes the three configurable YanShu skills", () 
   );
   assert.equal(draft.preferences.templateId, "arxiv");
   assert.match(draft.prompt, /arxiv-style/);
+  assert.match(draft.prompt, /\$research-paper-writing/);
   assert.match(draft.prompt, /complete LaTeX project/i);
 
   const figure = buildSkillWorkflowConfiguration(
@@ -64,8 +67,23 @@ test("website-sourced runtime exposes the three configurable YanShu skills", () 
   assert.equal(figure.preferences.promptId, "method-overview");
   assert.equal(figure.preferences.accentColorMin, 2);
   assert.equal(figure.preferences.accentColorMax, 4);
+  assert.equal(figure.preferences.hasReferenceImage, false);
   assert.match(figure.prompt, /方法总览图/);
   assert.match(figure.prompt, /2–4/);
+  assert.doesNotMatch(figure.prompt, /如有另行提供的图片/);
+  assert.doesNotMatch(figure.prompt, /\$nature-figure/);
+
+  const plot = buildSkillWorkflowConfiguration(
+    "experimental-plotting",
+    {},
+    "zh",
+  );
+  assert.equal(plot.preferences.palette, "tol-vibrant");
+  assert.equal(plot.preferences.allowComposite, true);
+  assert.deepEqual(plot.preferences.panelCount, [1, 3]);
+  assert.match(plot.prompt, /\$nature-figure/);
+  assert.match(plot.prompt, /允许组合图，使用 1–3 个子图/);
+  assert.match(plot.prompt, /#0077BB, #EE7733, #009988, #CC3311/);
 });
 
 test("all new skill definitions are complete and open the shared page", async () => {
@@ -188,9 +206,17 @@ test("shared workflow models retain website defaults", () => {
   assert.equal(figure.defaults.aspectRatioId, "landscape-2-1");
   assert.equal(figure.defaults.accentColorMin, 2);
   assert.equal(figure.defaults.accentColorMax, 4);
+  assert.equal(figure.defaults.hasReferenceImage, false);
+
+  const plot = getSkillWorkflowConfigurationModel("experimental-plotting");
+  assert.equal(plot.defaults.palette, "tol-vibrant");
+  assert.equal(plot.defaults.allowComposite, true);
+  assert.deepEqual(plot.defaults.panelCount, [1, 3]);
+  assert.ok(plot.fields.some((field) => field.type === "range"));
+  assert.ok(plot.fields.some((field) => field.type === "multi"));
 });
 
-test("every scientific-figure role treats optional images as style references by default", () => {
+test("scientific-figure reference guidance is opt-in for every role", () => {
   const model = getSkillWorkflowConfigurationModel("scientific-figure");
   const promptIds = model.fields
     .find((field) => field.id === "promptId")
@@ -198,34 +224,56 @@ test("every scientific-figure role treats optional images as style references by
 
   assert.ok(promptIds?.length > 3);
   for (const promptId of promptIds) {
-    const chinese = buildSkillWorkflowConfiguration(
+    const chineseDefault = buildSkillWorkflowConfiguration(
       "scientific-figure",
       { promptId },
       "zh",
     ).prompt;
-    const english = buildSkillWorkflowConfiguration(
+    const englishDefault = buildSkillWorkflowConfiguration(
       "scientific-figure",
       { promptId },
       "en",
     ).prompt;
+    const chineseEnabled = buildSkillWorkflowConfiguration(
+      "scientific-figure",
+      { promptId, hasReferenceImage: true },
+      "zh",
+    ).prompt;
+    const englishEnabled = buildSkillWorkflowConfiguration(
+      "scientific-figure",
+      { promptId, hasReferenceImage: true },
+      "en",
+    ).prompt;
 
-    assert.match(chinese, /另行提供的图片默认只作为视觉样式参考/);
-    assert.match(chinese, /不得沿用其中的模块、流程、箭头或科学含义/);
-    assert.match(chinese, /明确标注某张图片为“绘图草稿”/);
-    assert.doesNotMatch(chinese, /若我同时提供现有框架图/);
+    assert.doesNotMatch(chineseDefault, /如有另行提供的图片/);
+    assert.doesNotMatch(chineseDefault, /“绘图草稿”/);
+    assert.doesNotMatch(englishDefault, /separately supplied image/);
+    assert.doesNotMatch(englishDefault, /“figure draft”/);
 
     assert.match(
-      english,
-      /Treat separately supplied images as visual-style references by default/,
+      chineseEnabled,
+      /如有另行提供的图片，默认仅作为视觉样式参考/,
     );
     assert.match(
-      english,
-      /Do not inherit their modules, pipeline, arrows, or scientific meaning/,
+      chineseEnabled,
+      /明确标注某张图片为“绘图草稿”/,
     );
-    assert.match(english, /explicitly label an image as a “figure draft”/);
     assert.doesNotMatch(
-      english,
+      chineseEnabled,
+      /不得沿用其中的模块、流程、箭头或科学含义/,
+    );
+    assert.match(
+      englishEnabled,
+      /Treat any separately supplied image only as a visual-style reference by default/,
+    );
+    assert.match(
+      englishEnabled,
+      /explicitly label an image as a “figure draft”/,
+    );
+    assert.doesNotMatch(
+      englishEnabled,
       /If I also provide an existing framework figure/,
     );
+    assert.doesNotMatch(chineseEnabled, /\$nature-figure/);
   }
 });

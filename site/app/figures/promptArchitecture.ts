@@ -8,26 +8,30 @@ import { EXTENDED_FIGURE_TYPE_ADAPTERS } from "./extendedFigureAdapters";
 type LocalizedPromptBlock = Record<Language, string>;
 type LocalizedPromptBuilder = Record<
   Language,
-  (figureTypeLabel: string) => string
+  (figureTypeLabel: string, hasReferenceImage: boolean) => string
 >;
 
 export const COMMON_BASE: LocalizedPromptBuilder = {
-  zh: (figureTypeLabel) => `你是一名面向计算机科学论文的科研配图专家。我会提供论文的 \`.tex\`、\`.pdf\`，也可能另行附带样式参考图或明确标注的绘图草稿。
+  zh: (figureTypeLabel, hasReferenceImage) => `你是一名面向计算机科学论文的科研配图专家。我会提供论文的 \`.tex\` 和可选的 \`.pdf\`。${
+    hasReferenceImage
+      ? "我还会另行提供参考图片或明确标注的绘图草稿。"
+      : ""
+  }
 
 开始前，请联网核查与本论文主题最接近的顶会或顶刊论文，重点观察其中与本次任务相同的“${figureTypeLabel}”。用 2–4 点总结可借鉴的构图、信息层级和视觉语法；只吸收通用表达方法，不复制具体内容或品牌视觉。若当前无法联网，请明确说明，并仅依据已提供材料继续。
 
-另行提供的图片默认只作为视觉样式参考：概括其构图、配色、线条、字体与整体视觉语言，并在与当前视觉配置兼容时借鉴；不得沿用其中的模块、流程、箭头或科学含义。只有当我明确标注某张图片为“绘图草稿”时，才可把其内部结构作为内容线索，并仍须依据论文材料逐项核验。
-
-完整阅读材料后再设计。以 \`.tex\` 为方法名、模块名、缩写、数学符号和结构的主要依据，以 \`.pdf\` 理解上下文和现有图表。图中术语必须与论文逐字符一致，只呈现论文证据支持的关系。
+${hasReferenceImage ? "如有另行提供的图片，默认仅作为视觉样式参考：概括其构图、配色、线条、字体与整体视觉语言，并在与当前视觉配置兼容时借鉴；只有当我明确标注某张图片为“绘图草稿”时，才可将其内部结构作为内容线索，并仍须依据论文材料逐项核验。\n\n" : ""}完整阅读材料后再设计。以 \`.tex\` 为方法名、模块名、缩写、数学符号和结构的主要依据，以 \`.pdf\` 理解上下文和现有图表。图中术语必须与论文逐字符一致，只呈现论文证据支持的关系。
 
 先确定这张图的唯一主旨和主要阅读路径，再选择最符合论文对象的视觉表达，例如 token、matrix、graph、feature map、state、timeline、coordinate frame 或代表性样例。不要把整张图画成文字卡片；标签使用简短英文，保证缩小到论文尺寸后仍清楚，并让画面紧凑而不过度拥挤。`,
-  en: (figureTypeLabel) => `You are a scientific-figure specialist for computer-science papers. I will provide the paper's \`.tex\` and \`.pdf\`, and may separately attach style-reference images or an explicitly labeled figure draft.
+  en: (figureTypeLabel, hasReferenceImage) => `You are a scientific-figure specialist for computer-science papers. I will provide the paper's \`.tex\` and, when available, its \`.pdf\`.${
+    hasReferenceImage
+      ? " I will also supply reference images or an explicitly labeled figure draft."
+      : ""
+  }
 
 Before designing, browse leading conference or journal papers closest to this paper's topic and inspect figures serving the same “${figureTypeLabel}” role. Summarize 2–4 transferable observations about composition, information hierarchy, and visual grammar. Borrow only general presentation patterns, never specific content or brand styling. If browsing is unavailable, say so and continue only from the supplied materials.
 
-Treat separately supplied images as visual-style references by default: summarize their composition, palette, line work, typography, and overall visual language, and borrow compatible elements within the current visual configuration. Do not inherit their modules, pipeline, arrows, or scientific meaning. Only when I explicitly label an image as a “figure draft” may its internal structure be used as a content cue, and every such cue must still be verified against the paper.
-
-Read the materials before designing. Treat the \`.tex\` as the primary source for method names, module names, abbreviations, mathematical symbols, and structure; use the \`.pdf\` for context and existing figures. Every term in the image must match the paper exactly, and every relationship must be supported by the paper.
+${hasReferenceImage ? "Treat any separately supplied image only as a visual-style reference by default: summarize its composition, palette, line work, typography, and overall visual language, and borrow compatible elements within the current visual configuration. Only when I explicitly label an image as a “figure draft” may its internal structure be used as a content cue, and every such cue must still be verified against the paper.\n\n" : ""}Read the materials before designing. Treat the \`.tex\` as the primary source for method names, module names, abbreviations, mathematical symbols, and structure; use the \`.pdf\` for context and existing figures. Every term in the image must match the paper exactly, and every relationship must be supported by the paper.
 
 Choose one visual thesis and one main reading path, then use visual objects that fit the paper—such as tokens, matrices, graphs, feature maps, states, timelines, coordinate frames, or representative examples. Do not reduce the figure to text boxes. Use short English labels, keep it legible at paper size, and compose a compact but uncrowded canvas.`,
 };
@@ -68,35 +72,38 @@ export const FIGURE_TYPE_ADAPTERS = {
 
 interface OutputProtocolOptions {
   executionMode: FigureExecutionMode;
+  hasReferenceImage: boolean;
   outputFileName?: string;
 }
 
 function buildDirectProtocol(
   language: Language,
+  hasReferenceImage: boolean,
   outputFileName?: string,
 ) {
   if (language === "zh") {
-    return `执行方式：直接绘图。先在内部完成同类论文图与可选样式参考图的视觉总结，并据此形成一份详细、完整的英文生图 Prompt；科学内容只取自论文证据或明确标注且经核验的绘图草稿。不要输出该 Prompt，也不要等待确认。请充分思考论文内容、信息层级、构图与视觉细节，再绘制一张文字清晰、细节锐利、适合论文排版的超高清科研配图。生成后核对术语、箭头方向、结构关系和缩小后的可读性。${
+    return `执行方式：直接绘图。先在内部完成同类论文图${hasReferenceImage ? "与参考图" : ""}的视觉总结，并据此形成一份详细、完整的英文生图 Prompt；科学内容只取自论文证据${hasReferenceImage ? "或明确标注且经核验的绘图草稿" : ""}。不要输出该 Prompt，也不要等待确认。请充分思考论文内容、信息层级、构图与视觉细节，再绘制一张文字清晰、细节锐利、适合论文排版的超高清科研配图。生成后核对术语、箭头方向、结构关系和缩小后的可读性。${
       outputFileName
         ? ` 最终图片保存为 \`${outputFileName}\`。`
         : ""
     }`;
   }
 
-  return `Execution mode: draw directly. Internally summarize visual patterns from comparable papers and any optional style-reference images, then form one detailed, self-contained English image-generation prompt. Derive scientific content only from paper evidence or an explicitly labeled and verified figure draft. Do not print that prompt or wait for confirmation. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${
+  return `Execution mode: draw directly. Internally summarize visual patterns from comparable papers${hasReferenceImage ? " and the supplied reference images" : ""}, then form one detailed, self-contained English image-generation prompt. Derive scientific content only from paper evidence${hasReferenceImage ? " or an explicitly labeled and verified figure draft" : ""}. Do not print that prompt or wait for confirmation. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${
     outputFileName ? ` Save it as \`${outputFileName}\`.` : ""
   }`;
 }
 
 function buildPromptFirstProtocol(
   language: Language,
+  hasReferenceImage: boolean,
   outputFileName?: string,
 ) {
   if (language === "zh") {
     return `执行方式：先看 Prompt，本轮不要生成图片。只输出两部分：
 
 REFERENCE STYLE SUMMARY
-用 2–4 点概括同类顶会或顶刊图片以及可选样式参考图中可借鉴的视觉方法；不得把样式参考图的内部流程当作论文内容。
+用 2–4 点概括同类顶会或顶刊图片${hasReferenceImage ? "以及所提供参考图" : ""}中可借鉴的视觉方法。
 
 FINAL IMAGE PROMPT
 在一个 \`text\` 代码块中给出完整英文生图 Prompt，只需依次写清：图的主旨与构图、科学对象与信息流、精确标签、视觉设置。不要输出推理过程或备选方案。
@@ -111,7 +118,7 @@ FINAL IMAGE PROMPT
   return `Execution mode: prompt first. Do not generate an image in this response. Output only:
 
 REFERENCE STYLE SUMMARY
-Give 2–4 transferable observations from comparable figures in leading conference or journal papers and any optional style-reference images. Do not treat a style reference's internal pipeline as paper content.
+Give 2–4 transferable observations from comparable figures in leading conference or journal papers${hasReferenceImage ? " and the supplied reference images" : ""}.
 
 FINAL IMAGE PROMPT
 Provide one complete English image-generation prompt in a \`text\` code block. Cover only the visual thesis and composition, scientific objects and flow, exact labels, and visual settings. Do not expose reasoning or alternatives.
@@ -122,12 +129,20 @@ Then stop and wait for “Start drawing” or “开始绘图”. After that ins
 }
 
 export const OUTPUT_PROTOCOL = {
-  zh: ({ executionMode, outputFileName }: OutputProtocolOptions) =>
+  zh: ({
+    executionMode,
+    hasReferenceImage,
+    outputFileName,
+  }: OutputProtocolOptions) =>
     executionMode === "direct"
-      ? buildDirectProtocol("zh", outputFileName)
-      : buildPromptFirstProtocol("zh", outputFileName),
-  en: ({ executionMode, outputFileName }: OutputProtocolOptions) =>
+      ? buildDirectProtocol("zh", hasReferenceImage, outputFileName)
+      : buildPromptFirstProtocol("zh", hasReferenceImage, outputFileName),
+  en: ({
+    executionMode,
+    hasReferenceImage,
+    outputFileName,
+  }: OutputProtocolOptions) =>
     executionMode === "direct"
-      ? buildDirectProtocol("en", outputFileName)
-      : buildPromptFirstProtocol("en", outputFileName),
+      ? buildDirectProtocol("en", hasReferenceImage, outputFileName)
+      : buildPromptFirstProtocol("en", hasReferenceImage, outputFileName),
 } as const;

@@ -1,0 +1,4 @@
+interface:
+  display_name: "YanShu Experimental Plotting"
+  short_description: "Create reproducible publication plots from experimental data"
+  default_prompt: "Use $experimental-plotting to configure and create a publication-ready plot from this experiment directory."

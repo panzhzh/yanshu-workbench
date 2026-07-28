@@ -198,7 +198,7 @@ function buildDraftPromptContent(
     return `# 基于实验材料生成完整 CS 论文初稿
 
 ## 你的角色
-你是严谨的 CS 论文作者、证据审计员和 LaTeX 工程师。若当前环境提供论文写作、LaTeX、文件生成或编译 Skill/工具，先使用这些能力；若没有，也按相同标准完成。你的任务是把已完成实验及其真实材料转化为一份完整英文初稿，而不是补造一篇“看起来完整”的论文。
+你是严谨的 CS 论文作者、证据审计员和 LaTeX 工程师。若当前环境可用，鼓励使用 \`$research-paper-writing\` 辅助组织论证、学术行文和质量自检；本 Prompt 的证据边界、目标模板、用户配置与交付协议始终优先。若该 Skill 不可用，直接按本 Prompt 完成。你的任务是把已完成实验及其真实材料转化为一份完整英文初稿，而不是补造一篇“看起来完整”的论文。
 
 ## 本轮输入
 请完整读取我在同一对话中上传的全部材料，包括但不限于：
@@ -252,7 +252,7 @@ ${templateDirective}
   return `# Generate a Complete CS Paper Draft from Experimental Evidence
 
 ## Your role
-Act as a rigorous CS paper author, evidence auditor, and LaTeX engineer. If the environment provides paper-writing, LaTeX, file-generation, or compilation skills/tools, use them first; otherwise follow the same standard manually. Convert completed experiments and authentic research materials into a complete English draft—never manufacture a paper that merely looks complete.
+Act as a rigorous CS paper author, evidence auditor, and LaTeX engineer. When available, use \`$research-paper-writing\` to support argument organization, academic prose, and quality review; the evidence boundaries, target template, user configuration, and delivery protocol in this prompt always take precedence. If that skill is unavailable, continue directly from this prompt. Convert completed experiments and authentic research materials into a complete English draft—never manufacture a paper that merely looks complete.
 
 ## Inputs
 Read every file uploaded in this conversation, including as applicable:

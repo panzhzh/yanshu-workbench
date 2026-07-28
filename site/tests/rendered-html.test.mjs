@@ -44,11 +44,12 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /一句话启动/);
   assert.match(html, /在一页中完成设置/);
   assert.match(html, /确认后直接执行/);
-  assert.match(html, /四个最重要的全链路入口/);
+  assert.match(html, /五个重要的全链路入口/);
   assert.match(html, /Idea Discovery/);
   assert.match(html, /Paper Drafting/);
   assert.match(html, /Paper Reconstruction/);
   assert.match(html, /Scientific Figure/);
+  assert.match(html, /Experimental Plotting/);
   assert.match(
     html,
     /使用 \$paper-drafting 根据这个实验目录撰写论文初稿/,
@@ -59,6 +60,7 @@ test("server-renders the concise YanShu home page", async () => {
   );
   assert.match(html, /\$idea-discovery/);
   assert.match(html, /\$scientific-figure/);
+  assert.match(html, /\$experimental-plotting/);
   assert.match(html, /自动执行，或只复制 Prompt/);
   assert.match(html, /网站与插件使用同一份 Prompt 数据/);
   assert.match(html, /论文写作/);
@@ -681,6 +683,9 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /执行方式/);
   assert.match(html, /直接绘图/);
   assert.match(html, /先看英文 Prompt/);
+  assert.match(html, /是否提供参考图/);
+  assert.match(html, /不提供/);
+  assert.match(html, /默认关闭/);
   assert.match(html, /class="prompt-card expanded"/);
   assert.match(html, /aria-expanded="true"/);
   assert.match(html, /计算机科学论文的科研配图专家/);
@@ -690,12 +695,9 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /使用 2–4 种强调色/);
   assert.match(html, /执行方式：直接绘图/);
   assert.match(html, /不要输出该 Prompt/);
-  assert.match(
-    html,
-    /另行提供的图片默认只作为视觉样式参考/,
-  );
-  assert.match(html, /不得沿用其中的模块、流程、箭头或科学含义/);
-  assert.match(html, /明确标注某张图片为“绘图草稿”/);
+  assert.doesNotMatch(html, /如有另行提供的图片/);
+  assert.doesNotMatch(html, /明确标注某张图片为“绘图草稿”/);
+  assert.doesNotMatch(html, /\$nature-figure/);
   assert.doesNotMatch(html, /若我同时提供现有框架图/);
   assert.match(html, /适合论文排版的超高清科研配图/);
   assert.doesNotMatch(html, /RGB\(/);
@@ -1557,6 +1559,10 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     (figureConfig.match(/executionMode:\s*"direct"/g) ?? []).length,
     11,
   );
+  assert.equal(
+    (figureConfig.match(/hasReferenceImage:\s*false/g) ?? []).length,
+    11,
+  );
   assert.match(figureConfig, /allowLightIllustrations:\s*false/);
   assert.match(figureConfig, /cardFillPolicyId:\s*"key-regions"/);
   assert.match(figureConfig, /cardFillPolicyId:\s*"semantic-regions"/);
@@ -1578,7 +1584,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /buildFigurePrompt/);
   assert.match(
     figureConfig,
-    /COMMON_BASE\[language\]\(FIGURE_PROMPTS\[promptId\]\.label\[language\]\)[\s\S]*?FIGURE_TYPE_ADAPTERS\[promptId\]\[language\][\s\S]*?buildVisualConfiguration\(preferences, language\)[\s\S]*?OUTPUT_PROTOCOL\[language\]/,
+    /COMMON_BASE\[language\]\([\s\S]*?FIGURE_PROMPTS\[promptId\]\.label\[language\][\s\S]*?preferences\.hasReferenceImage[\s\S]*?FIGURE_TYPE_ADAPTERS\[promptId\]\[language\][\s\S]*?buildVisualConfiguration\(preferences, language\)[\s\S]*?OUTPUT_PROTOCOL\[language\]/,
   );
   assert.match(figureConfig, /视觉设置：/);
   assert.match(figureConfig, /canvas on pure white/);
@@ -1612,13 +1618,14 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureArchitecture, /2–4 点总结/);
   assert.match(
     figureArchitecture,
-    /另行提供的图片默认只作为视觉样式参考/,
+    /如有另行提供的图片，默认仅作为视觉样式参考/,
   );
-  assert.match(
+  assert.match(figureArchitecture, /明确标注某张图片为“绘图草稿”/);
+  assert.doesNotMatch(
     figureArchitecture,
     /不得沿用其中的模块、流程、箭头或科学含义/,
   );
-  assert.match(figureArchitecture, /明确标注某张图片为“绘图草稿”/);
+  assert.doesNotMatch(figureArchitecture, /\$nature-figure/);
   assert.doesNotMatch(figureArchitecture, /若我同时提供现有框架图/);
   assert.match(figureArchitecture, /唯一主旨和主要阅读路径/);
   assert.match(figureArchitecture, /不要把整张图画成文字卡片/);
@@ -1664,6 +1671,11 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureComponent, /role="radio"/);
   assert.match(figureComponent, /preferences\.executionMode === "direct"/);
   assert.match(figureComponent, /executionMode: "prompt-first"/);
+  assert.match(figureComponent, /preferences\.hasReferenceImage/);
+  assert.match(
+    figureComponent,
+    /hasReferenceImage:\s*!current\.hasReferenceImage/,
+  );
   assert.doesNotMatch(figureComponent, /FIGURE_PLACEMENT_IDS|placementId/);
   assert.match(figureComponent, /FIGURE_ASPECT_RATIO_IDS\.map/);
   assert.match(figureComponent, /getFigureAspectRatio\(preferences\)/);
@@ -1703,6 +1715,33 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figurePage, /<FigureWorkbench \/>/);
   assert.match(navigation, /NAVIGATION_GROUPS/);
   assert.match(navigationConfig, /href:\s*"\/figures"/);
+});
+
+test("keeps experimental plotting code-based, skill-assisted, and configuration-led", async () => {
+  const response = await render("/figures/plots");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  const config = await readFile(
+    new URL("../app/figures/toolsConfig.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(html, /鼓励非基础图型/);
+  assert.match(html, /支持组合图/);
+  assert.match(html, /子图数量/);
+  assert.match(html, /1–3/);
+  assert.match(html, /Tol 鲜明 · 蓝橙/);
+  assert.match(html, /\$nature-figure/);
+  assert.match(html, /#0077BB, #EE7733, #009988, #CC3311/);
+  assert.match(html, /本页配置与数据证据始终优先/);
+  assert.match(html, /不使用生图模型/);
+
+  assert.match(config, /defaultValue:\s*\[1,\s*3\]/);
+  assert.match(config, /defaultValue:\s*"tol-vibrant"/);
+  assert.match(config, /id:\s*"allowComposite"/);
+  assert.match(config, /id:\s*"encourageAdvancedCharts"/);
+  assert.match(config, /buildExperimentalPlotPrompt/);
+  assert.match(config, /normalizeExperimentalPlotValues/);
 });
 
 test("keeps paper-draft templates and provenance rules configuration-driven", async () => {
@@ -1749,7 +1788,8 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
     draftConfig,
     /Datasets、Evaluation Metrics、Experimental Configuration 和 Baselines/,
   );
-  assert.match(draftConfig, /论文写作、LaTeX、文件生成或编译 Skill/);
+  assert.match(draftConfig, /\$research-paper-writing/);
+  assert.match(draftConfig, /本 Prompt 的证据边界、目标模板、用户配置与交付协议始终优先/);
   assert.match(draftComponent, /buildDraftPrompt/);
   assert.match(draftComponent, /activePage="draft"/);
   assert.match(draftComponent, /<PromptResizeHandle language=\{uiLanguage\}/);

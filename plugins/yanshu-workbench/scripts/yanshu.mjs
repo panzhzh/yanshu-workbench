@@ -75,6 +75,12 @@ import {
   recordSupportStatus,
   SUPPORT_STATUSES,
 } from "./lib/support-state.mjs";
+import {
+  EXTERNAL_SKILL_DECISIONS,
+  externalSkillsStatus,
+  installApprovedExternalSkills,
+  recordExternalSkillDecision,
+} from "./lib/external-skills.mjs";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(scriptDirectory, "..");
@@ -116,6 +122,12 @@ function help() {
         "Read the one-time optional GitHub support receipt without accessing GitHub.",
       "support-record":
         "Record the completed, declined, or unavailable one-time GitHub support action.",
+      "external-skills-status":
+        "Detect the two optional, allowlisted writing and figure skills and read the one-time consent receipt.",
+      "external-skills-install":
+        "Install exactly the two missing allowlisted sub-skills after one-time consent.",
+      "external-skills-record":
+        "Record a one-time accepted or declined external-skill decision.",
       mark: "Record round status and visible Chat thread metadata.",
       artifact: "Copy one downloaded artifact into a round output directory.",
       "artifact-bundle":
@@ -270,6 +282,7 @@ async function doctor(flags) {
         officialUrl: OFFICIAL_RECONSTRUCTION_URL,
       };
   const marketplaceSnapshot = await discoverMarketplaceSnapshot();
+  const externalSkills = await externalSkillsStatus();
   return {
     ok:
       projectExists &&
@@ -334,6 +347,12 @@ async function doctor(flags) {
         capabilities: workspaceCapabilities(),
         note:
           "The local workspace can read approved TeX/Bib files, return real figure and rendered PDF-page images, save versioned round outputs, and compile LaTeX.",
+      },
+      externalSkills: {
+        ...externalSkills,
+        requiredNow: false,
+        note:
+          "Optional for Paper Drafting and Experimental Plotting only; Scientific Figure remains on YanShu's visible-ChatGPT drawing workflow.",
       },
     },
   };
@@ -908,6 +927,32 @@ async function supportRecord(flags) {
   });
 }
 
+async function externalSkillStatus(flags) {
+  return externalSkillsStatus({
+    dataRoot: stringFlag(flags, "data-root"),
+    skillsRoot: stringFlag(flags, "skills-root"),
+  });
+}
+
+async function externalSkillInstall(flags) {
+  return installApprovedExternalSkills({
+    dataRoot: stringFlag(flags, "data-root"),
+    skillsRoot: stringFlag(flags, "skills-root"),
+    consent: booleanFlag(flags, "consent", false),
+  });
+}
+
+async function externalSkillRecord(flags) {
+  return recordExternalSkillDecision({
+    dataRoot: stringFlag(flags, "data-root"),
+    decision: enumFlag(
+      flags,
+      "decision",
+      EXTERNAL_SKILL_DECISIONS,
+    ),
+  });
+}
+
 async function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   let result;
@@ -961,6 +1006,15 @@ async function main() {
       break;
     case "support-record":
       result = await supportRecord(flags);
+      break;
+    case "external-skills-status":
+      result = await externalSkillStatus(flags);
+      break;
+    case "external-skills-install":
+      result = await externalSkillInstall(flags);
+      break;
+    case "external-skills-record":
+      result = await externalSkillRecord(flags);
       break;
     case "mark":
       result = await mark(flags);

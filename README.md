@@ -57,7 +57,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
    都在这一页完成；点击“全自动开始”后直接执行，不再在聊天中逐项确认。若只想
    手动使用，复制右侧 Prompt 后退出即可。
 
-首页也提供相同的动态三步演示和四个核心工作流的可复制启动语。
+首页也提供相同的动态三步演示和五个核心工作流的可复制启动语。
 
 ## 一个 YanShu，多项科研工作流
 
@@ -70,6 +70,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | 写作 | **Paper Drafting** | `$paper-drafting` | 从完成的实验材料生成可编译 LaTeX 初稿 |
 | 重构 | **Paper Reconstruction** | `$paper-reconstruction` | 五轮论文重构、框架图重构、产物恢复与编译检查 |
 | 绘图 | **Scientific Figure** | `$scientific-figure` | 从论文证据生成一张高清科研示意图 |
+| 图表 | **Experimental Plotting** | `$experimental-plotting` | 从真实实验数据生成可复现的出版级代码图 |
 
 插件清单、Skill 文件和内部标识统一使用英文，便于公开分发；与用户的问答语言以及 Prompt 输出语言仍可选择中文或英文。
 
@@ -90,8 +91,8 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [实验代码](https://yanshu-workbench.pages.dev/experiments/code/) | 需要实现可运行实验 | 按仓库环境、实现范围、配置与测试要求生成代码任务，保留可追溯日志和运行入口 |
 | [结果分析](https://yanshu-workbench.pages.dev/experiments/results/) | 已有表格、日志或统计结果 | 区分观察、解释与推测，按主结果、消融、效率、稳健性和失败案例组织证据 |
 | [可复现性](https://yanshu-workbench.pages.dev/experiments/reproducibility/) | 准备交付代码与实验材料 | 检查环境、随机性、数据、命令、产物和独立复现路径，生成可验证清单 |
-| [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；附加图片默认只参考视觉风格，只有明确标注为绘图草稿时才参考结构，充分推敲后生成超高清单图 |
-| [实验绘图](https://yanshu-workbench.pages.dev/figures/plots/) | 需要从数据生成统计图 | 以真实数据和绘图代码为核心，配置图型、统计表达、色觉友好、误差与导出格式，不调用生图模型 |
+| [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；参考图默认关闭，开启后才把视觉样式参考规则写入 Prompt |
+| [实验绘图](https://yanshu-workbench.pages.dev/figures/plots/) | 需要从数据生成统计图 | 以真实数据和绘图代码为核心，配置统计表达、组合图与 1–3 个默认子图、精确科研配色、图型策略和导出格式，不调用生图模型 |
 | [论文表格](https://yanshu-workbench.pages.dev/figures/tables/) | 需要整理结果或对比表 | 逐格核对数值与单位，配置表格职责、排序、高亮、显著性和单栏/双栏可读性 |
 | [图表审计](https://yanshu-workbench.pages.dev/figures/audit/) | 图表接近交付 | 联合检查数据、caption、正文引用、标签、可读性和一致性；安全修复只触及已确认错误及其直接依赖 |
 | [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | 先判断论文类别，再按 OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/AHCI/ESCI 等条件动态筛选并完成官网核验 |
@@ -111,15 +112,9 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 - **写作与执行分层**：Chat 负责论文写作，Codex 只协调本地材料、状态、编译和错误回传。
 - **随时可恢复**：长任务逐轮保存，不因页面关闭、等待超时或应用重启而重复提交。
 
-## 方法参考
-
-科研绘图的“论文语义拆解 → 结构化英文生图 Prompt → 用户确认后绘制”工作流受 [LigphiDonk/academic-figure-generator](https://github.com/LigphiDonk/academic-figure-generator) 启发。参考项目采用 [MIT License](https://github.com/LigphiDonk/academic-figure-generator/blob/main/LICENSE)；YanShu 没有复制其完整模板或品牌视觉，而是将方法重新组织为适配本站图型、画布、配色、字体和可读性选项的两步配置流程。
-
-Idea 工作台参考了若干许可清晰的开源研究流程：[NoviScl/AI-Researcher](https://github.com/NoviScl/AI-Researcher)（MIT）将相关论文检索、证据驱动生成、去重、提案排序与新颖性过滤拆开；[zjunlp/InnoEval](https://github.com/zjunlp/InnoEval)（MIT）强调多来源取证和清晰度、新颖性、有效性、可行性、意义等多维评估；[andrehuang/research-companion](https://github.com/andrehuang/research-companion)（MIT）提供最快否证、竞争时机与 Pursue / Pivot / Stop 式研究决策；[allenai/codescientist](https://github.com/allenai/codescientist)（Apache-2.0）强调可实施性与最小实验。YanShu 只借鉴工作流思想，Prompt、配置模型、界面和输出合同均为本站重新设计。
-
 ## 安装 YanShu 插件
 
-仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件的开发者预览版。当前包含四个正式命名的核心工作流：
+仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件的开发者预览版。当前包含五个正式命名的核心工作流：
 
 | Skill | 启动语示例 |
 | --- | --- |
@@ -127,8 +122,9 @@ Idea 工作台参考了若干许可清晰的开源研究流程：[NoviScl/AI-Res
 | **Paper Drafting** | `使用 $paper-drafting 根据这个实验目录撰写论文初稿。` |
 | **Paper Reconstruction** | `使用 $paper-reconstruction 重构这个论文目录。` |
 | **Scientific Figure** | `使用 $scientific-figure 为这个论文目录绘制一张科研配图。` |
+| **Experimental Plotting** | `使用 $experimental-plotting 根据这个实验目录绘制论文实验图。` |
 
-Idea Discovery、Paper Drafting 与 Scientific Figure 的本地配置运行时由网站对应
+Idea Discovery、Paper Drafting、Scientific Figure 与 Experimental Plotting 的本地配置运行时由网站对应
 页面的 TypeScript 配置和 Prompt 构建器自动生成；Paper Reconstruction 继续由
 `site/content/prompts` 生成。`npm run plugin:check` 会逐字节检查两套运行时，
 任何网站与 Skill 不同步的提交都无法通过发布检查。
@@ -146,6 +142,8 @@ Idea Discovery、Paper Drafting 与 Scientific Figure 的本地配置运行时�
 - 附件保底模式将每轮三个文本产物打成一个可校验 ZIP，一次下载后自动导入，避免逐个处理 TeX/BibTeX 文档实体；
 - 新运行会核对官网与已安装 Prompt 工作流版本，旧插件不得启动新运行；已开始的运行继续使用初始化快照，保证可恢复与可复现；
 - 在 Chat 桥接缺失时停在可恢复状态，而不是让 Codex 代写论文。
+
+Paper Drafting 与 Experimental Plotting 可选使用两个外部增强 Skill。首次发现缺失时，YanShu 只询问一次，并只允许安装两个固定子目录：`research-paper-writing` 用于论文初稿的论证组织与写作自检，`nature-figure` 用于实验数据的代码绘图与成图核验；不会安装任一完整仓库。研术台配置、证据边界与交付协议始终优先。Scientific Figure 不使用这两个外部 Skill，继续由研术台 Prompt 与可见 ChatGPT 生图链路独立完成。
 
 完整自动执行还需要可见的 ChatGPT 会话与兼容的浏览器桥接。YanShu 已内置并锁定可见 Chat 控制运行时以及本地 MCP 工作区，用户不需要再安装第二个文件插件。外部网页 ChatGPT 若要直接调用本地 MCP，仍需一次性连接经过认证的 HTTPS MCP 端点或受支持的安全隧道；单纯的 `127.0.0.1` 地址无法被网页端访问。没有该连接时，真实文件附件链路继续作为保底。
 
@@ -184,6 +182,7 @@ Use $paper-drafting to draft a paper from this experiment directory.
 使用 $paper-drafting 根据这个实验目录撰写论文初稿。
 使用 $paper-reconstruction 重构这个论文目录。
 使用 $scientific-figure 为这个论文目录绘制一张科研配图。
+使用 $experimental-plotting 根据这个实验目录绘制论文实验图。
 ```
 
 所有核心 Skill 都先确认工作区，再立即打开一个仅运行在 `127.0.0.1` 的本地配置页，
@@ -214,7 +213,7 @@ Pro 通常耗时更久。默认策略是在每轮首次有效提交时使用 Pro
 
 ## 论文模板策略
 
-论文初稿默认使用 [`kourgeorge/arxiv-style`](https://github.com/kourgeorge/arxiv-style) 作为 arXiv 预印本排版基础。该仓库使用 MIT License，但它是第三方预印本样式，并非 arXiv 官方格式要求。
+论文初稿默认使用第三方 MIT 开源 arXiv 预印本样式作为排版基础；它不是 arXiv 官方格式要求，具体来源统一列在文末参考表中。
 
 选择 NeurIPS、ICML、ICLR、CVPR、ICCV、ECCV、ACL、EMNLP、AAAI、KDD 或 ACM Multimedia 时，Prompt 不硬编码往年规则，而是要求模型先检索当前届官网、作者指南或官方维护的模板仓库，并记录年份、版本、核验日期和来源。
 
@@ -276,7 +275,7 @@ yanshu-workbench/
 - [x] 科学示意图、实验绘图、论文表格与图表审计
 - [x] 投稿定位、投稿前终检、投稿材料与审稿返修
 - [x] 可恢复的五轮论文重构插件基础
-- [x] Idea Discovery、Paper Drafting 与 Scientific Figure 同源配置 Skills
+- [x] Idea Discovery、Paper Drafting、Scientific Figure 与 Experimental Plotting 同源配置 Skills；初稿与实验绘图支持可选外部增强
 - [ ] 浏览器桥接的一体化安装与首次使用向导
 - [ ] 为更多专项工作台补充可恢复的全链路插件执行
 - [ ] 更细的会议、期刊和出版商配置
@@ -287,6 +286,23 @@ yanshu-workbench/
 站内的篇幅、结构和筛选设置是通用产品预设，不代表任何具体 venue 的官方要求。会议和期刊规则会变化，投稿前必须以目标 venue 最新官网、作者指南和正式模板为准。
 
 发现规则冲突、文案问题或希望增加新的科研场景，欢迎提交 [Issue](https://github.com/panzhzh/yanshu-workbench/issues)。
+
+## 开源参考与致谢
+
+下表统一列出 YanShu 借鉴、可选调用或随插件分发的开源项目。YanShu 只吸收适用的方法、接口或许可材料，不复制项目品牌视觉；各工作台的配置、Prompt 与输出协议均由本项目维护。
+
+| 项目 | 许可证 | 在 YanShu 中的用途 |
+| --- | --- | --- |
+| [Master-cai/Research-Paper-Writing-Skills](https://github.com/Master-cai/Research-Paper-Writing-Skills) | MIT | 可选安装单个 `research-paper-writing` 子 Skill，增强论文初稿的论证组织、学术行文与自检 |
+| [Yuan1z0825/nature-skills](https://github.com/Yuan1z0825/nature-skills) | Apache-2.0 | 可选安装单个 `nature-figure` 子 Skill，仅增强实验数据的代码绘图与出版级核验 |
+| [LigphiDonk/academic-figure-generator](https://github.com/LigphiDonk/academic-figure-generator) | MIT | 科研示意图的信息拆解与结构化生图 Prompt 思路 |
+| [NoviScl/AI-Researcher](https://github.com/NoviScl/AI-Researcher) | MIT | Idea 检索、去重、排序与新颖性过滤思路 |
+| [zjunlp/InnoEval](https://github.com/zjunlp/InnoEval) | MIT | Idea 的多来源取证与多维评估思路 |
+| [andrehuang/research-companion](https://github.com/andrehuang/research-companion) | MIT | 最快否证、竞争时机与研究决策思路 |
+| [allenai/codescientist](https://github.com/allenai/codescientist) | Apache-2.0 | 可实施性判断与最小验证实验思路 |
+| [kourgeorge/arxiv-style](https://github.com/kourgeorge/arxiv-style) | MIT | 论文初稿的默认第三方 arXiv 预印本排版基础 |
+| [Descanonge/tol_colors](https://github.com/Descanonge/tol_colors) | BSD-3-Clause | 科研示意图与实验绘图的 Paul Tol HEX 配色候选 |
+| [adamallcock/codex-chatgpt-control](https://github.com/adamallcock/codex-chatgpt-control) | MIT | 插件中固定版本的可见 ChatGPT 会话控制运行时；详见第三方声明 |
 
 ---
 

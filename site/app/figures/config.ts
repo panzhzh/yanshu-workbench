@@ -65,6 +65,7 @@ export type FigureFontFamilyId =
 export interface FigurePreferences {
   promptId: FigurePromptId;
   executionMode: FigureExecutionMode;
+  hasReferenceImage: boolean;
   aspectRatioId: FigureAspectRatioId;
   customAspectWidth: number;
   customAspectHeight: number;
@@ -93,6 +94,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   introduction: {
     promptId: "introduction",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
@@ -109,6 +111,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "task-definition": {
     promptId: "task-definition",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -125,6 +128,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "method-overview": {
     promptId: "method-overview",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
@@ -141,6 +145,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "technical-detail": {
     promptId: "technical-detail",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
@@ -157,6 +162,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "training-inference": {
     promptId: "training-inference",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
@@ -173,6 +179,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "algorithm-protocol": {
     promptId: "algorithm-protocol",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -189,6 +196,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "data-construction": {
     promptId: "data-construction",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-2-1",
     customAspectWidth: 2,
     customAspectHeight: 1,
@@ -205,6 +213,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "system-deployment": {
     promptId: "system-deployment",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-16-9",
     customAspectWidth: 16,
     customAspectHeight: 9,
@@ -221,6 +230,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "theory-concept": {
     promptId: "theory-concept",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-4-3",
     customAspectWidth: 4,
     customAspectHeight: 3,
@@ -237,6 +247,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "geometry-coordinate": {
     promptId: "geometry-coordinate",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -253,6 +264,7 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
   "survey-taxonomy": {
     promptId: "survey-taxonomy",
     executionMode: "direct",
+    hasReferenceImage: false,
     aspectRatioId: "landscape-3-2",
     customAspectWidth: 3,
     customAspectHeight: 2,
@@ -802,6 +814,13 @@ export const FIGURE_COPY = {
     executionPromptFirstHint:
       "先输出简短参考总结和英文生图 Prompt，等你输入“开始绘图”。",
     executionHint: "两种方式使用同一份图型与视觉配置。",
+    referenceImage: "是否提供参考图",
+    referenceImageOn: "提供参考图",
+    referenceImageOff: "不提供",
+    referenceImageOnHint:
+      "参考图默认只用于借鉴视觉样式；只有明确标注为“绘图草稿”时才可把结构作为内容线索，并须用论文材料核验。",
+    referenceImageOffHint:
+      "默认关闭。Prompt 不会假设存在参考图，也不会要求上传图片。",
     intentQuestion: "这张图主要需要回答什么？",
     intentQuestionHint:
       "选择科学问题后会自动定位到最合适的图型，不会覆盖该图型已经手动修改的设置。",
@@ -892,6 +911,13 @@ export const FIGURE_COPY = {
     executionPromptFirstHint:
       "Show a short reference summary and the English image prompt, then wait for “Start drawing”.",
     executionHint: "Both modes use the same figure-type and visual settings.",
+    referenceImage: "Reference image",
+    referenceImageOn: "Reference supplied",
+    referenceImageOff: "None",
+    referenceImageOnHint:
+      "A reference image supplies visual style only by default. Its structure becomes a content cue only when explicitly labeled as a figure draft and verified against the paper.",
+    referenceImageOffHint:
+      "Off by default. The prompt neither assumes nor requests a reference image.",
     intentQuestion: "What does this figure mainly need to answer?",
     intentQuestionHint:
       "Choosing the scientific question locates the best-matched figure type without overwriting any settings already edited for that type.",
@@ -1028,11 +1054,15 @@ export function buildFigurePrompt(
   options: FigurePromptBuildOptions = {},
 ) {
   return withPromptJudgmentDirective([
-    COMMON_BASE[language](FIGURE_PROMPTS[promptId].label[language]),
+    COMMON_BASE[language](
+      FIGURE_PROMPTS[promptId].label[language],
+      preferences.hasReferenceImage,
+    ),
     FIGURE_TYPE_ADAPTERS[promptId][language],
     buildVisualConfiguration(preferences, language),
     OUTPUT_PROTOCOL[language]({
       executionMode: preferences.executionMode,
+      hasReferenceImage: preferences.hasReferenceImage,
       outputFileName: options.outputFileName,
     }),
   ].join("\n\n"), language);

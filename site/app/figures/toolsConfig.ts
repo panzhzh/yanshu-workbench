@@ -1,10 +1,13 @@
 import type { Language } from "../config";
 import type {
   LocalizedText,
+  NumberRange,
   WorkbenchCopy,
+  WorkbenchControl,
   WorkbenchDefinition,
   WorkbenchValues,
 } from "../workbench/types";
+import { FIGURE_COLOR_PALETTES } from "./config";
 
 const text = (zh: string, en: string): LocalizedText => ({ zh, en });
 
@@ -20,6 +23,19 @@ function selected(values: Readonly<WorkbenchValues>, id: string) {
   return Array.isArray(values[id])
     ? (values[id] as readonly string[])
     : [];
+}
+
+function rangeValue(
+  values: Readonly<WorkbenchValues>,
+  id: string,
+  fallback: NumberRange,
+): NumberRange {
+  const value = values[id];
+  return Array.isArray(value) &&
+    value.length === 2 &&
+    value.every((item) => typeof item === "number")
+    ? [value[0], value[1]]
+    : fallback;
 }
 
 function labelFor(
@@ -129,9 +145,25 @@ const PLOT_OUTPUTS = {
 };
 
 const PLOT_PALETTES = {
-  colorblind: text("色盲友好", "Colorblind-safe"),
+  "tol-vibrant": text("Tol 鲜明 · 蓝橙", "Tol Vibrant · blue–orange"),
+  "tol-bright": text(
+    "Tol 明亮 · 蓝红绿黄",
+    "Tol Bright · blue–red–green–yellow",
+  ),
+  "tol-muted": text(
+    "Tol 柔和 · 靛玫瑰青沙",
+    "Tol Muted · indigo–rose–teal–sand",
+  ),
   grayscale: text("灰度优先", "Grayscale-first"),
   venue: text("沿用论文现有配色", "Match the manuscript palette"),
+};
+
+const PLOT_PALETTE_COLORS: Record<string, readonly string[] | null> = {
+  "tol-vibrant": FIGURE_COLOR_PALETTES["tol-vibrant"].colors,
+  "tol-bright": FIGURE_COLOR_PALETTES["tol-bright"].colors,
+  "tol-muted": FIGURE_COLOR_PALETTES["tol-muted"].colors,
+  grayscale: ["#111111", "#666666", "#A6A6A6", "#D9D9D9"],
+  venue: null,
 };
 
 const PLOT_WIDTHS = {
@@ -219,6 +251,18 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
       })),
     },
     {
+      id: "encourageAdvancedCharts",
+      kind: "toggle",
+      label: text("鼓励非基础图型", "Encourage richer chart types"),
+      description: text(
+        "当分布、关系或不确定性需要时，允许选择比柱状图或折线图更合适的图型；不为新奇而复杂化。",
+        "Allow a richer chart than bars or lines when distribution, relationships, or uncertainty require it; never add complexity for novelty.",
+      ),
+      defaultValue: true,
+      enabledLabel: text("按数据鼓励", "Encourage when justified"),
+      disabledLabel: text("优先基础图型", "Prefer basic charts"),
+    },
+    {
       id: "uncertainty",
       kind: "select",
       label: text("不确定性表达", "Uncertainty"),
@@ -263,6 +307,33 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
       visibleWhen: (values) => selected(values, "statistics").includes("test"),
     },
     {
+      id: "allowComposite",
+      kind: "toggle",
+      label: text("支持组合图", "Allow composite figures"),
+      description: text(
+        "只在多个子图共同回答同一科学问题时组合。",
+        "Combine panels only when they jointly answer one scientific question.",
+      ),
+      defaultValue: true,
+      enabledLabel: text("允许组合", "Composite allowed"),
+      disabledLabel: text("仅单图", "Single panel only"),
+    },
+    {
+      id: "panelCount",
+      kind: "range",
+      label: text("子图数量", "Subpanel count"),
+      description: text(
+        "默认 1–3；使用最少且足以完成比较的子图。",
+        "Default 1–3; use the fewest panels sufficient for the comparison.",
+      ),
+      defaultValue: [1, 3],
+      min: 1,
+      max: 8,
+      step: 1,
+      suffix: text("个", "panels"),
+      visibleWhen: (values) => enabled(values, "allowComposite"),
+    },
+    {
       id: "panels",
       kind: "select",
       label: text("面板组织", "Panel structure"),
@@ -275,6 +346,7 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
         value,
         label,
       })),
+      visibleWhen: (values) => enabled(values, "allowComposite"),
     },
     {
       id: "width",
@@ -299,7 +371,7 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
         "颜色只编码稳定语义，并保证打印和常见色觉差异下可辨。",
         "Use color for stable semantics and preserve print and color-vision legibility.",
       ),
-      defaultValue: "colorblind",
+      defaultValue: "tol-vibrant",
       options: Object.entries(PLOT_PALETTES).map(([value, label]) => ({
         value,
         label,
@@ -358,6 +430,16 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
         next.uncertainty = "infer";
       }
     }
+    if (id === "allowComposite" && value === false) {
+      next.panels = "single";
+    }
+    if (
+      id === "allowComposite" &&
+      value === true &&
+      scalar(current, "panels") === "single"
+    ) {
+      next.panels = "auto";
+    }
     return next;
   },
   buildPrompt(values, language) {
@@ -394,11 +476,44 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
         ? "不进行显著性检验"
         : "no significance testing";
     const includesCode = selected(values, "outputs").includes("code");
+    const allowComposite = enabled(values, "allowComposite");
+    const [panelMin, panelMax] = rangeValue(
+      values,
+      "panelCount",
+      [1, 3],
+    );
+    const paletteId = scalar(values, "palette");
+    const paletteColors = PLOT_PALETTE_COLORS[paletteId];
+    const palette = `${labelFor(
+      paletteId,
+      PLOT_PALETTES,
+      language,
+    )}${
+      paletteColors
+        ? ` (${paletteColors.join(", ")})`
+        : language === "zh"
+          ? "（从论文中核验并保持语义一致）"
+          : " (verify from the manuscript and preserve its semantics)"
+    }`;
+    const panelPolicy = allowComposite
+      ? language === "zh"
+        ? `允许组合图，使用 ${panelMin}–${panelMax} 个子图；${labelFor(scalar(values, "panels"), PANEL_POLICIES, language)}`
+        : `composite allowed with ${panelMin}–${panelMax} subpanels; ${labelFor(scalar(values, "panels"), PANEL_POLICIES, language)}`
+      : language === "zh"
+        ? "仅单图，不生成组合图"
+        : "single panel only; do not create a composite";
+    const chartPolicy = enabled(values, "encourageAdvancedCharts")
+      ? language === "zh"
+        ? "当数据语义确实更适合时，鼓励使用超越基础柱状图/折线图的图型，但不为新奇增加复杂度"
+        : "consider richer alternatives to basic bars or lines when the data semantics justify them, without adding novelty-driven complexity"
+      : language === "zh"
+        ? "优先使用清楚的基础图型，除非它们会遮蔽关键分布或关系"
+        : "prefer clear basic chart types unless they would hide a material distribution or relationship";
 
     if (language === "zh") {
       return `# 生成可复现的论文实验图
 
-请读取我提供的数据、指标定义、实验协议与论文上下文。你是科研数据可视化与统计分析专家；本任务使用代码绘图，不使用生图模型。
+请读取我提供的数据、指标定义、实验协议与论文上下文。你是科研数据可视化与统计分析专家；本任务使用代码绘图，不使用生图模型。若当前环境可用，鼓励使用 \`$nature-figure\` 辅助图型选择、代码绘制和出版级核验；本页配置与数据证据始终优先，Skill 的默认值不得覆盖颜色、子图数量、统计语义或交付格式。若该 Skill 不可用，直接按本 Prompt 继续。
 
 ## 配置
 - 分析任务：${goal}
@@ -406,9 +521,10 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
 - 不确定性：${uncertainty}
 - 统计信息：${statistics}
 - 多重比较：${multiplicity}
-- 面板组织：${labelFor(scalar(values, "panels"), PANEL_POLICIES, language)}
+- 图型策略：${chartPolicy}
+- 面板组织：${panelPolicy}
 - 版面宽度：${labelFor(scalar(values, "width"), PLOT_WIDTHS, language)}
-- 颜色：${labelFor(scalar(values, "palette"), PLOT_PALETTES, language)}
+- 颜色：${palette}
 - 交付：${outputs}
 - 补充要求：${custom}
 
@@ -419,7 +535,7 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
 
     return `# Produce a Reproducible Experimental Plot
 
-Read the supplied data, metric definitions, protocol, and manuscript context. Act as a scientific visualization and statistical analysis expert. This is a code-based plotting task; do not use an image-generation model.
+Read the supplied data, metric definitions, protocol, and manuscript context. Act as a scientific visualization and statistical analysis expert. This is a code-based plotting task; do not use an image-generation model. When available, use \`$nature-figure\` to support chart selection, code generation, and publication-level QA. The configuration and data evidence in this prompt take precedence: never let skill defaults override the palette, subpanel count, statistical semantics, or deliverables. If that skill is unavailable, continue directly from this prompt.
 
 ## Configuration
 - Analysis task: ${goal}
@@ -427,9 +543,10 @@ Read the supplied data, metric definitions, protocol, and manuscript context. Ac
 - Uncertainty: ${uncertainty}
 - Statistical layers: ${statistics}
 - Multiplicity: ${multiplicity}
-- Panel structure: ${labelFor(scalar(values, "panels"), PANEL_POLICIES, language)}
+- Chart policy: ${chartPolicy}
+- Panel structure: ${panelPolicy}
 - Layout width: ${labelFor(scalar(values, "width"), PLOT_WIDTHS, language)}
-- Color: ${labelFor(scalar(values, "palette"), PLOT_PALETTES, language)}
+- Color: ${palette}
 - Deliverables: ${outputs}
 - Additional requirements: ${custom}
 
@@ -438,6 +555,109 @@ Audit columns, units, replicate units, missing values, and metric direction befo
 Generate the figure with deterministic code and pinned dependencies and randomness. Keep method colors stable across panels and inspect typography, line styles, markers, and legends at final publication width. ${includesCode ? "Deliver the reproducible script and run instructions; " : "Use code as the generation process without delivering source, but record software, versions, and key parameters; "}return only the selected assets and required derived data. The caption should explain what is shown and how statistics were computed without claiming more than the data support.`;
   },
 } satisfies WorkbenchDefinition;
+
+export function getDefaultExperimentalPlotValues(): WorkbenchValues {
+  return Object.fromEntries(
+    EXPERIMENTAL_PLOTS_WORKBENCH.controls.map((control) => [
+      control.id,
+      Array.isArray(control.defaultValue)
+        ? [...control.defaultValue]
+        : control.defaultValue,
+    ]),
+  );
+}
+
+export function normalizeExperimentalPlotValues(
+  input: Record<string, unknown> = {},
+): WorkbenchValues {
+  const values = getDefaultExperimentalPlotValues();
+  const controls: readonly WorkbenchControl[] =
+    EXPERIMENTAL_PLOTS_WORKBENCH.controls;
+  for (const control of controls) {
+    const value = input[control.id];
+    if (value === undefined) continue;
+    if (control.kind === "toggle") {
+      if (typeof value === "boolean") values[control.id] = value;
+      continue;
+    }
+    if (control.kind === "number") {
+      const numeric = Number(value);
+      if (Number.isFinite(numeric)) {
+        values[control.id] = Math.min(
+          control.max,
+          Math.max(control.min, numeric),
+        );
+      }
+      continue;
+    }
+    if (control.kind === "range") {
+      if (Array.isArray(value) && value.length === 2) {
+        const left = Math.min(
+          control.max,
+          Math.max(control.min, Number(value[0])),
+        );
+        const right = Math.min(
+          control.max,
+          Math.max(control.min, Number(value[1])),
+        );
+        if (Number.isFinite(left) && Number.isFinite(right)) {
+          values[control.id] = [
+            Math.min(left, right),
+            Math.max(left, right),
+          ];
+        }
+      }
+      continue;
+    }
+    if (control.kind === "multi") {
+      if (Array.isArray(value)) {
+        const allowed = new Set(
+          control.options.map((option) => option.value),
+        );
+        const next = value
+          .map(String)
+          .filter((item) => allowed.has(item));
+        if (next.length >= (control.minSelected ?? 0)) {
+          values[control.id] = next;
+        }
+      }
+      continue;
+    }
+    if (control.kind === "select" || control.kind === "segmented") {
+      const next = String(value);
+      if (control.options.some((option) => option.value === next)) {
+        values[control.id] = next;
+      }
+      continue;
+    }
+    if (control.kind === "text" || control.kind === "textarea") {
+      values[control.id] = String(value);
+    }
+  }
+
+  if (scalar(values, "uncertainty") === "none") {
+    values.statistics = selected(values, "statistics").filter(
+      (item) => item !== "interval" && item !== "test",
+    );
+  }
+  if (scalar(values, "dataState") === "table") {
+    values.statistics = selected(values, "statistics").filter(
+      (item) => item !== "points" && item !== "test",
+    );
+  }
+  if (!enabled(values, "allowComposite")) {
+    values.panels = "single";
+  }
+  return values;
+}
+
+export function buildExperimentalPlotPrompt(
+  input: Record<string, unknown>,
+  language: Language,
+) {
+  const values = normalizeExperimentalPlotValues(input);
+  return EXPERIMENTAL_PLOTS_WORKBENCH.buildPrompt(values, language);
+}
 
 const TABLE_PURPOSES = {
   main: text("主结果比较", "Main comparison"),

@@ -323,6 +323,8 @@ pre:focus-visible {
 
 .field-textarea,
 .field-choice,
+.field-range,
+.field-multi,
 .field-boolean {
   grid-column: 1 / -1;
 }
@@ -352,6 +354,21 @@ pre:focus-visible {
   min-height: 78px;
   resize: vertical;
   line-height: 1.55;
+}
+
+.range-field {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 9px;
+}
+
+.range-field input {
+  min-width: 0;
+}
+
+.multi-choice-grid {
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 }
 
 .field-description {

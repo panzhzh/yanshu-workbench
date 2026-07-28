@@ -200,6 +200,77 @@ function buildBooleanField(field, wrapper) {
   wrapper.append(label);
 }
 
+function buildRangeField(field, wrapper) {
+  const label = createElement("span", "field-label", localized(field.label));
+  const values = Array.isArray(preferences[field.id])
+    ? preferences[field.id]
+    : [field.min ?? 0, field.max ?? 100];
+  const group = createElement("div", "range-field");
+  const inputs = [0, 1].map((index) => {
+    const input = document.createElement("input");
+    input.type = "number";
+    input.min = String(field.min ?? 0);
+    input.max = String(field.max ?? 100);
+    input.step = String(field.step ?? 1);
+    input.value = String(values[index] ?? "");
+    input.setAttribute(
+      "aria-label",
+      `${localized(field.label)} ${index === 0 ? "minimum" : "maximum"}`,
+    );
+    input.addEventListener("input", () => {
+      const current = Array.isArray(preferences[field.id])
+        ? [...preferences[field.id]]
+        : [...values];
+      current[index] = Number(input.value);
+      const normalized = [
+        Math.min(Number(current[0]), Number(current[1])),
+        Math.max(Number(current[0]), Number(current[1])),
+      ];
+      updatePreference(field, normalized);
+    });
+    return input;
+  });
+  group.append(inputs[0], createElement("span", "", "–"), inputs[1]);
+  wrapper.append(label, group);
+}
+
+function buildMultiField(field, wrapper) {
+  const label = createElement("span", "field-label", localized(field.label));
+  const group = createElement("div", "choice-grid multi-choice-grid");
+  const current = new Set(
+    Array.isArray(preferences[field.id]) ? preferences[field.id] : [],
+  );
+  for (const option of field.choices ?? []) {
+    const optionLabel = createElement("label", "choice-card");
+    const input = document.createElement("input");
+    input.type = "checkbox";
+    input.name = field.id;
+    input.value = String(option.value);
+    input.checked = current.has(option.value);
+    const content = createElement("span");
+    content.append(createElement("strong", "", localized(option.label)));
+    if (option.description) {
+      content.append(createElement("small", "", localized(option.description)));
+    }
+    input.addEventListener("change", () => {
+      const next = new Set(
+        Array.isArray(preferences[field.id]) ? preferences[field.id] : [],
+      );
+      if (input.checked) {
+        next.add(option.value);
+      } else if (next.size > (field.minSelected ?? 0)) {
+        next.delete(option.value);
+      } else {
+        input.checked = true;
+      }
+      updatePreference(field, [...next]);
+    });
+    optionLabel.append(input, content);
+    group.append(optionLabel);
+  }
+  wrapper.append(label, group);
+}
+
 function buildField(field) {
   const wrapper = createElement("div", `field field-${field.type}`);
   wrapper.dataset.fieldId = field.id;
@@ -211,13 +282,18 @@ function buildField(field) {
     buildBooleanField(field, wrapper);
   } else if (field.type === "select") {
     buildSelectField(field, wrapper);
+  } else if (field.type === "range") {
+    buildRangeField(field, wrapper);
+  } else if (field.type === "multi") {
+    buildMultiField(field, wrapper);
   } else {
     buildTextField(field, wrapper);
   }
   if (
     field.description &&
     field.type !== "boolean" &&
-    field.type !== "choice"
+    field.type !== "choice" &&
+    field.type !== "multi"
   ) {
     wrapper.append(
       createElement("p", "field-description", localized(field.description)),

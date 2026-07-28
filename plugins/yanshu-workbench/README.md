@@ -21,11 +21,12 @@ compatibility. The product shown to users is **YanShu**.
 | **Paper Drafting** | `$paper-drafting` | Developer preview |
 | **Paper Reconstruction** | `$paper-reconstruction` | Developer preview |
 | **Scientific Figure** | `$scientific-figure` | Developer preview |
+| **Experimental Plotting** | `$experimental-plotting` | Developer preview |
 
-These are four independent sub-skills in the YanShu plugin, not modes inside
+These are five independent sub-skills in the YanShu plugin, not modes inside
 one skill. Every workflow supports direct `$skill-name` invocation and opens
 one loopback-only configuration page before execution.
-Idea Discovery, Paper Drafting, and Scientific Figure are bundled directly from
+Idea Discovery, Paper Drafting, Scientific Figure, and Experimental Plotting are bundled directly from
 the website's canonical configuration and Prompt builders. Paper Reconstruction
 runs five resumable rounds, including a dedicated Method Overview figure round.
 The sync check fails when any bundled plugin runtime is stale.
@@ -77,6 +78,7 @@ Use $idea-discovery to find research ideas in this workspace.
 Use $paper-drafting to draft a paper from this experiment directory.
 Use $paper-reconstruction to reconstruct this paper directory.
 Use $scientific-figure to create one research figure for this paper.
+Use $experimental-plotting to create a publication plot from this experiment directory.
 ```
 
 The current preview starts from Codex; an ordinary Chat conversation does not
@@ -90,6 +92,7 @@ Chinese is equally valid:
 使用 $paper-drafting 根据这个实验目录撰写论文初稿。
 使用 $paper-reconstruction 重构这个论文目录。
 使用 $scientific-figure 为这个论文目录绘制一张科研配图。
+使用 $experimental-plotting 根据这个实验目录绘制论文实验图。
 ```
 
 YanShu asks for the workspace once and asks the user to choose only when it

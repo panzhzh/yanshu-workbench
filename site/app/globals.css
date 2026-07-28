@@ -2168,6 +2168,27 @@ a {
   gap: 8px;
 }
 
+.figure-reference-option {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 6px 14px;
+  align-items: center;
+  margin-top: 11px;
+  padding-top: 11px;
+  border-top: 1px solid var(--line);
+}
+
+.figure-reference-option > strong {
+  font-size: 11px;
+}
+
+.figure-reference-option > small {
+  grid-column: 1 / -1;
+  color: var(--ink-muted);
+  font-size: 10.5px;
+  line-height: 1.48;
+}
+
 .figure-execution-options > button {
   display: flex;
   min-width: 0;

@@ -1,4 +1,5 @@
 import type { Language } from "../../app/config";
+import type { WorkbenchControl } from "../../app/workbench/types";
 import {
   DEFAULT_IDEA_PREFERENCES_BY_MODE,
   IDEA_COUNT_OPTIONS,
@@ -44,6 +45,12 @@ import {
   type FigurePreferences,
   type FigurePromptId,
 } from "../../app/figures/config";
+import {
+  EXPERIMENTAL_PLOTS_WORKBENCH,
+  buildExperimentalPlotPrompt,
+  getDefaultExperimentalPlotValues,
+  normalizeExperimentalPlotValues,
+} from "../../app/figures/toolsConfig";
 
 export type LocalizedWorkflowText = Record<Language, string>;
 
@@ -51,14 +58,20 @@ export type YanShuSkillId =
   | "idea-discovery"
   | "paper-drafting"
   | "paper-reconstruction"
-  | "scientific-figure";
+  | "scientific-figure"
+  | "experimental-plotting";
 
 export type ConfigurableSkillWorkflowId = Exclude<
   YanShuSkillId,
   "paper-reconstruction"
 >;
 
-export type SkillWorkflowFieldValue = string | number | boolean;
+export type SkillWorkflowFieldValue =
+  | string
+  | number
+  | boolean
+  | readonly string[]
+  | readonly [number, number];
 
 export interface SkillWorkflowChoice {
   value: SkillWorkflowFieldValue;
@@ -74,7 +87,15 @@ export interface SkillWorkflowVisibility {
 export interface SkillWorkflowField {
   id: string;
   sectionId: string;
-  type: "text" | "textarea" | "number" | "boolean" | "choice" | "select";
+  type:
+    | "text"
+    | "textarea"
+    | "number"
+    | "range"
+    | "multi"
+    | "boolean"
+    | "choice"
+    | "select";
   label: LocalizedWorkflowText;
   description?: LocalizedWorkflowText;
   placeholder?: LocalizedWorkflowText;
@@ -82,6 +103,7 @@ export interface SkillWorkflowField {
   min?: number;
   max?: number;
   step?: number;
+  minSelected?: number;
   visibleWhen?: SkillWorkflowVisibility;
 }
 
@@ -208,12 +230,35 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
       en: "Use $scientific-figure to create one research figure for this paper directory.",
     },
     input: {
-      zh: "论文 TeX、可选 PDF、可选样式参考图或绘图草稿",
-      en: "Paper TeX, optional PDF, and an optional style reference or figure draft",
+      zh: "论文 TeX、可选 PDF，以及按配置提供的参考图",
+      en: "Paper TeX, optional PDF, and a reference image only when configured",
     },
     output: {
       zh: "一张高清 PNG 与配置快照",
       en: "One high-resolution PNG and its configuration snapshot",
+    },
+  },
+  {
+    id: "experimental-plotting",
+    index: "05",
+    skillName: "Experimental Plotting",
+    websitePath: "/figures/plots",
+    title: { zh: "绘制实验图", en: "Create an experimental plot" },
+    description: {
+      zh: "从真实实验数据生成统计语义清楚、可复现且符合论文版面的代码绘图。",
+      en: "Generate reproducible, statistically explicit publication plots from authentic experimental data.",
+    },
+    command: {
+      zh: "使用 $experimental-plotting 根据这个实验目录绘制论文实验图。",
+      en: "Use $experimental-plotting to create a paper plot from this experiment directory.",
+    },
+    input: {
+      zh: "原始结果、指标定义、统计协议与论文上下文",
+      en: "Raw results, metric definitions, statistical protocol, and manuscript context",
+    },
+    output: {
+      zh: "可复现代码、出版级图件与派生数据",
+      en: "Reproducible code, publication assets, and derived data",
     },
   },
 ] as const;
@@ -528,12 +573,12 @@ const SCIENTIFIC_FIGURE_MODEL: SkillWorkflowModel = {
   ),
   materialTitle: localized("需要材料", "Required materials"),
   materialItems: {
-    zh: ["论文主 TeX", "可选编译 PDF", "可选样式参考图或明确标注的绘图草稿"],
-    en: ["Main paper TeX", "Optional compiled PDF", "Optional style reference or explicitly labeled figure draft"],
+    zh: ["论文主 TeX", "可选编译 PDF", "开启“提供参考图”后才需要图片"],
+    en: ["Main paper TeX", "Optional compiled PDF", "An image only when “Reference supplied” is enabled"],
   },
   materialHint: localized(
-    "附加图片默认只参考视觉风格，不读取内部流程；只有明确标注为“绘图草稿”时才可参考结构，并须用论文核验。",
-    "Attached images supply visual style only by default. Their structure may be used only when explicitly labeled as a figure draft and verified against the paper.",
+    "参考图默认关闭。开启后，普通图片只用于视觉样式；明确标注为“绘图草稿”时才可把结构作为线索，并须用论文核验。",
+    "Reference images are off by default. When enabled, ordinary images supply visual style only; structure becomes a cue only for an explicitly labeled figure draft verified against the paper.",
   ),
   output: localized(
     "只生成一张高清 PNG，并保存配置与最终英文生图 Prompt。",
@@ -601,6 +646,16 @@ const SCIENTIFIC_FIGURE_MODEL: SkillWorkflowModel = {
           ),
         ),
       ],
+    },
+    {
+      id: "hasReferenceImage",
+      sectionId: "canvas",
+      type: "boolean",
+      label: localized("是否提供参考图", "Reference image"),
+      description: localized(
+        "默认关闭；开启后才把参考图规则写入 Prompt 并纳入材料。",
+        "Off by default; enable it to add reference-image guidance to the prompt and materials.",
+      ),
     },
     {
       id: "aspectRatioId",
@@ -730,6 +785,154 @@ const SCIENTIFIC_FIGURE_MODEL: SkillWorkflowModel = {
   defaults: { ...figureDefaults },
 };
 
+const EXPERIMENTAL_PLOT_SECTIONS = [
+  {
+    id: "question",
+    index: "01",
+    title: localized("数据与问题", "Data and question"),
+    description: localized(
+      "从真实数据状态和科学问题出发选择图型。",
+      "Choose the visual form from the scientific question and actual data state.",
+    ),
+  },
+  {
+    id: "statistics",
+    index: "02",
+    title: localized("统计语义", "Statistical semantics"),
+    description: localized(
+      "明确重复单位、不确定性、效应量和检验。",
+      "Define replicate units, uncertainty, effect sizes, and tests.",
+    ),
+  },
+  {
+    id: "visual",
+    index: "03",
+    title: localized("图型与版面", "Chart and layout"),
+    description: localized(
+      "控制组合图、子图数量、栏宽与精确配色。",
+      "Control composites, subpanel count, publication width, and exact colors.",
+    ),
+  },
+  {
+    id: "delivery",
+    index: "04",
+    title: localized("交付", "Delivery"),
+    description: localized(
+      "选择代码、图片与派生数据产物。",
+      "Select code, image, and derived-data artifacts.",
+    ),
+  },
+] as const;
+
+const EXPERIMENTAL_PLOT_FIELD_SECTIONS: Record<string, string> = {
+  plotGoal: "question",
+  dataState: "question",
+  encourageAdvancedCharts: "question",
+  uncertainty: "statistics",
+  statistics: "statistics",
+  multiplicity: "statistics",
+  allowComposite: "visual",
+  panelCount: "visual",
+  panels: "visual",
+  width: "visual",
+  palette: "visual",
+  outputs: "delivery",
+  custom: "delivery",
+};
+
+function experimentalPlotWorkflowField(
+  control: WorkbenchControl,
+): SkillWorkflowField {
+  const base = {
+    id: control.id,
+    sectionId:
+      EXPERIMENTAL_PLOT_FIELD_SECTIONS[control.id] ?? "delivery",
+    label: control.label,
+    description: control.description,
+  };
+  if (control.kind === "toggle") {
+    return { ...base, type: "boolean" };
+  }
+  if (control.kind === "number") {
+    return {
+      ...base,
+      type: "number",
+      min: control.min,
+      max: control.max,
+      step: control.step,
+    };
+  }
+  if (control.kind === "range") {
+    return {
+      ...base,
+      type: "range",
+      min: control.min,
+      max: control.max,
+      step: control.step,
+    };
+  }
+  if (control.kind === "multi") {
+    return {
+      ...base,
+      type: "multi",
+      minSelected: control.minSelected,
+      choices: control.options.map((option) =>
+        choice(option.value, option.label, option.description),
+      ),
+    };
+  }
+  if (control.kind === "select" || control.kind === "segmented") {
+    return {
+      ...base,
+      type: control.kind === "segmented" ? "choice" : "select",
+      choices: control.options.map((option) =>
+        choice(option.value, option.label, option.description),
+      ),
+    };
+  }
+  if (control.kind === "text" || control.kind === "textarea") {
+    return {
+      ...base,
+      type: control.kind,
+      placeholder: control.placeholder,
+    };
+  }
+  throw new Error(`Unsupported experimental plotting field: ${control.id}`);
+}
+
+const EXPERIMENTAL_PLOTTING_MODEL: SkillWorkflowModel = {
+  id: "experimental-plotting",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "experimental-plotting",
+  websitePath: "/figures/plots",
+  title: localized("实验绘图", "Experimental Plotting"),
+  eyebrow: "YANSHU · EXPERIMENTAL PLOTTING",
+  description: localized(
+    "把真实实验数据转化为统计透明、代码可复现的出版级论文图。",
+    "Turn authentic experimental data into statistically transparent, code-reproducible publication plots.",
+  ),
+  materialTitle: localized("需要材料", "Required materials"),
+  materialItems: {
+    zh: ["CSV / Excel / JSON 或统计结果", "指标定义与实验协议", "论文上下文或目标模板"],
+    en: ["CSV, Excel, JSON, or statistical outputs", "Metric definitions and experimental protocol", "Manuscript context or target template"],
+  },
+  materialHint: localized(
+    "优先提供逐次实验数据；只有汇总值时同时提供样本量与误差定义。",
+    "Prefer run-level data. When only summaries exist, include sample sizes and error definitions.",
+  ),
+  output: localized(
+    "可复现绘图代码、所选出版级图件、caption 与必要派生数据。",
+    "Reproducible plotting code, selected publication assets, a caption, and required derived data.",
+  ),
+  sections: EXPERIMENTAL_PLOT_SECTIONS,
+  fields: EXPERIMENTAL_PLOTS_WORKBENCH.controls.map(
+    experimentalPlotWorkflowField,
+  ),
+  defaults: {
+    ...getDefaultExperimentalPlotValues(),
+  },
+};
+
 const CONFIGURABLE_MODELS: Record<
   ConfigurableSkillWorkflowId,
   SkillWorkflowModel
@@ -737,6 +940,7 @@ const CONFIGURABLE_MODELS: Record<
   "idea-discovery": IDEA_DISCOVERY_MODEL,
   "paper-drafting": PAPER_DRAFTING_MODEL,
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
+  "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
 };
 
 export const CONFIGURABLE_SKILL_WORKFLOW_IDS = Object.keys(
@@ -845,6 +1049,10 @@ function normalizeFigurePreferences(
       ["direct", "prompt-first"] as const,
       defaults.executionMode,
     ),
+    hasReferenceImage: booleanValue(
+      input.hasReferenceImage,
+      defaults.hasReferenceImage,
+    ),
     aspectRatioId: allowedValue<FigureAspectRatioId>(
       input.aspectRatioId,
       FIGURE_ASPECT_RATIO_IDS,
@@ -920,6 +1128,9 @@ export function normalizeSkillWorkflowPreferences(
   if (workflowId === "paper-drafting") {
     return normalizeDraftPreferences(input);
   }
+  if (workflowId === "experimental-plotting") {
+    return normalizeExperimentalPlotValues(input);
+  }
   return normalizeFigurePreferences(input);
 }
 
@@ -955,6 +1166,20 @@ export function buildSkillWorkflowConfiguration(
       templateId: draftPreferences.templateId,
       customVenue: draftPreferences.customVenue,
     };
+  } else if (workflowId === "experimental-plotting") {
+    const plotPreferences = preferences as ReturnType<
+      typeof normalizeExperimentalPlotValues
+    >;
+    prompt = buildExperimentalPlotPrompt(
+      plotPreferences,
+      promptLanguage,
+    );
+    selection = {
+      plotGoal: plotPreferences.plotGoal,
+      allowComposite: plotPreferences.allowComposite,
+      panelCount: plotPreferences.panelCount,
+      palette: plotPreferences.palette,
+    };
   } else {
     const figurePreferences = preferences as FigurePreferences;
     prompt = buildFigurePrompt(
@@ -964,6 +1189,7 @@ export function buildSkillWorkflowConfiguration(
     );
     selection = {
       promptId: figurePreferences.promptId,
+      hasReferenceImage: figurePreferences.hasReferenceImage,
       aspectRatio: getFigureAspectRatio(figurePreferences),
       accentColors: getFigureAccentColorRange(figurePreferences).label,
       paletteId: figurePreferences.paletteId,
