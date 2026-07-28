@@ -7,8 +7,8 @@ import { PRODUCT_CONFIG, type Language } from "../config";
 import {
   buildFigurePrompt,
   DEFAULT_FIGURE_PREFERENCES,
-  FIGURE_ACCENT_COLOR_RANGE_IDS,
-  FIGURE_ACCENT_COLOR_RANGES,
+  FIGURE_ACCENT_COLOR_COUNT_MAX,
+  FIGURE_ACCENT_COLOR_COUNT_MIN,
   FIGURE_ASPECT_RATIO_IDS,
   FIGURE_ASPECT_RATIOS,
   FIGURE_CARD_FILL_POLICIES,
@@ -24,7 +24,9 @@ import {
   FIGURE_PROMPT_ORDER,
   FIGURE_PROMPTS,
   FIGURE_TYPE_RECOMMENDATIONS,
+  getFigureAccentColorRange,
   getFigureAspectRatio,
+  normalizeFigureAccentColorCount,
   type FigurePreferences,
   type FigurePromptId,
 } from "./config";
@@ -112,6 +114,8 @@ export default function FigureWorkbench() {
     activePromptLanguage === "zh" ? "English" : "中文";
   const promptContentId = `figure-prompt-${activePromptId}`;
   const selectedAspectRatioValue = getFigureAspectRatio(preferences);
+  const selectedAccentColorRange =
+    getFigureAccentColorRange(preferences);
 
   useEffect(() => {
     document.documentElement.lang = uiLanguage === "zh" ? "zh-CN" : "en";
@@ -134,6 +138,44 @@ export default function FigureWorkbench() {
     }));
     setCopiedPrompt(null);
     setCopyError(false);
+  }
+
+  function updateAccentColorMinimum(value: number) {
+    if (!Number.isFinite(value)) return;
+
+    updatePreferences((current) => {
+      const accentColorMin = normalizeFigureAccentColorCount(
+        value,
+        current.accentColorMin,
+      );
+      return {
+        ...current,
+        accentColorMin,
+        accentColorMax: Math.max(
+          accentColorMin,
+          current.accentColorMax,
+        ),
+      };
+    });
+  }
+
+  function updateAccentColorMaximum(value: number) {
+    if (!Number.isFinite(value)) return;
+
+    updatePreferences((current) => {
+      const accentColorMax = normalizeFigureAccentColorCount(
+        value,
+        current.accentColorMax,
+      );
+      return {
+        ...current,
+        accentColorMin: Math.min(
+          current.accentColorMin,
+          accentColorMax,
+        ),
+        accentColorMax,
+      };
+    });
   }
 
   function selectFigurePrompt(promptId: FigurePromptId) {
@@ -660,49 +702,45 @@ export default function FigureWorkbench() {
                 <div className="figure-visual-rule">
                   <strong>{copy.accentColors}</strong>
                   <div
-                    className="figure-compact-options figure-color-options"
-                    role="radiogroup"
+                    className="figure-accent-range"
+                    role="group"
                     aria-label={copy.accentColors}
                   >
-                    {FIGURE_ACCENT_COLOR_RANGE_IDS.map(
-                      (accentColorRangeId) => {
-                        const range =
-                          FIGURE_ACCENT_COLOR_RANGES[accentColorRangeId];
-                        const active =
-                          preferences.accentColorRangeId ===
-                          accentColorRangeId;
-                        return (
-                          <button
-                            type="button"
-                            role="radio"
-                            aria-checked={active}
-                            className={active ? "active" : ""}
-                            key={accentColorRangeId}
-                            onClick={() =>
-                              updatePreferences((current) => ({
-                                ...current,
-                                accentColorRangeId,
-                              }))
-                            }
-                          >
-                            <span
-                              className="figure-color-dots"
-                              aria-hidden="true"
-                            >
-                              {Array.from(
-                                { length: range.max },
-                                (_, index) => (
-                                  <i key={index} />
-                                ),
-                              )}
-                            </span>
-                            {range.label}
-                          </button>
-                        );
-                      },
-                    )}
+                    <label>
+                      <span>{copy.accentColorMin}</span>
+                      <input
+                        type="number"
+                        min={FIGURE_ACCENT_COLOR_COUNT_MIN}
+                        max={FIGURE_ACCENT_COLOR_COUNT_MAX}
+                        step={1}
+                        inputMode="numeric"
+                        value={selectedAccentColorRange.min}
+                        onChange={(event) =>
+                          updateAccentColorMinimum(
+                            event.currentTarget.valueAsNumber,
+                          )
+                        }
+                      />
+                    </label>
+                    <span aria-hidden="true">–</span>
+                    <label>
+                      <span>{copy.accentColorMax}</span>
+                      <input
+                        type="number"
+                        min={FIGURE_ACCENT_COLOR_COUNT_MIN}
+                        max={FIGURE_ACCENT_COLOR_COUNT_MAX}
+                        step={1}
+                        inputMode="numeric"
+                        value={selectedAccentColorRange.max}
+                        onChange={(event) =>
+                          updateAccentColorMaximum(
+                            event.currentTarget.valueAsNumber,
+                          )
+                        }
+                      />
+                    </label>
                   </div>
-                  <small>{copy.visualRulesHint}</small>
+                  <small>{copy.accentColorsHint}</small>
                 </div>
 
                 <div className="figure-visual-rule">

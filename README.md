@@ -4,7 +4,7 @@
 
 **面向 CS 研究者的科研方法文档站与交互式工作台**
 
-从研究选题，到论文初稿、结构重构、科研绘图与投稿筛选。
+从研究选题、实验设计与复现，到论文写作、结构重构、科研图表与投稿审校。
 把关键科研任务整理成可配置、可审计、可直接复制的中英文 Prompt。
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-111111?logo=next.js&logoColor=white)](https://nextjs.org/)
@@ -60,8 +60,21 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
 | [章节精修](https://yanshu-workbench.pages.dev/reconstruction/refinement/) | 需要精修单章或合并实验叙事 | 按 Abstract、Introduction、Related Work、Method、Experiments & Results、Discussion、Conclusion 分别生成章节专用 Prompt |
 | [专项审计](https://yanshu-workbench.pages.dev/reconstruction/audit/) | 论文接近终稿 | 可组合审计术语、引用与 BibTeX、数据、图表、Claim–证据、符号、可复现性和跨章节重复 |
+| [分章节写作](https://yanshu-workbench.pages.dev/writing/sections/) | 从提纲或局部证据撰写章节 | 根据章节功能显示专用配置，覆盖贡献列表、引用核验、Method Overview、伪代码、图表对应段落和 Discussion 主题 |
+| [版本转换](https://yanshu-workbench.pages.dev/reconstruction/conversion/) | 会议、期刊、预印本或投稿版本迁移 | 核验目标规则后处理扩写、压缩、匿名、附录、模板和图表迁移，并输出高风险差异 |
+| [实验方案设计](https://yanshu-workbench.pages.dev/experiments/design/) | 实验尚未完整落地 | 从研究问题、资源和证据边界生成主实验、对照、消融、稳健性和停止条件 |
+| [Baseline 与复现](https://yanshu-workbench.pages.dev/experiments/baselines/) | 需要选择公平对照并复现 | 优先核验官方论文与仓库，明确同协议重跑、可比性、公平调参和失败记录 |
+| [实验代码](https://yanshu-workbench.pages.dev/experiments/code/) | 需要实现可运行实验 | 按仓库环境、实现范围、配置与测试要求生成代码任务，保留可追溯日志和运行入口 |
+| [结果分析](https://yanshu-workbench.pages.dev/experiments/results/) | 已有表格、日志或统计结果 | 区分观察、解释与推测，按主结果、消融、效率、稳健性和失败案例组织证据 |
+| [可复现性](https://yanshu-workbench.pages.dev/experiments/reproducibility/) | 准备交付代码与实验材料 | 检查环境、随机性、数据、命令、产物和独立复现路径，生成可验证清单 |
 | [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；参考同类论文和已有框架图风格，充分推敲后生成超高清单图，也可先查看英文生图 Prompt |
+| [实验绘图](https://yanshu-workbench.pages.dev/figures/plots/) | 需要从数据生成统计图 | 以真实数据和绘图代码为核心，配置图型、统计表达、色觉友好、误差与导出格式，不调用生图模型 |
+| [论文表格](https://yanshu-workbench.pages.dev/figures/tables/) | 需要整理结果或对比表 | 逐格核对数值与单位，配置表格职责、排序、高亮、显著性和单栏/双栏可读性 |
+| [图表审计](https://yanshu-workbench.pages.dev/figures/audit/) | 图表接近交付 | 联合检查数据、caption、正文引用、标签、可读性和一致性；安全修复只触及已确认错误及其直接依赖 |
 | [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | 先判断论文类别，再按 OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/AHCI/ESCI 等条件动态筛选并完成官网核验 |
+| [投稿前终检](https://yanshu-workbench.pages.dev/submission/check/) | 即将提交 | 以目标 venue 最新官方规则为准，检查格式、匿名、材料、伦理、可复现性和阻塞项 |
+| [投稿材料](https://yanshu-workbench.pages.dev/submission/materials/) | 需要准备附加材料 | 仅生成所选 cover letter、highlights、声明等材料；作者元数据缺失时保留明确占位，不得补造 |
+| [审稿与返修](https://yanshu-workbench.pages.dev/submission/review/) | 收到审稿意见后 | 逐条映射评论、证据、修改位置和回复，支持 rebuttal、major/minor revision 与可追踪差异 |
 | YanShu 插件 | 需要全链路执行 | 通过 **Paper Reconstruction** 创建可恢复的五轮目录，保存 Chat 会话与产物状态；当前为开发者预览 |
 
 ## 设计原则
@@ -109,6 +122,10 @@ Idea 工作台参考了若干许可清晰的开源研究流程：[NoviScl/AI-Res
 codex plugin marketplace add panzhzh/yanshu-workbench --ref main
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
+
+安装页会把可选的 GitHub 连接与 YanShu 的其他依赖授权集中展示。用户只需在这里决定一次；授权后，所有 YanShu 工作流复用同一连接。首次使用时，YanShu 通过 GitHub 专用的幂等写入接口确保公开仓库 `panzhzh/yanshu-workbench` 已被 Star，并在本机记录回执：已 Star 的仓库不会被取消，YanShu 永远不会调用 Unstar，也不会为此读取无关仓库。跳过或拒绝 GitHub 连接不会阻塞科研流程，YanShu 也不会在后续运行中反复询问。
+
+连接登录与 Codex 的操作审批是两个层次。YanShu 可以合并安装时的连接授权并避免自身重复请求，但不会擅自修改用户的全局审批策略；若宿主仍要求确认一次外部写入，以用户在 Codex 中选择的权限模式为准。
 
 已经安装预览版时，更新并重新载入最新版本：
 
@@ -196,10 +213,12 @@ yanshu-workbench/
     ├── app/
     │   ├── draft/              # 论文初稿配置与 Prompt
     │   ├── ideas/              # Idea 查找、评估与优化
-    │   ├── reconstruction/     # 论文重构入口
-    │   ├── figures/            # 科研绘图配置与 Prompt
-    │   ├── submission/         # 投稿策略筛选与 Prompt
-    │   └── ...                 # 首页、全站导航与共用组件
+    │   ├── writing/            # 分章节写作
+    │   ├── reconstruction/     # 全文重构、精修、审计与版本转换
+    │   ├── experiments/        # 实验设计、复现、代码、分析与可复现性
+    │   ├── figures/            # 科研示意图、实验图、表格与图表审计
+    │   ├── submission/         # 投稿定位、终检、材料与审稿返修
+    │   └── workbench/          # 配置式工作台共用组件
     ├── content/prompts/        # 重构模板、变量模型与字数规则
     ├── public/                 # 站点静态资源
     └── tests/                  # 构建产物与产品约束测试
@@ -210,15 +229,15 @@ yanshu-workbench/
 - [x] 简洁首页与顶部导航
 - [x] Idea 查找、评估与优化工作台
 - [x] 论文初稿工作台
-- [x] 论文重构工作台
-- [x] 独立科研绘图 Prompt
-- [x] 投稿目标筛选与官网核验 Prompt
+- [x] 全文重构、章节精修、专项审计、分章节写作与版本转换
+- [x] 实验设计、Baseline 复现、实验代码、结果分析与可复现性
+- [x] 科学示意图、实验绘图、论文表格与图表审计
+- [x] 投稿定位、投稿前终检、投稿材料与审稿返修
 - [x] 可恢复的五轮论文重构插件基础
 - [ ] 浏览器桥接的一体化安装与首次使用向导
-- [ ] 审稿意见分析、Rebuttal 与 Response to Reviewers
-- [ ] Camera-ready、匿名与可复现性检查
+- [ ] 为新增工作台补充可恢复的全链路插件执行
 - [ ] 更细的会议、期刊和出版商配置
-- [ ] 关于研术台与方法说明
+- [ ] 面向真实项目的端到端回归样例
 
 ## 使用边界
 

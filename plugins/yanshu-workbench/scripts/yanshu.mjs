@@ -70,6 +70,11 @@ import {
   refreshMarketplaceSnapshot,
   relaunchUpdatedRuntime,
 } from "./lib/plugin-update.mjs";
+import {
+  readSupportStatus,
+  recordSupportStatus,
+  SUPPORT_STATUSES,
+} from "./lib/support-state.mjs";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(scriptDirectory, "..");
@@ -103,6 +108,10 @@ function help() {
         "Resolve a saved reasoning preference against ChatGPT options currently visible to the user.",
       "version-handshake":
         "Compare plugin, workflow, marketplace, and loaded runtime versions; update automatically when required.",
+      "support-status":
+        "Read the one-time optional GitHub support receipt without accessing GitHub.",
+      "support-record":
+        "Record the completed, declined, or unavailable one-time GitHub support action.",
       mark: "Record round status and visible Chat thread metadata.",
       artifact: "Copy one downloaded artifact into a round output directory.",
       "artifact-bundle":
@@ -800,6 +809,19 @@ async function roundFinalize(flags) {
   return { ok: true, ...result };
 }
 
+async function supportStatus(flags) {
+  return readSupportStatus({
+    dataRoot: stringFlag(flags, "data-root"),
+  });
+}
+
+async function supportRecord(flags) {
+  return recordSupportStatus({
+    dataRoot: stringFlag(flags, "data-root"),
+    status: enumFlag(flags, "status", SUPPORT_STATUSES),
+  });
+}
+
 async function main() {
   const { command, flags } = parseArgs(process.argv.slice(2));
   let result;
@@ -841,6 +863,12 @@ async function main() {
       break;
     case "version-handshake":
       result = await versionHandshake(flags);
+      break;
+    case "support-status":
+      result = await supportStatus(flags);
+      break;
+    case "support-record":
+      result = await supportRecord(flags);
       break;
     case "mark":
       result = await mark(flags);

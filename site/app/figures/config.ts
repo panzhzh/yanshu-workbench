@@ -45,7 +45,6 @@ export type FigureAspectRatioId =
   | "custom";
 
 export type FigureLineColorMode = "neutral" | "semantic";
-export type FigureAccentColorRangeId = "1-2" | "2-3" | "2-4" | "3-4";
 export type FigureExecutionMode = "direct" | "prompt-first";
 export type FigureCardFillPolicyId =
   | "white"
@@ -72,7 +71,8 @@ export interface FigurePreferences {
   paletteId: FigurePaletteId;
   fontFamilyId: FigureFontFamilyId;
   lineColorMode: FigureLineColorMode;
-  accentColorRangeId: FigureAccentColorRangeId;
+  accentColorMin: number;
+  accentColorMax: number;
   allowLightIllustrations: boolean;
   cardFillPolicyId: FigureCardFillPolicyId;
   fontSizeLevels: FigureFontSizeLevels;
@@ -99,7 +99,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -114,7 +115,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -129,7 +131,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -144,7 +147,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -159,7 +163,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -174,7 +179,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -189,7 +195,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -204,7 +211,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-bright",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -219,7 +227,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-muted",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -234,7 +243,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -249,7 +259,8 @@ export const FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-bright",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -392,39 +403,43 @@ export function getFigureAspectRatio(preferences: FigurePreferences) {
   return `${width / divisor}:${height / divisor}`;
 }
 
-export const FIGURE_ACCENT_COLOR_RANGES = {
-  "1-2": {
-    min: 1,
-    max: 2,
-    label: "1–2",
-  },
-  "2-3": {
-    min: 2,
-    max: 3,
-    label: "2–3",
-  },
-  "2-4": {
-    min: 2,
-    max: 4,
-    label: "2–4",
-  },
-  "3-4": {
-    min: 3,
-    max: 4,
-    label: "3–4",
-  },
-} as const satisfies Record<
-  FigureAccentColorRangeId,
-  {
-    min: number;
-    max: number;
-    label: string;
-  }
->;
+export const FIGURE_ACCENT_COLOR_COUNT_MIN = 1;
+export const FIGURE_ACCENT_COLOR_COUNT_MAX = 4;
 
-export const FIGURE_ACCENT_COLOR_RANGE_IDS = Object.keys(
-  FIGURE_ACCENT_COLOR_RANGES,
-) as FigureAccentColorRangeId[];
+export function normalizeFigureAccentColorCount(
+  value: number,
+  fallback: number,
+) {
+  const normalized = Number.isFinite(value) ? Math.round(value) : fallback;
+  return Math.min(
+    FIGURE_ACCENT_COLOR_COUNT_MAX,
+    Math.max(FIGURE_ACCENT_COLOR_COUNT_MIN, normalized),
+  );
+}
+
+export function getFigureAccentColorRange(
+  preferences: Pick<
+    FigurePreferences,
+    "accentColorMin" | "accentColorMax"
+  >,
+) {
+  const requestedMin = normalizeFigureAccentColorCount(
+    preferences.accentColorMin,
+    2,
+  );
+  const requestedMax = normalizeFigureAccentColorCount(
+    preferences.accentColorMax,
+    4,
+  );
+  const min = Math.min(requestedMin, requestedMax);
+  const max = Math.max(requestedMin, requestedMax);
+
+  return {
+    min,
+    max,
+    label: `${min}–${max}`,
+  };
+}
 
 // Paul Tol color schemes via Descanonge/tol_colors (BSD-3-Clause):
 // https://github.com/Descanonge/tol_colors
@@ -814,6 +829,10 @@ export const FIGURE_COPY = {
     lineColorsSemanticHint:
       "深色中性线仍是默认；只为少量定义清楚的信息流使用强调色线。",
     accentColors: "强调色范围",
+    accentColorMin: "最少",
+    accentColorMax: "最多",
+    accentColorsHint:
+      "最少与最多均可在 1–4 之间调整；默认 2–4，Prompt 使用当前区间。",
     colorPalette: "色系",
     colorPaletteHint:
       "三组均来自 Paul Tol 科研配色；Prompt 只写 HEX 候选色，不重复 RGB。",
@@ -903,6 +922,10 @@ export const FIGURE_COPY = {
     lineColorsSemanticHint:
       "Dark neutral remains the default; use accent-colored lines only for a few clearly defined information streams.",
     accentColors: "Accent range",
+    accentColorMin: "Minimum",
+    accentColorMax: "Maximum",
+    accentColorsHint:
+      "Edit either value from 1–4. The default is 2–4, and the prompt uses the current range.",
     colorPalette: "Color palette",
     colorPaletteHint:
       "All three are Paul Tol research palettes. The prompt includes HEX candidates only and does not repeat RGB values.",
@@ -950,8 +973,7 @@ function buildVisualConfiguration(
   const selectedAspectRatio = getFigureAspectRatio(preferences);
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
-  const accentRange =
-    FIGURE_ACCENT_COLOR_RANGES[preferences.accentColorRangeId];
+  const accentRange = getFigureAccentColorRange(preferences);
   const cardFillPolicy =
     FIGURE_CARD_FILL_POLICIES[preferences.cardFillPolicyId];
   const candidateColors = palette.colors

@@ -5,11 +5,24 @@ export type ActivePage =
   | "idea-discovery"
   | "idea-evaluation"
   | "draft"
+  | "section-writing"
   | "reconstruction"
   | "refinement"
   | "audit"
+  | "version-conversion"
+  | "experiment-design"
+  | "baseline-reproduction"
+  | "experiment-code"
+  | "results-analysis"
+  | "reproducibility"
   | "figures"
-  | "submission";
+  | "experimental-plots"
+  | "paper-tables"
+  | "figure-table-audit"
+  | "submission"
+  | "pre-submission-check"
+  | "submission-materials"
+  | "review-revision";
 
 export type NavigationGroupId =
   | "writing"
@@ -124,7 +137,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "section-writing",
         label: { zh: "分章节写作", en: "Section-by-Section Writing" },
-        status: "future",
+        status: "available",
+        href: "/writing/sections",
+        activePage: "section-writing",
         keywords: {
           zh: ["摘要", "引言", "相关工作", "方法", "实验", "讨论"],
           en: ["abstract", "introduction", "related work", "method", "experiments"],
@@ -199,7 +214,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "version-conversion",
         label: { zh: "版本转换", en: "Version Conversion" },
-        status: "future",
+        status: "available",
+        href: "/reconstruction/conversion",
+        activePage: "version-conversion",
         keywords: {
           zh: ["会议转期刊", "期刊转会议", "模板", "格式转换"],
           en: ["conference to journal", "journal to conference", "template", "format"],
@@ -217,7 +234,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "experiment-design",
         label: { zh: "实验方案设计", en: "Experiment Design" },
-        status: "future",
+        status: "available",
+        href: "/experiments/design",
+        activePage: "experiment-design",
         keywords: {
           zh: ["研究问题", "实验协议", "变量", "指标"],
           en: ["research question", "protocol", "variables", "metrics"],
@@ -226,7 +245,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "baseline-reproduction",
         label: { zh: "Baseline 与复现", en: "Baselines & Reproduction" },
-        status: "future",
+        status: "available",
+        href: "/experiments/baselines",
+        activePage: "baseline-reproduction",
         keywords: {
           zh: ["基线", "对比方法", "复现实验"],
           en: ["baseline", "comparison method", "reproduction"],
@@ -235,7 +256,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "experiment-code",
         label: { zh: "实验代码", en: "Experiment Code" },
-        status: "future",
+        status: "available",
+        href: "/experiments/code",
+        activePage: "experiment-code",
         keywords: {
           zh: ["代码实现", "训练", "评估", "脚本"],
           en: ["implementation", "training", "evaluation", "scripts"],
@@ -244,7 +267,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "results-analysis",
         label: { zh: "结果分析", en: "Results Analysis" },
-        status: "future",
+        status: "available",
+        href: "/experiments/results",
+        activePage: "results-analysis",
         keywords: {
           zh: ["统计", "消融", "敏感性", "定性分析"],
           en: ["statistics", "ablation", "sensitivity", "qualitative analysis"],
@@ -253,7 +278,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "reproducibility",
         label: { zh: "可复现性", en: "Reproducibility" },
-        status: "future",
+        status: "available",
+        href: "/experiments/reproducibility",
+        activePage: "reproducibility",
         keywords: {
           zh: ["随机种子", "环境", "数据", "检查清单"],
           en: ["random seed", "environment", "data", "checklist"],
@@ -282,7 +309,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "experimental-plots",
         label: { zh: "实验绘图", en: "Experimental Plots" },
-        status: "future",
+        status: "available",
+        href: "/figures/plots",
+        activePage: "experimental-plots",
         keywords: {
           zh: ["折线图", "柱状图", "散点图", "消融图"],
           en: ["line chart", "bar chart", "scatter plot", "ablation plot"],
@@ -291,7 +320,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "paper-tables",
         label: { zh: "论文表格", en: "Paper Tables" },
-        status: "future",
+        status: "available",
+        href: "/figures/tables",
+        activePage: "paper-tables",
         keywords: {
           zh: ["LaTeX 表格", "结果表", "消融表"],
           en: ["latex table", "results table", "ablation table"],
@@ -300,7 +331,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "figure-table-audit",
         label: { zh: "图表审计", en: "Figure & Table Audit" },
-        status: "future",
+        status: "available",
+        href: "/figures/audit",
+        activePage: "figure-table-audit",
         keywords: {
           zh: ["图表一致性", "可读性", "术语", "数字核对"],
           en: ["consistency", "legibility", "terminology", "number checking"],
@@ -329,7 +362,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "pre-submission-check",
         label: { zh: "投稿前终检", en: "Pre-submission Check" },
-        status: "future",
+        status: "available",
+        href: "/submission/check",
+        activePage: "pre-submission-check",
         keywords: {
           zh: ["终稿检查", "格式", "匿名", "合规"],
           en: ["final check", "format", "anonymity", "compliance"],
@@ -338,7 +373,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "submission-materials",
         label: { zh: "投稿材料", en: "Submission Materials" },
-        status: "future",
+        status: "available",
+        href: "/submission/materials",
+        activePage: "submission-materials",
         keywords: {
           zh: ["Cover Letter", "亮点", "投稿信", "补充材料"],
           en: ["cover letter", "highlights", "supplementary materials"],
@@ -347,7 +384,9 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       {
         id: "review-revision",
         label: { zh: "审稿与返修", en: "Review & Revision" },
-        status: "future",
+        status: "available",
+        href: "/submission/review",
+        activePage: "review-revision",
         keywords: {
           zh: ["审稿意见", "回复信", "返修", "response letter"],
           en: ["review comments", "response letter", "revision", "rebuttal"],

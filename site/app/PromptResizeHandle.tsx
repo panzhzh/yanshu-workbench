@@ -14,8 +14,10 @@ function clampPromptWidth(value: number) {
 
 export default function PromptResizeHandle({
   language,
+  controls,
 }: {
   language: Language;
+  controls?: string;
 }) {
   const [percentage, setPercentage] = useState(DEFAULT_PROMPT_WIDTH);
   const handleRef = useRef<HTMLDivElement>(null);
@@ -59,7 +61,8 @@ export default function PromptResizeHandle({
       ref={handleRef}
       role="separator"
       tabIndex={0}
-      aria-label={`${copy.resizePromptRail}；${copy.resetPromptRail}`}
+      aria-label={copy.resizePromptRail}
+      aria-controls={controls}
       title={`${copy.resizePromptRail} · ${copy.resetPromptRail}`}
       aria-orientation="vertical"
       aria-valuemin={MIN_PROMPT_WIDTH}
@@ -77,6 +80,14 @@ export default function PromptResizeHandle({
           applyPercentage(percentage - KEYBOARD_STEP);
         }
         if (event.key === "Home") {
+          event.preventDefault();
+          applyPercentage(MIN_PROMPT_WIDTH);
+        }
+        if (event.key === "End") {
+          event.preventDefault();
+          applyPercentage(MAX_PROMPT_WIDTH);
+        }
+        if (event.key === "0") {
           event.preventDefault();
           applyPercentage(DEFAULT_PROMPT_WIDTH);
         }

@@ -734,6 +734,13 @@ test("skill uses one local configuration page and a no-intervention recoverable 
   assert.match(skill, /node-launcher\.cjs/);
   assert.match(skill, /version-handshake/);
   assert.match(skill, /preserves the Prompt files and `workflowVersion`/);
+  assert.match(skill, /One-time install support action/);
+  assert.match(skill, /support-status/);
+  assert.match(skill, /star_repository/);
+  assert.match(skill, /support-record --status ensured-starred/);
+  assert.match(skill, /Never click a Star\/Unstar UI toggle/);
+  assert.match(skill, /never call `unstar_repository`/);
+  assert.match(skill, /do not ask again/);
   assert.match(skill, /configure-start/);
   assert.match(skill, /configure-status/);
   assert.match(

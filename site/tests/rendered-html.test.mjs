@@ -79,9 +79,133 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/ideas\/evaluation"/);
   assert.match(html, /href="\/reconstruction"/);
   assert.match(html, /href="\/reconstruction\/refinement"/);
+  assert.match(html, /href="\/writing\/sections"/);
+  assert.match(html, /href="\/reconstruction\/conversion"/);
+  assert.match(html, /href="\/experiments\/design"/);
+  assert.match(html, /href="\/experiments\/baselines"/);
+  assert.match(html, /href="\/experiments\/code"/);
+  assert.match(html, /href="\/experiments\/results"/);
+  assert.match(html, /href="\/experiments\/reproducibility"/);
+  assert.match(html, /href="\/figures\/plots"/);
+  assert.match(html, /href="\/figures\/tables"/);
+  assert.match(html, /href="\/figures\/audit"/);
+  assert.match(html, /href="\/submission\/check"/);
+  assert.match(html, /href="\/submission\/materials"/);
+  assert.match(html, /href="\/submission\/review"/);
   assert.match(html, /class="home-module-grid"/);
+  assert.match(html, /class="home-directory-grid"/);
   assert.doesNotMatch(html, /class="prompt-resize-handle"/);
   assert.doesNotMatch(html, /写作风格|Writing style/);
+});
+
+test("server-renders every configured research workbench", async (context) => {
+  const pages = [
+    ["/writing/sections", "分章节写作"],
+    ["/reconstruction/conversion", "版本转换"],
+    ["/experiments/design", "实验方案设计"],
+    ["/experiments/baselines", "Baseline 与复现"],
+    ["/experiments/code", "实验代码"],
+    ["/experiments/results", "结果分析"],
+    ["/experiments/reproducibility", "可复现性"],
+    ["/figures/plots", "实验绘图"],
+    ["/figures/tables", "论文表格"],
+    ["/figures/audit", "图表审计"],
+    ["/submission/check", "投稿前终检"],
+    ["/submission/materials", "投稿材料"],
+    ["/submission/review", "审稿与返修"],
+  ];
+
+  for (const [path, title] of pages) {
+    await context.test(path, async () => {
+      const response = await render(path);
+      assert.equal(response.status, 200, path);
+      const html = await response.text();
+      assert.match(html, new RegExp(title), path);
+      assert.match(html, promptJudgmentDirective, path);
+      assert.match(html, /class="prompt-resize-handle"/, path);
+      assert.match(html, /class="prompt-card expanded"/, path);
+      assert.match(html, /恢复默认配置/, path);
+    });
+  }
+});
+
+test("keeps the new workbenches adaptive, evidence-bound, and safe by default", async () => {
+  const [
+    workbench,
+    workbenchTypes,
+    sectionWriting,
+    conversion,
+    experiments,
+    figureTools,
+    submissionWorkflow,
+  ] = await Promise.all([
+    readFile(
+      new URL("../app/workbench/ConfigurablePromptWorkbench.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(new URL("../app/workbench/types.ts", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/writing/sections/config.ts", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/reconstruction/conversion/config.ts", import.meta.url),
+      "utf8",
+    ),
+    readFile(new URL("../app/experiments/config.ts", import.meta.url), "utf8"),
+    readFile(new URL("../app/figures/toolsConfig.ts", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/submission/workflowConfig.ts", import.meta.url),
+      "utf8",
+    ),
+  ]);
+
+  assert.match(workbenchTypes, /updateValues\?:/);
+  assert.match(workbench, /const visibleControls = useMemo/);
+  assert.match(workbench, /role="radiogroup"[\s\S]*?tabIndex=\{/);
+  assert.match(workbench, /aria-label=\{`\$\{control\.label\[language\]\}/);
+  assert.match(workbench, /lang=\{promptLanguage === "zh" \? "zh-CN" : "en"\}/);
+
+  assert.match(sectionWriting, /SECTION_LENGTH_PRESETS/);
+  assert.match(sectionWriting, /outputLanguage"\) === "en"/);
+  assert.match(sectionWriting, /不得假定不存在的上下文/);
+  assert.match(sectionWriting, /不是从零改写/);
+  assert.match(sectionWriting, /profile === "journal"/);
+
+  assert.match(conversion, /function planningInstructions/);
+  assert.match(conversion, /defaultValue:\s*"preserve"/);
+  assert.match(conversion, /不得运行命令|不执行任何修改或下载/);
+  assert.match(conversion, /next\.anonymity = "public"/);
+  assert.match(conversion, /next\.figurePolicy = "reflow"/);
+
+  assert.match(experiments, /id:\s*"maxBaselines"/);
+  assert.match(
+    experiments,
+    /id:\s*"reproductionMode"[\s\S]*?defaultValue:\s*"verify"/,
+  );
+  assert.match(experiments, /不得下载、安装、运行或修改任何第三方代码/);
+  assert.match(experiments, /action === "debug"/);
+  assert.match(
+    experiments,
+    /id:\s*"auditTarget"[\s\S]*?defaultValue:\s*"plan"/,
+  );
+  assert.match(experiments, /不得运行命令、检查不存在的产物或修改仓库/);
+
+  assert.match(figureTools, /MULTIPLICITY_POLICIES/);
+  assert.match(figureTools, /includesCode/);
+  assert.match(figureTools, /includesLatex/);
+  assert.match(figureTools, /scopeInstructions/);
+  assert.match(figureTools, /停止自动修改并把它升级为 high-risk 决策/);
+
+  assert.match(submissionWorkflow, /sourceLevel === "pdf"/);
+  assert.match(submissionWorkflow, /不得从盲稿猜测/);
+  assert.match(submissionWorkflow, /编辑决定、投稿系统消息或书面豁免/);
+  assert.match(
+    submissionWorkflow,
+    /id:\s*"materials"[\s\S]*?defaultValue:\s*\["cover"\]/,
+  );
+  assert.match(submissionWorkflow, /id:\s*"responseLimits"/);
+  assert.match(submissionWorkflow, /next\.decision = "discussion"/);
 });
 
 test("server-renders the evidence-grounded idea-discovery workbench", async () => {
@@ -511,7 +635,9 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /统一深色/);
   assert.match(html, /按语义区分/);
   assert.match(html, /强调色范围/);
-  assert.match(html, /1–2/);
+  assert.match(html, /最少/);
+  assert.match(html, /最多/);
+  assert.match(html, /默认 2–4/);
   assert.match(html, /色系/);
   assert.match(html, /Tol 鲜明 · 蓝橙/);
   assert.match(html, /Tol 明亮 · 蓝红绿黄/);
@@ -936,11 +1062,11 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /href:\s*"\/submission"/);
   assert.equal(
     (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
-    8,
+    21,
   );
   assert.equal(
     (navigationConfig.match(/status:\s*"future",/g) ?? []).length,
-    13,
+    0,
   );
   assert.doesNotMatch(navigationConfig, /关于研术台|About YanShu/);
   assert.match(
@@ -1356,15 +1482,15 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.doesNotMatch(figureConfig, /technicalFigureCount|TechnicalFigureCount/);
   assert.match(
     figureConfig,
-    /introduction:\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?accentColorRangeId:\s*"2-4"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"semantic-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /introduction:\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-16-9"[\s\S]*?accentColorMin:\s*2[\s\S]*?accentColorMax:\s*4[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"semantic-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
-    /"method-overview":\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-2-1"[\s\S]*?accentColorRangeId:\s*"2-4"[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /"method-overview":\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-2-1"[\s\S]*?accentColorMin:\s*2[\s\S]*?accentColorMax:\s*4[\s\S]*?allowLightIllustrations:\s*true[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
-    /"technical-detail":\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-4-3"[\s\S]*?accentColorRangeId:\s*"2-4"[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
+    /"technical-detail":\s*\{[\s\S]*?executionMode:\s*"direct"[\s\S]*?aspectRatioId:\s*"landscape-4-3"[\s\S]*?accentColorMin:\s*2[\s\S]*?accentColorMax:\s*4[\s\S]*?cardFillPolicyId:\s*"key-regions"[\s\S]*?fontSizeLevels:\s*3/,
   );
   assert.match(
     figureConfig,
@@ -1394,8 +1520,16 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureConfig, /输入任意宽高比例/);
   assert.match(figureConfig, /lineColorMode:\s*"neutral"/);
   assert.equal(
-    (figureConfig.match(/accentColorRangeId:\s*"2-4"/g) ?? []).length,
+    (figureConfig.match(/accentColorMin:\s*2/g) ?? []).length,
     11,
+  );
+  assert.equal(
+    (figureConfig.match(/accentColorMax:\s*4/g) ?? []).length,
+    11,
+  );
+  assert.doesNotMatch(
+    figureConfig,
+    /FigureAccentColorRangeId|accentColorRangeId|FIGURE_ACCENT_COLOR_RANGES|FIGURE_ACCENT_COLOR_RANGE_IDS/,
   );
   assert.equal(
     (figureConfig.match(/executionMode:\s*"direct"/g) ?? []).length,
@@ -1517,7 +1651,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   );
   assert.match(
     figureComponent,
-    /FIGURE_ACCENT_COLOR_RANGE_IDS\.map/,
+    /type="number"[\s\S]*?updateAccentColorMinimum[\s\S]*?type="number"[\s\S]*?updateAccentColorMaximum/,
   );
   assert.match(figureComponent, /FIGURE_CARD_FILL_POLICY_IDS\.map/);
   assert.match(figureComponent, /FONT_SIZE_LEVELS\.map/);

@@ -731,7 +731,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -746,7 +747,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -761,7 +763,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -776,7 +779,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -791,7 +795,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -806,7 +811,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -821,7 +827,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -836,7 +843,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-bright",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -851,7 +859,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-muted",
     fontFamilyId: "calibri",
     lineColorMode: "neutral",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -866,7 +875,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-vibrant",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: true,
     cardFillPolicyId: "key-regions",
     fontSizeLevels: 3,
@@ -881,7 +891,8 @@ var FIGURE_TYPE_RECOMMENDATIONS = {
     paletteId: "tol-bright",
     fontFamilyId: "calibri",
     lineColorMode: "semantic",
-    accentColorRangeId: "2-4",
+    accentColorMin: 2,
+    accentColorMax: 4,
     allowLightIllustrations: false,
     cardFillPolicyId: "semantic-regions",
     fontSizeLevels: 3,
@@ -1000,31 +1011,32 @@ function getFigureAspectRatio(preferences) {
   const divisor = greatestCommonDivisor(width, height);
   return `${width / divisor}:${height / divisor}`;
 }
-var FIGURE_ACCENT_COLOR_RANGES = {
-  "1-2": {
-    min: 1,
-    max: 2,
-    label: "1\u20132"
-  },
-  "2-3": {
-    min: 2,
-    max: 3,
-    label: "2\u20133"
-  },
-  "2-4": {
-    min: 2,
-    max: 4,
-    label: "2\u20134"
-  },
-  "3-4": {
-    min: 3,
-    max: 4,
-    label: "3\u20134"
-  }
-};
-var FIGURE_ACCENT_COLOR_RANGE_IDS = Object.keys(
-  FIGURE_ACCENT_COLOR_RANGES
-);
+var FIGURE_ACCENT_COLOR_COUNT_MIN = 1;
+var FIGURE_ACCENT_COLOR_COUNT_MAX = 4;
+function normalizeFigureAccentColorCount(value, fallback) {
+  const normalized = Number.isFinite(value) ? Math.round(value) : fallback;
+  return Math.min(
+    FIGURE_ACCENT_COLOR_COUNT_MAX,
+    Math.max(FIGURE_ACCENT_COLOR_COUNT_MIN, normalized)
+  );
+}
+function getFigureAccentColorRange(preferences) {
+  const requestedMin = normalizeFigureAccentColorCount(
+    preferences.accentColorMin,
+    2
+  );
+  const requestedMax = normalizeFigureAccentColorCount(
+    preferences.accentColorMax,
+    4
+  );
+  const min = Math.min(requestedMin, requestedMax);
+  const max = Math.max(requestedMin, requestedMax);
+  return {
+    min,
+    max,
+    label: `${min}\u2013${max}`
+  };
+}
 var FIGURE_COLOR_PALETTES = {
   "tol-vibrant": {
     label: { zh: "Tol \u9C9C\u660E \xB7 \u84DD\u6A59", en: "Tol Vibrant \xB7 blue\u2013orange" },
@@ -1266,7 +1278,7 @@ function buildVisualConfiguration(preferences, language) {
   const selectedAspectRatio = getFigureAspectRatio(preferences);
   const palette = FIGURE_COLOR_PALETTES[preferences.paletteId];
   const fontFamily = FIGURE_FONT_FAMILIES[preferences.fontFamilyId];
-  const accentRange = FIGURE_ACCENT_COLOR_RANGES[preferences.accentColorRangeId];
+  const accentRange = getFigureAccentColorRange(preferences);
   const cardFillPolicy = FIGURE_CARD_FILL_POLICIES[preferences.cardFillPolicyId];
   const candidateColors = palette.colors.slice(0, accentRange.max).join(", ");
   const linePolicy = preferences.lineColorMode === "semantic" ? language === "zh" ? "\u7ED3\u6784\u7EBF\u4EE5\u6DF1\u8272\u4E2D\u6027\u7EBF\u4E3A\u4E3B\uFF0C\u5C11\u91CF\u4FE1\u606F\u6D41\u53EF\u6309\u8BED\u4E49\u7740\u8272" : "mostly dark-neutral structural lines, with semantic colors only for a few information flows" : language === "zh" ? "\u8FB9\u6846\u3001\u7BAD\u5934\u548C\u8FDE\u63A5\u7EBF\u7EDF\u4E00\u4F7F\u7528\u6DF1\u8272\u4E2D\u6027\u7EBF" : "one dark-neutral color for borders, arrows, and connectors";

@@ -428,7 +428,25 @@ test("plugin manifest ships the YanShu MCP companion", async () => {
   const mcp = JSON.parse(
     await readFile(new URL("../.mcp.json", import.meta.url), "utf8"),
   );
+  const apps = JSON.parse(
+    await readFile(new URL("../.app.json", import.meta.url), "utf8"),
+  );
+  const marketplace = JSON.parse(
+    await readFile(
+      new URL("../../../.agents/plugins/marketplace.json", import.meta.url),
+      "utf8",
+    ),
+  );
+  const marketplaceEntry = marketplace.plugins.find(
+    (plugin) => plugin.name === "yanshu-workbench",
+  );
   assert.equal(manifest.mcpServers, "./.mcp.json");
+  assert.equal(manifest.apps, "./.app.json");
+  assert.equal(
+    apps.apps.github.id,
+    "connector_76869538009648d5b282a4bb21c3d157",
+  );
+  assert.equal(marketplaceEntry.policy.authentication, "ON_INSTALL");
   assert.deepEqual(
     mcp.mcpServers["yanshu-paper-workspace"].args,
     [

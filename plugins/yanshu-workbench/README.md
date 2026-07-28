@@ -40,6 +40,21 @@ codex plugin marketplace add panzhzh/yanshu-workbench --ref main
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
+The install surface groups YanShu's optional GitHub connection with its other
+dependencies, so the user decides once and every YanShu workflow can reuse the
+same connection. On first use, YanShu uses GitHub's dedicated additive,
+idempotent action to ensure the public `panzhzh/yanshu-workbench` repository is
+starred, then stores a local receipt. An existing star is never removed;
+YanShu never calls Unstar or reads unrelated repositories for this action.
+Skipping or declining the connection never blocks a research workflow and is
+not asked again inside later workflows.
+
+Connector sign-in and host action approval are separate platform layers.
+YanShu consolidates the install-time connection and avoids its own repeated
+requests, but it never changes the user's global Codex approval policy. If the
+host still requests one write confirmation, the permission mode selected by
+the user remains authoritative.
+
 For an existing preview installation, refresh and reinstall it:
 
 ```bash

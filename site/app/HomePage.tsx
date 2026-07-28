@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { RECONSTRUCTION_WORKFLOW_VERSION } from "../content/prompts/version";
 import { PRODUCT_CONFIG, type Language } from "./config";
+import { NAVIGATION_GROUPS } from "./navigation";
 import SiteNavigation from "./SiteNavigation";
 
 const HOME_COPY = {
@@ -11,7 +12,7 @@ const HOME_COPY = {
     eyebrow: "CS RESEARCH WORKBENCH",
     title: "从实验完成，到论文可投稿。",
     subtitle:
-      "把论文初稿、可恢复的五轮重构、科研绘图与投稿筛选，组织成清楚、可配置、可审计的科研任务。",
+      "把选题、论文写作与重构、实验复现、科研图表和投稿审校，组织成清楚、可配置、可审计的科研任务。",
     startDraft: "生成论文初稿",
     reconstruct: "重构现有论文",
     releaseEyebrow: "PAPER RECONSTRUCTION",
@@ -38,6 +39,11 @@ const HOME_COPY = {
     modulesTitle: "选择当前最需要完成的一步",
     modulesBody:
       "每个工作台只负责一个明确阶段；配置实时写入 Prompt，长流程则保存轮次、材料与交付状态。",
+    directoryEyebrow: "ALL WORKBENCHES",
+    directoryTitle: "覆盖一篇论文的完整研究流程",
+    directoryBody:
+      "从 Idea 到返修，每一项都可以独立使用。页面只保留当前任务真正需要的配置。",
+    directoryOpen: "打开",
     available: "已开放",
     open: "进入工作台",
     modules: [
@@ -100,7 +106,7 @@ const HOME_COPY = {
     eyebrow: "CS RESEARCH WORKBENCH",
     title: "From completed experiments to a submission-ready paper.",
     subtitle:
-      "Turn drafting, resumable five-round reconstruction, research figures, and venue targeting into focused, configurable, auditable research tasks.",
+      "Turn ideation, writing and reconstruction, experiments, research figures and tables, and submission review into focused, configurable, auditable tasks.",
     startDraft: "Generate a paper draft",
     reconstruct: "Reconstruct an existing paper",
     releaseEyebrow: "PAPER RECONSTRUCTION",
@@ -130,6 +136,11 @@ const HOME_COPY = {
     modulesTitle: "Choose the step that matters now",
     modulesBody:
       "Each workbench owns one clear stage. Settings update the prompt in real time, while long workflows preserve rounds, materials, and delivery state.",
+    directoryEyebrow: "ALL WORKBENCHES",
+    directoryTitle: "A complete research path for one paper",
+    directoryBody:
+      "Use any task independently, from idea discovery through revision. Each page exposes only settings that matter to that job.",
+    directoryOpen: "Open",
     available: "Available",
     open: "Open workbench",
     modules: [
@@ -295,6 +306,36 @@ export default function HomePage() {
                   </strong>
                 </div>
               </Link>
+            ))}
+          </div>
+        </section>
+
+        <section className="home-directory">
+          <div className="home-section-heading">
+            <div>
+              <p className="eyebrow">{copy.directoryEyebrow}</p>
+              <h2>{copy.directoryTitle}</h2>
+            </div>
+            <p>{copy.directoryBody}</p>
+          </div>
+          <div className="home-directory-grid">
+            {NAVIGATION_GROUPS.map((group) => (
+              <section key={group.id}>
+                <h3>{group.label[language]}</h3>
+                <div>
+                  {group.items.map((item) =>
+                    item.status === "available" && item.href ? (
+                      <Link href={item.href} key={item.id}>
+                        <span>{item.label[language]}</span>
+                        <small>
+                          {copy.directoryOpen}
+                          <span aria-hidden="true">↗</span>
+                        </small>
+                      </Link>
+                    ) : null,
+                  )}
+                </div>
+              </section>
             ))}
           </div>
         </section>
