@@ -189,3 +189,43 @@ test("shared workflow models retain website defaults", () => {
   assert.equal(figure.defaults.accentColorMin, 2);
   assert.equal(figure.defaults.accentColorMax, 4);
 });
+
+test("every scientific-figure role treats optional images as style references by default", () => {
+  const model = getSkillWorkflowConfigurationModel("scientific-figure");
+  const promptIds = model.fields
+    .find((field) => field.id === "promptId")
+    ?.choices?.map((choice) => choice.value);
+
+  assert.ok(promptIds?.length > 3);
+  for (const promptId of promptIds) {
+    const chinese = buildSkillWorkflowConfiguration(
+      "scientific-figure",
+      { promptId },
+      "zh",
+    ).prompt;
+    const english = buildSkillWorkflowConfiguration(
+      "scientific-figure",
+      { promptId },
+      "en",
+    ).prompt;
+
+    assert.match(chinese, /另行提供的图片默认只作为视觉样式参考/);
+    assert.match(chinese, /不得沿用其中的模块、流程、箭头或科学含义/);
+    assert.match(chinese, /明确标注某张图片为“绘图草稿”/);
+    assert.doesNotMatch(chinese, /若我同时提供现有框架图/);
+
+    assert.match(
+      english,
+      /Treat separately supplied images as visual-style references by default/,
+    );
+    assert.match(
+      english,
+      /Do not inherit their modules, pipeline, arrows, or scientific meaning/,
+    );
+    assert.match(english, /explicitly label an image as a “figure draft”/);
+    assert.doesNotMatch(
+      english,
+      /If I also provide an existing framework figure/,
+    );
+  }
+});

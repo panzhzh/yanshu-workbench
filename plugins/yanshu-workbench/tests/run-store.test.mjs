@@ -660,7 +660,19 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /If I also provide an existing framework figure, first summarize its composition, palette, line work, typography, and overall visual language/,
+    /Treat separately supplied images as visual-style references by default/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /Do not inherit their modules, pipeline, arrows, or scientific meaning/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /explicitly label an image as a “figure draft”/,
+  );
+  assert.doesNotMatch(
+    workflow.rounds[3].prompt,
+    /If I also provide an existing framework figure/,
   );
   assert.doesNotMatch(workflow.rounds[3].prompt, /FINAL IMAGE PROMPT/);
   assert.doesNotMatch(workflow.rounds[3].prompt, /Start drawing/);

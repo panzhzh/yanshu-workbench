@@ -90,7 +90,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [实验代码](https://yanshu-workbench.pages.dev/experiments/code/) | 需要实现可运行实验 | 按仓库环境、实现范围、配置与测试要求生成代码任务，保留可追溯日志和运行入口 |
 | [结果分析](https://yanshu-workbench.pages.dev/experiments/results/) | 已有表格、日志或统计结果 | 区分观察、解释与推测，按主结果、消融、效率、稳健性和失败案例组织证据 |
 | [可复现性](https://yanshu-workbench.pages.dev/experiments/reproducibility/) | 准备交付代码与实验材料 | 检查环境、随机性、数据、命令、产物和独立复现路径，生成可验证清单 |
-| [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；参考同类论文和已有框架图风格，充分推敲后生成超高清单图，也可先查看英文生图 Prompt |
+| [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；附加图片默认只参考视觉风格，只有明确标注为绘图草稿时才参考结构，充分推敲后生成超高清单图 |
 | [实验绘图](https://yanshu-workbench.pages.dev/figures/plots/) | 需要从数据生成统计图 | 以真实数据和绘图代码为核心，配置图型、统计表达、色觉友好、误差与导出格式，不调用生图模型 |
 | [论文表格](https://yanshu-workbench.pages.dev/figures/tables/) | 需要整理结果或对比表 | 逐格核对数值与单位，配置表格职责、排序、高亮、显著性和单栏/双栏可读性 |
 | [图表审计](https://yanshu-workbench.pages.dev/figures/audit/) | 图表接近交付 | 联合检查数据、caption、正文引用、标签、可读性和一致性；安全修复只触及已确认错误及其直接依赖 |

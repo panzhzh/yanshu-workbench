@@ -1,6 +1,6 @@
 ---
 name: scientific-figure
-description: Design and generate one publication-ready scientific schematic with YanShu from a paper's TeX, optional PDF, and optional reference framework figure. Use when the user asks YanShu or 研术台 to draw a method overview, introduction figure, task definition, core mechanism detail, training or protocol diagram, data construction figure, system diagram, theoretical relation, geometry figure, or survey taxonomy.
+description: Design and generate one publication-ready scientific schematic with YanShu from a paper's TeX, optional PDF, and optional style-reference image or explicitly labeled figure draft. Use when the user asks YanShu or 研术台 to draw a method overview, introduction figure, task definition, core mechanism detail, training or protocol diagram, data construction figure, system diagram, theoretical relation, geometry figure, or survey taxonomy.
 ---
 
 # Scientific Figure
@@ -46,7 +46,7 @@ The plugin Prompt is bundled from the website's exact Scientific Figure source, 
 ## Prepare and execute
 
 1. Create `<paper-root>/yanshu-scientific-figure/<UTC-run-id>/` and save the configuration and Prompt.
-2. Attach the main TeX, current compiled PDF when available, and only the existing framework figure explicitly intended as a style reference. Do not attach unrelated figures.
+2. Attach the main TeX and current compiled PDF when available. Optional images are style references by default: never infer scientific modules, flow, arrows, or meaning from them. Use internal structure only when the user explicitly labels an image as a figure draft, and verify it against the paper. Do not attach unrelated figures.
 3. Open a fresh visible ChatGPT Chat and choose the latest visible image-capable reasoning model with the strongest available reasoning level.
 4. Submit once. In direct mode, allow sufficient reasoning time and wait for the final image. In prompt-first mode, wait for the English image Prompt, then send exactly the requested start phrase in the same Chat.
 5. Download the single final PNG. Preserve the Chat URL, final English image Prompt, and actual model/reasoning labels.

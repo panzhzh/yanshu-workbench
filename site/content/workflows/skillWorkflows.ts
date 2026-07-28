@@ -208,8 +208,8 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
       en: "Use $scientific-figure to create one research figure for this paper directory.",
     },
     input: {
-      zh: "论文 TeX、可选 PDF 与参考框架图",
-      en: "Paper TeX, optional PDF, and an optional reference framework figure",
+      zh: "论文 TeX、可选 PDF、可选样式参考图或绘图草稿",
+      en: "Paper TeX, optional PDF, and an optional style reference or figure draft",
     },
     output: {
       zh: "一张高清 PNG 与配置快照",
@@ -528,12 +528,12 @@ const SCIENTIFIC_FIGURE_MODEL: SkillWorkflowModel = {
   ),
   materialTitle: localized("需要材料", "Required materials"),
   materialItems: {
-    zh: ["论文主 TeX", "可选编译 PDF", "可选参考框架图"],
-    en: ["Main paper TeX", "Optional compiled PDF", "Optional reference framework figure"],
+    zh: ["论文主 TeX", "可选编译 PDF", "可选样式参考图或明确标注的绘图草稿"],
+    en: ["Main paper TeX", "Optional compiled PDF", "Optional style reference or explicitly labeled figure draft"],
   },
   materialHint: localized(
-    "若提供现有框架图，执行时会总结其结构、配色与排版并保持一致。",
-    "When a reference framework figure is provided, execution summarizes and follows its structure, color, and typography.",
+    "附加图片默认只参考视觉风格，不读取内部流程；只有明确标注为“绘图草稿”时才可参考结构，并须用论文核验。",
+    "Attached images supply visual style only by default. Their structure may be used only when explicitly labeled as a figure draft and verified against the paper.",
   ),
   output: localized(
     "只生成一张高清 PNG，并保存配置与最终英文生图 Prompt。",

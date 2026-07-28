@@ -692,8 +692,11 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /不要输出该 Prompt/);
   assert.match(
     html,
-    /若我同时提供现有框架图，请先概括其构图、配色、线条、字体与整体视觉语言/,
+    /另行提供的图片默认只作为视觉样式参考/,
   );
+  assert.match(html, /不得沿用其中的模块、流程、箭头或科学含义/);
+  assert.match(html, /明确标注某张图片为“绘图草稿”/);
+  assert.doesNotMatch(html, /若我同时提供现有框架图/);
   assert.match(html, /适合论文排版的超高清科研配图/);
   assert.doesNotMatch(html, /RGB\(/);
   assert.doesNotMatch(html, /TWO-STEP FIGURE PROMPT|两步制图 Prompt/);
@@ -1609,8 +1612,14 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(figureArchitecture, /2–4 点总结/);
   assert.match(
     figureArchitecture,
-    /若我同时提供现有框架图，请先概括其构图、配色、线条、字体与整体视觉语言/,
+    /另行提供的图片默认只作为视觉样式参考/,
   );
+  assert.match(
+    figureArchitecture,
+    /不得沿用其中的模块、流程、箭头或科学含义/,
+  );
+  assert.match(figureArchitecture, /明确标注某张图片为“绘图草稿”/);
+  assert.doesNotMatch(figureArchitecture, /若我同时提供现有框架图/);
   assert.match(figureArchitecture, /唯一主旨和主要阅读路径/);
   assert.match(figureArchitecture, /不要把整张图画成文字卡片/);
   assert.match(figureArchitecture, /容器嵌套不超过两层/);
