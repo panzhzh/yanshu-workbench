@@ -165,7 +165,7 @@ async function main() {
         sendJson(response, 200, {
           ok: state.status !== "error",
           status: state.status,
-          configPath: state.configPath,
+          configurationReady: state.status === "confirmed",
           selection: state.selection,
           error: state.error,
         });
@@ -229,7 +229,6 @@ async function main() {
         sendJson(response, 200, {
           ok: true,
           status: state.status,
-          configPath,
           selection: state.selection,
         });
         closing = true;

@@ -62,9 +62,9 @@ const HOME_COPY = {
     configureBody:
       "YanShu 自动打开仅本机可见的配置页。检查 Prompt 后点击“全自动开始”；若只想手动使用，复制 Prompt 后退出即可。",
     workflowEyebrow: "START WITH ONE SENTENCE",
-    workflowTitle: "五个重要的全链路入口",
+    workflowTitle: "六个重要的全链路入口",
     workflowBody:
-      "五个独立子 Skill 均支持 $ 调用，并先打开对应配置页。网站与插件使用同一份 Prompt 数据。",
+      "六个独立子 Skill 均支持 $ 调用，并先打开对应配置页。网站与插件使用同一份 Prompt 数据。",
     inputLabel: "准备",
     outputLabel: "得到",
     openWorkbench: "查看配置页",
@@ -145,9 +145,9 @@ const HOME_COPY = {
     configureBody:
       "YanShu opens a loopback-only setup page. Review the Prompt and choose “Start full automation”; for manual use, copy the Prompt and exit.",
     workflowEyebrow: "START WITH ONE SENTENCE",
-    workflowTitle: "Five essential end-to-end entry points",
+    workflowTitle: "Six essential end-to-end entry points",
     workflowBody:
-      "All five independent sub-skills support $ invocation and open their matching configuration page first. Website and plugin share one Prompt source.",
+      "All six independent sub-skills support $ invocation and open their matching configuration page first. Website and plugin share one Prompt source.",
     inputLabel: "Prepare",
     outputLabel: "Receive",
     openWorkbench: "Open configuration",

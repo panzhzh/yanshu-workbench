@@ -17,10 +17,12 @@ Follow the user's conversation language. The manuscript remains English unless t
 - Treat `$research-paper-writing` only as a supplemental writing method. YanShu's saved evidence boundaries, template, configuration, and delivery contract always take precedence. `$nature-figure` is for Experimental Plotting and must not be used to generate this manuscript's scientific schematics.
 - Treat the source directory as read-only. Save every generated artifact under a new YanShu run directory.
 - Use only files inside the confirmed root. Do not upload credentials, unrelated repositories, raw private data, or oversized caches.
+- Never open `plugin.json`, `session.json`, `confirmed.yanshu-workflow.json`, `run.json`, or any internal JSON in a browser, editor, or user-visible tab.
 
 ## Start with one local page
 
 1. Resolve `<plugin-root>` from this skill and run:
+   Treat that loaded path as authoritative; do not enumerate plugin caches, compare install paths manually, or open a plugin manifest. `version-handshake` owns update discovery.
 
 ```text
 node <plugin-root>/scripts/node-launcher.cjs \
@@ -44,13 +46,13 @@ workflow-configure-start \
 ```
 
 6. Poll `workflow-configure-status --session <sessionPath>`.
-7. `Exit` stops without transmitting materials. `Start full automation` authorizes execution from `configPath`; do not ask for another confirmation.
+7. `Exit` stops without transmitting materials. After `Start full automation`, run `workflow-configure-result --session <sessionPath>` and use its authorized configuration; do not ask for another confirmation or open its private JSON file.
 
 The plugin Prompt is generated from the website's exact Paper Drafting source, including the current template policy.
 
 ## Prepare the evidence
 
-Create `<research-root>/yanshu-paper-drafting/<UTC-run-id>/` and save the confirmed configuration and Prompt. Build a compact material inventory before opening Chat:
+Create `<research-root>/yanshu-paper-drafting/<UTC-run-id>/` from the authorized configuration returned by `workflow-configure-result`, then save its configuration and Prompt. Build a compact material inventory before opening Chat:
 
 - experimental tables, result files, statistics, and relevant logs;
 - method notes, equations, algorithms, code definitions, and README files;

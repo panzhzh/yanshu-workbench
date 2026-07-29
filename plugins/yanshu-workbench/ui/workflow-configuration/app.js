@@ -78,7 +78,17 @@ function createElement(tag, className, text) {
 
 function fieldIsVisible(field) {
   if (!field.visibleWhen) return true;
-  return preferences[field.visibleWhen.fieldId] === field.visibleWhen.equals;
+  const value = preferences[field.visibleWhen.fieldId];
+  if (Object.hasOwn(field.visibleWhen, "equals")) {
+    return value === field.visibleWhen.equals;
+  }
+  if (Object.hasOwn(field.visibleWhen, "includes")) {
+    return (
+      Array.isArray(value) &&
+      value.includes(field.visibleWhen.includes)
+    );
+  }
+  return true;
 }
 
 function updateVisibleFields() {

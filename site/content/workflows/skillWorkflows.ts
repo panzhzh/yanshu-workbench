@@ -51,12 +51,19 @@ import {
   getDefaultExperimentalPlotValues,
   normalizeExperimentalPlotValues,
 } from "../../app/figures/toolsConfig";
+import {
+  WRITING_DIAGNOSIS_WORKBENCH,
+  buildWritingDiagnosisPrompt,
+  getDefaultWritingDiagnosisValues,
+  normalizeWritingDiagnosisValues,
+} from "../../app/writing/diagnosis/config";
 
 export type LocalizedWorkflowText = Record<Language, string>;
 
 export type YanShuSkillId =
   | "idea-discovery"
   | "paper-drafting"
+  | "writing-diagnosis"
   | "paper-reconstruction"
   | "scientific-figure"
   | "experimental-plotting";
@@ -81,7 +88,8 @@ export interface SkillWorkflowChoice {
 
 export interface SkillWorkflowVisibility {
   fieldId: string;
-  equals: SkillWorkflowFieldValue;
+  equals?: SkillWorkflowFieldValue;
+  includes?: SkillWorkflowFieldValue;
 }
 
 export interface SkillWorkflowField {
@@ -143,7 +151,7 @@ export interface YanShuSkillCatalogItem {
   output: LocalizedWorkflowText;
 }
 
-export const SKILL_WORKFLOW_VERSION = "2026.07.28";
+export const SKILL_WORKFLOW_VERSION = "2026.07.29";
 
 export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   {
@@ -193,8 +201,31 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
     },
   },
   {
-    id: "paper-reconstruction",
+    id: "writing-diagnosis",
     index: "03",
+    skillName: "Writing Diagnosis",
+    websitePath: "/writing/diagnosis",
+    title: { zh: "诊断学术写作", en: "Diagnose academic writing" },
+    description: {
+      zh: "从全文、段落和句子三个尺度发现反复出现的写作手法与习惯问题，并给出具体指正。",
+      en: "Identify recurring writing-technique and habit problems at manuscript, paragraph, and sentence scale, then provide actionable guidance.",
+    },
+    command: {
+      zh: "使用 $writing-diagnosis 诊断这个论文目录中的学术写作问题。",
+      en: "Use $writing-diagnosis to diagnose academic writing problems in this manuscript directory.",
+    },
+    input: {
+      zh: "主稿 TeX、建议提供 PDF 与 BibTeX",
+      en: "Main TeX, with PDF and BibTeX recommended",
+    },
+    output: {
+      zh: "写作诊断报告与可选安全修订稿",
+      en: "Writing diagnosis report and optional safe revision",
+    },
+  },
+  {
+    id: "paper-reconstruction",
+    index: "04",
     skillName: "Paper Reconstruction",
     websitePath: "/reconstruction",
     title: { zh: "重构现有论文", en: "Reconstruct an existing paper" },
@@ -217,7 +248,7 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   },
   {
     id: "scientific-figure",
-    index: "04",
+    index: "05",
     skillName: "Scientific Figure",
     websitePath: "/figures",
     title: { zh: "绘制科研配图", en: "Create a scientific figure" },
@@ -240,7 +271,7 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   },
   {
     id: "experimental-plotting",
-    index: "05",
+    index: "06",
     skillName: "Experimental Plotting",
     websitePath: "/figures/plots",
     title: { zh: "绘制实验图", en: "Create an experimental plot" },
@@ -840,13 +871,13 @@ const EXPERIMENTAL_PLOT_FIELD_SECTIONS: Record<string, string> = {
   custom: "delivery",
 };
 
-function experimentalPlotWorkflowField(
+function configurableWorkbenchField(
   control: WorkbenchControl,
+  sectionId: string,
 ): SkillWorkflowField {
   const base = {
     id: control.id,
-    sectionId:
-      EXPERIMENTAL_PLOT_FIELD_SECTIONS[control.id] ?? "delivery",
+    sectionId,
     label: control.label,
     description: control.description,
   };
@@ -897,7 +928,16 @@ function experimentalPlotWorkflowField(
       placeholder: control.placeholder,
     };
   }
-  throw new Error(`Unsupported experimental plotting field: ${control.id}`);
+  throw new Error(`Unsupported configurable workflow field: ${control.id}`);
+}
+
+function experimentalPlotWorkflowField(
+  control: WorkbenchControl,
+): SkillWorkflowField {
+  return configurableWorkbenchField(
+    control,
+    EXPERIMENTAL_PLOT_FIELD_SECTIONS[control.id] ?? "delivery",
+  );
 }
 
 const EXPERIMENTAL_PLOTTING_MODEL: SkillWorkflowModel = {
@@ -933,12 +973,116 @@ const EXPERIMENTAL_PLOTTING_MODEL: SkillWorkflowModel = {
   },
 };
 
+const WRITING_DIAGNOSIS_SECTIONS = [
+  {
+    id: "scope",
+    index: "01",
+    title: localized("材料与范围", "Materials and scope"),
+    description: localized(
+      "选择全文或需要诊断的具体章节与文字载体。",
+      "Choose the whole manuscript or specific sections and text carriers.",
+    ),
+  },
+  {
+    id: "reader",
+    index: "02",
+    title: localized("读者与深度", "Readers and depth"),
+    description: localized(
+      "根据目标读者控制术语负担和诊断颗粒度。",
+      "Set terminology burden and diagnostic granularity for the intended readers.",
+    ),
+  },
+  {
+    id: "dimensions",
+    index: "03",
+    title: localized("诊断维度", "Diagnostic dimensions"),
+    description: localized(
+      "组合检查叙事、引用、段落、图表、结果、公式与语言习惯。",
+      "Combine narrative, citation, paragraph, display, results, equation, and language checks.",
+    ),
+  },
+  {
+    id: "delivery",
+    index: "04",
+    title: localized("指正与交付", "Guidance and delivery"),
+    description: localized(
+      "选择仅报告或安全修复，并保护原稿中的好表达。",
+      "Choose report-only or safe repair while preserving strong existing prose.",
+    ),
+  },
+] as const;
+
+const WRITING_DIAGNOSIS_FIELD_SECTIONS: Record<string, string> = {
+  scope: "scope",
+  sections: "scope",
+  depth: "reader",
+  audience: "reader",
+  dimensions: "dimensions",
+  browseCitations: "dimensions",
+  action: "delivery",
+  preserveStrengths: "delivery",
+  custom: "delivery",
+};
+
+function writingDiagnosisWorkflowField(
+  control: WorkbenchControl,
+): SkillWorkflowField {
+  const field = configurableWorkbenchField(
+    control,
+    WRITING_DIAGNOSIS_FIELD_SECTIONS[control.id] ?? "delivery",
+  );
+  if (control.id === "sections") {
+    field.visibleWhen = { fieldId: "scope", equals: "selected" };
+  }
+  if (control.id === "browseCitations") {
+    field.visibleWhen = {
+      fieldId: "dimensions",
+      includes: "citation-practice",
+    };
+  }
+  return field;
+}
+
+const WRITING_DIAGNOSIS_MODEL: SkillWorkflowModel = {
+  id: "writing-diagnosis",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "writing-diagnosis",
+  websitePath: "/writing/diagnosis",
+  title: localized("学术写作诊断", "Academic Writing Diagnosis"),
+  eyebrow: "YANSHU · ACADEMIC WRITING DIAGNOSIS",
+  description: localized(
+    "从全文、段落和句子三个尺度发现作者难以自察的写作手法与习惯问题。",
+    "Expose hard-to-notice writing-technique and habit problems at manuscript, paragraph, and sentence scale.",
+  ),
+  materialTitle: localized("需要材料", "Required materials"),
+  materialItems: {
+    zh: ["主稿 .tex", "最新编译 PDF（建议）", ".bib（建议）", "目标 venue 指南（可选）"],
+    en: ["Main .tex", "Latest compiled PDF (recommended)", ".bib (recommended)", "Target-venue guidance (optional)"],
+  },
+  materialHint: localized(
+    "无需 figures 或实验源数据；本工作流只诊断写作，不重新评审科学贡献。",
+    "Figures and raw experimental data are unnecessary; this workflow diagnoses writing rather than re-reviewing the science.",
+  ),
+  output: localized(
+    "写作诊断 Markdown，以及选择安全修复时的完整修订 TeX 与 high-risk diff。",
+    "A writing-diagnosis Markdown report plus a complete revised TeX and high-risk diff when safe repair is selected.",
+  ),
+  sections: WRITING_DIAGNOSIS_SECTIONS,
+  fields: WRITING_DIAGNOSIS_WORKBENCH.controls.map(
+    writingDiagnosisWorkflowField,
+  ),
+  defaults: {
+    ...getDefaultWritingDiagnosisValues(),
+  },
+};
+
 const CONFIGURABLE_MODELS: Record<
   ConfigurableSkillWorkflowId,
   SkillWorkflowModel
 > = {
   "idea-discovery": IDEA_DISCOVERY_MODEL,
   "paper-drafting": PAPER_DRAFTING_MODEL,
+  "writing-diagnosis": WRITING_DIAGNOSIS_MODEL,
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
   "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
 };
@@ -1128,6 +1272,9 @@ export function normalizeSkillWorkflowPreferences(
   if (workflowId === "paper-drafting") {
     return normalizeDraftPreferences(input);
   }
+  if (workflowId === "writing-diagnosis") {
+    return normalizeWritingDiagnosisValues(input);
+  }
   if (workflowId === "experimental-plotting") {
     return normalizeExperimentalPlotValues(input);
   }
@@ -1165,6 +1312,20 @@ export function buildSkillWorkflowConfiguration(
     selection = {
       templateId: draftPreferences.templateId,
       customVenue: draftPreferences.customVenue,
+    };
+  } else if (workflowId === "writing-diagnosis") {
+    const diagnosisPreferences = preferences as ReturnType<
+      typeof normalizeWritingDiagnosisValues
+    >;
+    prompt = buildWritingDiagnosisPrompt(
+      diagnosisPreferences,
+      promptLanguage,
+    );
+    selection = {
+      scope: diagnosisPreferences.scope,
+      depth: diagnosisPreferences.depth,
+      dimensions: diagnosisPreferences.dimensions,
+      action: diagnosisPreferences.action,
     };
   } else if (workflowId === "experimental-plotting") {
     const plotPreferences = preferences as ReturnType<

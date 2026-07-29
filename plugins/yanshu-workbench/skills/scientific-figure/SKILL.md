@@ -17,10 +17,12 @@ Follow the user's conversation language. The internal image-generation Prompt re
 - Generate one figure only. Do not silently create variants, panels with unrelated purposes, or decorative marketing art.
 - Do not use a generative schematic for experimental plots, real heatmaps, quantitative results, or tables.
 - Save outputs under a new YanShu run directory and leave paper sources unchanged.
+- Never open `plugin.json`, `session.json`, `confirmed.yanshu-workflow.json`, `run.json`, or any internal JSON in a browser, editor, or user-visible tab.
 
 ## Start with one local page
 
 1. Resolve `<plugin-root>` and run:
+   Treat that loaded path as authoritative; do not enumerate plugin caches, compare install paths manually, or open a plugin manifest. `version-handshake` owns update discovery.
 
 ```text
 node <plugin-root>/scripts/node-launcher.cjs \
@@ -39,13 +41,13 @@ workflow-configure-start \
 ```
 
 5. Poll `workflow-configure-status --session <sessionPath>`.
-6. `Exit` cancels. `Start full automation` authorizes execution from `configPath`; do not ask for another confirmation.
+6. `Exit` cancels. After `Start full automation`, run `workflow-configure-result --session <sessionPath>` and use its authorized configuration; do not ask for another confirmation or open its private JSON file.
 
 The plugin Prompt is bundled from the website's exact Scientific Figure source, including figure type recommendations, palettes, accent range, typography, and direct versus prompt-first execution.
 
 ## Prepare and execute
 
-1. Create `<paper-root>/yanshu-scientific-figure/<UTC-run-id>/` and save the configuration and Prompt.
+1. Create `<paper-root>/yanshu-scientific-figure/<UTC-run-id>/` from the authorized configuration returned by `workflow-configure-result`, then save its configuration and Prompt.
 2. Attach the main TeX and current compiled PDF when available. Attach an additional image only when the saved configuration has `hasReferenceImage: true`. In that case, follow the saved Prompt: the image is a visual-style reference by default; its internal structure becomes a content cue only when the user explicitly labels it as a figure draft, and every cue must be verified against the paper. When the option is off, do not attach or infer any reference image.
 3. Open a fresh visible ChatGPT Chat and choose the latest visible image-capable reasoning model with the strongest available reasoning level.
 4. Submit once. In direct mode, allow sufficient reasoning time and wait for the final image. In prompt-first mode, wait for the English image Prompt, then send exactly the requested start phrase in the same Chat.

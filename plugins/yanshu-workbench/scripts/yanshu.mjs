@@ -38,6 +38,7 @@ import {
 } from "./lib/prompt-release.mjs";
 import {
   onboardingStatus,
+  readAuthorizedOnboardingConfiguration,
   startOnboardingSession,
 } from "./lib/onboarding-store.mjs";
 import {
@@ -103,9 +104,11 @@ function help() {
       "configure-status":
         "Read whether the local configuration page is waiting, confirmed, cancelled, or expired.",
       "workflow-configure-start":
-        "Open the shared local configuration page for Idea Discovery, Paper Drafting, or Scientific Figure.",
+        "Open the shared local configuration page for a configurable YanShu sub-skill.",
       "workflow-configure-status":
         "Read whether a shared workflow configuration page is waiting, confirmed, cancelled, or expired.",
+      "workflow-configure-result":
+        "Return an authorized shared-workflow configuration through the CLI without opening its private JSON file.",
       init: "Create a resumable five-round reconstruction run.",
       status: "Read compact progress for an existing run.",
       next: "Return the next round, prompt, and approved attachments.",
@@ -156,6 +159,23 @@ async function loadConfig(flags) {
     throw new CliError(`Config file does not exist: ${resolved}`);
   }
   return JSON.parse(await readFile(resolved, "utf8"));
+}
+
+async function loadInitializationConfig(flags) {
+  const sessionPath = stringFlag(flags, "session");
+  const configPath = stringFlag(flags, "config");
+  if (sessionPath && configPath) {
+    throw new CliError(
+      "Use either --session or --config, not both.",
+      "conflicting_configuration_source",
+    );
+  }
+  if (!sessionPath) return loadConfig(flags);
+  const { configuration } =
+    await readAuthorizedOnboardingConfiguration(sessionPath, {
+      expectedWorkflowId: "paper-reconstruction",
+    });
+  return configuration;
 }
 
 async function loadPromptEngine() {
@@ -263,7 +283,7 @@ async function doctor(flags) {
       ok: workflows.every((item) => item.promptLength > 0),
       workflows,
       generatedFrom:
-        "site Idea Discovery, Paper Drafting, and Scientific Figure canonical configuration sources",
+        "the website's canonical configurable-workflow sources",
     };
   } catch (error) {
     skillWorkflowRuntime = {
@@ -400,16 +420,25 @@ async function workflowConfigureStart(flags) {
   if (!(await pathExists(projectRoot))) {
     throw new CliError(`Workspace directory does not exist: ${projectRoot}`);
   }
-  const workflowId = enumFlag(
+  const workflowId = stringFlag(
     flags,
     "workflow",
-    ["idea-discovery", "paper-drafting", "scientific-figure"],
     fileConfig.workflowId,
   );
   if (!workflowId) {
     throw new CliError(
       "Missing required option --workflow.",
       "missing_workflow",
+    );
+  }
+  const engine = await loadSkillWorkflowEngine();
+  if (!engine.CONFIGURABLE_SKILL_WORKFLOW_IDS.includes(workflowId)) {
+    throw new CliError(
+      `Unsupported YanShu workflow: ${workflowId}.`,
+      "invalid_workflow",
+      {
+        supported: engine.CONFIGURABLE_SKILL_WORKFLOW_IDS,
+      },
     );
   }
   const uiLanguage = enumFlag(
@@ -433,8 +462,33 @@ async function workflowConfigureStatus(flags) {
   return onboardingStatus(requiredFlag(flags, "session"));
 }
 
+async function workflowConfigureResult(flags) {
+  const { state, configuration } =
+    await readAuthorizedOnboardingConfiguration(
+      requiredFlag(flags, "session"),
+    );
+  if (
+    !state.workflowId ||
+    state.workflowId === "paper-reconstruction"
+  ) {
+    throw new CliError(
+      "Paper Reconstruction configurations are consumed with init --session.",
+      "onboarding_workflow_mismatch",
+    );
+  }
+  return {
+    ok: true,
+    status: state.status,
+    workflowId: state.workflowId,
+    projectRoot: state.projectRoot,
+    configuration,
+    instruction:
+      "Use this authorized configuration directly. Do not open session.json or any confirmed.yanshu*.json file.",
+  };
+}
+
 async function init(flags) {
-  const fileConfig = await loadConfig(flags);
+  const fileConfig = await loadInitializationConfig(flags);
   const projectRoot = path.resolve(
     stringFlag(flags, "project", fileConfig.projectRoot ?? process.cwd()),
   );
@@ -976,6 +1030,9 @@ async function main() {
       break;
     case "workflow-configure-status":
       result = await workflowConfigureStatus(flags);
+      break;
+    case "workflow-configure-result":
+      result = await workflowConfigureResult(flags);
       break;
     case "init":
       result = await init(flags);

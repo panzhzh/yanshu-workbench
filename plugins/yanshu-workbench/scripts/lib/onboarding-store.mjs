@@ -74,20 +74,97 @@ function summarizeOnboardingState(state, opened = undefined) {
     status: state.status,
     url: state.url,
     opened,
-    configPath: state.configPath,
+    configurationReady: state.status === "confirmed",
     selection: state.selection,
     error: state.error,
     expiresAt: state.expiresAt,
     instruction:
       state.status === "confirmed"
         ? isReconstruction
-          ? "The local page confirmation is the start authorization. Run the Chat bridge preflight, then initialize from configPath without asking configuration questions again."
-          : "The local page confirmation is the start authorization. Read configPath, use its exact saved Prompt and preferences, then execute the selected workflow without asking configuration questions again."
+          ? "The local page confirmation is the start authorization. Initialize with init --session <sessionPath>; YanShu reads the private configuration internally. Never open an internal JSON file."
+          : "The local page confirmation is the start authorization. Run workflow-configure-result --session <sessionPath>; YanShu returns the authorized configuration without opening an internal JSON file."
         : state.status === "cancelled"
           ? "The user exited the local page. Stop without initializing, uploading files, or asking replacement workflow questions."
           : isReconstruction
             ? "Keep this session path and poll configure-status. The user completes all remaining workflow choices and can inspect every Prompt in the local page."
             : "Keep this session path and poll workflow-configure-status. The user completes all remaining choices and can inspect the exact execution Prompt on the local page.",
+  };
+}
+
+function expectedConfigurationName(state) {
+  return !state.workflowId || state.workflowId === "paper-reconstruction"
+    ? "confirmed.yanshu.json"
+    : "confirmed.yanshu-workflow.json";
+}
+
+export async function readAuthorizedOnboardingConfiguration(
+  sessionPath,
+  { expectedWorkflowId } = {},
+) {
+  const resolvedSessionPath = path.resolve(sessionPath);
+  const state = await loadOnboardingState(resolvedSessionPath);
+  const workflowId = state.workflowId ?? "paper-reconstruction";
+  if (expectedWorkflowId && workflowId !== expectedWorkflowId) {
+    throw new CliError(
+      `Expected YanShu workflow ${expectedWorkflowId}, received ${workflowId}.`,
+      "onboarding_workflow_mismatch",
+    );
+  }
+  if (state.status !== "confirmed") {
+    throw new CliError(
+      `YanShu configuration is ${state.status}; confirmation is required before execution.`,
+      "onboarding_not_confirmed",
+    );
+  }
+
+  const expectedPath = path.join(
+    resolvedSessionPath,
+    expectedConfigurationName(state),
+  );
+  const configuredPath = state.configPath
+    ? path.resolve(state.configPath)
+    : null;
+  if (configuredPath !== expectedPath || !(await exists(expectedPath))) {
+    throw new CliError(
+      "The confirmed YanShu configuration is missing or outside its private session.",
+      "invalid_onboarding_configuration",
+    );
+  }
+
+  let configuration;
+  try {
+    configuration = JSON.parse(await readFile(expectedPath, "utf8"));
+  } catch (error) {
+    throw new CliError(
+      "The confirmed YanShu configuration is unreadable.",
+      "invalid_onboarding_configuration",
+      {
+        error: error instanceof Error ? error.message : String(error),
+      },
+    );
+  }
+  if (
+    configuration.execution?.startAuthorized !== true ||
+    path.resolve(configuration.projectRoot ?? "") !==
+      path.resolve(state.projectRoot)
+  ) {
+    throw new CliError(
+      "The confirmed YanShu configuration failed authorization validation.",
+      "invalid_onboarding_configuration",
+    );
+  }
+  if (
+    workflowId !== "paper-reconstruction" &&
+    configuration.workflowId !== workflowId
+  ) {
+    throw new CliError(
+      "The confirmed YanShu workflow does not match its session.",
+      "onboarding_workflow_mismatch",
+    );
+  }
+  return {
+    state,
+    configuration,
   };
 }
 

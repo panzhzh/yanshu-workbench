@@ -18,6 +18,7 @@ Follow the user's conversation language. Prompt language is independently config
 - Never resubmit a round after a timeout. Reopen its recorded Chat URL and continue monitoring the same assistant turn.
 - Keep the canonical run, `STATUS.md`, logs, checkpoints, and outputs under `<paper-root>/yanshu-reconstruction/<run-id>/`.
 - Do not ask the user to choose MCP versus attachments, approve a reasoning fallback, confirm a detected input twice, report a button click, or repeat settings already confirmed on the local page.
+- Never open `plugin.json`, `session.json`, `confirmed.yanshu.json`, `run.json`, or any other internal JSON in Chrome, the in-app browser, an editor, or a user-visible tab. Consume internal state only through YanShu commands or direct filesystem reads that do not launch a viewer.
 - Pause only for an irrecoverable login, CAPTCHA, permission, missing/ambiguous paper input, or scientific decision that cannot be resolved safely.
 
 ## Runtime and automatic version handshake
@@ -30,6 +31,7 @@ node <plugin-root>/scripts/node-launcher.cjs \
 ```
 
 Do not invoke `scripts/yanshu.mjs` directly. The launcher selects Node 22 or newer, including Codex's bundled Node on Windows.
+Treat the directory containing this loaded skill as the authoritative runtime root. Do not enumerate plugin caches, search for another copy, compare paths manually, or open a plugin manifest. The handshake below owns version discovery, update, and relaunch.
 
 Before `doctor`, every new run, and every resumed run, execute:
 
@@ -38,6 +40,7 @@ version-handshake [--run <run-path>]
 ```
 
 If the installed plugin is older, YanShu refreshes its marketplace, reinstalls, and relaunches the updated runtime automatically. Do not ask the user to update or start a new task. A new run uses the latest Prompt snapshot. A resumed run uses the current compatible execution runtime but preserves the Prompt files and `workflowVersion` saved in that run.
+Keep this check silent unless it updates, fails, or changes the runtime. Do not narrate harmless cache-path differences.
 
 ## One-time install support action
 
@@ -71,7 +74,7 @@ configure-start \
 
 5. Tell the user only that the local page is open. Do not collect paper type, length, appendix, Prompt language, figure ratio, or reasoning settings in chat.
 6. Poll `configure-status --session <sessionPath>` without asking the user to report a click.
-7. `Exit` cancels without creating a run. `Start full automation` authorizes initialization with the returned `configPath`; do not ask for another confirmation.
+7. `Exit` cancels without creating a run. `Start full automation` authorizes initialization from the same `sessionPath`; do not ask for another confirmation and do not inspect the private configuration file.
 
 Before the page confirms automation, do not create a run or transmit manuscript content.
 
@@ -80,8 +83,10 @@ Before the page confirms automation, do not create a run or transmit manuscript 
 Run:
 
 ```text
-init --config <confirmed.yanshu.json>
+init --session <sessionPath>
 ```
+
+YanShu reads and validates the confirmed configuration internally. Do not open, display, link, or separately parse its JSON file.
 
 Report the created run directory. YanShu creates five isolated round folders plus `run.json`, `events.jsonl`, and a continuously updated `STATUS.md`. Original paper files remain read-only.
 

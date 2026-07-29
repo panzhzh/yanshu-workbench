@@ -1,6 +1,6 @@
 {
   "name": "yanshu-workbench",
-  "version": "0.2.0+codex.20260728143341",
+  "version": "0.2.0+codex.20260729152340",
   "description": "Extensible research workflows coordinated across local files and visible ChatGPT sessions.",
   "author": {
     "name": "panzhzh",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "YanShu",
     "shortDescription": "Installable research workflows for writing, figures, and publication.",
-    "longDescription": "YanShu is an extensible research-workflow plugin with five independent, directly invokable sub-skills: $idea-discovery, $paper-drafting, $paper-reconstruction, $scientific-figure, and $experimental-plotting. Every workflow opens one website-synchronized local configuration page before execution. Codex coordinates approved local evidence, visible ChatGPT sessions where appropriate, versioned outputs, compilation, validation, fallbacks, and recovery. Optional external writing and experimental-plotting skills use one explicit consent receipt and exact sub-skill allowlists; YanShu never installs an entire third-party skill repository.",
+    "longDescription": "YanShu is an extensible research-workflow plugin with six independent, directly invokable sub-skills: $idea-discovery, $paper-drafting, $writing-diagnosis, $paper-reconstruction, $scientific-figure, and $experimental-plotting. Every workflow opens one website-synchronized local configuration page before execution. Codex coordinates approved local evidence, visible ChatGPT sessions where appropriate, versioned outputs, compilation, validation, fallbacks, and recovery. Optional external writing and experimental-plotting skills use one explicit consent receipt and exact sub-skill allowlists; YanShu never installs an entire third-party skill repository.",
     "developerName": "panzhzh",
     "category": "Productivity",
     "capabilities": [
@@ -34,6 +34,7 @@
       "Use $paper-reconstruction to configure and reconstruct this manuscript directory.",
       "Use $idea-discovery to find evidence-backed research ideas in this workspace.",
       "Use $paper-drafting to draft a paper from completed experiments.",
+      "Use $writing-diagnosis to diagnose recurring academic writing problems in this manuscript.",
       "Use $scientific-figure to create one publication-ready research figure.",
       "Use $experimental-plotting to create a reproducible publication plot from experimental data.",
       "Use $paper-reconstruction to inspect whether this directory has the required TeX, PDF, BibTeX, and figure inputs.",

@@ -16,10 +16,12 @@ Follow the user's conversation language. The Prompt language is selected indepen
 - Prefer primary paper pages, official proceedings, DOI records, and author-maintained project repositories.
 - Search and deduplicate before presenting candidates. Do not turn brainstorming volume into evidence.
 - Keep all outputs under the confirmed workspace. Do not modify unrelated files.
+- Never open `plugin.json`, `session.json`, `confirmed.yanshu-workflow.json`, `run.json`, or any internal JSON in a browser, editor, or user-visible tab.
 
 ## Start with one local page
 
 1. Resolve `<plugin-root>` from this skill.
+   Treat that loaded path as authoritative; do not enumerate plugin caches, compare install paths manually, or open a plugin manifest. `version-handshake` owns update discovery.
 2. Run the compatibility launcher:
 
 ```text
@@ -39,13 +41,13 @@ workflow-configure-start \
 ```
 
 6. Poll `workflow-configure-status --session <sessionPath>`. Do not ask the user to report a button click.
-7. `Exit` stops without a run. `Start full automation` authorizes execution from `configPath`; do not ask for another confirmation.
+7. `Exit` stops without a run. After `Start full automation`, run `workflow-configure-result --session <sessionPath>` and use the returned authorized configuration; do not ask for another confirmation or open its private JSON file.
 
 The generated runtime is bundled from the website's exact Idea Discovery source. Never substitute an older copied Prompt.
 
 ## Execute in visible ChatGPT
 
-1. Read `configPath` and create `<workspace>/yanshu-idea-discovery/<UTC-run-id>/`.
+1. Create `<workspace>/yanshu-idea-discovery/<UTC-run-id>/` from the authorized configuration returned by `workflow-configure-result`.
 2. Save the confirmed configuration and Prompt before sending anything.
 3. Open a fresh visible ChatGPT Chat. Select the latest visible reasoning-capable model and the strongest available reasoning level. A lower available level is an automatic fallback; report it briefly without pausing.
 4. Submit the saved Prompt exactly once. Add only user-provided seed materials inside the confirmed workspace; the workflow can run without attachments.

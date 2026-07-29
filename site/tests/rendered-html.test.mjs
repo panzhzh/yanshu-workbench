@@ -44,9 +44,10 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /一句话启动/);
   assert.match(html, /在一页中完成设置/);
   assert.match(html, /确认后直接执行/);
-  assert.match(html, /五个重要的全链路入口/);
+  assert.match(html, /六个重要的全链路入口/);
   assert.match(html, /Idea Discovery/);
   assert.match(html, /Paper Drafting/);
+  assert.match(html, /Writing Diagnosis/);
   assert.match(html, /Paper Reconstruction/);
   assert.match(html, /Scientific Figure/);
   assert.match(html, /Experimental Plotting/);
@@ -59,6 +60,7 @@ test("server-renders the concise YanShu home page", async () => {
     /使用 \$paper-reconstruction 重构这个论文目录/,
   );
   assert.match(html, /\$idea-discovery/);
+  assert.match(html, /\$writing-diagnosis/);
   assert.match(html, /\$scientific-figure/);
   assert.match(html, /\$experimental-plotting/);
   assert.match(html, /自动执行，或只复制 Prompt/);
@@ -72,6 +74,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /Idea 评估与优化/);
   assert.match(html, /全文初稿/);
   assert.match(html, /分章节写作/);
+  assert.match(html, /学术写作诊断/);
   assert.match(html, /全文重构/);
   assert.match(html, /章节精修/);
   assert.match(html, /专项审计/);
@@ -98,6 +101,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/reconstruction"/);
   assert.match(html, /href="\/reconstruction\/refinement"/);
   assert.match(html, /href="\/writing\/sections"/);
+  assert.match(html, /href="\/writing\/diagnosis"/);
   assert.match(html, /href="\/reconstruction\/conversion"/);
   assert.match(html, /href="\/experiments\/design"/);
   assert.match(html, /href="\/experiments\/baselines"/);
@@ -122,6 +126,7 @@ test("server-renders the concise YanShu home page", async () => {
 test("server-renders every configured research workbench", async (context) => {
   const pages = [
     ["/writing/sections", "分章节写作"],
+    ["/writing/diagnosis", "学术写作诊断"],
     ["/reconstruction/conversion", "版本转换"],
     ["/experiments/design", "实验方案设计"],
     ["/experiments/baselines", "Baseline 与复现"],
@@ -150,11 +155,32 @@ test("server-renders every configured research workbench", async (context) => {
   }
 });
 
+test("server-renders the habit-focused academic-writing diagnosis workbench", async () => {
+  const response = await render("/writing/diagnosis");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+
+  assert.match(html, promptJudgmentDirective);
+  assert.match(html, /发现作者自己最难察觉的写作手法与长期习惯问题/);
+  assert.match(html, /主线与章节功能/);
+  assert.match(html, /引用覆盖与放置/);
+  assert.match(html, /图表 Caption 与 Note/);
+  assert.match(html, /结果段落与 Finding/);
+  assert.match(html, /公式与数学叙述/);
+  assert.match(html, /逐格复述图表、堆砌数字/);
+  assert.match(html, /不要用字数、句长或 caption 长度单独判错/);
+  assert.match(html, /不评价 Idea 创新性、实验设计、数据自洽/);
+  assert.match(html, /只交付 `writing_diagnosis\.md`，不要修改论文文件/);
+  assert.match(html, /标记并保护原稿中的好表达/);
+  assert.doesNotMatch(html, /research-paper-writing|nature-figure/);
+});
+
 test("keeps the new workbenches adaptive, evidence-bound, and safe by default", async () => {
   const [
     workbench,
     workbenchTypes,
     sectionWriting,
+    writingDiagnosis,
     conversion,
     experiments,
     figureTools,
@@ -167,6 +193,10 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
     readFile(new URL("../app/workbench/types.ts", import.meta.url), "utf8"),
     readFile(
       new URL("../app/writing/sections/config.ts", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/writing/diagnosis/config.ts", import.meta.url),
       "utf8",
     ),
     readFile(
@@ -192,6 +222,13 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
   assert.match(sectionWriting, /不得假定不存在的上下文/);
   assert.match(sectionWriting, /不是从零改写/);
   assert.match(sectionWriting, /profile === "journal"/);
+
+  assert.match(writingDiagnosis, /DIAGNOSIS_DIMENSIONS/);
+  assert.match(writingDiagnosis, /old-to-new 信息流/);
+  assert.match(writingDiagnosis, /逐格复述图表/);
+  assert.match(writingDiagnosis, /Most equations|公式是否融入句子/);
+  assert.match(writingDiagnosis, /不在段末追加补丁句/);
+  assert.match(writingDiagnosis, /不评价 Idea 创新性/);
 
   assert.match(conversion, /function planningInstructions/);
   assert.match(conversion, /defaultValue:\s*"preserve"/);
@@ -1076,6 +1113,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /href:\s*"\/ideas\/discovery"/);
   assert.match(navigationConfig, /href:\s*"\/ideas\/evaluation"/);
   assert.match(navigationConfig, /href:\s*"\/draft"/);
+  assert.match(navigationConfig, /href:\s*"\/writing\/diagnosis"/);
   assert.match(navigationConfig, /href:\s*"\/reconstruction"/);
   assert.match(
     navigationConfig,
@@ -1086,7 +1124,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /href:\s*"\/submission"/);
   assert.equal(
     (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
-    21,
+    22,
   );
   assert.equal(
     (navigationConfig.match(/status:\s*"future",/g) ?? []).length,
@@ -1629,6 +1667,14 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.doesNotMatch(figureArchitecture, /若我同时提供现有框架图/);
   assert.match(figureArchitecture, /唯一主旨和主要阅读路径/);
   assert.match(figureArchitecture, /不要把整张图画成文字卡片/);
+  assert.match(
+    figureArchitecture,
+    /有证据支持的 novel module[\s\S]*?最明确的视觉强调/,
+  );
+  assert.match(
+    figureArchitecture,
+    /paper-supported novel module[\s\S]*?clearest visual emphasis/,
+  );
   assert.match(figureArchitecture, /容器嵌套不超过两层/);
   assert.match(figureArchitecture, /执行方式：直接绘图/);
   assert.match(figureArchitecture, /executionMode === "direct"/);

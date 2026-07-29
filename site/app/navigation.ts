@@ -6,6 +6,7 @@ export type ActivePage =
   | "idea-evaluation"
   | "draft"
   | "section-writing"
+  | "writing-diagnosis"
   | "reconstruction"
   | "refinement"
   | "audit"
@@ -143,6 +144,33 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         keywords: {
           zh: ["摘要", "引言", "相关工作", "方法", "实验", "讨论"],
           en: ["abstract", "introduction", "related work", "method", "experiments"],
+        },
+      },
+      {
+        id: "writing-diagnosis",
+        label: { zh: "学术写作诊断", en: "Academic Writing Diagnosis" },
+        status: "available",
+        href: "/writing/diagnosis",
+        activePage: "writing-diagnosis",
+        keywords: {
+          zh: [
+            "写作手法",
+            "写作习惯",
+            "缺少引用",
+            "caption",
+            "结果复述",
+            "公式说明",
+            "段落结构",
+          ],
+          en: [
+            "writing technique",
+            "writing habits",
+            "missing citation",
+            "caption",
+            "results narration",
+            "equation exposition",
+            "paragraph structure",
+          ],
         },
       },
     ],

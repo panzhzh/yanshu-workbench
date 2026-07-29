@@ -16,10 +16,12 @@ Follow the user's conversation language. Preserve labels and terminology from th
 - Treat `$nature-figure` only as a supplemental code-plotting and QA method. The saved YanShu configuration and data evidence always control the palette, composite policy, subpanel range, statistics, output formats, and caption.
 - Never use `$nature-figure` to alter the Scientific Figure workflow or its visible-ChatGPT image-generation Prompt.
 - Keep source data and manuscript files read-only. Save code, derived data, figures, logs, and configuration under a new YanShu run directory.
+- Never open `plugin.json`, `session.json`, `confirmed.yanshu-workflow.json`, `run.json`, or any internal JSON in a browser, editor, or user-visible tab.
 
 ## Start with one local page
 
 1. Resolve `<plugin-root>` and run:
+   Treat that loaded path as authoritative; do not enumerate plugin caches, compare install paths manually, or open a plugin manifest. `version-handshake` owns update discovery.
 
 ```text
 node <plugin-root>/scripts/node-launcher.cjs \
@@ -43,11 +45,11 @@ workflow-configure-start \
 ```
 
 6. Poll `workflow-configure-status --session <sessionPath>`.
-7. `Exit` stops without changing files. `Start full automation` authorizes execution from `configPath`; do not ask for another confirmation.
+7. `Exit` stops without changing files. After `Start full automation`, run `workflow-configure-result --session <sessionPath>` and use its authorized configuration; do not ask for another confirmation or open its private JSON file.
 
 ## Execute
 
-1. Create `<experiment-root>/yanshu-experimental-plotting/<UTC-run-id>/`.
+1. Create `<experiment-root>/yanshu-experimental-plotting/<UTC-run-id>/` from the authorized configuration returned by `workflow-configure-result`.
 2. Save the exact configuration and Prompt. Build a compact inventory of result files, metric definitions, replicate units, statistical summaries, manuscript terminology, and target layout.
 3. If `$nature-figure` is exposed in the current task, use its code-plotting and visual-QA method while enforcing every saved YanShu setting. Otherwise execute the complete saved Prompt directly with deterministic Python or R code.
 4. Run the plotting code in an isolated output directory. Fix code or data-shape errors without editing source data.

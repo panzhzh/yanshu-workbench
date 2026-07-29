@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import {
   mkdtemp,
   mkdir,
@@ -16,15 +17,17 @@ import {
 } from "../runtime/skill-workflow-engine.mjs";
 import {
   onboardingStatus,
+  readAuthorizedOnboardingConfiguration,
   startOnboardingSession,
 } from "../scripts/lib/onboarding-store.mjs";
 
 const pluginRoot = path.resolve(new URL("..", import.meta.url).pathname);
 
-test("website-sourced runtime exposes the four configurable YanShu skills", () => {
+test("website-sourced runtime exposes the five configurable YanShu skills", () => {
   assert.deepEqual(CONFIGURABLE_SKILL_WORKFLOW_IDS, [
     "idea-discovery",
     "paper-drafting",
+    "writing-diagnosis",
     "scientific-figure",
     "experimental-plotting",
   ]);
@@ -33,6 +36,7 @@ test("website-sourced runtime exposes the four configurable YanShu skills", () =
     [
       "idea-discovery",
       "paper-drafting",
+      "writing-diagnosis",
       "paper-reconstruction",
       "scientific-figure",
       "experimental-plotting",
@@ -58,6 +62,24 @@ test("website-sourced runtime exposes the four configurable YanShu skills", () =
   assert.match(draft.prompt, /arxiv-style/);
   assert.match(draft.prompt, /\$research-paper-writing/);
   assert.match(draft.prompt, /complete LaTeX project/i);
+
+  const diagnosis = buildSkillWorkflowConfiguration(
+    "writing-diagnosis",
+    {},
+    "zh",
+  );
+  assert.equal(diagnosis.preferences.scope, "whole");
+  assert.equal(diagnosis.preferences.depth, "standard");
+  assert.equal(diagnosis.preferences.action, "report");
+  assert.equal(diagnosis.preferences.preserveStrengths, true);
+  assert.match(diagnosis.prompt, /全文与章节 → 段落与图表 → 句子与公式/);
+  assert.match(diagnosis.prompt, /逐格复述图表、堆砌数字/);
+  assert.match(diagnosis.prompt, /不要用字数、句长或 caption 长度单独判错/);
+  assert.match(diagnosis.prompt, /不要修改论文文件/);
+  assert.doesNotMatch(
+    diagnosis.prompt,
+    /\$research-paper-writing|\$nature-figure/,
+  );
 
   const figure = buildSkillWorkflowConfiguration(
     "scientific-figure",
@@ -99,7 +121,10 @@ test("all new skill definitions are complete and open the shared page", async ()
     assert.doesNotMatch(skill, /\[TODO:/);
     assert.match(skill, new RegExp(`--workflow ${skillId}`));
     assert.match(skill, /workflow-configure-status/);
+    assert.match(skill, /workflow-configure-result/);
     assert.match(skill, /Start full automation/);
+    assert.match(skill, /Never open `plugin\.json`/);
+    assert.doesNotMatch(skill, /configPath/);
     assert.match(agent, new RegExp(`\\$${skillId}`));
   }
 });
@@ -172,17 +197,48 @@ test("shared workflow configuration page confirms the exact generated prompt", a
     const confirmed = await confirmResponse.json();
     assert.equal(confirmed.ok, true);
     assert.equal(confirmed.status, "confirmed");
+    assert.equal("configPath" in confirmed, false);
+
+    const apiStatusResponse = await fetch(endpoint("/api/status"));
+    const apiStatus = await apiStatusResponse.json();
+    assert.equal(apiStatus.status, "confirmed");
+    assert.equal(apiStatus.configurationReady, true);
+    assert.equal("configPath" in apiStatus, false);
 
     const status = await onboardingStatus(started.sessionPath);
     assert.equal(status.status, "confirmed");
     assert.equal(status.workflowId, "idea-discovery");
-    const saved = JSON.parse(await readFile(status.configPath, "utf8"));
+    assert.equal(status.configurationReady, true);
+    assert.equal("configPath" in status, false);
+    const { configuration: saved } =
+      await readAuthorizedOnboardingConfiguration(started.sessionPath, {
+        expectedWorkflowId: "idea-discovery",
+      });
     assert.equal(saved.execution.startAuthorized, true);
     assert.equal(saved.workflowId, "idea-discovery");
     assert.equal(saved.projectRoot, workspace);
     assert.equal(saved.promptLanguage, "en");
     assert.equal(saved.preferences.recentYears, 3);
     assert.equal(saved.prompt, preview.prompt);
+
+    const resolved = spawnSync(
+      process.execPath,
+      [
+        path.join(pluginRoot, "scripts", "yanshu.mjs"),
+        "workflow-configure-result",
+        "--session",
+        started.sessionPath,
+      ],
+      {
+        encoding: "utf8",
+        windowsHide: true,
+      },
+    );
+    assert.equal(resolved.status, 0, resolved.stderr);
+    const resolvedOutput = JSON.parse(resolved.stdout);
+    assert.equal(resolvedOutput.workflowId, "idea-discovery");
+    assert.equal(resolvedOutput.configuration.prompt, preview.prompt);
+    assert.doesNotMatch(resolved.stdout, /configPath/);
 
     const ui = await readFile(
       path.join(pluginRoot, "ui", "workflow-configuration", "index.html"),
@@ -214,6 +270,59 @@ test("shared workflow models retain website defaults", () => {
   assert.deepEqual(plot.defaults.panelCount, [1, 3]);
   assert.ok(plot.fields.some((field) => field.type === "range"));
   assert.ok(plot.fields.some((field) => field.type === "multi"));
+
+  const diagnosis = getSkillWorkflowConfigurationModel("writing-diagnosis");
+  assert.equal(diagnosis.defaults.scope, "whole");
+  assert.equal(diagnosis.defaults.depth, "standard");
+  assert.equal(diagnosis.defaults.action, "report");
+  assert.equal(diagnosis.defaults.browseCitations, false);
+  assert.equal(
+    diagnosis.fields.find((field) => field.id === "sections")?.visibleWhen
+      ?.equals,
+    "selected",
+  );
+  assert.equal(
+    diagnosis.fields.find((field) => field.id === "browseCitations")
+      ?.visibleWhen?.includes,
+    "citation-practice",
+  );
+});
+
+test("writing diagnosis keeps repair and citation search conservative", () => {
+  const repair = buildSkillWorkflowConfiguration(
+    "writing-diagnosis",
+    {
+      action: "repair",
+      browseCitations: true,
+      dimensions: [
+        "citation-practice",
+        "display-writing",
+        "results-writing",
+      ],
+    },
+    "en",
+  );
+
+  assert.equal(repair.preferences.action, "repair");
+  assert.equal(repair.preferences.browseCitations, true);
+  assert.match(repair.prompt, /high-risk diff/i);
+  assert.match(repair.prompt, /never append patch sentences/i);
+  assert.match(repair.prompt, /never insert them silently/i);
+  assert.match(repair.prompt, /Do not assess idea novelty/i);
+
+  const noCitationDimension = buildSkillWorkflowConfiguration(
+    "writing-diagnosis",
+    {
+      browseCitations: true,
+      dimensions: ["paragraph-craft"],
+    },
+    "en",
+  );
+  assert.equal(noCitationDimension.preferences.browseCitations, false);
+  assert.doesNotMatch(
+    noCitationDimension.prompt,
+    /publisher records, or the original paper/i,
+  );
 });
 
 test("scientific-figure reference guidance is opt-in for every role", () => {

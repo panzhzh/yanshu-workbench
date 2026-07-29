@@ -48,10 +48,10 @@ Organize the image around one readable “current situation or failure → under
   "method-overview": {
     zh: `本次绘制方法总览图：回答输入是什么、主要阶段或组件如何协作、信息怎样流动，以及输出是什么。
 
-先根据论文判断它更适合 pipeline、分层架构、双流交互、迭代环、共享骨干或其他真实结构。只保留一条主要阅读路径；让入口、创新机制和输出成为三个清楚的视觉锚点。创新部分获得更多空间，通用组件弱化，容器嵌套不超过两层。`,
+先根据论文判断它更适合 pipeline、分层架构、双流交互、迭代环、共享骨干或其他真实结构。只保留一条主要阅读路径；让入口、输出和论文中有证据支持的 novel module 成为三个清楚的视觉锚点，其中 novel module 获得最明确的视觉强调。通用组件弱化，容器嵌套不超过两层。`,
     en: `Create a Method Overview figure that answers what enters the method, how the main stages or components work together, how information moves, and what is produced.
 
-Infer the truthful visual form from the paper: a pipeline, layered architecture, dual-stream interaction, iterative loop, shared backbone, or another real structure. Keep one main reading path with three clear anchors: entry, novel mechanism, and output. Give the innovation more visual space, de-emphasize routine components, and keep container nesting to at most two levels.`,
+Infer the truthful visual form from the paper: a pipeline, layered architecture, dual-stream interaction, iterative loop, shared backbone, or another real structure. Keep one main reading path with three clear anchors: entry, output, and the paper-supported novel module. Give the novel module the clearest visual emphasis, de-emphasize routine components, and keep container nesting to at most two levels.`,
   },
   "technical-detail": {
     zh: `本次绘制核心机制细节图：从论文中选择一个区别于方法总览、最值得单独解释的创新机制。

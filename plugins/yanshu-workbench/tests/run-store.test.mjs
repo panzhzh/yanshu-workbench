@@ -34,6 +34,7 @@ import {
 } from "../scripts/lib/chat-preferences.mjs";
 import {
   onboardingStatus,
+  readAuthorizedOnboardingConfiguration,
   startOnboardingSession,
 } from "../scripts/lib/onboarding-store.mjs";
 import {
@@ -748,6 +749,9 @@ test("skill uses one local configuration page and a no-intervention recoverable 
   assert.match(skill, /do not ask again/);
   assert.match(skill, /configure-start/);
   assert.match(skill, /configure-status/);
+  assert.match(skill, /init --session <sessionPath>/);
+  assert.match(skill, /Never open `plugin\.json`/);
+  assert.doesNotMatch(skill, /configPath/);
   assert.match(
     skill,
     /do not ask for another confirmation/,
@@ -847,6 +851,7 @@ test("local onboarding page confirms a complete automation config", async () => 
 
     assert.equal(started.status, "ready");
     assert.match(started.url, /^http:\/\/127\.0\.0\.1:\d+\//);
+    assert.equal("configPath" in started, false);
     const pageUrl = new URL(started.url);
     const token = pageUrl.searchParams.get("token");
     const endpoint = (pathname) => {
@@ -935,8 +940,12 @@ test("local onboarding page confirms a complete automation config", async () => 
 
     const status = await onboardingStatus(started.sessionPath);
     assert.equal(status.status, "confirmed");
-    assert.ok(status.configPath);
-    const config = JSON.parse(await readFile(status.configPath, "utf8"));
+    assert.equal(status.configurationReady, true);
+    assert.equal("configPath" in status, false);
+    const { configuration: config } =
+      await readAuthorizedOnboardingConfiguration(started.sessionPath, {
+        expectedWorkflowId: "paper-reconstruction",
+      });
     assert.equal(config.execution.startAuthorized, true);
     assert.equal(config.projectRoot, paperRoot);
     assert.equal(config.workflow.styleId, "journal");
@@ -1005,7 +1014,14 @@ test("exiting local onboarding cancels without creating a run config", async () 
 
     const status = await onboardingStatus(started.sessionPath);
     assert.equal(status.status, "cancelled");
-    assert.equal(status.configPath, null);
+    assert.equal(status.configurationReady, false);
+    assert.equal("configPath" in status, false);
+    await assert.rejects(
+      readAuthorizedOnboardingConfiguration(started.sessionPath, {
+        expectedWorkflowId: "paper-reconstruction",
+      }),
+      /confirmation is required/,
+    );
     await assert.rejects(
       readFile(path.join(started.sessionPath, "confirmed.yanshu.json")),
       /ENOENT/,
