@@ -728,7 +728,8 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /class="prompt-card expanded"/);
   assert.match(html, /aria-expanded="true"/);
   assert.match(html, /计算机科学论文的科研配图专家/);
-  assert.match(html, /联网核查/);
+  assert.match(html, /请先思考与本论文主题最接近的顶会或顶刊论文/);
+  assert.doesNotMatch(html, /联网核查|2–4 点总结/);
   assert.match(html, /本次绘制方法总览图/);
   assert.match(html, /视觉设置：2:1 画布/);
   assert.match(html, /使用 2–4 种强调色/);
@@ -1657,8 +1658,18 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   );
   assert.match(figureArchitecture, /export const OUTPUT_PROTOCOL/);
   assert.match(figureArchitecture, /逐字符一致/);
-  assert.match(figureArchitecture, /联网核查/);
-  assert.match(figureArchitecture, /2–4 点总结/);
+  assert.doesNotMatch(
+    figureArchitecture,
+    /联网核查|2–4 点总结|Before designing, browse leading|Summarize 2–4 transferable observations/,
+  );
+  assert.match(
+    figureArchitecture,
+    /请先思考与本论文主题最接近的顶会或顶刊论文中“\$\{figureTypeLabel\}”的构图、信息层级和视觉语法，并吸收其通用表达方法/,
+  );
+  assert.match(
+    figureArchitecture,
+    /First consider the composition, information hierarchy, and visual grammar of “\$\{figureTypeLabel\}” figures/,
+  );
   assert.match(
     figureArchitecture,
     /如有另行提供的图片，默认仅作为视觉样式参考/,
@@ -1692,11 +1703,15 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
   assert.match(extendedFigureAdapters, /本次绘制几何／坐标关系图/);
   assert.match(extendedFigureAdapters, /本次绘制综述／分类体系图/);
   assert.match(figureArchitecture, /FINAL IMAGE PROMPT/);
-  assert.match(figureArchitecture, /REFERENCE STYLE SUMMARY/);
+  assert.doesNotMatch(figureArchitecture, /REFERENCE STYLE SUMMARY/);
   assert.match(figureArchitecture, /等待我输入“开始绘图”/);
   assert.match(
     figureArchitecture,
-    /render an ultra-high-resolution scientific figure with crisp details and legible text for publication/,
+    /render an ultra-high-resolution scientific figure with legible text for publication/,
+  );
+  assert.doesNotMatch(
+    figureArchitecture,
+    /细节锐利|crisp details|生成后核对术语|After generation, verify|并核对术语、结构、箭头和可读性|verify terminology, structure, arrows, and legibility/,
   );
   assert.doesNotMatch(figureArchitecture, /RGB\(/);
   assert.doesNotMatch(

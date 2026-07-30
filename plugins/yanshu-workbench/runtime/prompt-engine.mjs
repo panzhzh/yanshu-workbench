@@ -656,14 +656,14 @@ Choose a tree, two-dimensional matrix, layered landscape, or multi-axis map acco
 var COMMON_BASE = {
   zh: (figureTypeLabel, hasReferenceImage) => `\u4F60\u662F\u4E00\u540D\u9762\u5411\u8BA1\u7B97\u673A\u79D1\u5B66\u8BBA\u6587\u7684\u79D1\u7814\u914D\u56FE\u4E13\u5BB6\u3002\u6211\u4F1A\u63D0\u4F9B\u8BBA\u6587\u7684 \`.tex\` \u548C\u53EF\u9009\u7684 \`.pdf\`\u3002${hasReferenceImage ? "\u6211\u8FD8\u4F1A\u53E6\u884C\u63D0\u4F9B\u53C2\u8003\u56FE\u7247\u6216\u660E\u786E\u6807\u6CE8\u7684\u7ED8\u56FE\u8349\u7A3F\u3002" : ""}
 
-\u5F00\u59CB\u524D\uFF0C\u8BF7\u8054\u7F51\u6838\u67E5\u4E0E\u672C\u8BBA\u6587\u4E3B\u9898\u6700\u63A5\u8FD1\u7684\u9876\u4F1A\u6216\u9876\u520A\u8BBA\u6587\uFF0C\u91CD\u70B9\u89C2\u5BDF\u5176\u4E2D\u4E0E\u672C\u6B21\u4EFB\u52A1\u76F8\u540C\u7684\u201C${figureTypeLabel}\u201D\u3002\u7528 2\u20134 \u70B9\u603B\u7ED3\u53EF\u501F\u9274\u7684\u6784\u56FE\u3001\u4FE1\u606F\u5C42\u7EA7\u548C\u89C6\u89C9\u8BED\u6CD5\uFF1B\u53EA\u5438\u6536\u901A\u7528\u8868\u8FBE\u65B9\u6CD5\uFF0C\u4E0D\u590D\u5236\u5177\u4F53\u5185\u5BB9\u6216\u54C1\u724C\u89C6\u89C9\u3002\u82E5\u5F53\u524D\u65E0\u6CD5\u8054\u7F51\uFF0C\u8BF7\u660E\u786E\u8BF4\u660E\uFF0C\u5E76\u4EC5\u4F9D\u636E\u5DF2\u63D0\u4F9B\u6750\u6599\u7EE7\u7EED\u3002
+\u8BF7\u5148\u601D\u8003\u4E0E\u672C\u8BBA\u6587\u4E3B\u9898\u6700\u63A5\u8FD1\u7684\u9876\u4F1A\u6216\u9876\u520A\u8BBA\u6587\u4E2D\u201C${figureTypeLabel}\u201D\u7684\u6784\u56FE\u3001\u4FE1\u606F\u5C42\u7EA7\u548C\u89C6\u89C9\u8BED\u6CD5\uFF0C\u5E76\u5438\u6536\u5176\u901A\u7528\u8868\u8FBE\u65B9\u6CD5\u3002
 
 ${hasReferenceImage ? "\u5982\u6709\u53E6\u884C\u63D0\u4F9B\u7684\u56FE\u7247\uFF0C\u9ED8\u8BA4\u4EC5\u4F5C\u4E3A\u89C6\u89C9\u6837\u5F0F\u53C2\u8003\uFF1A\u6982\u62EC\u5176\u6784\u56FE\u3001\u914D\u8272\u3001\u7EBF\u6761\u3001\u5B57\u4F53\u4E0E\u6574\u4F53\u89C6\u89C9\u8BED\u8A00\uFF0C\u5E76\u5728\u4E0E\u5F53\u524D\u89C6\u89C9\u914D\u7F6E\u517C\u5BB9\u65F6\u501F\u9274\uFF1B\u53EA\u6709\u5F53\u6211\u660E\u786E\u6807\u6CE8\u67D0\u5F20\u56FE\u7247\u4E3A\u201C\u7ED8\u56FE\u8349\u7A3F\u201D\u65F6\uFF0C\u624D\u53EF\u5C06\u5176\u5185\u90E8\u7ED3\u6784\u4F5C\u4E3A\u5185\u5BB9\u7EBF\u7D22\uFF0C\u5E76\u4ECD\u987B\u4F9D\u636E\u8BBA\u6587\u6750\u6599\u9010\u9879\u6838\u9A8C\u3002\n\n" : ""}\u5B8C\u6574\u9605\u8BFB\u6750\u6599\u540E\u518D\u8BBE\u8BA1\u3002\u4EE5 \`.tex\` \u4E3A\u65B9\u6CD5\u540D\u3001\u6A21\u5757\u540D\u3001\u7F29\u5199\u3001\u6570\u5B66\u7B26\u53F7\u548C\u7ED3\u6784\u7684\u4E3B\u8981\u4F9D\u636E\uFF0C\u4EE5 \`.pdf\` \u7406\u89E3\u4E0A\u4E0B\u6587\u548C\u73B0\u6709\u56FE\u8868\u3002\u56FE\u4E2D\u672F\u8BED\u5FC5\u987B\u4E0E\u8BBA\u6587\u9010\u5B57\u7B26\u4E00\u81F4\uFF0C\u53EA\u5448\u73B0\u8BBA\u6587\u8BC1\u636E\u652F\u6301\u7684\u5173\u7CFB\u3002
 
 \u5148\u786E\u5B9A\u8FD9\u5F20\u56FE\u7684\u552F\u4E00\u4E3B\u65E8\u548C\u4E3B\u8981\u9605\u8BFB\u8DEF\u5F84\uFF0C\u518D\u9009\u62E9\u6700\u7B26\u5408\u8BBA\u6587\u5BF9\u8C61\u7684\u89C6\u89C9\u8868\u8FBE\uFF0C\u4F8B\u5982 token\u3001matrix\u3001graph\u3001feature map\u3001state\u3001timeline\u3001coordinate frame \u6216\u4EE3\u8868\u6027\u6837\u4F8B\u3002\u4E0D\u8981\u628A\u6574\u5F20\u56FE\u753B\u6210\u6587\u5B57\u5361\u7247\uFF1B\u6807\u7B7E\u4F7F\u7528\u7B80\u77ED\u82F1\u6587\uFF0C\u4FDD\u8BC1\u7F29\u5C0F\u5230\u8BBA\u6587\u5C3A\u5BF8\u540E\u4ECD\u6E05\u695A\uFF0C\u5E76\u8BA9\u753B\u9762\u7D27\u51D1\u800C\u4E0D\u8FC7\u5EA6\u62E5\u6324\u3002`,
   en: (figureTypeLabel, hasReferenceImage) => `You are a scientific-figure specialist for computer-science papers. I will provide the paper's \`.tex\` and, when available, its \`.pdf\`.${hasReferenceImage ? " I will also supply reference images or an explicitly labeled figure draft." : ""}
 
-Before designing, browse leading conference or journal papers closest to this paper's topic and inspect figures serving the same \u201C${figureTypeLabel}\u201D role. Summarize 2\u20134 transferable observations about composition, information hierarchy, and visual grammar. Borrow only general presentation patterns, never specific content or brand styling. If browsing is unavailable, say so and continue only from the supplied materials.
+First consider the composition, information hierarchy, and visual grammar of \u201C${figureTypeLabel}\u201D figures in leading conference or journal papers closest to this paper's topic, and draw on their general presentation patterns.
 
 ${hasReferenceImage ? "Treat any separately supplied image only as a visual-style reference by default: summarize its composition, palette, line work, typography, and overall visual language, and borrow compatible elements within the current visual configuration. Only when I explicitly label an image as a \u201Cfigure draft\u201D may its internal structure be used as a content cue, and every such cue must still be verified against the paper.\n\n" : ""}Read the materials before designing. Treat the \`.tex\` as the primary source for method names, module names, abbreviations, mathematical symbols, and structure; use the \`.pdf\` for context and existing figures. Every term in the image must match the paper exactly, and every relationship must be supported by the paper.
 
@@ -701,43 +701,35 @@ var FIGURE_TYPE_ADAPTERS = {
 };
 function buildDirectProtocol(language, outputFileName) {
   if (language === "zh") {
-    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u76F4\u63A5\u7ED8\u56FE\u3002\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u7EC6\u8282\u9510\u5229\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002\u751F\u6210\u540E\u6838\u5BF9\u672F\u8BED\u3001\u7BAD\u5934\u65B9\u5411\u3001\u7ED3\u6784\u5173\u7CFB\u548C\u7F29\u5C0F\u540E\u7684\u53EF\u8BFB\u6027\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
+    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u76F4\u63A5\u7ED8\u56FE\u3002\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
   }
-  return `Execution mode: draw directly. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
+  return `Execution mode: draw directly. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with legible text for publication.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
 }
-function buildPromptFirstProtocol(language, hasReferenceImage, outputFileName) {
+function buildPromptFirstProtocol(language, outputFileName) {
   if (language === "zh") {
-    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u5148\u770B Prompt\uFF0C\u672C\u8F6E\u4E0D\u8981\u751F\u6210\u56FE\u7247\u3002\u53EA\u8F93\u51FA\u4E24\u90E8\u5206\uFF1A
-
-REFERENCE STYLE SUMMARY
-\u7528 2\u20134 \u70B9\u6982\u62EC\u540C\u7C7B\u9876\u4F1A\u6216\u9876\u520A\u56FE\u7247${hasReferenceImage ? "\u4EE5\u53CA\u6240\u63D0\u4F9B\u53C2\u8003\u56FE" : ""}\u4E2D\u53EF\u501F\u9274\u7684\u89C6\u89C9\u65B9\u6CD5\u3002
+    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u5148\u770B Prompt\uFF0C\u672C\u8F6E\u4E0D\u8981\u751F\u6210\u56FE\u7247\u3002\u53EA\u8F93\u51FA\uFF1A
 
 FINAL IMAGE PROMPT
 \u5728\u4E00\u4E2A \`text\` \u4EE3\u7801\u5757\u4E2D\u7ED9\u51FA\u5B8C\u6574\u82F1\u6587\u751F\u56FE Prompt\uFF0C\u53EA\u9700\u4F9D\u6B21\u5199\u6E05\uFF1A\u56FE\u7684\u4E3B\u65E8\u4E0E\u6784\u56FE\u3001\u79D1\u5B66\u5BF9\u8C61\u4E0E\u4FE1\u606F\u6D41\u3001\u7CBE\u786E\u6807\u7B7E\u3001\u89C6\u89C9\u8BBE\u7F6E\u3002\u4E0D\u8981\u8F93\u51FA\u63A8\u7406\u8FC7\u7A0B\u6216\u5907\u9009\u65B9\u6848\u3002
 
-\u7136\u540E\u505C\u6B62\uFF0C\u7B49\u5F85\u6211\u8F93\u5165\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u3002\u6536\u5230\u540E\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u4F9D\u636E\u8FD9\u4EFD Prompt \u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u7EC6\u8282\u9510\u5229\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\uFF0C\u5E76\u6838\u5BF9\u672F\u8BED\u3001\u7ED3\u6784\u3001\u7BAD\u5934\u548C\u53EF\u8BFB\u6027\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
+\u7136\u540E\u505C\u6B62\uFF0C\u7B49\u5F85\u6211\u8F93\u5165\u201C\u5F00\u59CB\u7ED8\u56FE\u201D\u3002\u6536\u5230\u540E\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u4F9D\u636E\u8FD9\u4EFD Prompt \u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
   }
   return `Execution mode: prompt first. Do not generate an image in this response. Output only:
-
-REFERENCE STYLE SUMMARY
-Give 2\u20134 transferable observations from comparable figures in leading conference or journal papers${hasReferenceImage ? " and the supplied reference images" : ""}.
 
 FINAL IMAGE PROMPT
 Provide one complete English image-generation prompt in a \`text\` code block. Cover only the visual thesis and composition, scientific objects and flow, exact labels, and visual settings. Do not expose reasoning or alternatives.
 
-Then stop and wait for \u201CStart drawing\u201D or \u201C\u5F00\u59CB\u7ED8\u56FE\u201D. After that instruction, think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then use this prompt to render an ultra-high-resolution scientific figure with crisp details and legible text for publication; verify terminology, structure, arrows, and legibility.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
+Then stop and wait for \u201CStart drawing\u201D or \u201C\u5F00\u59CB\u7ED8\u56FE\u201D. After that instruction, think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then use this prompt to render an ultra-high-resolution scientific figure with legible text for publication.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
 }
 var OUTPUT_PROTOCOL = {
   zh: ({
     executionMode,
-    hasReferenceImage,
     outputFileName
-  }) => executionMode === "direct" ? buildDirectProtocol("zh", outputFileName) : buildPromptFirstProtocol("zh", hasReferenceImage, outputFileName),
+  }) => executionMode === "direct" ? buildDirectProtocol("zh", outputFileName) : buildPromptFirstProtocol("zh", outputFileName),
   en: ({
     executionMode,
-    hasReferenceImage,
     outputFileName
-  }) => executionMode === "direct" ? buildDirectProtocol("en", outputFileName) : buildPromptFirstProtocol("en", hasReferenceImage, outputFileName)
+  }) => executionMode === "direct" ? buildDirectProtocol("en", outputFileName) : buildPromptFirstProtocol("en", outputFileName)
 };
 
 // app/figures/config.ts
@@ -1345,7 +1337,6 @@ function buildFigurePrompt(promptId, preferences, language, options = {}) {
     buildVisualConfiguration(preferences, language),
     OUTPUT_PROTOCOL[language]({
       executionMode: preferences.executionMode,
-      hasReferenceImage: preferences.hasReferenceImage,
       outputFileName: options.outputFileName
     })
   ].join("\n\n");

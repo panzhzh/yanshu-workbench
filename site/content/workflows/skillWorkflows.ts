@@ -691,8 +691,8 @@ const SCIENTIFIC_FIGURE_MODEL: SkillWorkflowModel = {
           "direct",
           localized("直接绘图", "Draw directly"),
           localized(
-            "内部完成风格总结和英文生图 Prompt，然后直接生成图片。",
-            "Build the style summary and English image prompt internally, then generate the image.",
+            "充分推敲论文内容、构图与视觉细节后直接生成图片。",
+            "Generate the image directly after carefully considering the paper, composition, and visual details.",
           ),
         ),
         choice(

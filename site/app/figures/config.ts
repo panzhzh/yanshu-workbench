@@ -791,9 +791,8 @@ export const FIGURE_COPY = {
   zh: {
     eyebrow: "RESEARCH FIGURES",
     title: "科研绘图",
-    subtitle:
-      "先参考同类顶会与顶刊图片，再依据论文证据生成高清科研配图。",
-    preset: "同类图参考 → 论文取证 → 单图生成",
+    subtitle: "依据论文证据生成高清科研配图。",
+    preset: "论文取证 → 单图生成",
     reset: "恢复当前图型推荐配置",
     resetHint:
       "只恢复当前图型的推荐占栏、比例与视觉设置；其他图型中已修改的设置会保留。",
@@ -808,10 +807,10 @@ export const FIGURE_COPY = {
     executionMode: "执行方式",
     executionDirect: "直接绘图",
     executionDirectHint:
-      "默认。内部完成风格总结与英文生图 Prompt，充分推敲后生成高清图片。",
+      "默认。充分推敲论文内容、构图与视觉细节后生成高清图片。",
     executionPromptFirst: "先看英文 Prompt",
     executionPromptFirstHint:
-      "先输出简短参考总结和英文生图 Prompt，等你输入“开始绘图”。",
+      "先输出英文生图 Prompt，等你输入“开始绘图”。",
     executionHint: "两种方式使用同一份图型与视觉配置。",
     referenceImage: "是否提供参考图",
     referenceImageOn: "提供参考图",
@@ -889,8 +888,8 @@ export const FIGURE_COPY = {
     eyebrow: "RESEARCH FIGURES",
     title: "Research figures",
     subtitle:
-      "Reference comparable top-venue figures, then create a high-resolution scientific figure from the paper evidence.",
-    preset: "Figure references → paper evidence → one figure",
+      "Create a high-resolution scientific figure from the paper evidence.",
+    preset: "Paper evidence → one figure",
     reset: "Restore this figure’s recommendations",
     resetHint:
       "Restores only the current figure type’s recommended placement, ratio, and visual settings. Changes saved for other figure types remain intact.",
@@ -905,10 +904,10 @@ export const FIGURE_COPY = {
     executionMode: "Execution",
     executionDirect: "Draw directly",
     executionDirectHint:
-      "Default. Build the reference summary and English image prompt internally, then render a high-resolution figure after careful consideration.",
+      "Default. Render a high-resolution figure after carefully considering the paper, composition, and visual details.",
     executionPromptFirst: "Review prompt first",
     executionPromptFirstHint:
-      "Show a short reference summary and the English image prompt, then wait for “Start drawing”.",
+      "Show the English image prompt, then wait for “Start drawing”.",
     executionHint: "Both modes use the same figure-type and visual settings.",
     referenceImage: "Reference image",
     referenceImageOn: "Reference supplied",
@@ -1061,7 +1060,6 @@ export function buildFigurePrompt(
     buildVisualConfiguration(preferences, language),
     OUTPUT_PROTOCOL[language]({
       executionMode: preferences.executionMode,
-      hasReferenceImage: preferences.hasReferenceImage,
       outputFileName: options.outputFileName,
     }),
   ].join("\n\n");

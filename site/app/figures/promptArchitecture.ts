@@ -18,7 +18,7 @@ export const COMMON_BASE: LocalizedPromptBuilder = {
       : ""
   }
 
-开始前，请联网核查与本论文主题最接近的顶会或顶刊论文，重点观察其中与本次任务相同的“${figureTypeLabel}”。用 2–4 点总结可借鉴的构图、信息层级和视觉语法；只吸收通用表达方法，不复制具体内容或品牌视觉。若当前无法联网，请明确说明，并仅依据已提供材料继续。
+请先思考与本论文主题最接近的顶会或顶刊论文中“${figureTypeLabel}”的构图、信息层级和视觉语法，并吸收其通用表达方法。
 
 ${hasReferenceImage ? "如有另行提供的图片，默认仅作为视觉样式参考：概括其构图、配色、线条、字体与整体视觉语言，并在与当前视觉配置兼容时借鉴；只有当我明确标注某张图片为“绘图草稿”时，才可将其内部结构作为内容线索，并仍须依据论文材料逐项核验。\n\n" : ""}完整阅读材料后再设计。以 \`.tex\` 为方法名、模块名、缩写、数学符号和结构的主要依据，以 \`.pdf\` 理解上下文和现有图表。图中术语必须与论文逐字符一致，只呈现论文证据支持的关系。
 
@@ -29,7 +29,7 @@ ${hasReferenceImage ? "如有另行提供的图片，默认仅作为视觉样式
       : ""
   }
 
-Before designing, browse leading conference or journal papers closest to this paper's topic and inspect figures serving the same “${figureTypeLabel}” role. Summarize 2–4 transferable observations about composition, information hierarchy, and visual grammar. Borrow only general presentation patterns, never specific content or brand styling. If browsing is unavailable, say so and continue only from the supplied materials.
+First consider the composition, information hierarchy, and visual grammar of “${figureTypeLabel}” figures in leading conference or journal papers closest to this paper's topic, and draw on their general presentation patterns.
 
 ${hasReferenceImage ? "Treat any separately supplied image only as a visual-style reference by default: summarize its composition, palette, line work, typography, and overall visual language, and borrow compatible elements within the current visual configuration. Only when I explicitly label an image as a “figure draft” may its internal structure be used as a content cue, and every such cue must still be verified against the paper.\n\n" : ""}Read the materials before designing. Treat the \`.tex\` as the primary source for method names, module names, abbreviations, mathematical symbols, and structure; use the \`.pdf\` for context and existing figures. Every term in the image must match the paper exactly, and every relationship must be supported by the paper.
 
@@ -72,7 +72,6 @@ export const FIGURE_TYPE_ADAPTERS = {
 
 interface OutputProtocolOptions {
   executionMode: FigureExecutionMode;
-  hasReferenceImage: boolean;
   outputFileName?: string;
 }
 
@@ -81,33 +80,29 @@ function buildDirectProtocol(
   outputFileName?: string,
 ) {
   if (language === "zh") {
-    return `执行方式：直接绘图。请充分思考论文内容、信息层级、构图与视觉细节，再绘制一张文字清晰、细节锐利、适合论文排版的超高清科研配图。生成后核对术语、箭头方向、结构关系和缩小后的可读性。${
+    return `执行方式：直接绘图。请充分思考论文内容、信息层级、构图与视觉细节，再绘制一张文字清晰、适合论文排版的超高清科研配图。${
       outputFileName
         ? ` 最终图片保存为 \`${outputFileName}\`。`
         : ""
     }`;
   }
 
-  return `Execution mode: draw directly. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${
+  return `Execution mode: draw directly. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with legible text for publication.${
     outputFileName ? ` Save it as \`${outputFileName}\`.` : ""
   }`;
 }
 
 function buildPromptFirstProtocol(
   language: Language,
-  hasReferenceImage: boolean,
   outputFileName?: string,
 ) {
   if (language === "zh") {
-    return `执行方式：先看 Prompt，本轮不要生成图片。只输出两部分：
-
-REFERENCE STYLE SUMMARY
-用 2–4 点概括同类顶会或顶刊图片${hasReferenceImage ? "以及所提供参考图" : ""}中可借鉴的视觉方法。
+    return `执行方式：先看 Prompt，本轮不要生成图片。只输出：
 
 FINAL IMAGE PROMPT
 在一个 \`text\` 代码块中给出完整英文生图 Prompt，只需依次写清：图的主旨与构图、科学对象与信息流、精确标签、视觉设置。不要输出推理过程或备选方案。
 
-然后停止，等待我输入“开始绘图”。收到后请充分思考论文内容、信息层级、构图与视觉细节，再依据这份 Prompt 绘制一张文字清晰、细节锐利、适合论文排版的超高清科研配图，并核对术语、结构、箭头和可读性。${
+然后停止，等待我输入“开始绘图”。收到后请充分思考论文内容、信息层级、构图与视觉细节，再依据这份 Prompt 绘制一张文字清晰、适合论文排版的超高清科研配图。${
       outputFileName
         ? ` 最终图片保存为 \`${outputFileName}\`。`
         : ""
@@ -116,13 +111,10 @@ FINAL IMAGE PROMPT
 
   return `Execution mode: prompt first. Do not generate an image in this response. Output only:
 
-REFERENCE STYLE SUMMARY
-Give 2–4 transferable observations from comparable figures in leading conference or journal papers${hasReferenceImage ? " and the supplied reference images" : ""}.
-
 FINAL IMAGE PROMPT
 Provide one complete English image-generation prompt in a \`text\` code block. Cover only the visual thesis and composition, scientific objects and flow, exact labels, and visual settings. Do not expose reasoning or alternatives.
 
-Then stop and wait for “Start drawing” or “开始绘图”. After that instruction, think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then use this prompt to render an ultra-high-resolution scientific figure with crisp details and legible text for publication; verify terminology, structure, arrows, and legibility.${
+Then stop and wait for “Start drawing” or “开始绘图”. After that instruction, think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then use this prompt to render an ultra-high-resolution scientific figure with legible text for publication.${
     outputFileName ? ` Save it as \`${outputFileName}\`.` : ""
   }`;
 }
@@ -130,18 +122,16 @@ Then stop and wait for “Start drawing” or “开始绘图”. After that ins
 export const OUTPUT_PROTOCOL = {
   zh: ({
     executionMode,
-    hasReferenceImage,
     outputFileName,
   }: OutputProtocolOptions) =>
     executionMode === "direct"
       ? buildDirectProtocol("zh", outputFileName)
-      : buildPromptFirstProtocol("zh", hasReferenceImage, outputFileName),
+      : buildPromptFirstProtocol("zh", outputFileName),
   en: ({
     executionMode,
-    hasReferenceImage,
     outputFileName,
   }: OutputProtocolOptions) =>
     executionMode === "direct"
       ? buildDirectProtocol("en", outputFileName)
-      : buildPromptFirstProtocol("en", hasReferenceImage, outputFileName),
+      : buildPromptFirstProtocol("en", outputFileName),
 } as const;

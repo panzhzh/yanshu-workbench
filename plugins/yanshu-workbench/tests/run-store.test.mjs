@@ -705,7 +705,15 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   );
   assert.match(
     workflow.rounds[3].prompt,
-    /render an ultra-high-resolution scientific figure with crisp details and legible text for publication/,
+    /render an ultra-high-resolution scientific figure with legible text for publication/,
+  );
+  assert.doesNotMatch(
+    workflow.rounds[3].prompt,
+    /browse leading conference or journal papers|Summarize 2–4 transferable observations|crisp details|After generation, verify/,
+  );
+  assert.match(
+    workflow.rounds[3].prompt,
+    /First consider the composition, information hierarchy, and visual grammar of “Method overview” figures/,
   );
   assert.doesNotMatch(
     workflow.rounds[3].prompt,
