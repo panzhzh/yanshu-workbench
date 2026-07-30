@@ -1,11 +1,16 @@
 import type { Language } from "../../config";
 import type {
   LocalizedText,
+  NumberRange,
   WorkbenchCopy,
   WorkbenchControl,
   WorkbenchDefinition,
   WorkbenchValues,
 } from "../../workbench/types";
+import {
+  CAPTION_LENGTH_POLICY,
+  buildCaptionLengthGuidance,
+} from "../../../content/prompts/captionLength";
 
 const text = (zh: string, en: string): LocalizedText => ({ zh, en });
 
@@ -21,6 +26,17 @@ function selected(values: Readonly<WorkbenchValues>, id: string) {
   return Array.isArray(values[id])
     ? (values[id] as readonly string[])
     : [];
+}
+
+function rangeValue(
+  values: Readonly<WorkbenchValues>,
+  id: string,
+  fallback: NumberRange,
+) {
+  const value = values[id];
+  return Array.isArray(value) && value.length === 2
+    ? ([Number(value[0]), Number(value[1])] as NumberRange)
+    : fallback;
 }
 
 interface CopySeed {
@@ -400,6 +416,20 @@ export const WRITING_DIAGNOSIS_WORKBENCH = {
       disabledLabel: text("不单独标记", "Do not mark separately"),
     },
     {
+      id: "captionWordRange",
+      kind: "range",
+      label: text("Caption 建议长度", "Suggested caption length"),
+      description: text(
+        "仅在安全修复确需改写 Caption 时使用；默认 10–40 words，必要时允许超出，长度本身不构成错误。",
+        "Use only when a safe repair genuinely rewrites a caption. The default 10–40-word range is flexible, and length alone is never an error.",
+      ),
+      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+      suffix: text("words", "words"),
+    },
+    {
       id: "custom",
       kind: "textarea",
       label: text("补充关注点", "Additional focus"),
@@ -441,6 +471,14 @@ export const WRITING_DIAGNOSIS_WORKBENCH = {
       enabled(values, "browseCitations") &&
       selected(values, "dimensions").includes("citation-practice");
     const preserve = enabled(values, "preserveStrengths");
+    const captionGuidance = buildCaptionLengthGuidance(
+      rangeValue(
+        values,
+        "captionWordRange",
+        CAPTION_LENGTH_POLICY.defaultRange,
+      ),
+      language,
+    );
     const custom =
       scalar(values, "custom") || (language === "zh" ? "无" : "None");
 
@@ -459,6 +497,7 @@ export const WRITING_DIAGNOSIS_WORKBENCH = {
 - 处理：${DIAGNOSIS_ACTIONS[repair ? "repair" : "report"].zh}
 - 引文候选：${browse ? "联网核查高置信度缺口，给出真实来源与可用 BibTeX；不自动插入" : "只定位写作层面的缺引文位置"}
 - 保护好表达：${preserve ? "是" : "不单独标记"}
+- Caption 建议：${captionGuidance} 仅在安全修复确需改写 Caption 时采用，不能据此单独判错。
 - 补充关注：${custom}
 
 先在内部建立全文主线和 section-function map，再按“全文与章节 → 段落与图表 → 句子与公式”三个尺度诊断。尊重不同章节的真实功能：Abstract 讲完整故事；Introduction 建立问题、动机、缺口、方案与贡献；Related Work 做综合与定位；Method 解释设计逻辑；Experiments & Results 用证据形成 finding；Discussion 解释意义而不是重播结果；Conclusion 不引入新证据。
@@ -495,6 +534,7 @@ Understand the writing goals behind these rules and use expert judgment to produ
 - Action: ${DIAGNOSIS_ACTIONS[repair ? "repair" : "report"].en}
 - Citation candidates: ${browse ? "browse high-confidence gaps, verify authentic sources, return usable BibTeX, and never insert them silently" : "locate writing-level citation gaps only"}
 - Preserve strong prose: ${preserve ? "yes" : "do not mark separately"}
+- Caption guidance: ${captionGuidance} Apply it only when a safe repair genuinely rewrites a caption; never diagnose an error from this range alone.
 - Additional focus: ${custom}
 
 First build an internal central-argument and section-function map. Diagnose at three scales: manuscript and section, paragraph and display item, then sentence and equation. Respect section functions: the Abstract tells a complete story; the Introduction establishes problem, motivation, gap, solution, and contributions; Related Work synthesizes and positions; Method explains design logic; Experiments & Results turns evidence into findings; Discussion interprets rather than replays results; Conclusion introduces no new evidence.
@@ -542,6 +582,24 @@ export function normalizeWritingDiagnosisValues(
 
     if (control.kind === "toggle") {
       if (typeof value === "boolean") values[control.id] = value;
+      continue;
+    }
+    if (control.kind === "range") {
+      if (!Array.isArray(value) || value.length !== 2) continue;
+      const left = Math.min(
+        control.max,
+        Math.max(control.min, Number(value[0])),
+      );
+      const right = Math.min(
+        control.max,
+        Math.max(control.min, Number(value[1])),
+      );
+      if (Number.isFinite(left) && Number.isFinite(right)) {
+        values[control.id] = [
+          Math.min(left, right),
+          Math.max(left, right),
+        ];
+      }
       continue;
     }
     if (control.kind === "multi") {

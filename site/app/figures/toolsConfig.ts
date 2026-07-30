@@ -8,6 +8,10 @@ import type {
   WorkbenchValues,
 } from "../workbench/types";
 import { FIGURE_COLOR_PALETTES } from "./config";
+import {
+  CAPTION_LENGTH_POLICY,
+  buildCaptionLengthGuidance,
+} from "../../content/prompts/captionLength";
 
 const text = (zh: string, en: string): LocalizedText => ({ zh, en });
 
@@ -394,6 +398,20 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
       span: "full",
     },
     {
+      id: "captionWordRange",
+      kind: "range",
+      label: text("Caption 建议长度", "Suggested caption length"),
+      description: text(
+        "默认 10–40 words；为保证自包含性，必要时允许超出。",
+        "Defaults to 10–40 words and may be exceeded when self-containment requires it.",
+      ),
+      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+      suffix: text("words", "words"),
+    },
+    {
       id: "custom",
       kind: "textarea",
       label: text("补充要求", "Additional requirements"),
@@ -466,6 +484,14 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
     const custom =
       scalar(values, "custom") ||
       (language === "zh" ? "无" : "None");
+    const captionGuidance = buildCaptionLengthGuidance(
+      rangeValue(
+        values,
+        "captionWordRange",
+        CAPTION_LENGTH_POLICY.defaultRange,
+      ),
+      language,
+    );
     const multiplicity = selected(values, "statistics").includes("test")
       ? labelFor(
           scalar(values, "multiplicity"),
@@ -525,6 +551,7 @@ export const EXPERIMENTAL_PLOTS_WORKBENCH = {
 - 面板组织：${panelPolicy}
 - 版面宽度：${labelFor(scalar(values, "width"), PLOT_WIDTHS, language)}
 - 颜色：${palette}
+- Caption 建议：${captionGuidance}
 - 交付：${outputs}
 - 补充要求：${custom}
 
@@ -547,6 +574,7 @@ Read the supplied data, metric definitions, protocol, and manuscript context. Ac
 - Panel structure: ${panelPolicy}
 - Layout width: ${labelFor(scalar(values, "width"), PLOT_WIDTHS, language)}
 - Color: ${palette}
+- Caption guidance: ${captionGuidance}
 - Deliverables: ${outputs}
 - Additional requirements: ${custom}
 
@@ -875,6 +903,20 @@ export const PAPER_TABLES_WORKBENCH = {
       span: "full",
     },
     {
+      id: "captionWordRange",
+      kind: "range",
+      label: text("Caption 建议长度", "Suggested caption length"),
+      description: text(
+        "默认 10–40 words；为保证自包含性，必要时允许超出。",
+        "Defaults to 10–40 words and may be exceeded when self-containment requires it.",
+      ),
+      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+      suffix: text("words", "words"),
+    },
+    {
       id: "custom",
       kind: "textarea",
       label: text("补充要求", "Additional requirements"),
@@ -914,6 +956,14 @@ export const PAPER_TABLES_WORKBENCH = {
     const emphasis =
       metricDirection === "none" ? "none" : scalar(values, "emphasis");
     const includesLatex = selected(values, "outputs").includes("latex");
+    const captionGuidance = buildCaptionLengthGuidance(
+      rangeValue(
+        values,
+        "captionWordRange",
+        CAPTION_LENGTH_POLICY.defaultRange,
+      ),
+      language,
+    );
 
     if (language === "zh") {
       return `# 生成忠实且可读的论文表格
@@ -928,6 +978,7 @@ export const PAPER_TABLES_WORKBENCH = {
 - 宽度：${labelFor(scalar(values, "width"), TABLE_WIDTHS, language)}
 - 密度：${labelFor(scalar(values, "density"), TABLE_DENSITIES, language)}
 - 方法分组：${enabled(values, "groupMethods") ? "按真实语义分组" : "单一列表"}
+- Caption 建议：${captionGuidance}
 - 交付：${labelsFor(values, "outputs", TABLE_OUTPUTS, language)}
 - 补充要求：${custom}
 
@@ -948,6 +999,7 @@ Read the supplied result files, existing tables, metric definitions, and manuscr
 - Width: ${labelFor(scalar(values, "width"), TABLE_WIDTHS, language)}
 - Density: ${labelFor(scalar(values, "density"), TABLE_DENSITIES, language)}
 - Method grouping: ${enabled(values, "groupMethods") ? "meaningful semantic groups" : "one list"}
+- Caption guidance: ${captionGuidance}
 - Deliverables: ${labelsFor(values, "outputs", TABLE_OUTPUTS, language)}
 - Additional requirements: ${custom}
 

@@ -33,6 +33,10 @@ import {
   importArtifactBundle,
 } from "./lib/artifact-bundle.mjs";
 import {
+  executorWorkspaceSpec,
+  importExecutorWorkspaceArtifacts,
+} from "./lib/executor-workspace.mjs";
+import {
   checkPublishedPromptRelease,
   OFFICIAL_RECONSTRUCTION_URL,
 } from "./lib/prompt-release.mjs";
@@ -44,15 +48,18 @@ import {
 import {
   bridgeHints,
   createRun,
+  EXECUTION_ADAPTERS,
   loadRun,
   markRound,
   nextRound,
   pathExists,
+  prepareRoundExecutionPrompt,
   registerArtifact,
   resolvePaperInputs,
   roundAttachments,
   saveRun,
   summarizeRun,
+  updateExecutionAdapter,
 } from "./lib/run-store.mjs";
 import {
   mcpSessionStatus,
@@ -119,6 +126,8 @@ function help() {
       "mcp-stop": "Stop the run-scoped YanShu MCP workspace.",
       "chat-plan":
         "Resolve a saved reasoning preference against ChatGPT options currently visible to the user.",
+      "execution-adapter":
+        "Record the thin host adapter used to execute every round without changing the workflow.",
       "version-handshake":
         "Compare plugin, workflow, marketplace, and loaded runtime versions; update automatically when required.",
       "support-status":
@@ -136,7 +145,7 @@ function help() {
       "artifact-bundle":
         "Validate and import one round ZIP into its exact TeX, report, and BibTeX artifacts.",
       "round-finalize":
-        "Import, compile, deterministically validate, and atomically complete one round.",
+        "Import a bundle or round-scoped executor workspace, compile, deterministically validate, and atomically complete one round.",
     },
   };
 }
@@ -545,6 +554,18 @@ async function init(flags) {
     fileConfig.workflow?.includeSectionNavigationSentence ??
       styleId === "journal",
   );
+  const captionWordRange = [
+    numberFlag(
+      flags,
+      "caption-min-words",
+      fileConfig.workflow?.captionWordRange?.[0] ?? 10,
+    ),
+    numberFlag(
+      flags,
+      "caption-max-words",
+      fileConfig.workflow?.captionWordRange?.[1] ?? 40,
+    ),
+  ];
   const frameworkFigure = {
     aspectRatioId: enumFlag(
       flags,
@@ -586,6 +607,12 @@ async function init(flags) {
       fileConfig.workflow?.chatExecution?.forceProForAllTurns ?? false,
     ),
   };
+  const executionAdapter = enumFlag(
+    flags,
+    "execution-adapter",
+    EXECUTION_ADAPTERS,
+    fileConfig.workflow?.executionAdapter ?? "auto",
+  );
 
   const engine = await loadPromptEngine();
   const workflow = engine.buildReconstructionWorkflow({
@@ -598,6 +625,7 @@ async function init(flags) {
     targetWords,
     sectionBudgets: fileConfig.workflow?.sectionBudgets,
     includeAppendix,
+    captionWordRange,
     frameworkFigure,
     chatExecution,
   });
@@ -639,6 +667,7 @@ async function init(flags) {
     runId: stringFlag(flags, "run-id", fileConfig.runId),
     inputs,
     workflow,
+    executionAdapter,
     runtimeVersions: {
       pluginVersion: pluginManifest.version,
       loadedSkillVersion:
@@ -675,6 +704,26 @@ async function next(flags) {
       ...summarizeRun(state),
     };
   }
+  const preparedPrompt = await prepareRoundExecutionPrompt(
+    state,
+    round.id,
+  );
+  const executionAdapter =
+    state.execution?.adapter ?? "visible-chatgpt";
+  const executorWorkspace = await executorWorkspaceSpec(
+    state,
+    round.id,
+  );
+  const instructionByAdapter = {
+    auto:
+      "Prefer the visible ChatGPT bridge. If it is unavailable and the current host is Codex CLI, record `codex-host` and execute the same Prompt and artifact contract locally. Non-OpenAI hosts must record `external` and implement the portable adapter contract.",
+    "visible-chatgpt":
+      "Use the automatic visible-ChatGPT transfer handshake, prepare a fresh Chat thread, resolve reasoning with `chat-plan`, submit exactly once, preserve the returned thread URL, and call `waitForChatRound` again whenever it returns `shouldContinueMonitoring: true`.",
+    "codex-host":
+      "Before doing any work, set the process CWD and every file-edit workdir to `round.executorWorkspace.workingDirectory`. Treat the paper root and every other run path as read-only. Execute the exact saved Prompt and approved materials, write all scratch and complete canonical artifacts only in that workspace, then call `round-finalize`; YanShu imports the complete artifacts atomically. Use an available image-generation capability for Round 4.",
+    external:
+      "Invoke the user-supplied external adapter through the portable contract. YanShu does not emulate or maintain a product-specific branch; the adapter must return the canonical artifacts and normalized state.",
+  };
   return {
     ok: true,
     complete: false,
@@ -687,7 +736,10 @@ async function next(flags) {
       purpose: round.purpose,
       status: round.status,
       checkpoint: round.checkpoint,
-      promptPath: path.join(state.runPath, round.promptPath),
+      promptPath: preparedPrompt.path,
+      sourcePromptPath: preparedPrompt.sourcePath,
+      automationHandoff: preparedPrompt.handoff,
+      executorWorkspace,
       outputDirectory: path.join(
         state.runPath,
         round.directory,
@@ -703,10 +755,37 @@ async function next(flags) {
         "Run `mcp-start --run <run-path>`, then perform the zero-sensitive visible MCP handshake. YanShu automatically switches to a verified approvedAttachments fallback when that handshake is unavailable.",
     },
     execution: state.execution,
+    executionAdapter: {
+      selected: executionAdapter,
+      contractPath: path.join(
+        pluginRoot,
+        "skills",
+        "paper-reconstruction",
+        "references",
+        "executor-adapter.md",
+      ),
+    },
     statusPath: path.join(state.runPath, "STATUS.md"),
     chatExecution: state.config.chatExecution,
     instruction:
-      "Keep the Codex task active through the complete five-round loop. Use the automatic transfer-mode handshake, prepare a fresh visible Chat thread for this round, resolve reasoning with `chat-plan`, submit exactly once, preserve the returned thread URL, and call `waitForChatRound` again whenever it returns `shouldContinueMonitoring: true`. Never send a final response from a heartbeat or between rounds; after finalization, call `next` immediately.",
+      `Keep the Codex task active through the complete five-round loop. ${instructionByAdapter[executionAdapter]} Never send a final response from a heartbeat or between rounds; after finalization, call \`next\` immediately.`,
+  };
+}
+
+async function setExecutionAdapter(flags) {
+  const state = await loadRun(requiredFlag(flags, "run"));
+  const execution = await updateExecutionAdapter(state, {
+    adapter: enumFlag(
+      flags,
+      "adapter",
+      EXECUTION_ADAPTERS,
+    ),
+    reason: stringFlag(flags, "reason"),
+  });
+  return {
+    ok: true,
+    execution,
+    run: summarizeRun(state),
   };
 }
 
@@ -954,10 +1033,33 @@ async function artifactBundle(flags) {
 }
 
 async function roundFinalize(flags) {
+  const runPath = requiredFlag(flags, "run");
+  const round = requiredFlag(flags, "round");
+  const bundlePath = stringFlag(flags, "bundle");
+  const initialState = await loadRun(runPath);
+  const shouldImportWorkspace = booleanFlag(
+    flags,
+    "workspace",
+    initialState.execution?.adapter === "codex-host" &&
+      !bundlePath,
+  );
+  const workspaceImport = shouldImportWorkspace
+    ? await importExecutorWorkspaceArtifacts({
+        state: initialState,
+        selector: round,
+        replace: booleanFlag(flags, "replace", false),
+        reason: stringFlag(
+          flags,
+          "reason",
+          "round finalization",
+        ),
+        chatTurn: stringFlag(flags, "chat-turn"),
+      })
+    : null;
   const result = await finalizeRound({
-    runPath: requiredFlag(flags, "run"),
-    round: requiredFlag(flags, "round"),
-    bundlePath: stringFlag(flags, "bundle"),
+    runPath,
+    round,
+    bundlePath,
     replace: booleanFlag(flags, "replace", false),
     compile: booleanFlag(flags, "compile", true),
     texArtifactId: stringFlag(flags, "tex-artifact-id"),
@@ -965,7 +1067,7 @@ async function roundFinalize(flags) {
     chatTurn: stringFlag(flags, "chat-turn"),
     note: stringFlag(flags, "note"),
   });
-  return { ok: true, ...result };
+  return { ok: true, workspaceImport, ...result };
 }
 
 async function supportStatus(flags) {
@@ -1054,6 +1156,9 @@ async function main() {
       break;
     case "chat-plan":
       result = await chatPlan(flags);
+      break;
+    case "execution-adapter":
+      result = await setExecutionAdapter(flags);
       break;
     case "version-handshake":
       result = await versionHandshake(flags);

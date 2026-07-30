@@ -7,6 +7,7 @@ import {
   CHAT_REASONING_PREFERENCES,
   DEFAULT_CHAT_EXECUTION_PREFERENCES,
 } from "../content/prompts/chatExecution";
+import { CAPTION_LENGTH_POLICY } from "../content/prompts/captionLength";
 import { WORD_COUNT_POLICY } from "../content/prompts/wordCountPolicy";
 
 export type { Language, LocalizedText, PaperStyleId };
@@ -53,6 +54,7 @@ export const PRODUCT_CONFIG = {
     max: 20000,
     step: 100,
   },
+  captionLength: CAPTION_LENGTH_POLICY,
   chatExecution: {
     default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
     reasoningPreferences: CHAT_REASONING_PREFERENCES,
@@ -329,6 +331,11 @@ export const UI_COPY = {
     appendix: "附录设置",
     appendixOn: "允许附录",
     appendixOff: "不含附录",
+    captionLength: "Caption 建议长度",
+    captionLengthMinimum: "最少",
+    captionLengthMaximum: "最多",
+    captionLengthHint:
+      "默认 10–40 words，仅用于平衡简洁与自包含性；必要时允许超出，不会作为验收或报错条件。",
     frameworkFigure: "总体框架图",
     frameworkRatio: "画布比例",
     frameworkCustomWidth: "宽",
@@ -354,10 +361,10 @@ export const UI_COPY = {
     exportAutomation: "导出桌面配置",
     exportedAutomation: "配置已下载",
     exportAutomationHint:
-      "下载当前论文类型、篇幅建议、章节、附录、框架图、ChatGPT 推理偏好和 Prompt 语言设置，供 YanShu 插件直接读取。",
+      "下载当前论文类型、篇幅建议、章节、附录、Caption 建议、框架图、ChatGPT 推理偏好和 Prompt 语言设置，供 YanShu 插件直接读取。",
     resetDefaults: "恢复默认配置",
     resetHint:
-      "重置论文类型、篇幅建议、附录、框架图、ChatGPT 推理偏好和章节建议；保留当前语言。",
+      "重置论文类型、篇幅建议、附录、Caption 建议、框架图、ChatGPT 推理偏好和章节建议；保留当前语言。",
     plannerTitle: "正文与章节篇幅建议",
     plannerBody:
       "所有数值仅供参考，可按论文内容接受、调整或忽略；方法和实验默认不设置建议范围。",
@@ -431,6 +438,11 @@ export const UI_COPY = {
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
     appendixOff: "No appendix",
+    captionLength: "Suggested caption length",
+    captionLengthMinimum: "Minimum",
+    captionLengthMaximum: "Maximum",
+    captionLengthHint:
+      "The default is 10–40 words. It balances concision and self-containment, may be exceeded when necessary, and is never an acceptance or error condition.",
     frameworkFigure: "Overall framework figure",
     frameworkRatio: "Canvas ratio",
     frameworkCustomWidth: "Width",
@@ -457,10 +469,10 @@ export const UI_COPY = {
     exportAutomation: "Export desktop config",
     exportedAutomation: "Config downloaded",
     exportAutomationHint:
-      "Download the current paper type, optional length guidance, section, appendix, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
+      "Download the current paper type, optional length guidance, section, appendix, caption guidance, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
     resetDefaults: "Restore defaults",
     resetHint:
-      "Resets paper type, length guidance, appendix, framework figure, ChatGPT reasoning preference, and section suggestions while keeping the current language.",
+      "Resets paper type, length guidance, appendix, caption guidance, framework figure, ChatGPT reasoning preference, and section suggestions while keeping the current language.",
     plannerTitle: "Main-text and section length guidance",
     plannerBody:
       "Every value is optional guidance that may be accepted, adjusted, or ignored according to the paper; Method and Experiments receive no suggestion by default.",

@@ -169,6 +169,8 @@ test("server-renders the habit-focused academic-writing diagnosis workbench", as
   assert.match(html, /公式与数学叙述/);
   assert.match(html, /逐格复述图表、堆砌数字/);
   assert.match(html, /不要用字数、句长或 caption 长度单独判错/);
+  assert.match(html, /Caption 建议长度/);
+  assert.match(html, /10–40 words/);
   assert.match(html, /不评价 Idea 创新性、实验设计、数据自洽/);
   assert.match(html, /只交付 `writing_diagnosis\.md`，不要修改论文文件/);
   assert.match(html, /标记并保护原稿中的好表达/);
@@ -416,7 +418,7 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.doesNotMatch(html, /_round_1_bib_suggestions\.bib/);
   assert.match(
     html,
-    /data-reconstruction-workflow-version="2026\.07\.28"/,
+    /data-reconstruction-workflow-version="2026\.07\.30"/,
   );
   assert.doesNotMatch(html, /## 可选正文与章节篇幅建议/);
   assert.doesNotMatch(html, /证据基线与初稿审计|Evidence Baseline/);
@@ -834,6 +836,12 @@ test("keeps presets and production prompts configuration-driven", async () => {
 
   assert.match(config, /defaultTargetWords:\s*4500/);
   assert.match(config, /defaultTargetWords:\s*5000/);
+  assert.match(config, /captionLength: CAPTION_LENGTH_POLICY/);
+  assert.match(config, /默认 10–40 words/);
+  assert.match(component, /captionWordRange/);
+  assert.match(component, /caption-length-control/);
+  assert.match(builder, /buildCaptionLengthGuidance/);
+  assert.match(builder, /captionWordRange/);
   assert.match(config, /建议引言约 480 词、讨论与局限约占 10%、结论约 200 词/);
   assert.match(config, /ratio:\s*0\.10666666666666667/);
   assert.match(config, /ratio:\s*0\.1/);
@@ -1378,6 +1386,12 @@ test("keeps section-refinement rules and merge controls configuration-driven", a
   assert.match(config, /逐项核查当前章节每个引用的语义支持关系/);
   assert.match(config, /methodOverviewMode/);
   assert.match(config, /methodOverviewMaxWords: 80/);
+  assert.match(config, /captionMinWords: CAPTION_LENGTH_POLICY\.defaultRange\[0\]/);
+  assert.match(config, /captionMaxWords: CAPTION_LENGTH_POLICY\.defaultRange\[1\]/);
+  assert.match(config, /Caption 建议长度/);
+  assert.match(config, /buildCaptionLengthGuidance/);
+  assert.match(component, /"captionMinWords"/);
+  assert.match(component, /"captionMaxWords"/);
   assert.match(config, /methodOverviewParagraphs: 2/);
   assert.match(config, /methodPseudocodeMaxLines: 12/);
   assert.match(config, /methodIncludeComplexityAnalysis/);
@@ -1781,11 +1795,14 @@ test("keeps experimental plotting code-based, skill-assisted, and configuration-
   assert.match(html, /#0077BB, #EE7733, #009988, #CC3311/);
   assert.match(html, /本页配置与数据证据始终优先/);
   assert.match(html, /不使用生图模型/);
+  assert.match(html, /Caption 建议长度/);
+  assert.match(html, /10–40 words/);
 
   assert.match(config, /defaultValue:\s*\[1,\s*3\]/);
   assert.match(config, /defaultValue:\s*"tol-vibrant"/);
   assert.match(config, /id:\s*"allowComposite"/);
   assert.match(config, /id:\s*"encourageAdvancedCharts"/);
+  assert.match(config, /id:\s*"captionWordRange"/);
   assert.match(config, /buildExperimentalPlotPrompt/);
   assert.match(config, /normalizeExperimentalPlotValues/);
 });
@@ -1836,7 +1853,11 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
   );
   assert.match(draftConfig, /\$research-paper-writing/);
   assert.match(draftConfig, /本 Prompt 的证据边界、目标模板、用户配置与交付协议始终优先/);
+  assert.match(draftConfig, /Caption 建议长度/);
+  assert.match(draftConfig, /10–40 words/);
+  assert.match(draftConfig, /buildCaptionLengthGuidance/);
   assert.match(draftComponent, /buildDraftPrompt/);
+  assert.match(draftComponent, /captionWordRange/);
   assert.match(draftComponent, /activePage="draft"/);
   assert.match(draftComponent, /<PromptResizeHandle language=\{uiLanguage\}/);
   assert.match(draftComponent, /useState\(true\)/);
@@ -1846,6 +1867,23 @@ test("keeps paper-draft templates and provenance rules configuration-driven", as
   assert.match(homePage, /YANSHU_SKILL_CATALOG/);
   assert.match(skillWorkflows, /websitePath:\s*"\/draft"/);
   assert.match(skillWorkflows, /websitePath:\s*"\/reconstruction"/);
+  assert.match(skillWorkflows, /id:\s*"captionWordRange"/);
+});
+
+test("keeps section-writing caption guidance configurable and advisory", async () => {
+  const response = await render("/writing/sections");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  const config = await readFile(
+    new URL("../app/writing/sections/config.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(html, /Caption 建议长度/);
+  assert.match(html, /10–40 words/);
+  assert.match(config, /id:\s*"captionWordRange"/);
+  assert.match(config, /buildCaptionLengthGuidance/);
+  assert.match(config, /必要时允许超出/);
 });
 
 test("keeps idea discovery and evaluation evidence-grounded and configuration-driven", async () => {

@@ -15,6 +15,7 @@ import {
   markRound,
   nextRound,
   pathExists,
+  prepareRoundExecutionPrompt,
   recordRunEvent,
   roundMaterials,
   saveRun,
@@ -385,8 +386,14 @@ async function buildManifestInternal(runPath, selector) {
     });
   }
 
-  const promptPath = path.join(state.runPath, round.promptPath);
-  await add(promptPath, { source: "run", role: "round-prompt" });
+  const preparedPrompt = await prepareRoundExecutionPrompt(
+    state,
+    round.id,
+  );
+  await add(preparedPrompt.path, {
+    source: "run",
+    role: "round-prompt",
+  });
   for (const material of await roundMaterials(state, round.id)) {
     for (const role of material.roles) {
       await add(material.path, {

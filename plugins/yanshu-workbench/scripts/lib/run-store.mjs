@@ -40,7 +40,22 @@ export const CHAT_CONFIGURATION_VERIFICATIONS = [
   "verified",
   "click-acknowledged",
 ];
+export const EXECUTION_ADAPTERS = [
+  "auto",
+  "visible-chatgpt",
+  "codex-host",
+  "external",
+];
+export const TRANSFER_MODES = [
+  "undecided",
+  "mcp",
+  "attachments",
+  "local-files",
+  "external",
+];
 const COMPLETE_LIBRARY_PROTOCOL_VERSION = "2026.07.7";
+const OVERVIEW_GRAPHIC_PATTERN =
+  /(?:overview|framework|architecture|pipeline|workflow|protocol|system[-_ ]?diagram)/iu;
 
 const FIGURE_EXTENSIONS = new Set([
   ".png",
@@ -212,12 +227,19 @@ function migrateRunState(state) {
   }
   if (!state.execution) {
     state.execution = {
+      adapter: "visible-chatgpt",
+      adapterReason: "legacy run created before execution adapters",
       transferMode: "undecided",
       fallbackReason: null,
       mcpHandshake: null,
       attachmentProbe: null,
       updatedAt: null,
     };
+    changed = true;
+  } else if (state.execution.adapter === undefined) {
+    state.execution.adapter = "visible-chatgpt";
+    state.execution.adapterReason =
+      "legacy run created before execution adapters";
     changed = true;
   }
   if (!state.runtimeVersions) {
@@ -297,12 +319,18 @@ Updated: ${state.updatedAt}
 - Run: \`${state.runId}\`
 - Overall status: **${state.status}**
 - Progress: **${completed}/${state.rounds.length} rounds**
+- Execution adapter: **${state.execution?.adapter ?? "visible-chatgpt"}**
 - Transfer mode: **${state.execution?.transferMode ?? "undecided"}**
 - Current round: **${
     current
       ? `${current.number}. ${current.title} — ${current.checkpoint ?? current.status}`
       : "Completed"
   }**
+- Active workspace: ${
+    current
+      ? `\`${current.directory}/workspace/\``
+      : "none"
+  }
 - Final manifest: ${
     state.finalManifestPath
       ? `\`${state.finalManifestPath}\``
@@ -331,8 +359,15 @@ export async function createRun({
   runId,
   inputs,
   workflow,
+  executionAdapter = "auto",
   runtimeVersions = {},
 }) {
+  if (!EXECUTION_ADAPTERS.includes(executionAdapter)) {
+    throw new CliError(
+      `Unknown execution adapter: ${executionAdapter}.`,
+      "invalid_execution_adapter",
+    );
+  }
   const resolvedProject = path.resolve(projectRoot);
   const resolvedOutputRoot = path.resolve(
     outputRoot ?? path.join(resolvedProject, "yanshu-reconstruction"),
@@ -356,6 +391,9 @@ export async function createRun({
     const roundName = `round-${String(round.number).padStart(2, "0")}-${round.id}`;
     const roundPath = path.join(runPath, roundName);
     const promptPath = path.join(roundPath, "prompt.md");
+    await mkdir(path.join(roundPath, "workspace"), {
+      recursive: true,
+    });
     await mkdir(path.join(roundPath, "output"), { recursive: true });
     await mkdir(path.join(roundPath, "logs"), { recursive: true });
     await writeFile(promptPath, `${round.prompt.trim()}\n`, "utf8");
@@ -406,6 +444,11 @@ export async function createRun({
         runtimeVersions.marketplaceRevision ?? null,
     },
     execution: {
+      adapter: executionAdapter,
+      adapterReason:
+        executionAdapter === "auto"
+          ? "resolve from host capabilities at execution time"
+          : "selected during run initialization",
       transferMode: "undecided",
       fallbackReason: null,
       mcpHandshake: null,
@@ -428,7 +471,7 @@ export async function createRun({
     projectRoot: resolvedProject,
     approvedAttachments: inputs,
     notice:
-      "Only these paths and explicitly registered round outputs may be uploaded to ChatGPT.",
+      "Only these paths and explicitly registered round outputs may be supplied to the selected execution adapter.",
   });
   await writeFile(
     path.join(runPath, "README.md"),
@@ -462,9 +505,11 @@ ${rounds}
 
 ## Safety boundary
 
-- Manuscript prose must be produced in the user's visible ChatGPT Chat session.
-- Codex coordinates files, status, compilation, and error handoff; it must not silently replace Chat as the paper writer.
-- Only paths listed in \`inputs.json\` and outputs explicitly registered in \`run.json\` may be uploaded.
+- Visible ChatGPT remains the default manuscript executor. A Codex host may write only when the run explicitly resolves to \`codex-host\`; other products must implement the portable adapter contract.
+- The selected adapter must preserve the same prompts, artifacts, validation, and recovery semantics.
+- Every round has its own \`workspace/\`. A host executor writes only there; YanShu alone imports canonical files into that round's \`output/\`.
+- The original paper root, run metadata, prior rounds, and canonical output directories remain read-only to the host executor.
+- Only paths listed in \`inputs.json\` and outputs explicitly registered in \`run.json\` may be supplied to an executor.
 - Never upload credentials, environment files, private keys, or unrelated project files.
 `;
 }
@@ -673,7 +718,9 @@ export async function markRound(state, selector, update, force = false) {
   }
   if (
     update.transferMode !== undefined &&
-    !["mcp", "attachments"].includes(update.transferMode)
+    !TRANSFER_MODES.filter((mode) => mode !== "undecided").includes(
+      update.transferMode,
+    )
   ) {
     throw new CliError(
       `Unknown round transfer mode: ${update.transferMode}.`,
@@ -805,7 +852,7 @@ export async function updateExecutionMode(
 ) {
   if (
     transferMode !== undefined &&
-    !["undecided", "mcp", "attachments"].includes(transferMode)
+    !TRANSFER_MODES.includes(transferMode)
   ) {
     throw new CliError(
       `Unknown transfer mode: ${transferMode}.`,
@@ -822,6 +869,42 @@ export async function updateExecutionMode(
   };
   await saveRun(state);
   await recordRunEvent(state, "transfer-mode", state.execution);
+  return state.execution;
+}
+
+export async function updateExecutionAdapter(
+  state,
+  {
+    adapter,
+    reason = null,
+  },
+) {
+  if (!EXECUTION_ADAPTERS.includes(adapter)) {
+    throw new CliError(
+      `Unknown execution adapter: ${adapter}.`,
+      "invalid_execution_adapter",
+    );
+  }
+  const transferModeByAdapter = {
+    auto: "undecided",
+    "visible-chatgpt": "undecided",
+    "codex-host": "local-files",
+    external: "external",
+  };
+  state.execution = {
+    ...(state.execution ?? {}),
+    adapter,
+    adapterReason: reason,
+    transferMode: transferModeByAdapter[adapter],
+    fallbackReason: null,
+    updatedAt: new Date().toISOString(),
+  };
+  await saveRun(state);
+  await recordRunEvent(state, "execution-adapter", {
+    adapter,
+    reason,
+    transferMode: state.execution.transferMode,
+  });
   return state.execution;
 }
 
@@ -1057,6 +1140,149 @@ export async function roundAttachments(state, selector) {
   return (await roundMaterials(state, selector)).map(
     (material) => material.path,
   );
+}
+
+function texGraphicReferences(content) {
+  const activeTex = String(content)
+    .split(/\r?\n/u)
+    .map((line) => {
+      let escaped = false;
+      for (let index = 0; index < line.length; index += 1) {
+        if (line[index] === "\\" && !escaped) {
+          escaped = true;
+          continue;
+        }
+        if (line[index] === "%" && !escaped) {
+          return line.slice(0, index);
+        }
+        escaped = false;
+      }
+      return line;
+    })
+    .join("\n");
+  return [
+    ...activeTex.matchAll(
+      /\\includegraphics(?:\s*\[[^\]]*\])?\s*\{([^{}]+)\}/gu,
+    ),
+  ].map((match) => match[1].trim());
+}
+
+function graphicFilename(reference) {
+  return String(reference).replaceAll("\\", "/").split("/").at(-1);
+}
+
+function graphicStem(reference) {
+  const filename = graphicFilename(reference);
+  const extension = path.posix.extname(filename);
+  return filename
+    .slice(0, extension ? -extension.length : undefined)
+    .normalize("NFKC")
+    .toLocaleLowerCase("en-US");
+}
+
+function frameworkHandoffBlock({
+  language,
+  canonicalFilename,
+  staleReferences,
+}) {
+  const staleList =
+    staleReferences.length > 0
+      ? staleReferences.map((value) => `\`${value}\``).join(", ")
+      : language === "zh"
+        ? "未检测到；仍须扫描全部现行引用"
+        : "none detected; still scan every active reference";
+  if (language === "zh") {
+    return `## YanShu 自动化交接门：第 4 轮框架图
+
+这是运行时生成的强制交接，不属于网页通用 Prompt。
+
+- 第 4 轮唯一有效框架图为 \`${canonicalFilename}\`。
+- 在最终 TeX 中，将被替代的 Overview/Framework \`\\includegraphics\` 引用改为 \`\\includegraphics{${canonicalFilename}}\`；保留原 figure 环境、caption、label 与正文论证，除非材料本身要求调整。
+- 必须移除的旧框架图引用：${staleList}。
+- 打包前扫描全部有效 \`\\includegraphics\`：最终 TeX 必须实际引用新 PNG，且不得残留任何旧框架图引用；只在报告中说明替换不算完成。`;
+  }
+  return `## YanShu automation handoff: Round 4 framework figure
+
+This mandatory block is generated at runtime and is not part of the generic website Prompt.
+
+- The only valid Round 4 framework image is \`${canonicalFilename}\`.
+- In the final TeX, replace the superseded Overview/Framework \`\\includegraphics\` reference with \`\\includegraphics{${canonicalFilename}}\`; preserve the figure environment, caption, label, and surrounding argument unless the evidence requires a local adjustment.
+- Superseded framework references that must be removed: ${staleList}.
+- Before packaging, scan every active \`\\includegraphics\`: the final TeX must actually reference the new PNG and retain no old framework reference. Mentioning the replacement only in the report does not satisfy this handoff.`;
+}
+
+export async function prepareRoundExecutionPrompt(state, selector) {
+  const round = findRound(state, selector);
+  const sourcePath = path.join(state.runPath, round.promptPath);
+  if (round.id !== "final-refinement") {
+    return {
+      path: sourcePath,
+      sourcePath,
+      handoff: null,
+    };
+  }
+
+  const frameworkFigure = await latestCompletedOutput(
+    state,
+    round.number,
+    [".png", ".jpg", ".jpeg", ".webp"],
+    (candidate) => candidate.id === "framework-figure",
+  );
+  if (!frameworkFigure) {
+    throw new CliError(
+      "Round 5 cannot start before the finalized Round 4 framework image is available.",
+      "missing_framework_handoff",
+    );
+  }
+
+  const primaryTex =
+    (await latestCompletedOutput(
+      state,
+      round.number,
+      [".tex"],
+    ))?.path ?? state.inputs.tex;
+  const currentGraphics =
+    primaryTex && (await pathExists(primaryTex))
+      ? texGraphicReferences(await readFile(primaryTex, "utf8"))
+      : [];
+  const canonicalFilename = path.basename(frameworkFigure.path);
+  const canonicalStem = graphicStem(canonicalFilename);
+  const staleReferences = currentGraphics.filter(
+    (reference) =>
+      graphicStem(reference) !== canonicalStem &&
+      OVERVIEW_GRAPHIC_PATTERN.test(graphicStem(reference)),
+  );
+  const language =
+    state.config?.roundLanguages?.["final-refinement"] ??
+    state.config?.language ??
+    "zh";
+  const handoff = {
+    canonicalFilename,
+    canonicalStem,
+    staleReferences,
+    sourceTex: primaryTex ?? null,
+  };
+  const sourcePrompt = await readFile(sourcePath, "utf8");
+  const executionPath = path.join(
+    state.runPath,
+    round.directory,
+    "execution-prompt.md",
+  );
+  const block = frameworkHandoffBlock({
+    language,
+    canonicalFilename,
+    staleReferences,
+  });
+  await writeFile(
+    executionPath,
+    `${sourcePrompt.trim()}\n\n${block}\n`,
+    "utf8",
+  );
+  return {
+    path: executionPath,
+    sourcePath,
+    handoff,
+  };
 }
 
 export function nextRound(state) {
@@ -1355,7 +1581,9 @@ export function bridgeHints() {
   );
   return {
     required:
-      "A visible, signed-in ChatGPT session and a compatible Codex/Chrome browser bridge.",
+      "One supported execution adapter: visible ChatGPT with Codex/Chrome, Codex CLI host execution, or a user-maintained external adapter.",
+    defaultAdapter: "visible-chatgpt",
+    portableAdapters: ["codex-host", "external"],
     bundledRuntime: path.join(
       pluginRoot,
       "vendor",

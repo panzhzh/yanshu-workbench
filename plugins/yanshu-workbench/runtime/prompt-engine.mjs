@@ -104,6 +104,37 @@ var DEFAULT_CHAT_EXECUTION_PREFERENCES = {
   pollingPolicy: CHAT_RESULT_POLLING_POLICY
 };
 
+// content/prompts/captionLength.ts
+var CAPTION_LENGTH_POLICY = {
+  defaultRange: [10, 40],
+  min: 1,
+  max: 120,
+  step: 1
+};
+function normalizeCaptionWordRange(value) {
+  if (!Array.isArray(value) || value.length < 2) {
+    return CAPTION_LENGTH_POLICY.defaultRange;
+  }
+  const parsedMinimum = Number(value[0]);
+  const parsedMaximum = Number(value[1]);
+  if (!Number.isFinite(parsedMinimum) || !Number.isFinite(parsedMaximum)) {
+    return CAPTION_LENGTH_POLICY.defaultRange;
+  }
+  const first = Math.min(
+    CAPTION_LENGTH_POLICY.max,
+    Math.max(CAPTION_LENGTH_POLICY.min, Math.round(parsedMinimum))
+  );
+  const second = Math.min(
+    CAPTION_LENGTH_POLICY.max,
+    Math.max(CAPTION_LENGTH_POLICY.min, Math.round(parsedMaximum))
+  );
+  return [Math.min(first, second), Math.max(first, second)];
+}
+function buildCaptionLengthGuidance(value, language) {
+  const [minimum, maximum] = normalizeCaptionWordRange(value);
+  return language === "zh" ? `\u6BCF\u6761 Caption \u5EFA\u8BAE\u7EA6 ${minimum}\u2013${maximum} words\u3002\u8BE5\u533A\u95F4\u53EA\u7528\u4E8E\u5E73\u8861\u7B80\u6D01\u4E0E\u81EA\u5305\u542B\u6027\uFF0C\u4E0D\u662F\u786C\u6027\u9650\u5236\uFF1B\u5F53\u8BF4\u660E\u5B50\u56FE\u3001\u5BF9\u8C61\u3001\u6761\u4EF6\u3001\u6307\u6807\u6216\u5FC5\u8981\u7EDF\u8BA1\u8BED\u4E49\u786E\u6709\u9700\u8981\u65F6\u53EF\u4EE5\u8D85\u51FA\uFF0C\u4E5F\u4E0D\u8981\u4E3A\u51D1\u8DB3\u4E0B\u9650\u673A\u68B0\u8865\u5199\u3002` : `Aim for roughly ${minimum}\u2013${maximum} words per caption. This range is advisory, balancing concision with self-containment rather than imposing a hard limit. Exceed it when panels, objects, conditions, metrics, or essential statistical semantics genuinely require more explanation, and never pad a caption merely to reach the lower bound.`;
+}
+
 // content/prompts/wordCountPolicy.ts
 var WORD_COUNT_POLICY = {
   unlimitedCoreSectionIds: ["method", "experiments-results"],
@@ -126,6 +157,7 @@ var PRODUCT_CONFIG = {
     max: 2e4,
     step: 100
   },
+  captionLength: CAPTION_LENGTH_POLICY,
   chatExecution: {
     default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
     reasoningPreferences: CHAT_REASONING_PREFERENCES
@@ -398,6 +430,10 @@ var UI_COPY = {
     appendix: "\u9644\u5F55\u8BBE\u7F6E",
     appendixOn: "\u5141\u8BB8\u9644\u5F55",
     appendixOff: "\u4E0D\u542B\u9644\u5F55",
+    captionLength: "Caption \u5EFA\u8BAE\u957F\u5EA6",
+    captionLengthMinimum: "\u6700\u5C11",
+    captionLengthMaximum: "\u6700\u591A",
+    captionLengthHint: "\u9ED8\u8BA4 10\u201340 words\uFF0C\u4EC5\u7528\u4E8E\u5E73\u8861\u7B80\u6D01\u4E0E\u81EA\u5305\u542B\u6027\uFF1B\u5FC5\u8981\u65F6\u5141\u8BB8\u8D85\u51FA\uFF0C\u4E0D\u4F1A\u4F5C\u4E3A\u9A8C\u6536\u6216\u62A5\u9519\u6761\u4EF6\u3002",
     frameworkFigure: "\u603B\u4F53\u6846\u67B6\u56FE",
     frameworkRatio: "\u753B\u5E03\u6BD4\u4F8B",
     frameworkCustomWidth: "\u5BBD",
@@ -417,9 +453,9 @@ var UI_COPY = {
     chatRuntimePolicy: "\u4E0D\u9501\u5B9A GPT \u578B\u53F7\u540D\u79F0\uFF1B\u63D2\u4EF6\u6BCF\u8F6E\u8BFB\u53D6 ChatGPT \u5F53\u524D\u53EF\u89C1\u9009\u9879\u3002\u53D1\u751F\u56DE\u9000\u65F6\u5148\u660E\u786E\u63D0\u793A\uFF0C\u540D\u79F0\u65E0\u6CD5\u5224\u65AD\u65F6\u9009\u62E9\u6700\u5F3A\u53EF\u7528\u6863\u4F4D\u3002",
     exportAutomation: "\u5BFC\u51FA\u684C\u9762\u914D\u7F6E",
     exportedAutomation: "\u914D\u7F6E\u5DF2\u4E0B\u8F7D",
-    exportAutomationHint: "\u4E0B\u8F7D\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u7AE0\u8282\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C Prompt \u8BED\u8A00\u8BBE\u7F6E\uFF0C\u4F9B YanShu \u63D2\u4EF6\u76F4\u63A5\u8BFB\u53D6\u3002",
+    exportAutomationHint: "\u4E0B\u8F7D\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u7AE0\u8282\u3001\u9644\u5F55\u3001Caption \u5EFA\u8BAE\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C Prompt \u8BED\u8A00\u8BBE\u7F6E\uFF0C\u4F9B YanShu \u63D2\u4EF6\u76F4\u63A5\u8BFB\u53D6\u3002",
     resetDefaults: "\u6062\u590D\u9ED8\u8BA4\u914D\u7F6E",
-    resetHint: "\u91CD\u7F6E\u8BBA\u6587\u7C7B\u578B\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u9644\u5F55\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C\u7AE0\u8282\u5EFA\u8BAE\uFF1B\u4FDD\u7559\u5F53\u524D\u8BED\u8A00\u3002",
+    resetHint: "\u91CD\u7F6E\u8BBA\u6587\u7C7B\u578B\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u9644\u5F55\u3001Caption \u5EFA\u8BAE\u3001\u6846\u67B6\u56FE\u3001ChatGPT \u63A8\u7406\u504F\u597D\u548C\u7AE0\u8282\u5EFA\u8BAE\uFF1B\u4FDD\u7559\u5F53\u524D\u8BED\u8A00\u3002",
     plannerTitle: "\u6B63\u6587\u4E0E\u7AE0\u8282\u7BC7\u5E45\u5EFA\u8BAE",
     plannerBody: "\u6240\u6709\u6570\u503C\u4EC5\u4F9B\u53C2\u8003\uFF0C\u53EF\u6309\u8BBA\u6587\u5185\u5BB9\u63A5\u53D7\u3001\u8C03\u6574\u6216\u5FFD\u7565\uFF1B\u65B9\u6CD5\u548C\u5B9E\u9A8C\u9ED8\u8BA4\u4E0D\u8BBE\u7F6E\u5EFA\u8BAE\u8303\u56F4\u3002",
     targetTotal: "\u5EFA\u8BAE\u6B63\u6587\u53C2\u8003\u503C",
@@ -486,6 +522,10 @@ var UI_COPY = {
     appendix: "Appendix",
     appendixOn: "Appendix allowed",
     appendixOff: "No appendix",
+    captionLength: "Suggested caption length",
+    captionLengthMinimum: "Minimum",
+    captionLengthMaximum: "Maximum",
+    captionLengthHint: "The default is 10\u201340 words. It balances concision and self-containment, may be exceeded when necessary, and is never an acceptance or error condition.",
     frameworkFigure: "Overall framework figure",
     frameworkRatio: "Canvas ratio",
     frameworkCustomWidth: "Width",
@@ -505,9 +545,9 @@ var UI_COPY = {
     chatRuntimePolicy: "GPT model names are never pinned. The plugin inspects the options currently visible in ChatGPT for every round, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
     exportAutomation: "Export desktop config",
     exportedAutomation: "Config downloaded",
-    exportAutomationHint: "Download the current paper type, optional length guidance, section, appendix, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
+    exportAutomationHint: "Download the current paper type, optional length guidance, section, appendix, caption guidance, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
     resetDefaults: "Restore defaults",
-    resetHint: "Resets paper type, length guidance, appendix, framework figure, ChatGPT reasoning preference, and section suggestions while keeping the current language.",
+    resetHint: "Resets paper type, length guidance, appendix, caption guidance, framework figure, ChatGPT reasoning preference, and section suggestions while keeping the current language.",
     plannerTitle: "Main-text and section length guidance",
     plannerBody: "Every value is optional guidance that may be accepted, adjusted, or ignored according to the paper; Method and Experiments receive no suggestion by default.",
     targetTotal: "Suggested main-text reference",
@@ -2918,6 +2958,7 @@ var LABELS = {
     flexibleCoreMode: "\u4E0D\u8BBE\u6B63\u6587\u603B\u5EFA\u8BAE\uFF1B\u4EC5\u4E3A\u65B9\u6CD5\u548C\u5B9E\u9A8C\u4EE5\u5916\u7684\u7AE0\u8282\u63D0\u4F9B\u53C2\u8003\u8303\u56F4",
     targetType: "\u6295\u7A3F\u7C7B\u578B",
     appendix: "\u9644\u5F55",
+    captionLength: "Caption \u5EFA\u8BAE\u957F\u5EA6",
     styleDirective: "\u5199\u4F5C\u4FA7\u91CD",
     introductionRoadmap: "Introduction \u7AE0\u8282\u5BFC\u822A\u6BB5",
     included: "\u4FDD\u7559\u7EA6 65 \u8BCD\u7684\u72EC\u7ACB\u5BFC\u822A\u6BB5",
@@ -2969,6 +3010,7 @@ var LABELS = {
     flexibleCoreMode: "No suggested main-text total; optional ranges only for sections other than Method and Experiments",
     targetType: "Submission type",
     appendix: "Appendix",
+    captionLength: "Suggested caption length",
     styleDirective: "Writing emphasis",
     introductionRoadmap: "Introduction roadmap paragraph",
     included: "Include a separate \u224865-word roadmap",
@@ -3078,6 +3120,13 @@ function buildConfiguration(template, context) {
       )
     ] : [],
     ...context.hasWordLimit && context.unlimitedCoreSections ? [field(labels.lengthMode, labels.flexibleCoreMode)] : [],
+    field(
+      labels.captionLength,
+      buildCaptionLengthGuidance(
+        context.captionWordRange,
+        context.language
+      )
+    ),
     ...template.showAppendixConfiguration === false ? [] : [
       field(labels.appendix, context.appendixLabel),
       context.appendixDirective
@@ -3348,7 +3397,7 @@ function buildPrompt(template, context) {
 }
 
 // content/prompts/version.ts
-var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.28";
+var RECONSTRUCTION_WORKFLOW_VERSION = "2026.07.30";
 
 // content/prompts/pluginExport.ts
 function getReconstructionConfigurationModel() {
@@ -3357,6 +3406,7 @@ function getReconstructionConfigurationModel() {
     defaultPaperStyle: PRODUCT_CONFIG.defaultPaperStyle,
     defaultPromptLanguage: PRODUCT_CONFIG.defaultPromptLanguage,
     wordCount: PRODUCT_CONFIG.wordCount,
+    captionLength: PRODUCT_CONFIG.captionLength,
     paperStyles: Object.fromEntries(
       Object.entries(PRODUCT_CONFIG.paperStyles).map(([id, style]) => [
         id,
@@ -3465,6 +3515,9 @@ function normalizeInput(input = {}) {
     customAspectWidth: input.frameworkFigure?.customAspectWidth ?? RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
     customAspectHeight: input.frameworkFigure?.customAspectHeight ?? RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight
   };
+  const captionWordRange = normalizeCaptionWordRange(
+    input.captionWordRange
+  );
   if (!(frameworkFigure.aspectRatioId in FIGURE_ASPECT_RATIOS)) {
     throw new Error(
       `Unsupported framework figure ratio: ${String(frameworkFigure.aspectRatioId)}.`
@@ -3527,6 +3580,7 @@ function normalizeInput(input = {}) {
     targetWords,
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
+    captionWordRange,
     frameworkFigure,
     chatExecution
   };
@@ -3544,6 +3598,7 @@ function buildReconstructionWorkflow(input = {}) {
     targetWords,
     sectionBudgets,
     includeAppendix,
+    captionWordRange,
     frameworkFigure,
     chatExecution
   } = normalized;
@@ -3564,6 +3619,7 @@ function buildReconstructionWorkflow(input = {}) {
     includeAppendix,
     appendixLabel: promptLanguage === "zh" ? includeAppendix ? "\u5141\u8BB8\u9644\u5F55" : "\u4E0D\u4F7F\u7528\u9644\u5F55" : includeAppendix ? "Appendix allowed" : "No appendix",
     appendixDirective: includeAppendix ? style.appendixRule.enabled[promptLanguage] : style.appendixRule.disabled[promptLanguage],
+    captionWordRange,
     frameworkFigure
   });
   return {
@@ -3580,6 +3636,7 @@ function buildReconstructionWorkflow(input = {}) {
       targetWords,
       sectionBudgets,
       includeAppendix,
+      captionWordRange,
       frameworkFigure,
       chatExecution
     },

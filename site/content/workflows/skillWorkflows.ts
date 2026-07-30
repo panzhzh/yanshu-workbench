@@ -22,6 +22,10 @@ import {
   type DraftTemplateId,
 } from "../../app/draft/config";
 import {
+  CAPTION_LENGTH_POLICY,
+  normalizeCaptionWordRange,
+} from "../prompts/captionLength";
+import {
   DEFAULT_FIGURE_PREFERENCES,
   FIGURE_ASPECT_RATIO_IDS,
   FIGURE_ASPECT_RATIOS,
@@ -151,7 +155,7 @@ export interface YanShuSkillCatalogItem {
   output: LocalizedWorkflowText;
 }
 
-export const SKILL_WORKFLOW_VERSION = "2026.07.29";
+export const SKILL_WORKFLOW_VERSION = "2026.07.30";
 
 export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   {
@@ -408,6 +412,15 @@ const IDEA_DISCOVERY_MODEL: SkillWorkflowModel = {
         "Control candidate count, exploration posture, and practical resource limits.",
       ),
     },
+    {
+      id: "writing",
+      index: "02",
+      title: localized("写作建议", "Writing guidance"),
+      description: localized(
+        "控制 Caption 的建议长度；该范围不是硬性验收条件。",
+        "Configure advisory caption length; the range is never a hard acceptance condition.",
+      ),
+    },
   ],
   fields: [
     {
@@ -582,10 +595,24 @@ const PAPER_DRAFTING_MODEL: SkillWorkflowModel = {
       placeholder: localized("例如：SIGIR", "e.g. SIGIR"),
       visibleWhen: { fieldId: "templateId", equals: "custom" },
     },
+    {
+      id: "captionWordRange",
+      sectionId: "writing",
+      type: "range",
+      label: localized("Caption 建议长度", "Suggested caption length"),
+      description: localized(
+        "默认 10–40 words；为保证自包含性，必要时允许超出。",
+        "Defaults to 10–40 words and may be exceeded when self-containment requires it.",
+      ),
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+    },
   ],
   defaults: {
     templateId: DEFAULT_DRAFT_TEMPLATE_ID,
     customVenue: "",
+    captionWordRange: CAPTION_LENGTH_POLICY.defaultRange,
   },
 };
 
@@ -1163,6 +1190,9 @@ function normalizeDraftPreferences(input: Record<string, unknown>) {
       DEFAULT_DRAFT_TEMPLATE_ID,
     ),
     customVenue: textValue(input.customVenue),
+    captionWordRange: normalizeCaptionWordRange(
+      input.captionWordRange,
+    ),
   };
 }
 
@@ -1308,10 +1338,12 @@ export function buildSkillWorkflowConfiguration(
       draftPreferences.templateId,
       draftPreferences.customVenue,
       promptLanguage,
+      draftPreferences.captionWordRange,
     );
     selection = {
       templateId: draftPreferences.templateId,
       customVenue: draftPreferences.customVenue,
+      captionWordRange: draftPreferences.captionWordRange,
     };
   } else if (workflowId === "writing-diagnosis") {
     const diagnosisPreferences = preferences as ReturnType<

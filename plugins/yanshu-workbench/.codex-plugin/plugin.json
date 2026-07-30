@@ -1,7 +1,7 @@
 {
   "name": "yanshu-workbench",
-  "version": "0.2.0+codex.20260730084427",
-  "description": "Extensible research workflows coordinated across local files and visible ChatGPT sessions.",
+  "version": "0.2.0+codex.20260730130301",
+  "description": "Extensible research workflows coordinated across local files, pluggable executors, and deterministic validation.",
   "author": {
     "name": "panzhzh",
     "url": "https://github.com/panzhzh"

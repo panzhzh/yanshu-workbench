@@ -3,6 +3,7 @@ import {
   mkdir,
   mkdtemp,
   readFile,
+  readdir,
   rm,
   writeFile,
 } from "node:fs/promises";
@@ -43,6 +44,10 @@ import {
   normalizeDuplicateDownloadName,
 } from "../scripts/lib/artifact-bundle.mjs";
 import {
+  executorWorkspaceSpec,
+  importExecutorWorkspaceArtifacts,
+} from "../scripts/lib/executor-workspace.mjs";
+import {
   buildFinalManifest,
   countMainTextWords,
   extractBibKeys,
@@ -65,11 +70,13 @@ import {
   loadRun,
   markRound,
   nextRound,
+  prepareRoundExecutionPrompt,
   registerArtifact,
   resolvePaperInputs,
   roundAttachments,
   saveRun,
   summarizeRun,
+  updateExecutionAdapter,
 } from "../scripts/lib/run-store.mjs";
 
 const require = createRequire(import.meta.url);
@@ -578,12 +585,22 @@ test("prompt runtime builds five configuration-driven rounds", () => {
   });
 
   assert.equal(workflow.rounds.length, 5);
-  assert.equal(workflow.workflowVersion, "2026.07.28");
+  assert.equal(workflow.workflowVersion, "2026.07.30");
   assert.deepEqual(
     workflow.rounds.map((round) => round.number),
     [1, 2, 3, 4, 5],
   );
   assert.match(workflow.rounds[0].prompt, /4,500 words/);
+  assert.deepEqual(workflow.config.captionWordRange, [10, 40]);
+  for (const round of [
+    workflow.rounds[0],
+    workflow.rounds[1],
+    workflow.rounds[2],
+    workflow.rounds[4],
+  ]) {
+    assert.match(round.prompt, /10–40 words/);
+    assert.match(round.prompt, /hard limit/);
+  }
   for (const round of workflow.rounds) {
     assert.match(
       round.prompt,
@@ -751,6 +768,120 @@ test("framework figure canvas ratio is configuration-driven", () => {
   );
 });
 
+test("caption guidance is configurable and remains advisory", () => {
+  const workflow = buildReconstructionWorkflow({
+    language: "en",
+    captionWordRange: [14, 32],
+  });
+
+  assert.deepEqual(workflow.config.captionWordRange, [14, 32]);
+  assert.match(workflow.rounds[0].prompt, /14–32 words/);
+  assert.match(workflow.rounds[0].prompt, /Exceed it when/);
+  assert.doesNotMatch(workflow.rounds[3].prompt, /14–32 words/);
+});
+
+test("Codex host writes only in a round workspace and imports complete artifacts atomically", async () => {
+  const temporaryRoot = await mkdtemp(
+    path.join(tmpdir(), "yanshu-codex-workspace-"),
+  );
+  try {
+    const paperRoot = path.join(temporaryRoot, "paper");
+    await mkdir(paperRoot, { recursive: true });
+    await writeFile(
+      path.join(paperRoot, "main.tex"),
+      "\\documentclass{article}\\begin{document}Input\\end{document}\n",
+      "utf8",
+    );
+    await writeFile(
+      path.join(paperRoot, "references.bib"),
+      "@article{input,title={Input}}\n",
+      "utf8",
+    );
+    await writeFile(
+      path.join(paperRoot, "main.pdf"),
+      "pdf fixture",
+      "utf8",
+    );
+    const workflow = buildReconstructionWorkflow({
+      language: "en",
+      hasWordLimit: false,
+    });
+    const state = await createRun({
+      projectRoot: paperRoot,
+      runId: "codex-host-run",
+      inputs: await resolvePaperInputs(paperRoot),
+      workflow,
+      executionAdapter: "codex-host",
+    });
+
+    for (const round of state.rounds) {
+      assert.ok(
+        (
+          await readdir(
+            path.join(state.runPath, round.directory),
+          )
+        ).includes("workspace"),
+      );
+    }
+    const workspace = await executorWorkspaceSpec(state, "1");
+    assert.equal(workspace.mode, "round-scoped");
+    assert.equal(workspace.autoImportOnFinalize, true);
+    assert.deepEqual(workspace.writeBoundary.executorWritableRoots, [
+      workspace.workingDirectory,
+    ]);
+    assert.equal(workspace.writeBoundary.sourceProject, "read-only");
+    assert.equal(
+      path.dirname(workspace.workingDirectory),
+      path.join(state.runPath, state.rounds[0].directory),
+    );
+    assert.match(
+      await readFile(path.join(state.runPath, "STATUS.md"), "utf8"),
+      /round-01-scientific-positioning\/workspace\//,
+    );
+
+    const artifacts = {
+      "paper_round_1_scientific_structure.tex":
+        "\\documentclass{article}\\begin{document}Round 1\\end{document}\n",
+      "paper_round_1_report_zh.md": "# Round 1\n",
+      "paper_round_1_references.bib":
+        "@article{input,title={Input}}\n",
+    };
+    for (const [name, content] of Object.entries(artifacts)) {
+      await writeFile(
+        path.join(workspace.workingDirectory, name),
+        content,
+        "utf8",
+      );
+    }
+    const imported = await importExecutorWorkspaceArtifacts({
+      state,
+      selector: "1",
+    });
+    assert.equal(imported.imported, true);
+    assert.equal(imported.artifacts.length, 3);
+    assert.deepEqual(
+      (await readdir(workspace.canonicalOutputDirectory)).sort(),
+      Object.keys(artifacts).sort(),
+    );
+    assert.deepEqual(
+      (await readdir(paperRoot)).sort(),
+      [
+        "main.pdf",
+        "main.tex",
+        "references.bib",
+        "yanshu-reconstruction",
+      ],
+    );
+    const repeated = await importExecutorWorkspaceArtifacts({
+      state,
+      selector: "1",
+    });
+    assert.equal(repeated.skipped, true);
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
 test("skill uses one local configuration page and a no-intervention recoverable execution protocol", async () => {
   const skill = await readFile(
     new URL("../skills/paper-reconstruction/SKILL.md", import.meta.url),
@@ -759,6 +890,13 @@ test("skill uses one local configuration page and a no-intervention recoverable 
   const bridgeReference = await readFile(
     new URL(
       "../skills/paper-reconstruction/references/chat-bridge.md",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  const executorReference = await readFile(
+    new URL(
+      "../skills/paper-reconstruction/references/executor-adapter.md",
       import.meta.url,
     ),
     "utf8",
@@ -791,6 +929,16 @@ test("skill uses one local configuration page and a no-intervention recoverable 
   assert.match(skill, /Exit/);
   assert.match(skill, /STATUS\.md/);
   assert.match(skill, /Automatic transport selection/);
+  assert.match(skill, /Select one thin execution adapter/);
+  assert.match(skill, /visible-chatgpt/);
+  assert.match(skill, /codex-host/);
+  assert.match(skill, /external/);
+  assert.match(skill, /executorWorkspace\.workingDirectory/);
+  assert.match(skill, /host-writable `workspace\/`/);
+  assert.match(skill, /automatically imports the exact required artifacts/);
+  assert.match(skill, /Enforce the Round 4 → Round 5 handoff/);
+  assert.match(skill, /generated `promptPath`/);
+  assert.match(skill, /runtime-only/);
   assert.match(skill, /zero-sensitive `yanshu_health`/);
   assert.match(skill, /Never ask the user to choose or confirm the mode/);
   assert.match(skill, /chat-plan/);
@@ -829,6 +977,16 @@ test("skill uses one local configuration page and a no-intervention recoverable 
   assert.match(bridgeReference, /wait-same-assistant-turn/);
   assert.match(bridgeReference, /mandatory loop condition/);
   assert.doesNotMatch(bridgeReference, /timeoutMs: 25_000/);
+  assert.match(executorReference, /Required contract/);
+  assert.match(executorReference, /## Codex CLI/);
+  assert.match(executorReference, /Claude CLI/);
+  assert.match(executorReference, /canonical artifacts/);
+  assert.match(executorReference, /normalized state/);
+  assert.match(
+    executorReference,
+    /round\.executorWorkspace\.workingDirectory/,
+  );
+  assert.match(executorReference, /paper root.*read-only/);
 });
 
 test("paper input detection prefers the current build PDF over archived copies", async () => {
@@ -1501,6 +1659,8 @@ test("run state is recoverable and attachment-scoped", async () => {
       workflow,
     });
 
+    assert.equal(state.execution.adapter, "auto");
+    assert.equal(state.execution.transferMode, "undecided");
     assert.equal(nextRound(state)?.number, 1);
     assert.equal(summarizeRun(state).progress.completed, 0);
     assert.match(
@@ -1593,6 +1753,26 @@ test("run state is recoverable and attachment-scoped", async () => {
       "paper_round_3_references.bib",
       "paper_round_3_narrative_reconstruction.pdf",
     ]);
+    const roundThreeTex = path.resolve(
+      state.runPath,
+      state.rounds[2].outputs.find((value) => value.endsWith(".tex")),
+    );
+    await writeFile(
+      roundThreeTex,
+      String.raw`\documentclass{article}
+\usepackage{graphicx}
+\begin{document}
+\% This escaped percent is manuscript text, not a comment marker.
+% \includegraphics{figures/commented_framework.pdf}
+\begin{figure}
+\includegraphics{figures/fig01_framework.pdf}
+\caption{Existing overview}
+\label{fig:overview}
+\end{figure}
+\end{document}
+`,
+      "utf8",
+    );
     await markRound(state, "3", { status: "completed" });
     assert.deepEqual(
       (await roundAttachments(state, "4"))
@@ -1608,6 +1788,32 @@ test("run state is recoverable and attachment-scoped", async () => {
       "paper_round_4_framework_reconstruction.png",
     ]);
     await markRound(state, "4", { status: "completed" });
+    const preparedRoundFive = await prepareRoundExecutionPrompt(
+      state,
+      "5",
+    );
+    assert.equal(
+      path.basename(preparedRoundFive.path),
+      "execution-prompt.md",
+    );
+    assert.equal(
+      preparedRoundFive.handoff.canonicalFilename,
+      "paper_round_4_framework_reconstruction.png",
+    );
+    assert.deepEqual(
+      preparedRoundFive.handoff.staleReferences,
+      ["figures/fig01_framework.pdf"],
+    );
+    const roundFivePrompt = await readFile(
+      preparedRoundFive.path,
+      "utf8",
+    );
+    assert.match(
+      roundFivePrompt,
+      /\\includegraphics\{paper_round_4_framework_reconstruction\.png\}/,
+    );
+    assert.match(roundFivePrompt, /figures\/fig01_framework\.pdf/);
+    assert.match(roundFivePrompt, /不属于网页通用 Prompt/);
     assert.deepEqual(
       (await roundAttachments(state, "5"))
         .map((item) => path.basename(item))
@@ -1620,6 +1826,16 @@ test("run state is recoverable and attachment-scoped", async () => {
         "paper_round_3_references.bib",
         "paper_round_4_framework_reconstruction.png",
       ],
+    );
+    const adapter = await updateExecutionAdapter(state, {
+      adapter: "codex-host",
+      reason: "visible bridge unavailable in Codex CLI",
+    });
+    assert.equal(adapter.adapter, "codex-host");
+    assert.equal(adapter.transferMode, "local-files");
+    assert.match(
+      await readFile(path.join(state.runPath, "STATUS.md"), "utf8"),
+      /Execution adapter: \*\*codex-host\*\*/,
     );
   } finally {
     await rm(temporaryRoot, { recursive: true, force: true });
@@ -1948,6 +2164,8 @@ test("final manifest records hashes, per-round validation, configuration complia
     state.rounds[4].validation.checks =
       finalValidation.checks;
     state.execution = {
+      adapter: "visible-chatgpt",
+      adapterReason: "verified bridge",
       transferMode: "mcp",
       fallbackReason: null,
     };
@@ -1966,6 +2184,7 @@ test("final manifest records hashes, per-round validation, configuration complia
     );
     assert.equal(manifest.inputs.find((item) => item.role === "figures").type, "directory");
     assert.equal(manifest.runtimeVersions.marketplaceRevision, "abc123");
+    assert.equal(manifest.execution.adapter, "visible-chatgpt");
     assert.equal(manifest.chats.length, 5);
     assert.ok(
       manifest.deliverables.some((item) =>

@@ -600,6 +600,12 @@ select:focus {
   width: 86px;
 }
 
+.caption-range strong {
+  padding-bottom: 8px;
+  color: var(--accent);
+  font-size: 10px;
+}
+
 .split-fields {
   display: grid;
   grid-template-columns: 0.75fr 1.25fr;

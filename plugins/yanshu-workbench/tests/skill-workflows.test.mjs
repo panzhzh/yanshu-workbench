@@ -59,8 +59,11 @@ test("website-sourced runtime exposes the five configurable YanShu skills", () =
     "en",
   );
   assert.equal(draft.preferences.templateId, "arxiv");
+  assert.deepEqual(draft.preferences.captionWordRange, [10, 40]);
   assert.match(draft.prompt, /arxiv-style/);
   assert.match(draft.prompt, /\$research-paper-writing/);
+  assert.match(draft.prompt, /10–40 words/);
+  assert.match(draft.prompt, /hard limit/);
   assert.match(draft.prompt, /complete LaTeX project/i);
 
   const diagnosis = buildSkillWorkflowConfiguration(
@@ -72,6 +75,7 @@ test("website-sourced runtime exposes the five configurable YanShu skills", () =
   assert.equal(diagnosis.preferences.depth, "standard");
   assert.equal(diagnosis.preferences.action, "report");
   assert.equal(diagnosis.preferences.preserveStrengths, true);
+  assert.deepEqual(diagnosis.preferences.captionWordRange, [10, 40]);
   assert.match(diagnosis.prompt, /全文与章节 → 段落与图表 → 句子与公式/);
   assert.match(diagnosis.prompt, /逐格复述图表、堆砌数字/);
   assert.match(diagnosis.prompt, /不要用字数、句长或 caption 长度单独判错/);
@@ -103,6 +107,8 @@ test("website-sourced runtime exposes the five configurable YanShu skills", () =
   assert.equal(plot.preferences.palette, "tol-vibrant");
   assert.equal(plot.preferences.allowComposite, true);
   assert.deepEqual(plot.preferences.panelCount, [1, 3]);
+  assert.deepEqual(plot.preferences.captionWordRange, [10, 40]);
+  assert.match(plot.prompt, /10–40 words/);
   assert.match(plot.prompt, /\$nature-figure/);
   assert.match(plot.prompt, /允许组合图，使用 1–3 个子图/);
   assert.match(plot.prompt, /#0077BB, #EE7733, #009988, #CC3311/);
@@ -256,6 +262,11 @@ test("shared workflow configuration page confirms the exact generated prompt", a
 test("shared workflow models retain website defaults", () => {
   const drafting = getSkillWorkflowConfigurationModel("paper-drafting");
   assert.equal(drafting.defaults.templateId, "arxiv");
+  assert.deepEqual(drafting.defaults.captionWordRange, [10, 40]);
+  assert.equal(
+    drafting.fields.find((field) => field.id === "captionWordRange")?.type,
+    "range",
+  );
 
   const figure = getSkillWorkflowConfigurationModel("scientific-figure");
   assert.equal(figure.defaults.promptId, "method-overview");
@@ -268,6 +279,7 @@ test("shared workflow models retain website defaults", () => {
   assert.equal(plot.defaults.palette, "tol-vibrant");
   assert.equal(plot.defaults.allowComposite, true);
   assert.deepEqual(plot.defaults.panelCount, [1, 3]);
+  assert.deepEqual(plot.defaults.captionWordRange, [10, 40]);
   assert.ok(plot.fields.some((field) => field.type === "range"));
   assert.ok(plot.fields.some((field) => field.type === "multi"));
 
@@ -275,6 +287,7 @@ test("shared workflow models retain website defaults", () => {
   assert.equal(diagnosis.defaults.scope, "whole");
   assert.equal(diagnosis.defaults.depth, "standard");
   assert.equal(diagnosis.defaults.action, "report");
+  assert.deepEqual(diagnosis.defaults.captionWordRange, [10, 40]);
   assert.equal(diagnosis.defaults.browseCitations, false);
   assert.equal(
     diagnosis.fields.find((field) => field.id === "sections")?.visibleWhen

@@ -17,6 +17,7 @@ import {
   type FrameworkFigureLayoutPreferences,
 } from "./figures/config";
 import { buildPrompt } from "../content/prompts/buildPrompt";
+import type { CaptionWordRange } from "../content/prompts/captionLength";
 import { RECONSTRUCTION_WORKFLOW_VERSION } from "../content/prompts/version";
 import {
   getRequestedChatPollingIntervalMs,
@@ -139,6 +140,10 @@ export default function YanshuWorkbench() {
   const [includeAppendix, setIncludeAppendix] = useState<boolean>(
     defaultStyle.defaultAppendix,
   );
+  const [captionWordRange, setCaptionWordRange] =
+    useState<CaptionWordRange>(
+      PRODUCT_CONFIG.captionLength.defaultRange,
+    );
   const [frameworkFigure, setFrameworkFigure] =
     useState<FrameworkFigureLayoutPreferences>(() => ({
       aspectRatioId:
@@ -243,6 +248,7 @@ export default function YanshuWorkbench() {
             appendixDirective: includeAppendix
               ? style.appendixRule.enabled[language]
               : style.appendixRule.disabled[language],
+            captionWordRange,
             frameworkFigure,
           }),
         };
@@ -255,6 +261,7 @@ export default function YanshuWorkbench() {
       hasWordLimit,
       unlimitedCoreSections,
       includeAppendix,
+      captionWordRange,
       sectionWords,
       style,
       frameworkFigure,
@@ -353,6 +360,26 @@ export default function YanshuWorkbench() {
     setCopied(null);
   }
 
+  function changeCaptionWordRange(
+    side: "minimum" | "maximum",
+    rawValue: number,
+  ) {
+    if (!Number.isFinite(rawValue)) return;
+    const value = Math.min(
+      PRODUCT_CONFIG.captionLength.max,
+      Math.max(
+        PRODUCT_CONFIG.captionLength.min,
+        Math.round(rawValue),
+      ),
+    );
+    setCaptionWordRange(([minimum, maximum]) =>
+      side === "minimum"
+        ? [Math.min(value, maximum), maximum]
+        : [minimum, Math.max(minimum, value)],
+    );
+    setCopied(null);
+  }
+
   function resetAllocation() {
     if (unlimitedCoreSections) {
       const preset = allocateWords(style.defaultTargetWords, style.sections);
@@ -391,6 +418,7 @@ export default function YanshuWorkbench() {
       PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections,
     );
     setIncludeAppendix(nextStyle.defaultAppendix);
+    setCaptionWordRange(PRODUCT_CONFIG.captionLength.defaultRange);
     setFrameworkFigure({
       aspectRatioId:
         RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
@@ -427,6 +455,7 @@ export default function YanshuWorkbench() {
           targetWords,
           sectionBudgets: sectionWords,
           includeAppendix,
+          captionWordRange,
           frameworkFigure,
           chatExecution,
         },
@@ -674,9 +703,53 @@ export default function YanshuWorkbench() {
               </small>
             </div>
 
-            <fieldset className="config-control framework-figure-control">
+            <fieldset className="config-control caption-length-control">
               <legend className="control-label-row">
                 <span className="control-index">05</span>
+                <span>{copy.captionLength}</span>
+              </legend>
+              <div className="framework-custom-ratio caption-word-range">
+                <label>
+                  <span>{copy.captionLengthMinimum}</span>
+                  <input
+                    type="number"
+                    min={PRODUCT_CONFIG.captionLength.min}
+                    max={captionWordRange[1]}
+                    step={PRODUCT_CONFIG.captionLength.step}
+                    value={captionWordRange[0]}
+                    onChange={(event) =>
+                      changeCaptionWordRange(
+                        "minimum",
+                        event.target.valueAsNumber,
+                      )
+                    }
+                  />
+                </label>
+                <span aria-hidden="true">—</span>
+                <label>
+                  <span>{copy.captionLengthMaximum}</span>
+                  <input
+                    type="number"
+                    min={captionWordRange[0]}
+                    max={PRODUCT_CONFIG.captionLength.max}
+                    step={PRODUCT_CONFIG.captionLength.step}
+                    value={captionWordRange[1]}
+                    onChange={(event) =>
+                      changeCaptionWordRange(
+                        "maximum",
+                        event.target.valueAsNumber,
+                      )
+                    }
+                  />
+                </label>
+                <strong>words</strong>
+              </div>
+              <small>{copy.captionLengthHint}</small>
+            </fieldset>
+
+            <fieldset className="config-control framework-figure-control">
+              <legend className="control-label-row">
+                <span className="control-index">06</span>
                 <span>{copy.frameworkFigure}</span>
               </legend>
               <div className="framework-figure-row">
@@ -752,7 +825,7 @@ export default function YanshuWorkbench() {
 
             <fieldset className="config-control chat-execution-control">
               <legend className="control-label-row">
-                <span className="control-index">06</span>
+                <span className="control-index">07</span>
                 <span>{copy.chatExecution}</span>
               </legend>
               <div className="chat-execution-row">
@@ -864,7 +937,7 @@ export default function YanshuWorkbench() {
             >
             <div className="allocation-control-header">
               <div className="allocation-title">
-                <span className="control-index">07</span>
+                <span className="control-index">08</span>
                 <div>
                   <strong>{copy.plannerTitle}</strong>
                   <span>{copy.plannerBody}</span>

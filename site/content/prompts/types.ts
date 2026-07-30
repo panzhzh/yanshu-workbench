@@ -68,6 +68,7 @@ export interface PromptBuildContext {
   includeAppendix: boolean;
   appendixLabel: string;
   appendixDirective: string;
+  captionWordRange?: readonly [number, number];
   frameworkFigure?: FrameworkFigureLayoutPreferences;
   submissionPreferences?: SubmissionPreferences;
 }

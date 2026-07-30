@@ -34,6 +34,11 @@ const COPY = {
     allowAppendix: "允许附录",
     allowAppendixHint:
       "正文能满足规则时不使用附录；只有非主线内容确有必要时才移入。",
+    captionTitle: "Caption 建议长度",
+    captionHint:
+      "默认 10–40 words，只用于平衡简洁与自包含性；必要时可以超出，不作为验收或报错条件。",
+    captionMinimum: "最少",
+    captionMaximum: "最多",
     figureTitle: "总体框架图",
     figureHint:
       "默认采用纯白画布、蓝橙配色、Calibri、三级字号和无大标题，并允许按需使用论文对象图形。",
@@ -90,6 +95,7 @@ const COPY = {
     summaryPaperType: "论文类型",
     summaryLength: "正文建议",
     summaryAppendix: "附录",
+    summaryCaption: "Caption 建议",
     summaryFigure: "框架图",
     summaryLanguage: "Prompt",
     summaryReasoning: "推理",
@@ -143,6 +149,11 @@ const COPY = {
     allowAppendix: "Allow an appendix",
     allowAppendixHint:
       "Do not use it when the main text fits; move only genuinely non-core material when necessary.",
+    captionTitle: "Suggested caption length",
+    captionHint:
+      "The default is 10–40 words. It is flexible guidance for concision and self-containment, not an acceptance or error condition.",
+    captionMinimum: "Minimum",
+    captionMaximum: "Maximum",
     figureTitle: "Overall framework figure",
     figureHint:
       "Uses a pure-white canvas, a blue–orange palette, Calibri, three type levels, no large title, and restrained paper-specific scientific forms when useful.",
@@ -201,6 +212,7 @@ const COPY = {
     summaryPaperType: "Paper type",
     summaryLength: "Main-text suggestion",
     summaryAppendix: "Appendix",
+    summaryCaption: "Caption guidance",
     summaryFigure: "Framework figure",
     summaryLanguage: "Prompt",
     summaryReasoning: "Reasoning",
@@ -238,6 +250,8 @@ const elements = {
   budgetTotal: document.querySelector("#budget-total"),
   budgetError: document.querySelector("#budget-error"),
   appendixToggle: document.querySelector("#appendix-toggle"),
+  captionMinWords: document.querySelector("#caption-min-words"),
+  captionMaxWords: document.querySelector("#caption-max-words"),
   ratioOptions: document.querySelector("#ratio-options"),
   customRatio: document.querySelector("#custom-ratio"),
   ratioWidth: document.querySelector("#ratio-width"),
@@ -663,6 +677,18 @@ function renderAppendix() {
   elements.appendixToggle.checked = workflow.includeAppendix;
 }
 
+function renderCaptionLength() {
+  const policy = model.captionLength;
+  elements.captionMinWords.min = String(policy.min);
+  elements.captionMinWords.max = String(workflow.captionWordRange[1]);
+  elements.captionMinWords.step = String(policy.step);
+  elements.captionMinWords.value = String(workflow.captionWordRange[0]);
+  elements.captionMaxWords.min = String(workflow.captionWordRange[0]);
+  elements.captionMaxWords.max = String(policy.max);
+  elements.captionMaxWords.step = String(policy.step);
+  elements.captionMaxWords.value = String(workflow.captionWordRange[1]);
+}
+
 function renderRatios() {
   elements.ratioOptions.replaceChildren();
   model.frameworkFigure.aspectRatios.forEach((ratio) => {
@@ -785,6 +811,10 @@ function summaryRows() {
       workflow.includeAppendix ? copy("allowed") : copy("disabled"),
     ],
     [
+      copy("summaryCaption"),
+      `${workflow.captionWordRange[0]}–${workflow.captionWordRange[1]} words`,
+    ],
+    [
       copy("summaryFigure"),
       ratioSummary(),
     ],
@@ -817,6 +847,7 @@ function render() {
   renderStyles();
   renderWordLimit();
   renderAppendix();
+  renderCaptionLength();
   renderRatios();
   renderExecution();
   renderSummary();
@@ -847,6 +878,19 @@ function validatedWorkflow() {
     ) {
       throw new Error(`${copy("aspectRatio")}: ${copy("submitFailed")}`);
     }
+  }
+  if (
+    !Array.isArray(workflow.captionWordRange) ||
+    workflow.captionWordRange.length < 2 ||
+    !Number.isFinite(workflow.captionWordRange[0]) ||
+    !Number.isFinite(workflow.captionWordRange[1]) ||
+    workflow.captionWordRange[0] < model.captionLength.min ||
+    workflow.captionWordRange[1] > model.captionLength.max ||
+    workflow.captionWordRange[0] > workflow.captionWordRange[1]
+  ) {
+    throw new Error(
+      `${copy("captionTitle")}: ${model.captionLength.min}–${model.captionLength.max}`,
+    );
   }
   const roundLanguages = Object.fromEntries(
     Object.keys(workflow.roundLanguages ?? {}).map((id) => [
@@ -902,6 +946,28 @@ function bindEvents() {
   });
   elements.appendixToggle.addEventListener("change", () => {
     workflow.includeAppendix = elements.appendixToggle.checked;
+    renderSummary();
+    schedulePromptPreview();
+  });
+  elements.captionMinWords.addEventListener("input", () => {
+    const next = Number(elements.captionMinWords.value);
+    if (!Number.isFinite(next)) return;
+    workflow.captionWordRange[0] = Math.min(
+      Math.max(model.captionLength.min, next),
+      workflow.captionWordRange[1],
+    );
+    renderCaptionLength();
+    renderSummary();
+    schedulePromptPreview();
+  });
+  elements.captionMaxWords.addEventListener("input", () => {
+    const next = Number(elements.captionMaxWords.value);
+    if (!Number.isFinite(next)) return;
+    workflow.captionWordRange[1] = Math.max(
+      workflow.captionWordRange[0],
+      Math.min(model.captionLength.max, next),
+    );
+    renderCaptionLength();
     renderSummary();
     schedulePromptPreview();
   });

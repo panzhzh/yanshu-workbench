@@ -540,6 +540,37 @@ function buildIdeaPrompt(mode, preferences, language) {
   );
 }
 
+// content/prompts/captionLength.ts
+var CAPTION_LENGTH_POLICY = {
+  defaultRange: [10, 40],
+  min: 1,
+  max: 120,
+  step: 1
+};
+function normalizeCaptionWordRange(value) {
+  if (!Array.isArray(value) || value.length < 2) {
+    return CAPTION_LENGTH_POLICY.defaultRange;
+  }
+  const parsedMinimum = Number(value[0]);
+  const parsedMaximum = Number(value[1]);
+  if (!Number.isFinite(parsedMinimum) || !Number.isFinite(parsedMaximum)) {
+    return CAPTION_LENGTH_POLICY.defaultRange;
+  }
+  const first = Math.min(
+    CAPTION_LENGTH_POLICY.max,
+    Math.max(CAPTION_LENGTH_POLICY.min, Math.round(parsedMinimum))
+  );
+  const second = Math.min(
+    CAPTION_LENGTH_POLICY.max,
+    Math.max(CAPTION_LENGTH_POLICY.min, Math.round(parsedMaximum))
+  );
+  return [Math.min(first, second), Math.max(first, second)];
+}
+function buildCaptionLengthGuidance(value, language) {
+  const [minimum, maximum] = normalizeCaptionWordRange(value);
+  return language === "zh" ? `\u6BCF\u6761 Caption \u5EFA\u8BAE\u7EA6 ${minimum}\u2013${maximum} words\u3002\u8BE5\u533A\u95F4\u53EA\u7528\u4E8E\u5E73\u8861\u7B80\u6D01\u4E0E\u81EA\u5305\u542B\u6027\uFF0C\u4E0D\u662F\u786C\u6027\u9650\u5236\uFF1B\u5F53\u8BF4\u660E\u5B50\u56FE\u3001\u5BF9\u8C61\u3001\u6761\u4EF6\u3001\u6307\u6807\u6216\u5FC5\u8981\u7EDF\u8BA1\u8BED\u4E49\u786E\u6709\u9700\u8981\u65F6\u53EF\u4EE5\u8D85\u51FA\uFF0C\u4E5F\u4E0D\u8981\u4E3A\u51D1\u8DB3\u4E0B\u9650\u673A\u68B0\u8865\u5199\u3002` : `Aim for roughly ${minimum}\u2013${maximum} words per caption. This range is advisory, balancing concision with self-containment rather than imposing a hard limit. Exceed it when panels, objects, conditions, metrics, or essential statistical semantics genuinely require more explanation, and never pad a caption merely to reach the lower bound.`;
+}
+
 // app/draft/config.ts
 var ARXIV_STYLE_REPOSITORY = "https://github.com/kourgeorge/arxiv-style";
 var DRAFT_TEMPLATES = {
@@ -615,11 +646,15 @@ function selectedVenue(templateId, customVenue) {
   if (templateId !== "custom") return DRAFT_TEMPLATES[templateId].label;
   return customVenue.trim() || "the custom top-tier CS conference named by the user";
 }
-function buildDraftPromptContent(templateId, customVenue, language) {
+function buildDraftPromptContent(templateId, customVenue, language, captionWordRange) {
   const venue = selectedVenue(templateId, customVenue);
   const template = DRAFT_TEMPLATES[templateId];
   const isArxiv = templateId === "arxiv";
   const searchHint = template.group === "conference" ? template.searchHint : void 0;
+  const captionGuidance = buildCaptionLengthGuidance(
+    captionWordRange,
+    language
+  );
   if (language === "zh") {
     const templateDirective2 = isArxiv ? `\u76EE\u6807\u4E3A arXiv \u9884\u5370\u672C\u3002\u4F7F\u7528 ${ARXIV_STYLE_REPOSITORY} \u5F53\u524D\u4ED3\u5E93\u4E2D\u7684 \`template.tex\` \u4E0E \`arxiv.sty\` \u4F5C\u4E3A\u9ED8\u8BA4\u6392\u7248\u57FA\u7840\uFF1B\u8BB0\u5F55\u4ED3\u5E93 URL \u4E0E\u53D6\u5F97\u65E5\u671F\uFF0C\u4E0D\u628A\u8BE5\u7B2C\u4E09\u65B9 MIT \u5F00\u6E90\u6837\u5F0F\u63CF\u8FF0\u6210 arXiv \u5B98\u65B9\u8981\u6C42\uFF0C\u4E5F\u4E0D\u8981\u4FEE\u6539\u6837\u5F0F\u6587\u4EF6\u6765\u6324\u538B\u7BC7\u5E45\u3002` : `\u76EE\u6807\u4E3A ${venue}\u3002\u5F00\u59CB\u5199\u4F5C\u524D\u5FC5\u987B\u8054\u7F51\u641C\u7D22 ${searchHint ?? `${venue} \u5B98\u65B9\u4F5C\u8005\u6307\u5357\u4E0E LaTeX \u6A21\u677F`}\uFF0C\u53EA\u4ECE\u4F1A\u8BAE\u5B98\u7F51\u3001\u5B98\u65B9 author kit \u6216\u4F1A\u8BAE\u7EC4\u7EC7\u65B9\u7EF4\u62A4\u7684\u4ED3\u5E93\u53D6\u5F97\u5F53\u524D\u5C4A\u6216\u6700\u8FD1\u4E00\u4E2A\u660E\u786E\u5F00\u653E\u5C4A\u6B21\u7684\u6700\u65B0\u5B98\u65B9 TeX \u6A21\u677F\u3002\u8BB0\u5F55 venue\u3001\u5C4A\u6B21/\u5E74\u4EFD\u3001\u6A21\u677F\u7248\u672C\u3001\u6838\u9A8C\u65E5\u671F\u548C\u5B98\u65B9 URL\uFF1B\u4E0D\u5F97\u6CBF\u7528\u65E7\u5C4A\u6A21\u677F\u6216\u975E\u5B98\u65B9\u955C\u50CF\u3002\u82E5\u5F53\u524D\u5B98\u65B9\u6A21\u677F\u786E\u5B9E\u65E0\u6CD5\u53D6\u5F97\uFF0C\u900F\u660E\u8BF4\u660E\u540E\u4E34\u65F6\u4F7F\u7528 ${ARXIV_STYLE_REPOSITORY} \u4F5C\u4E3A\u201C\u9884\u5370\u672C\u56DE\u9000\u201D\uFF0C\u5E76\u660E\u786E\u4EA7\u7269\u5C1A\u4E0D\u7B26\u5408 ${venue} \u6295\u7A3F\u683C\u5F0F\u3002`;
     return `# \u57FA\u4E8E\u5B9E\u9A8C\u6750\u6599\u751F\u6210\u5B8C\u6574 CS \u8BBA\u6587\u521D\u7A3F
@@ -641,6 +676,9 @@ function buildDraftPromptContent(templateId, customVenue, language) {
 ${templateDirective2}
 
 \u6A21\u677F\u89C4\u5219\u53EF\u80FD\u53D8\u5316\u3002\u4E0D\u5F97\u786C\u7F16\u7801\u5F80\u5E74\u9875\u6570\u3001\u533F\u540D\u89C4\u5219\u6216\u63D0\u4EA4\u8981\u6C42\uFF1B\u5FC5\u987B\u4EE5\u672C\u6B21\u6838\u9A8C\u5230\u7684\u5B98\u65B9\u6700\u65B0\u9875\u9762\u4E3A\u51C6\u3002\u6A21\u677F\u7C7B\u6587\u4EF6\u3001\u7248\u6743\u5757\u3001\u9875\u8FB9\u8DDD\u3001\u5B57\u53F7\u548C\u533F\u540D\u8BBE\u7F6E\u4E0D\u5F97\u4E3A\u5BB9\u7EB3\u5185\u5BB9\u800C\u79C1\u81EA\u4FEE\u6539\u3002
+
+## Caption \u5199\u4F5C
+${captionGuidance}
 
 ## \u5199\u4F5C\u4EFB\u52A1
 1. \u5728\u5185\u90E8\u5EFA\u7ACB Evidence Ledger\uFF0C\u5C06\u6BCF\u9879\u6838\u5FC3 claim \u5BF9\u9F50\u5230\u65B9\u6CD5\u5B9A\u4E49\u3001\u8868\u683C\u3001\u56FE\u7247\u3001\u7EDF\u8BA1\u7ED3\u679C\u6216\u771F\u5B9E\u5F15\u7528\u3002\u4E0D\u8981\u628A\u8FD9\u4EFD\u5185\u90E8\u6E05\u5355\u5F53\u4F5C\u6B63\u6587\u8F93\u51FA\u3002
@@ -692,6 +730,9 @@ ${templateDirective}
 
 Template rules change over time. Do not hardcode a previous year's page limit, anonymity policy, or submission rule. Follow the latest official page verified in this run. Never alter class/style files, copyright blocks, margins, type sizes, or anonymity settings to force content to fit.
 
+## Caption Writing
+${captionGuidance}
+
 ## Drafting tasks
 1. Internally build an Evidence Ledger that maps every core claim to a method definition, table, figure, statistic, or authentic citation. Do not emit this internal ledger as manuscript prose.
 2. Derive one clear and defensible scientific position from the evidence, then commit to an English paper title and a 4\u20137-letter paper brand acronym. Keep the title, abstract, introduction, method, experiments, discussion, and conclusion on one throughline.
@@ -721,9 +762,14 @@ Run the LaTeX build and fix package, bibliography, cross-reference, float, BibTe
 
 Read all materials now and generate the final draft project directly. Do not first provide an outline or writing plan, and do not wait for section-by-section approval.`;
 }
-function buildDraftPrompt(templateId, customVenue, language) {
+function buildDraftPrompt(templateId, customVenue, language, captionWordRange = CAPTION_LENGTH_POLICY.defaultRange) {
   return withPromptJudgmentDirective(
-    buildDraftPromptContent(templateId, customVenue, language),
+    buildDraftPromptContent(
+      templateId,
+      customVenue,
+      language,
+      normalizeCaptionWordRange(captionWordRange)
+    ),
     language
   );
 }
@@ -1824,6 +1870,20 @@ var EXPERIMENTAL_PLOTS_WORKBENCH = {
       span: "full"
     },
     {
+      id: "captionWordRange",
+      kind: "range",
+      label: text("Caption \u5EFA\u8BAE\u957F\u5EA6", "Suggested caption length"),
+      description: text(
+        "\u9ED8\u8BA4 10\u201340 words\uFF1B\u4E3A\u4FDD\u8BC1\u81EA\u5305\u542B\u6027\uFF0C\u5FC5\u8981\u65F6\u5141\u8BB8\u8D85\u51FA\u3002",
+        "Defaults to 10\u201340 words and may be exceeded when self-containment requires it."
+      ),
+      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+      suffix: text("words", "words")
+    },
+    {
       id: "custom",
       kind: "textarea",
       label: text("\u8865\u5145\u8981\u6C42", "Additional requirements"),
@@ -1885,6 +1945,14 @@ var EXPERIMENTAL_PLOTS_WORKBENCH = {
       language
     );
     const custom = scalar(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const captionGuidance = buildCaptionLengthGuidance(
+      rangeValue(
+        values,
+        "captionWordRange",
+        CAPTION_LENGTH_POLICY.defaultRange
+      ),
+      language
+    );
     const multiplicity = selected(values, "statistics").includes("test") ? labelFor(
       scalar(values, "multiplicity"),
       MULTIPLICITY_POLICIES,
@@ -1921,6 +1989,7 @@ var EXPERIMENTAL_PLOTS_WORKBENCH = {
 - \u9762\u677F\u7EC4\u7EC7\uFF1A${panelPolicy}
 - \u7248\u9762\u5BBD\u5EA6\uFF1A${labelFor(scalar(values, "width"), PLOT_WIDTHS, language)}
 - \u989C\u8272\uFF1A${palette}
+- Caption \u5EFA\u8BAE\uFF1A${captionGuidance}
 - \u4EA4\u4ED8\uFF1A${outputs}
 - \u8865\u5145\u8981\u6C42\uFF1A${custom}
 
@@ -1942,6 +2011,7 @@ Read the supplied data, metric definitions, protocol, and manuscript context. Ac
 - Panel structure: ${panelPolicy}
 - Layout width: ${labelFor(scalar(values, "width"), PLOT_WIDTHS, language)}
 - Color: ${palette}
+- Caption guidance: ${captionGuidance}
 - Deliverables: ${outputs}
 - Additional requirements: ${custom}
 
@@ -2243,6 +2313,20 @@ var PAPER_TABLES_WORKBENCH = {
       span: "full"
     },
     {
+      id: "captionWordRange",
+      kind: "range",
+      label: text("Caption \u5EFA\u8BAE\u957F\u5EA6", "Suggested caption length"),
+      description: text(
+        "\u9ED8\u8BA4 10\u201340 words\uFF1B\u4E3A\u4FDD\u8BC1\u81EA\u5305\u542B\u6027\uFF0C\u5FC5\u8981\u65F6\u5141\u8BB8\u8D85\u51FA\u3002",
+        "Defaults to 10\u201340 words and may be exceeded when self-containment requires it."
+      ),
+      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+      suffix: text("words", "words")
+    },
+    {
       id: "custom",
       kind: "textarea",
       label: text("\u8865\u5145\u8981\u6C42", "Additional requirements"),
@@ -2275,6 +2359,14 @@ var PAPER_TABLES_WORKBENCH = {
     const metricDirection = scalar(values, "metricDirection");
     const emphasis = metricDirection === "none" ? "none" : scalar(values, "emphasis");
     const includesLatex = selected(values, "outputs").includes("latex");
+    const captionGuidance = buildCaptionLengthGuidance(
+      rangeValue(
+        values,
+        "captionWordRange",
+        CAPTION_LENGTH_POLICY.defaultRange
+      ),
+      language
+    );
     if (language === "zh") {
       return `# \u751F\u6210\u5FE0\u5B9E\u4E14\u53EF\u8BFB\u7684\u8BBA\u6587\u8868\u683C
 
@@ -2288,6 +2380,7 @@ var PAPER_TABLES_WORKBENCH = {
 - \u5BBD\u5EA6\uFF1A${labelFor(scalar(values, "width"), TABLE_WIDTHS, language)}
 - \u5BC6\u5EA6\uFF1A${labelFor(scalar(values, "density"), TABLE_DENSITIES, language)}
 - \u65B9\u6CD5\u5206\u7EC4\uFF1A${enabled(values, "groupMethods") ? "\u6309\u771F\u5B9E\u8BED\u4E49\u5206\u7EC4" : "\u5355\u4E00\u5217\u8868"}
+- Caption \u5EFA\u8BAE\uFF1A${captionGuidance}
 - \u4EA4\u4ED8\uFF1A${labelsFor(values, "outputs", TABLE_OUTPUTS, language)}
 - \u8865\u5145\u8981\u6C42\uFF1A${custom}
 
@@ -2307,6 +2400,7 @@ Read the supplied result files, existing tables, metric definitions, and manuscr
 - Width: ${labelFor(scalar(values, "width"), TABLE_WIDTHS, language)}
 - Density: ${labelFor(scalar(values, "density"), TABLE_DENSITIES, language)}
 - Method grouping: ${enabled(values, "groupMethods") ? "meaningful semantic groups" : "one list"}
+- Caption guidance: ${captionGuidance}
 - Deliverables: ${labelsFor(values, "outputs", TABLE_OUTPUTS, language)}
 - Additional requirements: ${custom}
 
@@ -2573,6 +2667,10 @@ function enabled2(values, id) {
 }
 function selected2(values, id) {
   return Array.isArray(values[id]) ? values[id] : [];
+}
+function rangeValue2(values, id, fallback) {
+  const value = values[id];
+  return Array.isArray(value) && value.length === 2 ? [Number(value[0]), Number(value[1])] : fallback;
 }
 function sharedCopy2(seed) {
   return {
@@ -2899,6 +2997,20 @@ var WRITING_DIAGNOSIS_WORKBENCH = {
       disabledLabel: text2("\u4E0D\u5355\u72EC\u6807\u8BB0", "Do not mark separately")
     },
     {
+      id: "captionWordRange",
+      kind: "range",
+      label: text2("Caption \u5EFA\u8BAE\u957F\u5EA6", "Suggested caption length"),
+      description: text2(
+        "\u4EC5\u5728\u5B89\u5168\u4FEE\u590D\u786E\u9700\u6539\u5199 Caption \u65F6\u4F7F\u7528\uFF1B\u9ED8\u8BA4 10\u201340 words\uFF0C\u5FC5\u8981\u65F6\u5141\u8BB8\u8D85\u51FA\uFF0C\u957F\u5EA6\u672C\u8EAB\u4E0D\u6784\u6210\u9519\u8BEF\u3002",
+        "Use only when a safe repair genuinely rewrites a caption. The default 10\u201340-word range is flexible, and length alone is never an error."
+      ),
+      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+      suffix: text2("words", "words")
+    },
+    {
       id: "custom",
       kind: "textarea",
       label: text2("\u8865\u5145\u5173\u6CE8\u70B9", "Additional focus"),
@@ -2933,6 +3045,14 @@ var WRITING_DIAGNOSIS_WORKBENCH = {
     const repair = scalar2(values, "action") === "repair";
     const browse = enabled2(values, "browseCitations") && selected2(values, "dimensions").includes("citation-practice");
     const preserve = enabled2(values, "preserveStrengths");
+    const captionGuidance = buildCaptionLengthGuidance(
+      rangeValue2(
+        values,
+        "captionWordRange",
+        CAPTION_LENGTH_POLICY.defaultRange
+      ),
+      language
+    );
     const custom = scalar2(values, "custom") || (language === "zh" ? "\u65E0" : "None");
     if (language === "zh") {
       return `# \u5B66\u672F\u5199\u4F5C\u8BCA\u65AD
@@ -2949,6 +3069,7 @@ var WRITING_DIAGNOSIS_WORKBENCH = {
 - \u5904\u7406\uFF1A${DIAGNOSIS_ACTIONS[repair ? "repair" : "report"].zh}
 - \u5F15\u6587\u5019\u9009\uFF1A${browse ? "\u8054\u7F51\u6838\u67E5\u9AD8\u7F6E\u4FE1\u5EA6\u7F3A\u53E3\uFF0C\u7ED9\u51FA\u771F\u5B9E\u6765\u6E90\u4E0E\u53EF\u7528 BibTeX\uFF1B\u4E0D\u81EA\u52A8\u63D2\u5165" : "\u53EA\u5B9A\u4F4D\u5199\u4F5C\u5C42\u9762\u7684\u7F3A\u5F15\u6587\u4F4D\u7F6E"}
 - \u4FDD\u62A4\u597D\u8868\u8FBE\uFF1A${preserve ? "\u662F" : "\u4E0D\u5355\u72EC\u6807\u8BB0"}
+- Caption \u5EFA\u8BAE\uFF1A${captionGuidance} \u4EC5\u5728\u5B89\u5168\u4FEE\u590D\u786E\u9700\u6539\u5199 Caption \u65F6\u91C7\u7528\uFF0C\u4E0D\u80FD\u636E\u6B64\u5355\u72EC\u5224\u9519\u3002
 - \u8865\u5145\u5173\u6CE8\uFF1A${custom}
 
 \u5148\u5728\u5185\u90E8\u5EFA\u7ACB\u5168\u6587\u4E3B\u7EBF\u548C section-function map\uFF0C\u518D\u6309\u201C\u5168\u6587\u4E0E\u7AE0\u8282 \u2192 \u6BB5\u843D\u4E0E\u56FE\u8868 \u2192 \u53E5\u5B50\u4E0E\u516C\u5F0F\u201D\u4E09\u4E2A\u5C3A\u5EA6\u8BCA\u65AD\u3002\u5C0A\u91CD\u4E0D\u540C\u7AE0\u8282\u7684\u771F\u5B9E\u529F\u80FD\uFF1AAbstract \u8BB2\u5B8C\u6574\u6545\u4E8B\uFF1BIntroduction \u5EFA\u7ACB\u95EE\u9898\u3001\u52A8\u673A\u3001\u7F3A\u53E3\u3001\u65B9\u6848\u4E0E\u8D21\u732E\uFF1BRelated Work \u505A\u7EFC\u5408\u4E0E\u5B9A\u4F4D\uFF1BMethod \u89E3\u91CA\u8BBE\u8BA1\u903B\u8F91\uFF1BExperiments & Results \u7528\u8BC1\u636E\u5F62\u6210 finding\uFF1BDiscussion \u89E3\u91CA\u610F\u4E49\u800C\u4E0D\u662F\u91CD\u64AD\u7ED3\u679C\uFF1BConclusion \u4E0D\u5F15\u5165\u65B0\u8BC1\u636E\u3002
@@ -2980,6 +3101,7 @@ Understand the writing goals behind these rules and use expert judgment to produ
 - Action: ${DIAGNOSIS_ACTIONS[repair ? "repair" : "report"].en}
 - Citation candidates: ${browse ? "browse high-confidence gaps, verify authentic sources, return usable BibTeX, and never insert them silently" : "locate writing-level citation gaps only"}
 - Preserve strong prose: ${preserve ? "yes" : "do not mark separately"}
+- Caption guidance: ${captionGuidance} Apply it only when a safe repair genuinely rewrites a caption; never diagnose an error from this range alone.
 - Additional focus: ${custom}
 
 First build an internal central-argument and section-function map. Diagnose at three scales: manuscript and section, paragraph and display item, then sentence and equation. Respect section functions: the Abstract tells a complete story; the Introduction establishes problem, motivation, gap, solution, and contributions; Related Work synthesizes and positions; Method explains design logic; Experiments & Results turns evidence into findings; Discussion interprets rather than replays results; Conclusion introduces no new evidence.
@@ -3016,6 +3138,24 @@ function normalizeWritingDiagnosisValues(input = {}) {
       if (typeof value === "boolean") values[control.id] = value;
       continue;
     }
+    if (control.kind === "range") {
+      if (!Array.isArray(value) || value.length !== 2) continue;
+      const left = Math.min(
+        control.max,
+        Math.max(control.min, Number(value[0]))
+      );
+      const right = Math.min(
+        control.max,
+        Math.max(control.min, Number(value[1]))
+      );
+      if (Number.isFinite(left) && Number.isFinite(right)) {
+        values[control.id] = [
+          Math.min(left, right),
+          Math.max(left, right)
+        ];
+      }
+      continue;
+    }
     if (control.kind === "multi") {
       if (!Array.isArray(value)) continue;
       const allowed = new Set(
@@ -3049,7 +3189,7 @@ function buildWritingDiagnosisPrompt(input, language) {
 }
 
 // content/workflows/skillWorkflows.ts
-var SKILL_WORKFLOW_VERSION = "2026.07.29";
+var SKILL_WORKFLOW_VERSION = "2026.07.30";
 var YANSHU_SKILL_CATALOG = [
   {
     id: "idea-discovery",
@@ -3290,6 +3430,15 @@ var IDEA_DISCOVERY_MODEL = {
         "\u63A7\u5236\u5019\u9009\u6570\u91CF\u3001\u63A2\u7D22\u5E45\u5EA6\u548C\u73B0\u5B9E\u8D44\u6E90\u8FB9\u754C\u3002",
         "Control candidate count, exploration posture, and practical resource limits."
       )
+    },
+    {
+      id: "writing",
+      index: "02",
+      title: localized("\u5199\u4F5C\u5EFA\u8BAE", "Writing guidance"),
+      description: localized(
+        "\u63A7\u5236 Caption \u7684\u5EFA\u8BAE\u957F\u5EA6\uFF1B\u8BE5\u8303\u56F4\u4E0D\u662F\u786C\u6027\u9A8C\u6536\u6761\u4EF6\u3002",
+        "Configure advisory caption length; the range is never a hard acceptance condition."
+      )
     }
   ],
   fields: [
@@ -3463,11 +3612,25 @@ var PAPER_DRAFTING_MODEL = {
       label: localized("\u4F1A\u8BAE\u540D\u79F0", "Venue name"),
       placeholder: localized("\u4F8B\u5982\uFF1ASIGIR", "e.g. SIGIR"),
       visibleWhen: { fieldId: "templateId", equals: "custom" }
+    },
+    {
+      id: "captionWordRange",
+      sectionId: "writing",
+      type: "range",
+      label: localized("Caption \u5EFA\u8BAE\u957F\u5EA6", "Suggested caption length"),
+      description: localized(
+        "\u9ED8\u8BA4 10\u201340 words\uFF1B\u4E3A\u4FDD\u8BC1\u81EA\u5305\u542B\u6027\uFF0C\u5FC5\u8981\u65F6\u5141\u8BB8\u8D85\u51FA\u3002",
+        "Defaults to 10\u201340 words and may be exceeded when self-containment requires it."
+      ),
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step
     }
   ],
   defaults: {
     templateId: DEFAULT_DRAFT_TEMPLATE_ID,
-    customVenue: ""
+    customVenue: "",
+    captionWordRange: CAPTION_LENGTH_POLICY.defaultRange
   }
 };
 var figureDefaults = { ...DEFAULT_FIGURE_PREFERENCES };
@@ -4004,7 +4167,10 @@ function normalizeDraftPreferences(input) {
       DRAFT_TEMPLATE_IDS,
       DEFAULT_DRAFT_TEMPLATE_ID
     ),
-    customVenue: textValue(input.customVenue)
+    customVenue: textValue(input.customVenue),
+    captionWordRange: normalizeCaptionWordRange(
+      input.captionWordRange
+    )
   };
 }
 function normalizeFigurePreferences(input) {
@@ -4131,11 +4297,13 @@ function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage 
     prompt = buildDraftPrompt(
       draftPreferences.templateId,
       draftPreferences.customVenue,
-      promptLanguage
+      promptLanguage,
+      draftPreferences.captionWordRange
     );
     selection = {
       templateId: draftPreferences.templateId,
-      customVenue: draftPreferences.customVenue
+      customVenue: draftPreferences.customVenue,
+      captionWordRange: draftPreferences.captionWordRange
     };
   } else if (workflowId === "writing-diagnosis") {
     const diagnosisPreferences = preferences;

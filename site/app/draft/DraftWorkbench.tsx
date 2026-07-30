@@ -13,6 +13,10 @@ import {
   DRAFT_TEMPLATES,
   type DraftTemplateId,
 } from "./config";
+import {
+  CAPTION_LENGTH_POLICY,
+  type CaptionWordRange,
+} from "../../content/prompts/captionLength";
 
 async function writeClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
@@ -42,6 +46,10 @@ export default function DraftWorkbench() {
     DEFAULT_DRAFT_TEMPLATE_ID,
   );
   const [customVenue, setCustomVenue] = useState("");
+  const [captionWordRange, setCaptionWordRange] =
+    useState<CaptionWordRange>(
+      CAPTION_LENGTH_POLICY.defaultRange,
+    );
   const [expanded, setExpanded] = useState(true);
   const [copied, setCopied] = useState(false);
   const [copyError, setCopyError] = useState(false);
@@ -50,8 +58,14 @@ export default function DraftWorkbench() {
   const copy = DRAFT_COPY[uiLanguage];
 
   const prompt = useMemo(
-    () => buildDraftPrompt(templateId, customVenue, promptLanguage),
-    [customVenue, promptLanguage, templateId],
+    () =>
+      buildDraftPrompt(
+        templateId,
+        customVenue,
+        promptLanguage,
+        captionWordRange,
+      ),
+    [captionWordRange, customVenue, promptLanguage, templateId],
   );
   const promptNextLanguage =
     promptLanguage === "zh" ? "English" : "中文";
@@ -71,6 +85,7 @@ export default function DraftWorkbench() {
   function resetDefaults() {
     setTemplateId(DEFAULT_DRAFT_TEMPLATE_ID);
     setCustomVenue("");
+    setCaptionWordRange(CAPTION_LENGTH_POLICY.defaultRange);
     setCopied(false);
     setCopyError(false);
   }
@@ -86,6 +101,24 @@ export default function DraftWorkbench() {
       setCopied(false);
       setCopyError(true);
     }
+  }
+
+  function updateCaptionRange(
+    side: "minimum" | "maximum",
+    rawValue: number,
+  ) {
+    if (!Number.isFinite(rawValue)) return;
+    const value = Math.min(
+      CAPTION_LENGTH_POLICY.max,
+      Math.max(CAPTION_LENGTH_POLICY.min, Math.round(rawValue)),
+    );
+    setCaptionWordRange(([minimum, maximum]) =>
+      side === "minimum"
+        ? [Math.min(value, maximum), maximum]
+        : [minimum, Math.max(minimum, value)],
+    );
+    setCopied(false);
+    setCopyError(false);
   }
 
   return (
@@ -208,6 +241,50 @@ export default function DraftWorkbench() {
                 <small>{copy.templateBoundary}</small>
               </div>
             )}
+          </fieldset>
+
+          <fieldset className="draft-template-card draft-caption-card">
+            <legend>
+              <span className="control-index">03</span>
+              {copy.captionTitle}
+            </legend>
+            <div className="framework-custom-ratio caption-word-range">
+              <label>
+                <span>{copy.captionMinimum}</span>
+                <input
+                  type="number"
+                  min={CAPTION_LENGTH_POLICY.min}
+                  max={captionWordRange[1]}
+                  step={CAPTION_LENGTH_POLICY.step}
+                  value={captionWordRange[0]}
+                  onChange={(event) =>
+                    updateCaptionRange(
+                      "minimum",
+                      event.target.valueAsNumber,
+                    )
+                  }
+                />
+              </label>
+              <span aria-hidden="true">—</span>
+              <label>
+                <span>{copy.captionMaximum}</span>
+                <input
+                  type="number"
+                  min={captionWordRange[0]}
+                  max={CAPTION_LENGTH_POLICY.max}
+                  step={CAPTION_LENGTH_POLICY.step}
+                  value={captionWordRange[1]}
+                  onChange={(event) =>
+                    updateCaptionRange(
+                      "maximum",
+                      event.target.valueAsNumber,
+                    )
+                  }
+                />
+              </label>
+              <strong>words</strong>
+            </div>
+            <small>{copy.captionHint}</small>
           </fieldset>
         </section>
 

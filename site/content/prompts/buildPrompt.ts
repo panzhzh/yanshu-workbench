@@ -7,6 +7,7 @@ import {
 } from "./constraints";
 import type { PromptConstraintSet } from "./constraints";
 import { withPromptJudgmentDirective } from "./promptAgency";
+import { buildCaptionLengthGuidance } from "./captionLength";
 import { WORD_COUNT_POLICY } from "./wordCountPolicy";
 import type {
   Language,
@@ -23,6 +24,7 @@ const LABELS = {
     flexibleCoreMode: "不设正文总建议；仅为方法和实验以外的章节提供参考范围",
     targetType: "投稿类型",
     appendix: "附录",
+    captionLength: "Caption 建议长度",
     styleDirective: "写作侧重",
     introductionRoadmap: "Introduction 章节导航段",
     included: "保留约 65 词的独立导航段",
@@ -79,6 +81,7 @@ const LABELS = {
       "No suggested main-text total; optional ranges only for sections other than Method and Experiments",
     targetType: "Submission type",
     appendix: "Appendix",
+    captionLength: "Suggested caption length",
     styleDirective: "Writing emphasis",
     introductionRoadmap: "Introduction roadmap paragraph",
     included: "Include a separate ≈65-word roadmap",
@@ -222,6 +225,13 @@ function buildConfiguration(
     ...(context.hasWordLimit && context.unlimitedCoreSections
       ? [field(labels.lengthMode, labels.flexibleCoreMode)]
       : []),
+    field(
+      labels.captionLength,
+      buildCaptionLengthGuidance(
+        context.captionWordRange,
+        context.language,
+      ),
+    ),
     ...(template.showAppendixConfiguration === false
       ? []
       : [

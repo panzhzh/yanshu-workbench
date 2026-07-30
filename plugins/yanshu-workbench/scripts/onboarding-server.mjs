@@ -95,6 +95,7 @@ function localizedSelection(config, model) {
     includeSectionNavigationSentence:
       config.includeSectionNavigationSentence,
     includeAppendix: config.includeAppendix,
+    captionWordRange: config.captionWordRange,
     promptLanguage: config.language,
     figureRatio: ratioLabel,
     reasoningPreference: config.chatExecution.reasoningPreference,

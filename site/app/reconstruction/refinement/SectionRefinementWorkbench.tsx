@@ -43,6 +43,8 @@ type NumericPreferenceKey =
   | "paragraphMaxWords"
   | "sentenceMinWords"
   | "sentenceMaxWords"
+  | "captionMinWords"
+  | "captionMaxWords"
   | "abstractResultNumbersMin"
   | "abstractResultNumbersMax"
   | "abstractKeywordCountMin"
@@ -1012,7 +1014,16 @@ export default function SectionRefinementWorkbench() {
                     )}
                   </>
                 )}
+                {renderRange(
+                  copy.captionLength,
+                  "captionMinWords",
+                  "captionMaxWords",
+                  1,
+                  "words",
+                  1,
+                )}
               </div>
+              <small>{copy.captionLengthHint}</small>
               <small>{copy.lengthHint}</small>
             </fieldset>
 

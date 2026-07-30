@@ -600,7 +600,14 @@ export async function validateRoundConsistency({
         frameworkStem && currentStems.has(frameworkStem)
           ? "The final TeX references the Round 4 framework image."
           : "The final TeX does not reference the Round 4 framework image.",
-        { frameworkImage, frameworkStem, currentGraphics: [...currentStems] },
+        {
+          frameworkImage,
+          frameworkStem,
+          requiredIncludegraphics: frameworkImage
+            ? `\\includegraphics{${path.basename(frameworkImage)}}`
+            : null,
+          currentGraphics: [...currentStems],
+        },
       ),
     );
     const previousStems = await previousFrameworkBasenames(state, round);
@@ -614,7 +621,14 @@ export async function validateRoundConsistency({
         stale.length === 0
           ? "No identifiable superseded overview/framework basename remains."
           : "The final TeX still references an identifiable superseded framework image.",
-        { previousStems, stale },
+        {
+          previousStems,
+          stale,
+          requiredAction:
+            stale.length === 0
+              ? null
+              : "Remove or replace every active includegraphics reference whose normalized basename appears in stale.",
+        },
       ),
     );
   }

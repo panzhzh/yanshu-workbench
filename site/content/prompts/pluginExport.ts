@@ -16,6 +16,10 @@ import {
   type FrameworkFigureLayoutPreferences,
 } from "../../app/figures/config";
 import { buildPrompt } from "./buildPrompt";
+import {
+  normalizeCaptionWordRange,
+  type CaptionWordRange,
+} from "./captionLength";
 import { RECONSTRUCTION_PROMPTS } from "./templates";
 import { RECONSTRUCTION_WORKFLOW_VERSION } from "./version";
 import type {
@@ -34,6 +38,7 @@ export interface ReconstructionWorkflowInput {
   targetWords?: number;
   sectionBudgets?: Record<string, number>;
   includeAppendix?: boolean;
+  captionWordRange?: CaptionWordRange;
   frameworkFigure?: FrameworkFigureLayoutPreferences;
   chatExecution?: Partial<ChatExecutionPreferences>;
 }
@@ -44,6 +49,7 @@ export function getReconstructionConfigurationModel() {
     defaultPaperStyle: PRODUCT_CONFIG.defaultPaperStyle,
     defaultPromptLanguage: PRODUCT_CONFIG.defaultPromptLanguage,
     wordCount: PRODUCT_CONFIG.wordCount,
+    captionLength: PRODUCT_CONFIG.captionLength,
     paperStyles: Object.fromEntries(
       Object.entries(PRODUCT_CONFIG.paperStyles).map(([id, style]) => [
         id,
@@ -181,6 +187,9 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
       input.frameworkFigure?.customAspectHeight ??
       RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
   };
+  const captionWordRange = normalizeCaptionWordRange(
+    input.captionWordRange,
+  );
 
   if (!(frameworkFigure.aspectRatioId in FIGURE_ASPECT_RATIOS)) {
     throw new Error(
@@ -261,6 +270,7 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     targetWords,
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
+    captionWordRange,
     frameworkFigure,
     chatExecution,
   };
@@ -281,6 +291,7 @@ export function buildReconstructionWorkflow(
     targetWords,
     sectionBudgets,
     includeAppendix,
+    captionWordRange,
     frameworkFigure,
     chatExecution,
   } = normalized;
@@ -312,6 +323,7 @@ export function buildReconstructionWorkflow(
     appendixDirective: includeAppendix
       ? style.appendixRule.enabled[promptLanguage]
       : style.appendixRule.disabled[promptLanguage],
+    captionWordRange,
     frameworkFigure,
   });
 
@@ -329,6 +341,7 @@ export function buildReconstructionWorkflow(
       targetWords,
       sectionBudgets,
       includeAppendix,
+      captionWordRange,
       frameworkFigure,
       chatExecution,
     },

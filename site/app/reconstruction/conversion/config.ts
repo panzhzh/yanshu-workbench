@@ -4,6 +4,10 @@ import type {
   WorkbenchDefinition,
   WorkbenchValues,
 } from "../../workbench/types";
+import {
+  CAPTION_LENGTH_POLICY,
+  buildCaptionLengthGuidance,
+} from "../../../content/prompts/captionLength";
 
 const CONVERSION_IDS = [
   "conference-journal",
@@ -361,6 +365,15 @@ function buildVersionConversionPrompt(
   const targetVenue = stringValue(values, "targetVenue").trim();
   const useLengthGuidance = booleanValue(values, "useLengthGuidance", false);
   const suggestedWords = rangeValue(values, "suggestedWords", [4500, 8000]);
+  const captionWordRange = rangeValue(
+    values,
+    "captionWordRange",
+    CAPTION_LENGTH_POLICY.defaultRange,
+  );
+  const captionGuidance = buildCaptionLengthGuidance(
+    captionWordRange,
+    language,
+  );
   const customInstructions = stringValue(values, "customInstructions").trim();
 
   const reportLanguageText =
@@ -460,6 +473,7 @@ function buildVersionConversionPrompt(
 - 附录策略：${APPENDIX_NAMES[appendix].zh}
 - 图表策略：${figureText}
 - ${lengthText}
+- Caption 建议：${captionGuidance}
 - ${venueRules}${customText}
 
 ## 执行重点
@@ -490,6 +504,7 @@ Read the complete main .tex and every \`\\input\` / \`\\include\` file, current 
 - Appendix: ${APPENDIX_NAMES[appendix].en}
 - Visual policy: ${figureText}
 - ${lengthText}
+- Caption guidance: ${captionGuidance}
 - ${venueRules}${customText}
 
 ## Execution Priorities
@@ -826,6 +841,20 @@ export const VERSION_CONVERSION_WORKBENCH = {
       step: 100,
       suffix: { zh: "词", en: "words" },
       visibleWhen: (values) => booleanValue(values, "useLengthGuidance"),
+    },
+    {
+      id: "captionWordRange",
+      kind: "range",
+      label: { zh: "Caption 建议长度", en: "Suggested caption length" },
+      description: {
+        zh: "默认 10–40 words，仅用于平衡简洁与自包含性；必要时允许超出。",
+        en: "Defaults to 10–40 words for concision and self-containment and may be exceeded when necessary.",
+      },
+      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+      suffix: { zh: "words", en: "words" },
     },
     {
       id: "reportLanguage",

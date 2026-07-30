@@ -48,7 +48,7 @@ workflow-configure-start \
 6. Poll `workflow-configure-status --session <sessionPath>`.
 7. `Exit` stops without transmitting materials. After `Start full automation`, run `workflow-configure-result --session <sessionPath>` and use its authorized configuration; do not ask for another confirmation or open its private JSON file.
 
-The plugin Prompt is generated from the website's exact Paper Drafting source, including the current template policy.
+The plugin Prompt is generated from the website's exact Paper Drafting source, including the current template policy and the configurable advisory caption range (10–40 words by default, never a hard acceptance condition).
 
 ## Prepare the evidence
 

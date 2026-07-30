@@ -1,5 +1,11 @@
 import type { Language } from "../config";
 import { withPromptJudgmentDirective } from "../../content/prompts/promptAgency";
+import {
+  CAPTION_LENGTH_POLICY,
+  buildCaptionLengthGuidance,
+  normalizeCaptionWordRange,
+  type CaptionWordRange,
+} from "../../content/prompts/captionLength";
 
 export type DraftTemplateId =
   | "arxiv"
@@ -105,7 +111,7 @@ export const DRAFT_COPY = {
       "实验完成后，把证据材料交给模型，直接生成结构完整、可编译、可继续修改的英文 LaTeX 初稿。",
     preset: "证据驱动 · 不补造结果 · 模板可追溯",
     reset: "恢复默认配置",
-    resetHint: "恢复 arXiv 默认模板并清除自定义 venue。",
+    resetHint: "恢复 arXiv 默认模板、Caption 建议和自定义 venue。",
     inputTitle: "准备材料",
     inputItems: [
       "实验结果、表格与原始分析",
@@ -126,6 +132,11 @@ export const DRAFT_COPY = {
     templateSource: "默认 arXiv 样式来源",
     templateBoundary:
       "该 arXiv 样式是 MIT 开源的预印本样式，不是 arXiv 官方投稿格式要求。",
+    captionTitle: "Caption 建议长度",
+    captionMinimum: "最少",
+    captionMaximum: "最多",
+    captionHint:
+      "默认 10–40 words，仅作为简洁与自包含性的平衡建议；必要时允许超出。",
     switchPromptLanguage: "切换 Prompt 语言",
     copy: "复制",
     copied: "已复制",
@@ -140,7 +151,8 @@ export const DRAFT_COPY = {
       "After experiments are complete, turn the evidence into a coherent, compilable English LaTeX manuscript that remains easy to revise.",
     preset: "Evidence-led · no fabricated results · traceable template",
     reset: "Restore defaults",
-    resetHint: "Restore the default arXiv template and clear the custom venue.",
+    resetHint:
+      "Restore the default arXiv template and caption guidance, and clear the custom venue.",
     inputTitle: "Prepare materials",
     inputItems: [
       "Experiment results, tables, and raw analyses",
@@ -161,6 +173,11 @@ export const DRAFT_COPY = {
     templateSource: "Default arXiv style source",
     templateBoundary:
       "This MIT-licensed arXiv style is a preprint style, not an official arXiv submission requirement.",
+    captionTitle: "Suggested caption length",
+    captionMinimum: "Minimum",
+    captionMaximum: "Maximum",
+    captionHint:
+      "The default 10–40-word range is flexible guidance for concision and self-containment and may be exceeded when necessary.",
     switchPromptLanguage: "Switch prompt language",
     copy: "Copy",
     copied: "Copied",
@@ -183,12 +200,17 @@ function buildDraftPromptContent(
   templateId: DraftTemplateId,
   customVenue: string,
   language: Language,
+  captionWordRange: CaptionWordRange,
 ) {
   const venue = selectedVenue(templateId, customVenue);
   const template = DRAFT_TEMPLATES[templateId];
   const isArxiv = templateId === "arxiv";
   const searchHint =
     template.group === "conference" ? template.searchHint : undefined;
+  const captionGuidance = buildCaptionLengthGuidance(
+    captionWordRange,
+    language,
+  );
 
   if (language === "zh") {
     const templateDirective = isArxiv
@@ -214,6 +236,9 @@ function buildDraftPromptContent(
 ${templateDirective}
 
 模板规则可能变化。不得硬编码往年页数、匿名规则或提交要求；必须以本次核验到的官方最新页面为准。模板类文件、版权块、页边距、字号和匿名设置不得为容纳内容而私自修改。
+
+## Caption 写作
+${captionGuidance}
 
 ## 写作任务
 1. 在内部建立 Evidence Ledger，将每项核心 claim 对齐到方法定义、表格、图片、统计结果或真实引用。不要把这份内部清单当作正文输出。
@@ -269,6 +294,9 @@ ${templateDirective}
 
 Template rules change over time. Do not hardcode a previous year's page limit, anonymity policy, or submission rule. Follow the latest official page verified in this run. Never alter class/style files, copyright blocks, margins, type sizes, or anonymity settings to force content to fit.
 
+## Caption Writing
+${captionGuidance}
+
 ## Drafting tasks
 1. Internally build an Evidence Ledger that maps every core claim to a method definition, table, figure, statistic, or authentic citation. Do not emit this internal ledger as manuscript prose.
 2. Derive one clear and defensible scientific position from the evidence, then commit to an English paper title and a 4–7-letter paper brand acronym. Keep the title, abstract, introduction, method, experiments, discussion, and conclusion on one throughline.
@@ -303,9 +331,16 @@ export function buildDraftPrompt(
   templateId: DraftTemplateId,
   customVenue: string,
   language: Language,
+  captionWordRange: CaptionWordRange =
+    CAPTION_LENGTH_POLICY.defaultRange,
 ) {
   return withPromptJudgmentDirective(
-    buildDraftPromptContent(templateId, customVenue, language),
+    buildDraftPromptContent(
+      templateId,
+      customVenue,
+      language,
+      normalizeCaptionWordRange(captionWordRange),
+    ),
     language,
   );
 }

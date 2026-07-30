@@ -1066,6 +1066,11 @@ a {
   grid-column: span 4;
 }
 
+.caption-length-control {
+  grid-column: span 4;
+  margin: 0;
+}
+
 .style-control {
   grid-column: span 4;
 }
@@ -1157,6 +1162,14 @@ a {
   color: var(--accent-strong);
   font-family: ui-monospace, "SFMono-Regular", Consolas, monospace;
   font-size: 10px;
+}
+
+.caption-word-range {
+  margin-top: 8px;
+}
+
+.caption-length-control > small {
+  padding-top: 8px;
 }
 
 .framework-figure-control > small {
@@ -6351,6 +6364,7 @@ body.is-resizing-prompt * {
   .style-control,
   .intro-navigation-control,
   .appendix-control,
+  .caption-length-control,
   .framework-figure-control,
   .chat-execution-control {
     grid-column: 1;

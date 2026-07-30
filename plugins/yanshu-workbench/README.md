@@ -85,8 +85,9 @@ Use $experimental-plotting to create a publication plot from this experiment dir
 ```
 
 The current preview starts from Codex; an ordinary Chat conversation does not
-load this local plugin directly. Once started, YanShu delegates manuscript
-writing to a visible ChatGPT Chat session through its bridge.
+load this local plugin directly. Visible ChatGPT remains the default manuscript
+executor. Codex CLI can use the same five-round artifact contract locally when
+the browser bridge is unavailable.
 
 Chinese is equally valid:
 
@@ -156,6 +157,28 @@ next one. When persistent goals are available, the confirmed full-automation
 action keeps that five-round objective alive across ordinary turn boundaries
 and context compaction.
 
+## Thin executor adapters
+
+Paper Reconstruction keeps one workflow and three small transport choices:
+
+- `visible-chatgpt` is the default and retains the current browser behavior;
+- `codex-host` lets Codex CLI execute the saved Prompts and local artifacts
+  directly, using an available image generator for Round 4. Every round receives
+  an isolated `workspace/`; Codex writes only there, and YanShu atomically imports
+  complete artifacts into the managed `output/`;
+- `external` exposes the same Prompt, material, state, and artifact contract for
+  a user-maintained Claude CLI or other integration.
+
+`auto` prefers visible ChatGPT and falls back to `codex-host` only inside Codex
+CLI. YanShu does not maintain product-specific Claude selectors or APIs. Every
+adapter must return the same canonical files and pass the same compilation,
+reference, figure, and recovery gates.
+
+Before Round 5, the runtime also generates an automation-only Prompt handoff
+that names the exact Round 4 PNG and every identifiable stale framework
+reference. This requirement is intentionally absent from the generic website
+Prompt.
+
 The website's Paper Reconstruction page can export these settings in a
 `.yanshu.json` file and use them to prefill the same local launch page. Without
 an export, every setting remains available on the local page; YanShu does not
@@ -164,12 +187,13 @@ source of truth.
 
 ## Trust boundary
 
-YanShu never receives hidden ChatGPT access and does not use an API key. It
-includes a pinned copy of the unofficial `codex-chatgpt-control` visible-session
-runtime, with its source revision, checksum, and MIT notice recorded in
-[`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md). Full automation still
-requires a signed-in visible ChatGPT session and a compatible Codex/Chrome
-browser bridge.
+YanShu never receives hidden ChatGPT access and does not use an API key. Its
+default adapter includes a pinned copy of the unofficial
+`codex-chatgpt-control` visible-session runtime, with its source revision,
+checksum, and MIT notice recorded in
+[`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md). That adapter requires a
+signed-in ChatGPT session and a compatible Codex/Chrome bridge; Codex CLI and
+external adapters use their own host capabilities instead.
 
 The original manuscript remains in place. Generated prompts, downloaded
 artifacts, logs, and status are stored under:

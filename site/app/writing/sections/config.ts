@@ -4,6 +4,10 @@ import type {
   WorkbenchDefinition,
   WorkbenchValues,
 } from "../../workbench/types";
+import {
+  CAPTION_LENGTH_POLICY,
+  buildCaptionLengthGuidance,
+} from "../../../content/prompts/captionLength";
 
 const SECTION_IDS = [
   "abstract",
@@ -366,6 +370,15 @@ function buildSectionWritingPrompt(
   const targetVenue = stringValue(values, "targetVenue").trim();
   const useLengthGuidance = booleanValue(values, "useLengthGuidance", false);
   const suggestedWords = rangeValue(values, "suggestedWords", [450, 550]);
+  const captionWordRange = rangeValue(
+    values,
+    "captionWordRange",
+    CAPTION_LENGTH_POLICY.defaultRange,
+  );
+  const captionGuidance = buildCaptionLengthGuidance(
+    captionWordRange,
+    language,
+  );
   const customInstructions = stringValue(values, "customInstructions").trim();
   const sectionName =
     section === "custom" && stringValue(values, "customSectionName").trim()
@@ -446,6 +459,7 @@ function buildSectionWritingPrompt(
 - 写作深度：${REVISION_DEPTH_NAMES[revisionDepth].zh}
 - 写作风格：${VENUE_PROFILE_NAMES[venueProfile].zh}
 - ${lengthLine}
+- Caption 建议：${captionGuidance}
 - ${venueVerification}${customLine}
 
 ## 执行重点
@@ -479,6 +493,7 @@ Read the currently available main .tex and included files, .bib, latest PDF, and
 - Writing depth: ${REVISION_DEPTH_NAMES[revisionDepth].en}
 - Style profile: ${VENUE_PROFILE_NAMES[venueProfile].en}
 - ${lengthLine}
+- Caption guidance: ${captionGuidance}
 - ${venueVerification}${customLine}
 
 ## Execution Priorities
@@ -743,6 +758,20 @@ export const SECTION_WRITING_WORKBENCH = {
       step: 10,
       suffix: { zh: "词", en: "words" },
       visibleWhen: (values) => booleanValue(values, "useLengthGuidance"),
+    },
+    {
+      id: "captionWordRange",
+      kind: "range",
+      label: { zh: "Caption 建议长度", en: "Suggested caption length" },
+      description: {
+        zh: "默认 10–40 words，仅用于平衡简洁与自包含性；必要时允许超出。",
+        en: "Defaults to 10–40 words for concision and self-containment and may be exceeded when necessary.",
+      },
+      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
+      min: CAPTION_LENGTH_POLICY.min,
+      max: CAPTION_LENGTH_POLICY.max,
+      step: CAPTION_LENGTH_POLICY.step,
+      suffix: { zh: "words", en: "words" },
     },
     {
       id: "keywordCount",

@@ -1,5 +1,9 @@
 import { COMMON_PROMPT_BLOCKS } from "../../../content/prompts/templates";
 import { withPromptJudgmentDirective } from "../../../content/prompts/promptAgency";
+import {
+  CAPTION_LENGTH_POLICY,
+  buildCaptionLengthGuidance,
+} from "../../../content/prompts/captionLength";
 import type { Language } from "../../config";
 
 type LocalizedText = Record<Language, string>;
@@ -64,6 +68,8 @@ export interface SectionRefinementPreferences {
   paragraphMaxWords: number;
   sentenceMinWords: number;
   sentenceMaxWords: number;
+  captionMinWords: number;
+  captionMaxWords: number;
   rewriteDepth: RewriteDepthId;
   citationMode: CitationModeId;
   allowColon: boolean;
@@ -446,6 +452,8 @@ export function scopeUsesWeToggle(
 }
 
 const DEFAULT_SPECIALIZED_VALUES = {
+  captionMinWords: CAPTION_LENGTH_POLICY.defaultRange[0],
+  captionMaxWords: CAPTION_LENGTH_POLICY.defaultRange[1],
   abstractResultNumbersMin: 2,
   abstractResultNumbersMax: 4,
   abstractKeywordCountMin: 4,
@@ -610,6 +618,9 @@ export const REFINEMENT_COPY = {
     customLength: "自定义建议",
     paragraphLength: "普通段落建议词数",
     sentenceLength: "普通句子建议词数",
+    captionLength: "Caption 建议长度",
+    captionLengthHint:
+      "默认 10–40 words，只作为简洁与自包含性的平衡建议；必要时允许超出。",
     minimum: "最少",
     maximum: "最多",
     words: "词",
@@ -733,6 +744,9 @@ export const REFINEMENT_COPY = {
     customLength: "Custom suggestions",
     paragraphLength: "Suggested ordinary paragraph length",
     sentenceLength: "Suggested ordinary sentence length",
+    captionLength: "Suggested caption length",
+    captionLengthHint:
+      "The default 10–40-word range balances concision and self-containment and may be exceeded when necessary.",
     minimum: "Minimum",
     maximum: "Maximum",
     words: "words",
@@ -1389,6 +1403,10 @@ function buildSectionRefinementPromptContent(
         : preferences.sectionId;
   const citation = citationDirective(preferences, language);
   const specialized = specializedConfiguration(preferences, language);
+  const captionGuidance = buildCaptionLengthGuidance(
+    [preferences.captionMinWords, preferences.captionMaxWords],
+    language,
+  );
   const citationConfig = scopeSupportsCitations(preferences)
     ? language === "zh"
       ? `- 引用策略：${CITATION_MODES[preferences.citationMode].label.zh}`
@@ -1422,6 +1440,7 @@ figures/ 不是必需输入。仅当当前范围需要核对图像内容、图�
 ${citationConfig}
 ${weConfig}
 ${specialized}
+- Caption 建议：${captionGuidance}
 
 ## 证据与事实规则
 ${COMMON_PROMPT_BLOCKS.evidence.zh}
@@ -1491,6 +1510,7 @@ figures/ is not required. Read it only when the scope needs visual-content, visu
 ${citationConfig}
 ${weConfig}
 ${specialized}
+- Caption guidance: ${captionGuidance}
 
 ## Evidence and Fact Rules
 ${COMMON_PROMPT_BLOCKS.evidence.en}

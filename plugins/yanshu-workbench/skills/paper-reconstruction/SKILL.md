@@ -1,18 +1,20 @@
 ---
 name: paper-reconstruction
-description: Run YanShu's resumable five-round Paper Reconstruction workflow from local TeX, BibTeX, PDF, and figure inputs while delegating manuscript writing and figure generation to the user's visible ChatGPT Chat session. Use when the user asks YanShu or 研术台 to reconstruct, rewrite, continue, resume, or recover a paper workflow.
+description: Run YanShu's resumable five-round Paper Reconstruction workflow from local TeX, BibTeX, PDF, and figure inputs, using visible ChatGPT by default with a thin Codex CLI host adapter and a portable external adapter contract. Use when the user asks YanShu or 研术台 to reconstruct, rewrite, continue, resume, or recover a paper workflow.
 ---
 
 # Paper Reconstruction
 
-YanShu coordinates local paper evidence, visible ChatGPT Chat sessions, versioned artifacts, compilation, deterministic validation, and recovery. Chat writes manuscript prose and generates the framework figure; Codex coordinates the workflow.
+YanShu coordinates local paper evidence, an isolated manuscript executor, versioned artifacts, compilation, deterministic validation, and recovery. Visible ChatGPT remains the default executor; Codex CLI can execute through the same artifact contract when the browser bridge is unavailable.
 
 Follow the user's conversation language. Prompt language is independently configured as Chinese or English.
 
 ## Hard boundaries
 
-- Never write or polish manuscript prose in Codex and never replace Chat with Work, Codex, or an API model.
-- Use the latest reasoning-capable model family visible in ChatGPT. Resolve reasoning from visible controls rather than subscription names or pinned model identifiers.
+- Never silently change executors. In `visible-chatgpt` mode, Codex only coordinates and must not replace Chat as the writer. In `codex-host` mode, the current Codex CLI host may write only inside the selected run and must preserve every YanShu artifact and validation rule.
+- In `codex-host`, direct every edit, generated file, and command output to the current round's `executorWorkspace.workingDirectory`. Treat the paper root, run metadata, prior rounds, and canonical `output/` directories as read-only.
+- Never let `codex-host` start reconstructing from the shell's current directory before `init` and `next` return that workspace. A missing workspace is a workflow error, not permission to edit the paper root.
+- In visible ChatGPT, use the latest reasoning-capable model family shown by the live controls. In a host adapter, select the strongest available equivalent without pinning a model name.
 - Never transmit files outside the exact paths returned by `next`.
 - Prefer the run-scoped YanShu MCP workspace. Use verified real-file attachments automatically when visible Chat cannot call YanShu MCP.
 - Never resubmit a round after a timeout. Reopen its recorded Chat URL and continue monitoring the same assistant turn.
@@ -72,7 +74,7 @@ configure-start \
   --ui-language zh|en
 ```
 
-5. Tell the user only that the local page is open. Do not collect paper type, length, appendix, Prompt language, figure ratio, or reasoning settings in chat.
+5. Tell the user only that the local page is open. Do not collect paper type, length, appendix, caption guidance, Prompt language, figure ratio, or reasoning settings in chat.
 6. Poll `configure-status --session <sessionPath>` without asking the user to report a click.
 7. `Exit` cancels without creating a run. `Start full automation` authorizes initialization from the same `sessionPath`; do not ask for another confirmation and do not inspect the private configuration file.
 
@@ -99,19 +101,39 @@ init --session <sessionPath>
 
 YanShu reads and validates the confirmed configuration internally. Do not open, display, link, or separately parse its JSON file.
 
-Report the created run directory. YanShu creates five isolated round folders plus `run.json`, `events.jsonl`, and a continuously updated `STATUS.md`. Original paper files remain read-only.
+Report the created run directory. YanShu creates five isolated round folders, each with a host-writable `workspace/` and YanShu-managed `output/`, plus `run.json`, `events.jsonl`, and a continuously updated `STATUS.md`. Original paper files remain read-only.
 
 Run 4 reconstructs the Method Overview figure. Run 5 integrates and validates that exact image.
 
+## Select one thin execution adapter
+
+Read `references/executor-adapter.md` when the visible browser bridge is unavailable or the user explicitly selects a non-default host.
+
+- `auto` is the new-run default. Resolve it to `visible-chatgpt` when the signed-in bridge works; otherwise resolve it to `codex-host` only when running in Codex CLI.
+- `visible-chatgpt` keeps the existing browser, MCP/attachment, reasoning, and waiting flow.
+- `codex-host` executes the exact saved Prompt against the approved local materials in the current Codex CLI task. Use an available image-generation capability for Round 4; if none exists, require an external image adapter only for that round.
+- `external` is the stable contract for Claude CLI or another host. Do not add product-specific branches to YanShu; that host must adapt submission, waiting, artifact collection, and image generation while returning YanShu's canonical files.
+
+Record the resolved choice once:
+
+```text
+execution-adapter \
+  --run <run-path> \
+  --adapter visible-chatgpt|codex-host|external \
+  --reason <capability-based reason>
+```
+
+Adapter selection changes only who executes a round. Prompts, approved inputs, filenames, checkpoints, compilation, validation, and resume semantics remain identical.
+
 ## Start the local paper workspace
 
-Run one MCP workspace for the entire run:
+In `visible-chatgpt` mode, run one MCP workspace for the entire run:
 
 ```text
 mcp-start --run <run-path>
 ```
 
-The loopback server alone does not prove that external ChatGPT can call it. Read `references/chat-bridge.md` and perform the automatic visible handshake there before sending paper content.
+The loopback server alone does not prove that external ChatGPT can call it. Read `references/chat-bridge.md` and perform the automatic visible handshake there before sending paper content. Other adapters follow `references/executor-adapter.md` instead.
 
 When MCP is available, Chat must:
 
@@ -126,7 +148,7 @@ Captions and filenames are navigation aids, not evidence. Missing visual evidenc
 
 ## Automatic transport selection
 
-Use a fresh diagnostic Chat and call `autoSelectChatTransferMode` from `references/chat-bridge.md`.
+Only in `visible-chatgpt`, use a fresh diagnostic Chat and call `autoSelectChatTransferMode` from `references/chat-bridge.md`.
 
 - It selects YanShu and asks Chat to call the zero-sensitive `yanshu_health` tool.
 - On success, use MCP.
@@ -142,18 +164,20 @@ Run the following as an outer loop. After a round finalizes, immediately call `n
 
 For each round:
 
-1. Run `next --run <run-path>` and reuse a recorded Chat URL when resuming; otherwise create a fresh blank Chat.
-2. Inspect visible reasoning options, run `chat-plan --interaction initial`, and apply `selectedLabel`.
+1. Run `next --run <run-path>`. In `visible-chatgpt`, reuse a recorded Chat URL when resuming or create a fresh blank Chat. Other adapters use one isolated host context for that round.
+2. In `visible-chatgpt`, inspect visible reasoning options, run `chat-plan --interaction initial`, and apply `selectedLabel`.
    - When the configured preference is Pro, this first effective submission uses Pro. Before any continuation, correction, or artifact follow-up in the same round, rerun `chat-plan --interaction follow-up` and apply its selection; the default effective level is Extra High.
    - If the local page enabled `forceProForAllTurns`, every interaction remains Pro. This is automatic and must not trigger another confirmation.
    - `verified` and `click-acknowledged` both continue.
    - A lower available reasoning level is an automatic fallback: report it in one sentence without pausing.
    - Block only on a failed click, stale thread, or explicit contradictory readback.
-3. Mark `running --checkpoint submitted` with the real Chat URL, visible model/reasoning labels, and configuration verification.
-4. Submit exactly once:
+3. Mark `running --checkpoint submitted` with the real executor identity and available model/reasoning metadata. A Chat URL and configuration verification are required only in `visible-chatgpt`.
+4. Submit exactly once through the selected adapter:
    - MCP mode: send only `bootstrapPrompt`, no files.
    - Attachment mode: send the generated Prompt plus exactly `approvedAttachments` as real files.
-5. Mark `waiting --checkpoint generating` and call the runtime-managed `waitForChatRound`.
+   - Codex host: before reading or writing, set the process CWD and every file-edit workdir to `round.executorWorkspace.workingDirectory`. Keep scratch files and complete canonical artifacts there; never write into the paper root or another round.
+   - External adapter: pass the same Prompt, approved material manifest, and artifact contract without reinterpretation.
+5. Mark `waiting --checkpoint generating`. In `visible-chatgpt`, call the runtime-managed `waitForChatRound`; other adapters return the same normalized states through `references/executor-adapter.md`.
    - Medium and High: 60 seconds.
    - Extra High: 180 seconds.
    - Pro: 300 seconds for the initial interaction, or every interaction only when force-all-Pro is enabled.
@@ -180,6 +204,8 @@ round-finalize \
 
 `round-finalize` imports atomically, preserves replacements, compiles in an ASCII temporary staging directory when necessary, validates deliverables, updates checkpoints, and only then marks the round completed.
 
+For `codex-host`, `round-finalize` automatically imports the exact required artifacts from the current round `workspace/` into its managed `output/`. The files must share one `<base_name>` and match every suffix returned in `round.executorWorkspace.expectedArtifactSuffixes`. Use `--replace true` for a corrected workspace delivery. External adapters may opt into the same behavior with `--workspace true`.
+
 After successful finalization, do not summarize the completed round as a task result. Continue the outer loop with `next`.
 
 Rounds 1, 2, 3, and 5 use the exact three-file ZIP protocol saved in the run. Round 4 downloads one exact image and registers it before finalization. Duplicate browser names such as `file (1).zip` or `file.zip (1)` are normalized to the canonical expected name without losing the old version.
@@ -193,9 +219,19 @@ artifact \
   --file <round-downloads-path> \
   --name <canonical-round-4-filename> \
   [--replace true] \
-  --reason "ChatGPT framework figure import" \
+  --reason "framework figure import" \
   --chat-turn <assistant-turn>
 ```
+
+## Enforce the Round 4 → Round 5 handoff
+
+When `next` reaches Round 5, use its generated `promptPath`, not the untouched `sourcePromptPath`. YanShu appends an automation-only handoff containing:
+
+- the exact canonical Round 4 PNG filename;
+- every identifiable superseded Overview/Framework graphic reference in the current TeX;
+- the required `\includegraphics` replacement and a pre-package scan.
+
+The final TeX must reference the new PNG and remove every listed stale reference. Preserve the existing figure environment, caption, label, and surrounding argument unless a local evidence-based correction is required. This handoff is intentionally runtime-only and must not be added to the website Prompt.
 
 ## Deterministic completion gate
 
