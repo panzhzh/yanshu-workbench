@@ -706,7 +706,7 @@ async function next(flags) {
     statusPath: path.join(state.runPath, "STATUS.md"),
     chatExecution: state.config.chatExecution,
     instruction:
-      "Use the automatic transfer-mode handshake, prepare a fresh visible Chat thread for this round, resolve reasoning with `chat-plan`, submit exactly once, preserve the returned thread URL, and let the runtime monitor that same assistant turn after heartbeat timeouts.",
+      "Keep the Codex task active through the complete five-round loop. Use the automatic transfer-mode handshake, prepare a fresh visible Chat thread for this round, resolve reasoning with `chat-plan`, submit exactly once, preserve the returned thread URL, and call `waitForChatRound` again whenever it returns `shouldContinueMonitoring: true`. Never send a final response from a heartbeat or between rounds; after finalization, call `next` immediately.",
   };
 }
 

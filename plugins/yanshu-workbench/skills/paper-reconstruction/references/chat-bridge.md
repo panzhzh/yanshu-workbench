@@ -146,7 +146,17 @@ The normalized state is one of:
 - `blocked`
 - `failed`
 
-Do not expose upstream `partial` as a terminal success. Do not send a continuation solely because one bounded wait ended.
+The helper also returns an execution contract:
+
+| `nextAction` | Required orchestration action |
+| --- | --- |
+| `wait-same-assistant-turn` | Keep the Codex task active and call `waitForChatRound` again on the same Chat and assistant turn. |
+| `collect-artifacts` | Inventory and import the expected output. |
+| `continue-same-chat` | Apply the follow-up reasoning plan, submit one continuation in the same Chat, then wait again. |
+| `report-real-blocker` | Pause only for a hard-boundary blocker. |
+| `recover-same-chat-or-report` | Reopen and inspect the recorded Chat once before treating the failure as irrecoverable. |
+
+`shouldContinueMonitoring` is true only for `generating`. Treat it as a mandatory loop condition, not a status to hand back to the user. Do not expose upstream `partial` as a terminal success. Do not send a continuation solely because one bounded wait ended, and never send a final Codex response from a heartbeat.
 
 ## Inventory and download exact files
 

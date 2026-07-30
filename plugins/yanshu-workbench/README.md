@@ -149,6 +149,13 @@ are normalized to `generating`, `completed`, `needs_continuation`, `blocked`,
 or `failed` using generation signals, stable assistant turns, and artifact
 presence.
 
+A `generating` heartbeat keeps the same Codex task active and starts the next
+bounded wait automatically; it never produces a final response or asks the user
+to reply “continue.” After each finalized round, YanShu immediately starts the
+next one. When persistent goals are available, the confirmed full-automation
+action keeps that five-round objective alive across ordinary turn boundaries
+and context compaction.
+
 The website's Paper Reconstruction page can export these settings in a
 `.yanshu.json` file and use them to prefill the same local launch page. Without
 an export, every setting remains available on the local page; YanShu does not

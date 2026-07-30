@@ -78,6 +78,17 @@ configure-start \
 
 Before the page confirms automation, do not create a run or transmit manuscript content.
 
+## Persist full automation
+
+`Start full automation` explicitly authorizes one uninterrupted five-round run. After that click:
+
+- Keep the Codex task active until all five rounds are finalized or a real blocker from the hard boundaries is reached.
+- Never send a final answer, handoff summary, “resume later” message, or request for “continue” while a round is `generating`, while an artifact still needs importing or correction, or between completed rounds.
+- When the host exposes persistent goal tools, inspect the current goal. If no unfinished goal exists, create one for completing this exact YanShu run through `final-manifest.json`, without a token budget. Reuse a goal that already covers this run and never replace an unrelated active goal.
+- A heartbeat, long Pro generation, context compaction, or ordinary Codex turn boundary is progress, not a blocker. Keep the persistent goal active across those boundaries. Mark it complete only after `final-manifest.json` exists; apply the host's real-blocker threshold before marking it blocked.
+
+Goal state only keeps orchestration alive. The run directory remains the source of truth for scientific inputs, checkpoints, and artifacts.
+
 ## Initialize and expose visible progress
 
 Run:
@@ -125,7 +136,9 @@ Use a fresh diagnostic Chat and call `autoSelectChatTransferMode` from `referenc
 
 After the diagnostic, prepare a separate fresh Chat for the actual round.
 
-## Execute each round
+## Execute the five-round loop
+
+Run the following as an outer loop. After a round finalizes, immediately call `next` and start the next pending round. Do not yield a final response between rounds.
 
 For each round:
 
@@ -145,6 +158,12 @@ For each round:
    - Extra High: 180 seconds.
    - Pro: 300 seconds for the initial interaction, or every interaction only when force-all-Pro is enabled.
    - A timeout is a heartbeat, not authorization to resubmit.
+   - Treat the returned contract deterministically:
+     - `shouldContinueMonitoring: true` or `nextAction: wait-same-assistant-turn`: keep this Codex task active and call `waitForChatRound` again against the same Chat URL and assistant turn. A concise progress update is allowed; a final answer is not.
+     - `nextAction: continue-same-chat`: apply the follow-up reasoning plan, send one continuation in that same Chat, and return to the waiting loop.
+     - `nextAction: collect-artifacts`: continue below.
+     - `nextAction: report-real-blocker`: pause only when it matches a hard-boundary blocker.
+     - `nextAction: recover-same-chat-or-report`: reopen the recorded Chat, inspect once, and recover without resubmitting; report only an irrecoverable failure.
 6. MCP mode uses registered artifacts directly.
 7. When the assistant turn is complete and its expected output is visible, mark `waiting --checkpoint artifact-ready`.
 8. Attachment mode uses the structured latest-assistant inventory and named download helper from `references/chat-bridge.md`. Download into a round `downloads/` directory, never directly over the canonical output.
@@ -160,6 +179,8 @@ round-finalize \
 ```
 
 `round-finalize` imports atomically, preserves replacements, compiles in an ASCII temporary staging directory when necessary, validates deliverables, updates checkpoints, and only then marks the round completed.
+
+After successful finalization, do not summarize the completed round as a task result. Continue the outer loop with `next`.
 
 Rounds 1, 2, 3, and 5 use the exact three-file ZIP protocol saved in the run. Round 4 downloads one exact image and registers it before finalization. Duplicate browser names such as `file (1).zip` or `file.zip (1)` are normalized to the canonical expected name without losing the old version.
 
@@ -202,4 +223,4 @@ After Round 5, YanShu writes `final-manifest.json` with input/output SHA-256 has
 5. Continue from `submitted`, `generating`, `artifact-ready`, `artifact-imported`, `correction-requested`, `compiled`, `validated`, or `finalized` without duplicating work.
 6. Preserve the run's saved Prompt snapshot.
 
-Finish only when all five rounds are finalized and `final-manifest.json` exists.
+Finish only when all five rounds are finalized and `final-manifest.json` exists. Any earlier final response is a workflow failure, even when the run is safely resumable.

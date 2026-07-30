@@ -318,6 +318,25 @@ export function normalizeChatCompletion(result) {
   };
 }
 
+function chatWaitContract(normalized, extra = {}) {
+  const nextActionByState = {
+    generating: "wait-same-assistant-turn",
+    completed: "collect-artifacts",
+    needs_continuation: "continue-same-chat",
+    blocked: "report-real-blocker",
+    failed: "recover-same-chat-or-report",
+  };
+  return {
+    ok: normalized.state === "completed",
+    ...normalized,
+    shouldContinueMonitoring: normalized.state === "generating",
+    nextAction:
+      nextActionByState[normalized.state] ??
+      "recover-same-chat-or-report",
+    ...extra,
+  };
+}
+
 export async function waitForChatRound(
   chatgpt,
   {
@@ -337,10 +356,7 @@ export async function waitForChatRound(
     (normalizedInitial.state === "needs_continuation" &&
       normalizedInitial.lowLevelState === "stopped")
   ) {
-    return {
-      ok: normalizedInitial.state === "completed",
-      ...normalizedInitial,
-    };
+    return chatWaitContract(normalizedInitial);
   }
   const waited = await chatgpt.messages.waitAndRead({
     timeoutMs: pollIntervalMs,
@@ -365,19 +381,16 @@ export async function waitForChatRound(
       ? (inventory.data?.files ?? [])
       : [];
     if (files.length > 0) {
-      return {
-        ok: true,
+      return chatWaitContract({
         ...normalized,
         state: "completed",
         artifacts: files,
+      }, {
         completionEvidence: "stable-assistant-artifact",
-      };
+      });
     }
   }
-  return {
-    ok: normalized.state === "completed",
-    ...normalized,
-  };
+  return chatWaitContract(normalized);
 }
 
 export async function probeVisibleYanShuMcp(chatgpt) {

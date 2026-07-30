@@ -284,6 +284,35 @@ test("Chat completion semantics normalize ambiguous partial states", async () =>
   });
   assert.equal(waited.state, "completed");
   assert.equal(waited.preview, "Finished");
+  assert.equal(waited.shouldContinueMonitoring, false);
+  assert.equal(waited.nextAction, "collect-artifacts");
+
+  const heartbeatChat = {
+    messages: {
+      status: async () => ({
+        ok: true,
+        data: {
+          completionState: "generating",
+          generationActive: true,
+        },
+      }),
+      waitAndRead: async () => ({
+        ok: true,
+        data: {
+          completionState: "generating",
+          generationActive: true,
+          latestAssistantPreview: "Still working",
+        },
+      }),
+    },
+  };
+  const heartbeat = await waitForChatRound(heartbeatChat, {
+    pollIntervalMs: 300_000,
+  });
+  assert.equal(heartbeat.ok, false);
+  assert.equal(heartbeat.state, "generating");
+  assert.equal(heartbeat.shouldContinueMonitoring, true);
+  assert.equal(heartbeat.nextAction, "wait-same-assistant-turn");
 
   let waitedAgain = false;
   const stableChat = {
@@ -307,6 +336,8 @@ test("Chat completion semantics normalize ambiguous partial states", async () =>
     pollIntervalMs: 300_000,
   });
   assert.equal(stable.state, "completed");
+  assert.equal(stable.shouldContinueMonitoring, false);
+  assert.equal(stable.nextAction, "collect-artifacts");
   assert.equal(waitedAgain, false);
 });
 
@@ -771,6 +802,13 @@ test("skill uses one local configuration page and a no-intervention recoverable 
   assert.match(skill, /Pro: 300 seconds/);
   assert.match(skill, /click-acknowledged/);
   assert.match(skill, /waitForChatRound/);
+  assert.match(skill, /shouldContinueMonitoring: true/);
+  assert.match(skill, /Never send a final answer/);
+  assert.match(
+    skill,
+    /After a round finalizes, immediately call `next`/,
+  );
+  assert.match(skill, /persistent goal tools/);
   assert.match(skill, /mcp-start/);
   assert.match(skill, /yanshu_get_round_manifest/);
   assert.match(skill, /yanshu_get_evidence_index/);
@@ -788,6 +826,8 @@ test("skill uses one local configuration page and a no-intervention recoverable 
     bridgeReference,
     /pollIntervalMs: yanshuChatPlan\.pollIntervalMs/,
   );
+  assert.match(bridgeReference, /wait-same-assistant-turn/);
+  assert.match(bridgeReference, /mandatory loop condition/);
   assert.doesNotMatch(bridgeReference, /timeoutMs: 25_000/);
 });
 
