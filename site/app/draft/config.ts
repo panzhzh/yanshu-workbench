@@ -1,5 +1,4 @@
 import type { Language } from "../config";
-import { withPromptJudgmentDirective } from "../../content/prompts/promptAgency";
 import {
   CAPTION_LENGTH_POLICY,
   buildCaptionLengthGuidance,
@@ -334,13 +333,10 @@ export function buildDraftPrompt(
   captionWordRange: CaptionWordRange =
     CAPTION_LENGTH_POLICY.defaultRange,
 ) {
-  return withPromptJudgmentDirective(
-    buildDraftPromptContent(
-      templateId,
-      customVenue,
-      language,
-      normalizeCaptionWordRange(captionWordRange),
-    ),
+  return buildDraftPromptContent(
+    templateId,
+    customVenue,
     language,
+    normalizeCaptionWordRange(captionWordRange),
   );
 }

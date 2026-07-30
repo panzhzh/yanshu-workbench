@@ -1,14 +1,3 @@
-// content/prompts/promptAgency.ts
-var PROMPT_JUDGMENT_DIRECTIVE = {
-  zh: "\u8BF7\u4ECE\u6574\u4F53\u7406\u89E3\u672C Prompt \u7684\u76EE\u6807\u3001\u8BC1\u636E\u8FB9\u754C\u4E0E\u4EA4\u4ED8\u8981\u6C42\uFF1B\u5728\u4E0D\u6539\u53D8\u4E8B\u5B9E\u548C\u786C\u6027\u7EA6\u675F\u7684\u524D\u63D0\u4E0B\uFF0C\u4E3B\u52A8\u91C7\u7528\u4F60\u5224\u65AD\u66F4\u4E25\u8C28\u3001\u66F4\u6709\u6548\u7684\u65B9\u6848\uFF0C\u5E76\u5728\u6709\u52A9\u4E8E\u63D0\u5347\u7ED3\u679C\u65F6\u6BD4\u5B57\u9762\u8981\u6C42\u601D\u8003\u5F97\u66F4\u6DF1\u5165\u3002",
-  en: "Understand this Prompt's objectives, evidence boundaries, and deliverables as a whole. Without changing facts or hard constraints, use any more rigorous and effective approach you judge appropriate, and reason beyond the literal wording when that improves the result."
-};
-function withPromptJudgmentDirective(prompt, language) {
-  return `${PROMPT_JUDGMENT_DIRECTIVE[language]}
-
-${prompt}`;
-}
-
 // app/ideas/config.ts
 var IDEA_DIRECTION_IDS = [
   "general-cs",
@@ -534,10 +523,7 @@ Both files must contain the configuration snapshot, extracted idea contract, sea
 Do not create TeX, PDF, DOCX, BibTeX, or invented attachments. Unless the idea itself is entirely missing, do not replace analysis with follow-up questions; state assumptions, lower confidence, and provide verification steps where information is incomplete.`;
 }
 function buildIdeaPrompt(mode, preferences, language) {
-  return withPromptJudgmentDirective(
-    mode === "discovery" ? discoveryPrompt(preferences, language) : evaluationPrompt(preferences, language),
-    language
-  );
+  return mode === "discovery" ? discoveryPrompt(preferences, language) : evaluationPrompt(preferences, language);
 }
 
 // content/prompts/captionLength.ts
@@ -763,14 +749,11 @@ Run the LaTeX build and fix package, bibliography, cross-reference, float, BibTe
 Read all materials now and generate the final draft project directly. Do not first provide an outline or writing plan, and do not wait for section-by-section approval.`;
 }
 function buildDraftPrompt(templateId, customVenue, language, captionWordRange = CAPTION_LENGTH_POLICY.defaultRange) {
-  return withPromptJudgmentDirective(
-    buildDraftPromptContent(
-      templateId,
-      customVenue,
-      language,
-      normalizeCaptionWordRange(captionWordRange)
-    ),
-    language
+  return buildDraftPromptContent(
+    templateId,
+    customVenue,
+    language,
+    normalizeCaptionWordRange(captionWordRange)
   );
 }
 
@@ -889,11 +872,11 @@ var FIGURE_TYPE_ADAPTERS = {
   ...CORE_FIGURE_TYPE_ADAPTERS,
   ...EXTENDED_FIGURE_TYPE_ADAPTERS
 };
-function buildDirectProtocol(language, hasReferenceImage, outputFileName) {
+function buildDirectProtocol(language, outputFileName) {
   if (language === "zh") {
-    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u76F4\u63A5\u7ED8\u56FE\u3002\u5148\u5728\u5185\u90E8\u5B8C\u6210\u540C\u7C7B\u8BBA\u6587\u56FE${hasReferenceImage ? "\u4E0E\u53C2\u8003\u56FE" : ""}\u7684\u89C6\u89C9\u603B\u7ED3\uFF0C\u5E76\u636E\u6B64\u5F62\u6210\u4E00\u4EFD\u8BE6\u7EC6\u3001\u5B8C\u6574\u7684\u82F1\u6587\u751F\u56FE Prompt\uFF1B\u79D1\u5B66\u5185\u5BB9\u53EA\u53D6\u81EA\u8BBA\u6587\u8BC1\u636E${hasReferenceImage ? "\u6216\u660E\u786E\u6807\u6CE8\u4E14\u7ECF\u6838\u9A8C\u7684\u7ED8\u56FE\u8349\u7A3F" : ""}\u3002\u4E0D\u8981\u8F93\u51FA\u8BE5 Prompt\uFF0C\u4E5F\u4E0D\u8981\u7B49\u5F85\u786E\u8BA4\u3002\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u7EC6\u8282\u9510\u5229\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002\u751F\u6210\u540E\u6838\u5BF9\u672F\u8BED\u3001\u7BAD\u5934\u65B9\u5411\u3001\u7ED3\u6784\u5173\u7CFB\u548C\u7F29\u5C0F\u540E\u7684\u53EF\u8BFB\u6027\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
+    return `\u6267\u884C\u65B9\u5F0F\uFF1A\u76F4\u63A5\u7ED8\u56FE\u3002\u8BF7\u5145\u5206\u601D\u8003\u8BBA\u6587\u5185\u5BB9\u3001\u4FE1\u606F\u5C42\u7EA7\u3001\u6784\u56FE\u4E0E\u89C6\u89C9\u7EC6\u8282\uFF0C\u518D\u7ED8\u5236\u4E00\u5F20\u6587\u5B57\u6E05\u6670\u3001\u7EC6\u8282\u9510\u5229\u3001\u9002\u5408\u8BBA\u6587\u6392\u7248\u7684\u8D85\u9AD8\u6E05\u79D1\u7814\u914D\u56FE\u3002\u751F\u6210\u540E\u6838\u5BF9\u672F\u8BED\u3001\u7BAD\u5934\u65B9\u5411\u3001\u7ED3\u6784\u5173\u7CFB\u548C\u7F29\u5C0F\u540E\u7684\u53EF\u8BFB\u6027\u3002${outputFileName ? ` \u6700\u7EC8\u56FE\u7247\u4FDD\u5B58\u4E3A \`${outputFileName}\`\u3002` : ""}`;
   }
-  return `Execution mode: draw directly. Internally summarize visual patterns from comparable papers${hasReferenceImage ? " and the supplied reference images" : ""}, then form one detailed, self-contained English image-generation prompt. Derive scientific content only from paper evidence${hasReferenceImage ? " or an explicitly labeled and verified figure draft" : ""}. Do not print that prompt or wait for confirmation. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
+  return `Execution mode: draw directly. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${outputFileName ? ` Save it as \`${outputFileName}\`.` : ""}`;
 }
 function buildPromptFirstProtocol(language, hasReferenceImage, outputFileName) {
   if (language === "zh") {
@@ -922,12 +905,12 @@ var OUTPUT_PROTOCOL = {
     executionMode,
     hasReferenceImage,
     outputFileName
-  }) => executionMode === "direct" ? buildDirectProtocol("zh", hasReferenceImage, outputFileName) : buildPromptFirstProtocol("zh", hasReferenceImage, outputFileName),
+  }) => executionMode === "direct" ? buildDirectProtocol("zh", outputFileName) : buildPromptFirstProtocol("zh", hasReferenceImage, outputFileName),
   en: ({
     executionMode,
     hasReferenceImage,
     outputFileName
-  }) => executionMode === "direct" ? buildDirectProtocol("en", hasReferenceImage, outputFileName) : buildPromptFirstProtocol("en", hasReferenceImage, outputFileName)
+  }) => executionMode === "direct" ? buildDirectProtocol("en", outputFileName) : buildPromptFirstProtocol("en", hasReferenceImage, outputFileName)
 };
 
 // app/figures/config.ts
@@ -1526,7 +1509,7 @@ function buildVisualConfiguration(preferences, language) {
   return `Visual settings: ${selectedAspectRatio} canvas on pure white; use ${accentRange.label} accent colors from ${palette.label.en} (${candidateColors}); ${linePolicy}; ${fontFamily.label}, ${typeHierarchy}, with black or near-black text; container fill policy: ${cardPolicy}; ${iconPolicy}; ${titlePolicy}.`;
 }
 function buildFigurePrompt(promptId, preferences, language, options = {}) {
-  return withPromptJudgmentDirective([
+  return [
     COMMON_BASE[language](
       FIGURE_PROMPTS[promptId].label[language],
       preferences.hasReferenceImage
@@ -1538,7 +1521,7 @@ function buildFigurePrompt(promptId, preferences, language, options = {}) {
       hasReferenceImage: preferences.hasReferenceImage,
       outputFileName: options.outputFileName
     })
-  ].join("\n\n"), language);
+  ].join("\n\n");
 }
 
 // app/figures/toolsConfig.ts

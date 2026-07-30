@@ -602,7 +602,7 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     assert.match(round.prompt, /hard limit/);
   }
   for (const round of workflow.rounds) {
-    assert.match(
+    assert.doesNotMatch(
       round.prompt,
       /Understand this Prompt's objectives, evidence boundaries, and deliverables as a whole/,
     );
@@ -699,9 +699,9 @@ test("prompt runtime builds five configuration-driven rounds", () => {
     workflow.rounds[3].prompt,
     /Execution mode: draw directly/,
   );
-  assert.match(
+  assert.doesNotMatch(
     workflow.rounds[3].prompt,
-    /Do not print that prompt or wait for confirmation/,
+    /Internally summarize visual patterns from comparable papers|Do not print that prompt or wait for confirmation/,
   );
   assert.match(
     workflow.rounds[3].prompt,

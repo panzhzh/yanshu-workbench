@@ -78,18 +78,17 @@ interface OutputProtocolOptions {
 
 function buildDirectProtocol(
   language: Language,
-  hasReferenceImage: boolean,
   outputFileName?: string,
 ) {
   if (language === "zh") {
-    return `执行方式：直接绘图。先在内部完成同类论文图${hasReferenceImage ? "与参考图" : ""}的视觉总结，并据此形成一份详细、完整的英文生图 Prompt；科学内容只取自论文证据${hasReferenceImage ? "或明确标注且经核验的绘图草稿" : ""}。不要输出该 Prompt，也不要等待确认。请充分思考论文内容、信息层级、构图与视觉细节，再绘制一张文字清晰、细节锐利、适合论文排版的超高清科研配图。生成后核对术语、箭头方向、结构关系和缩小后的可读性。${
+    return `执行方式：直接绘图。请充分思考论文内容、信息层级、构图与视觉细节，再绘制一张文字清晰、细节锐利、适合论文排版的超高清科研配图。生成后核对术语、箭头方向、结构关系和缩小后的可读性。${
       outputFileName
         ? ` 最终图片保存为 \`${outputFileName}\`。`
         : ""
     }`;
   }
 
-  return `Execution mode: draw directly. Internally summarize visual patterns from comparable papers${hasReferenceImage ? " and the supplied reference images" : ""}, then form one detailed, self-contained English image-generation prompt. Derive scientific content only from paper evidence${hasReferenceImage ? " or an explicitly labeled and verified figure draft" : ""}. Do not print that prompt or wait for confirmation. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${
+  return `Execution mode: draw directly. Think through the paper content, information hierarchy, composition, and visual details as thoroughly as needed, then render an ultra-high-resolution scientific figure with crisp details and legible text for publication. After generation, verify terminology, arrow directions, structural relationships, and legibility at paper size.${
     outputFileName ? ` Save it as \`${outputFileName}\`.` : ""
   }`;
 }
@@ -135,7 +134,7 @@ export const OUTPUT_PROTOCOL = {
     outputFileName,
   }: OutputProtocolOptions) =>
     executionMode === "direct"
-      ? buildDirectProtocol("zh", hasReferenceImage, outputFileName)
+      ? buildDirectProtocol("zh", outputFileName)
       : buildPromptFirstProtocol("zh", hasReferenceImage, outputFileName),
   en: ({
     executionMode,
@@ -143,6 +142,6 @@ export const OUTPUT_PROTOCOL = {
     outputFileName,
   }: OutputProtocolOptions) =>
     executionMode === "direct"
-      ? buildDirectProtocol("en", hasReferenceImage, outputFileName)
+      ? buildDirectProtocol("en", outputFileName)
       : buildPromptFirstProtocol("en", hasReferenceImage, outputFileName),
 } as const;

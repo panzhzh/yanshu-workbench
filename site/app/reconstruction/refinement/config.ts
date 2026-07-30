@@ -1,5 +1,4 @@
 import { COMMON_PROMPT_BLOCKS } from "../../../content/prompts/templates";
-import { withPromptJudgmentDirective } from "../../../content/prompts/promptAgency";
 import {
   CAPTION_LENGTH_POLICY,
   buildCaptionLengthGuidance,
@@ -1563,8 +1562,5 @@ export function buildSectionRefinementPrompt(
   preferences: SectionRefinementPreferences,
   language: Language,
 ) {
-  return withPromptJudgmentDirective(
-    buildSectionRefinementPromptContent(preferences, language),
-    language,
-  );
+  return buildSectionRefinementPromptContent(preferences, language);
 }

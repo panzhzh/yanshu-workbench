@@ -3,8 +3,8 @@ import { access, readFile, readdir } from "node:fs/promises";
 import test from "node:test";
 
 const templateRoot = new URL("../", import.meta.url);
-const promptJudgmentDirective =
-  /请从整体理解本 Prompt 的目标、证据边界与交付要求/;
+const removedPromptMetaDirective =
+  /请从整体理解本 Prompt 的目标、证据边界与交付要求|Understand this Prompt's objectives, evidence boundaries, and deliverables as a whole/;
 
 async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -147,7 +147,7 @@ test("server-renders every configured research workbench", async (context) => {
       assert.equal(response.status, 200, path);
       const html = await response.text();
       assert.match(html, new RegExp(title), path);
-      assert.match(html, promptJudgmentDirective, path);
+      assert.doesNotMatch(html, removedPromptMetaDirective, path);
       assert.match(html, /class="prompt-resize-handle"/, path);
       assert.match(html, /class="prompt-card expanded"/, path);
       assert.match(html, /恢复默认配置/, path);
@@ -160,7 +160,7 @@ test("server-renders the habit-focused academic-writing diagnosis workbench", as
   assert.equal(response.status, 200);
   const html = await response.text();
 
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /发现作者自己最难察觉的写作手法与长期习惯问题/);
   assert.match(html, /主线与章节功能/);
   assert.match(html, /引用覆盖与放置/);
@@ -274,7 +274,7 @@ test("server-renders the evidence-grounded idea-discovery workbench", async () =
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /Idea 查找/);
   assert.match(html, /先检索和去重，再提出候选 Idea/);
   assert.match(html, /研究范围/);
@@ -307,7 +307,7 @@ test("server-renders the evidence-grounded idea-evaluation workbench", async () 
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /Idea 评估与优化/);
   assert.match(html, /近邻论文、竞争格局和执行条件/);
   assert.match(html, /Idea 描述（必需）/);
@@ -337,7 +337,7 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /论文重构/);
   assert.match(html, /class="site-topbar"/);
   assert.match(html, /class="prompt-resize-handle"/);
@@ -445,7 +445,7 @@ test("server-renders the section-refinement workbench", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /章节精修/);
   assert.match(html, /每个章节使用独立精修合同/);
   assert.match(html, /class="prompt-resize-handle"/);
@@ -508,7 +508,7 @@ test("server-renders the multi-select specialized-audit workbench", async () => 
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /专项审计/);
   assert.match(html, /一个 Prompt 建立共享证据台账/);
   assert.match(html, /class="prompt-resize-handle"/);
@@ -549,7 +549,7 @@ test("server-renders the evidence-led paper-draft workbench", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /论文初稿/);
   assert.match(html, /实验结果、表格与原始分析/);
   assert.match(html, /目标模板/);
@@ -578,7 +578,7 @@ test("server-renders submission strategy filters and its live prompt", async () 
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /投稿策略/);
   assert.match(html, /class="prompt-resize-handle"/);
   assert.match(
@@ -643,7 +643,7 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(response.headers.get("content-type") ?? "", /^text\/html\b/i);
 
   const html = await response.text();
-  assert.match(html, promptJudgmentDirective);
+  assert.doesNotMatch(html, removedPromptMetaDirective);
   assert.match(html, /科研绘图/);
   assert.match(html, /class="prompt-resize-handle"/);
   assert.match(
@@ -733,7 +733,7 @@ test("server-renders independent research-figure prompt cards", async () => {
   assert.match(html, /视觉设置：2:1 画布/);
   assert.match(html, /使用 2–4 种强调色/);
   assert.match(html, /执行方式：直接绘图/);
-  assert.match(html, /不要输出该 Prompt/);
+  assert.doesNotMatch(html, /先在内部完成同类论文图|不要输出该 Prompt/);
   assert.doesNotMatch(html, /如有另行提供的图片/);
   assert.doesNotMatch(html, /明确标注某张图片为“绘图草稿”/);
   assert.doesNotMatch(html, /\$nature-figure/);
@@ -783,7 +783,6 @@ test("keeps presets and production prompts configuration-driven", async () => {
     layout,
     packageJson,
     chatExecutionConfig,
-    promptAgency,
     sourceFiles,
   ] = await Promise.all([
     readFile(new URL("../app/config.ts", import.meta.url), "utf8"),
@@ -825,10 +824,6 @@ test("keeps presets and production prompts configuration-driven", async () => {
     readFile(new URL("../package.json", import.meta.url), "utf8"),
     readFile(
       new URL("../content/prompts/chatExecution.ts", import.meta.url),
-      "utf8",
-    ),
-    readFile(
-      new URL("../content/prompts/promptAgency.ts", import.meta.url),
       "utf8",
     ),
     readdir(new URL("../content/prompts/source/", import.meta.url)),
@@ -890,11 +885,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     /CHAT_PRO_FOLLOW_UP_PREFERENCE\s*=\s*"extra-high"/,
   );
   assert.match(chatExecutionConfig, /forceProForAllTurns:\s*false/);
-  assert.match(
-    promptAgency,
-    /请从整体理解本 Prompt 的目标、证据边界与交付要求/,
-  );
-  assert.match(builder, /withPromptJudgmentDirective/);
+  assert.doesNotMatch(builder, /withPromptJudgmentDirective|promptAgency/);
   assert.match(config, /每轮首次使用 Pro，后续使用 Extra High/);
   assert.match(config, /强制所有对话使用 Pro/);
   assert.match(

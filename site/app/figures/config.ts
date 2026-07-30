@@ -4,7 +4,6 @@ import {
   FIGURE_TYPE_ADAPTERS,
   OUTPUT_PROTOCOL,
 } from "./promptArchitecture";
-import { withPromptJudgmentDirective } from "../../content/prompts/promptAgency";
 
 export type FigurePromptId =
   | "introduction"
@@ -1053,7 +1052,7 @@ export function buildFigurePrompt(
   language: Language,
   options: FigurePromptBuildOptions = {},
 ) {
-  return withPromptJudgmentDirective([
+  return [
     COMMON_BASE[language](
       FIGURE_PROMPTS[promptId].label[language],
       preferences.hasReferenceImage,
@@ -1065,7 +1064,7 @@ export function buildFigurePrompt(
       hasReferenceImage: preferences.hasReferenceImage,
       outputFileName: options.outputFileName,
     }),
-  ].join("\n\n"), language);
+  ].join("\n\n");
 }
 
 export function buildFrameworkFigureReconstructionPrompt(

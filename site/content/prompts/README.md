@@ -19,9 +19,6 @@ by the website.
   policies, including the scientific-positioning
   temporary ceiling and protected sections, are defined here as data.
 - `buildPrompt.ts` compiles a selected template with the current planner state.
-- `promptAgency.ts` injects one shared model-judgment directive into every
-  complete Prompt without weakening facts, evidence boundaries, or hard
-  constraints.
 - `types.ts` defines the template and runtime-variable contract.
 - `version.ts` defines the one reconstruction workflow release shared by the
   rendered website and generated plugin runtime.

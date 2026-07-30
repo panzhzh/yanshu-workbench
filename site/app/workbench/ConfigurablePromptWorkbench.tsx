@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { withPromptJudgmentDirective } from "../../content/prompts/promptAgency";
 import { PRODUCT_CONFIG, type Language } from "../config";
 import PromptResizeHandle from "../PromptResizeHandle";
 import SiteNavigation from "../SiteNavigation";
@@ -342,11 +341,7 @@ export default function ConfigurablePromptWorkbench({
   const pageCopy = definition.copy[uiLanguage];
   const promptNextLanguage = promptLanguage === "zh" ? "English" : "中文";
   const prompt = useMemo(
-    () =>
-      withPromptJudgmentDirective(
-        definition.buildPrompt(values, promptLanguage),
-        promptLanguage,
-      ),
+    () => definition.buildPrompt(values, promptLanguage),
     [definition, promptLanguage, values],
   );
   const visibleControls = useMemo(

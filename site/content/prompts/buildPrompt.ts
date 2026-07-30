@@ -6,7 +6,6 @@ import {
   SOURCE_BUDGET_REFERENCE,
 } from "./constraints";
 import type { PromptConstraintSet } from "./constraints";
-import { withPromptJudgmentDirective } from "./promptAgency";
 import { buildCaptionLengthGuidance } from "./captionLength";
 import { WORD_COUNT_POLICY } from "./wordCountPolicy";
 import type {
@@ -551,7 +550,7 @@ export function buildPrompt(
     detailedConstraints?.wordLimitPlacement === "after-budget";
   const deliveryBundle = buildDeliveryBundle(template, language);
 
-  return withPromptJudgmentDirective([
+  return [
     labels.role,
     template.role[language],
     "",
@@ -624,5 +623,5 @@ export function buildPrompt(
       : []),
     labels.finalChecks,
     template.finalChecks[language],
-  ].join("\n"), language);
+  ].join("\n");
 }

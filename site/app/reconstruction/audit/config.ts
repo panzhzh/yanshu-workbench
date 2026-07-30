@@ -1,5 +1,4 @@
 import { COMMON_PROMPT_BLOCKS } from "../../../content/prompts/templates";
-import { withPromptJudgmentDirective } from "../../../content/prompts/promptAgency";
 import type { Language } from "../../config";
 
 type LocalizedText = Record<Language, string>;
@@ -573,8 +572,5 @@ export function buildSpecializedAuditPrompt(
   preferences: SpecializedAuditPreferences,
   language: Language,
 ) {
-  return withPromptJudgmentDirective(
-    buildSpecializedAuditPromptContent(preferences, language),
-    language,
-  );
+  return buildSpecializedAuditPromptContent(preferences, language);
 }
