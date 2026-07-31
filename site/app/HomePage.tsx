@@ -14,33 +14,33 @@ const HOME_COPY = {
     eyebrow: "CS RESEARCH WORKBENCH",
     title: "从实验完成，到论文可投稿。",
     subtitle:
-      "安装一次 YanShu，在新的 Codex 任务中说出你要完成的科研工作。YanShu 会确认工作区、打开配置页，再把写作与绘图交给可见的 ChatGPT。",
+      "安装一次 YanShu，在新的 Codex 任务中说出你要完成的科研工作。论文重构先由你选择网页 ChatGPT 或当前 CLI，不再根据环境自动判断。",
     primaryAction: "查看 3 步使用方法",
     secondaryAction: "不安装，直接使用网站",
     demoLabel: "真实启动流程",
-    demoStatus: "本地工作区 · 可见 ChatGPT",
-    demoSteps: ["说出任务", "页面配置", "自动执行"],
+    demoStatus: "本地工作区 · ChatGPT / Codex CLI",
+    demoSteps: ["说出任务", "选择执行器", "配置并执行"],
     demoFrames: [
       {
         label: "01 · CODEX TASK",
         title: "一句话启动",
         lines: [
-          "使用 $paper-drafting，",
-          "根据这个实验目录撰写论文初稿。",
+          "使用 $paper-reconstruction，",
+          "重构这个论文目录。",
         ],
         footnote: "无需记住参数，也不会在聊天里逐项问配置。",
       },
       {
-        label: "02 · LOCAL CONFIG",
-        title: "在一页中完成设置",
-        lines: ["目标模板　arXiv", "Prompt 语言　中文", "执行方式　全自动"],
-        footnote: "右侧实时显示与官网同源的完整 Prompt。",
+        label: "02 · CHOOSE EXECUTOR",
+        title: "先选择由谁执行",
+        lines: ["网页 ChatGPT　写作能力通常更强", "当前 CLI　启动更便捷"],
+        footnote: "网页模式必须先登录并授权；CLI 模式不依赖网页，但写作能力通常较弱。",
       },
       {
-        label: "03 · VISIBLE CHATGPT",
-        title: "确认后直接执行",
+        label: "03 · CONFIG & RUN",
+        title: "一次配置后直接执行",
         lines: ["读取已确认材料", "保存版本化产物", "编译、核验并返回结果"],
-        footnote: "长任务保留会话与产物；Codex 不替代 Chat 写论文。",
+        footnote: "网页模式使用完整配置页；CLI 模式只询问三项核心设置。",
       },
     ],
     guideEyebrow: "QUICK START",
@@ -58,13 +58,13 @@ const HOME_COPY = {
     exampleCommand:
       "使用 $paper-reconstruction 重构这个论文目录。",
     copyExample: "复制示例",
-    configureTitle: "在页面中配置并开始",
+    configureTitle: "选择执行方式并开始",
     configureBody:
-      "YanShu 自动打开仅本机可见的配置页。检查 Prompt 后点击“全自动开始”；若只想手动使用，复制 Prompt 后退出即可。",
+      "先选择网页 ChatGPT 或当前 CLI。网页模式需已登录并授权；CLI 模式更便捷，但论文写作能力通常不如网页端。",
     workflowEyebrow: "START WITH ONE SENTENCE",
     workflowTitle: "六个重要的全链路入口",
     workflowBody:
-      "六个独立子 Skill 均支持 $ 调用，并先打开对应配置页。网站与插件使用同一份 Prompt 数据。",
+      "六个独立子 Skill 均支持 $ 调用；论文重构由用户明确选择网页或 CLI 执行。网站与插件共享 Prompt 数据。",
     inputLabel: "准备",
     outputLabel: "得到",
     openWorkbench: "查看配置页",
@@ -79,51 +79,50 @@ const HOME_COPY = {
     manualBody:
       "适合先调整 Prompt，或把 Prompt 复制到任意模型中自行执行。网站不读取、不上传论文文件。",
     boundary:
-      "YanShu 负责配置、材料边界、状态与验证；论文写作和科研绘图由用户可见的 ChatGPT 完成。所有 venue 规则仍以最新官网为准。",
+      "YanShu 负责配置、材料边界、状态与验证；执行器由用户选择，不根据设备或环境静默切换。所有 venue 规则仍以最新官网为准。",
     installFailed: "复制失败，请手动选择命令。",
   },
   en: {
     eyebrow: "CS RESEARCH WORKBENCH",
     title: "From completed experiments to a submission-ready paper.",
     subtitle:
-      "Install YanShu once, then state the research job in a new Codex task. YanShu confirms the workspace, opens one configuration page, and delegates writing or figure generation to visible ChatGPT.",
+      "Install YanShu once, then state the research job in a new Codex task. Paper Reconstruction asks you to choose Web ChatGPT or Current CLI instead of guessing from the environment.",
     primaryAction: "See the three-step guide",
     secondaryAction: "Use the website without installing",
     demoLabel: "Actual launch flow",
-    demoStatus: "Local workspace · visible ChatGPT",
-    demoSteps: ["State the task", "Configure once", "Run automatically"],
+    demoStatus: "Local workspace · ChatGPT / Codex CLI",
+    demoSteps: ["State the task", "Choose executor", "Configure and run"],
     demoFrames: [
       {
         label: "01 · CODEX TASK",
         title: "Start with one sentence",
         lines: [
-          "Use $paper-drafting",
-          "to draft a paper from this experiment directory.",
+          "Use $paper-reconstruction",
+          "to reconstruct this paper directory.",
         ],
         footnote:
           "No flags to memorize and no setting-by-setting interview in chat.",
       },
       {
-        label: "02 · LOCAL CONFIG",
-        title: "Set everything on one page",
+        label: "02 · CHOOSE EXECUTOR",
+        title: "Choose who executes",
         lines: [
-          "Target template　arXiv",
-          "Prompt language　English",
-          "Execution　Full automation",
+          "Web ChatGPT　usually stronger writing",
+          "Current CLI　more convenient",
         ],
         footnote:
-          "The right rail shows the complete website-sourced Prompt live.",
+          "Web mode requires login and authorization; CLI is browser-free but may write less strongly.",
       },
       {
-        label: "03 · VISIBLE CHATGPT",
-        title: "Confirm, then run",
+        label: "03 · CONFIG & RUN",
+        title: "Configure once, then run",
         lines: [
           "Read approved evidence",
           "Save versioned artifacts",
           "Compile, verify, and return",
         ],
         footnote:
-          "Long jobs retain their Chat and outputs; Codex does not replace Chat as the paper writer.",
+          "Web mode uses the full setup page; CLI asks only three core settings.",
       },
     ],
     guideEyebrow: "QUICK START",
@@ -141,13 +140,13 @@ const HOME_COPY = {
     exampleCommand:
       "Use $paper-reconstruction to reconstruct this paper directory.",
     copyExample: "Copy example",
-    configureTitle: "Configure on one page and start",
+    configureTitle: "Choose an executor and start",
     configureBody:
-      "YanShu opens a loopback-only setup page. Review the Prompt and choose “Start full automation”; for manual use, copy the Prompt and exit.",
+      "Choose Web ChatGPT or Current CLI first. Web mode requires login and authorization; CLI is more convenient but may provide weaker academic writing.",
     workflowEyebrow: "START WITH ONE SENTENCE",
     workflowTitle: "Six essential end-to-end entry points",
     workflowBody:
-      "All six independent sub-skills support $ invocation and open their matching configuration page first. Website and plugin share one Prompt source.",
+      "All six independent sub-skills support $ invocation; Paper Reconstruction explicitly asks the user to choose Web or CLI execution. Website and plugin share one Prompt source.",
     inputLabel: "Prepare",
     outputLabel: "Receive",
     openWorkbench: "Open configuration",
@@ -162,7 +161,7 @@ const HOME_COPY = {
     manualBody:
       "Best for adjusting a Prompt first or running it in any model yourself. The website never reads or uploads paper files.",
     boundary:
-      "YanShu owns configuration, evidence boundaries, state, and validation; visible ChatGPT performs manuscript writing and scientific figure generation. Always verify current venue rules on the official site.",
+      "YanShu owns configuration, evidence boundaries, state, and validation. The user chooses the executor; YanShu never switches silently based on the device or environment. Always verify current venue rules on the official site.",
     installFailed: "Copy failed. Select the commands manually.",
   },
 } as const;

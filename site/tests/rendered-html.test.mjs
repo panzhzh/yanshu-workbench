@@ -38,12 +38,14 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /第一次使用，只需三步/);
   assert.match(html, /安装 YanShu/);
   assert.match(html, /新建 Codex 任务/);
-  assert.match(html, /在页面中配置并开始/);
+  assert.match(html, /选择执行方式并开始/);
+  assert.match(html, /网页模式需已登录并授权/);
+  assert.match(html, /CLI 模式更便捷，但论文写作能力通常不如网页端/);
   assert.match(html, /codex plugin marketplace add panzhzh\/yanshu-workbench/);
   assert.match(html, /codex plugin add yanshu-workbench@yanshu-workbench/);
   assert.match(html, /一句话启动/);
-  assert.match(html, /在一页中完成设置/);
-  assert.match(html, /确认后直接执行/);
+  assert.match(html, /先选择由谁执行/);
+  assert.match(html, /一次配置后直接执行/);
   assert.match(html, /六个重要的全链路入口/);
   assert.match(html, /Idea Discovery/);
   assert.match(html, /Paper Drafting/);
@@ -64,7 +66,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /\$scientific-figure/);
   assert.match(html, /\$experimental-plotting/);
   assert.match(html, /自动执行，或只复制 Prompt/);
-  assert.match(html, /网站与插件使用同一份 Prompt 数据/);
+  assert.match(html, /网站与插件共享 Prompt 数据/);
   assert.match(html, /论文写作/);
   assert.match(html, /实验与复现/);
   assert.match(html, /科研图表/);
@@ -375,6 +377,10 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /panzhzh\/yanshu-workbench/);
   assert.match(html, /yanshu-workbench@yanshu-workbench/);
   assert.match(html, /新建一个 Codex 任务/);
+  assert.match(html, /选择网页 ChatGPT 或当前 CLI/);
+  assert.match(html, /不要根据 SSH、WSL、DISPLAY/);
+  assert.match(html, /必须已登录 ChatGPT/);
+  assert.match(html, /论文写作能力通常不如网页端/);
   assert.match(html, /从断点继续/);
   assert.match(html, /重新配置/);
   assert.match(html, /复制全部/);

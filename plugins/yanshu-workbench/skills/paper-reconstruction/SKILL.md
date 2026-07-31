@@ -1,17 +1,20 @@
 ---
 name: paper-reconstruction
-description: Run YanShu's resumable five-round Paper Reconstruction workflow from local TeX, BibTeX, PDF, and figure inputs, using visible ChatGPT by default with a thin Codex CLI host adapter and a portable external adapter contract. Use when the user asks YanShu or 研术台 to reconstruct, rewrite, continue, resume, or recover a paper workflow.
+description: Run YanShu's resumable five-round Paper Reconstruction workflow from local TeX, BibTeX, PDF, and figure inputs. Always ask the user to choose Web ChatGPT or the current CLI before configuration; Web ChatGPT uses the local setup page and visible browser bridge, while Current CLI uses one compact inline configuration and the existing Codex task. Expose a portable external adapter for other hosts. Use when the user asks YanShu or 研术台 to reconstruct, rewrite, continue, resume, or recover a paper workflow.
 ---
 
 # Paper Reconstruction
 
-YanShu coordinates local paper evidence, an isolated manuscript executor, versioned artifacts, compilation, deterministic validation, and recovery. Visible ChatGPT remains the default executor; Codex CLI can execute through the same artifact contract when the browser bridge is unavailable.
+YanShu coordinates local paper evidence, an isolated manuscript executor, versioned artifacts, compilation, deterministic validation, and recovery. Ask the user to choose Web ChatGPT or Current CLI; never infer that choice from the host environment. Both choices use the same five-round artifact and validation contract.
 
 Follow the user's conversation language. Prompt language is independently configured as Chinese or English.
 
 ## Hard boundaries
 
 - Never silently change executors. In `visible-chatgpt` mode, Codex only coordinates and must not replace Chat as the writer. In `codex-host` mode, the current Codex CLI host may write only inside the selected run and must preserve every YanShu artifact and validation rule.
+- Always ask once which executor to use. Never infer it from SSH, WSL, DISPLAY, operating system, browser availability, or perceived model quality.
+- Web ChatGPT requires the user to be signed in to ChatGPT and to authorize the required browser control and file-access/upload capabilities. Current CLI is more convenient and browser-free, but its academic writing may be weaker than Web ChatGPT.
+- In `codex-host`, the already-running Codex CLI task is the executor. Never launch a nested `codex`, `codex exec`, `codex exec resume`, background self-resume loop, or visible ChatGPT page.
 - In `codex-host`, direct every edit, generated file, and command output to the current round's `executorWorkspace.workingDirectory`. Treat the paper root, run metadata, prior rounds, and canonical `output/` directories as read-only.
 - Never let `codex-host` start reconstructing from the shell's current directory before `init` and `next` return that workspace. A missing workspace is a workflow error, not permission to edit the paper root.
 - In visible ChatGPT, use the latest reasoning-capable model family shown by the live controls. In a host adapter, select the strongest available equivalent without pinning a model name.
@@ -57,12 +60,13 @@ After `version-handshake`, run `support-status` before the first new or resumed 
 
 For this support action, do not list, read, or modify any unrelated repository. The receipt contains only the public repository name, terminal status, and timestamp; it stores no GitHub credential.
 
-## Select the paper and open one configuration page
+## Select the executor, then the paper
 
-1. Ask for the paper directory.
-2. If it contains multiple plausible manuscript roots, show a compact inventory and ask the user to choose one. Never select randomly.
-3. Run `doctor --project <paper-root>`. When TeX, BibTeX, PDF, and optional figures are unambiguous, do not ask for another file confirmation.
-4. Immediately run:
+1. Before asking for a directory or inspecting files, run `execution-choice --ui-language zh|en` and ask its `executionModeChoice.question` exactly once: **Web ChatGPT** or **Current CLI**. The returned question includes the required login/authorization notice and the CLI writing-quality trade-off. Do not recommend or preselect either option.
+2. Ask for the paper directory.
+3. If it contains multiple plausible manuscript roots, show a compact inventory and ask the user to choose one. Never select randomly.
+4. Run `doctor --project <paper-root>`. When TeX, BibTeX, PDF, and optional figures are unambiguous, do not ask for another file confirmation.
+5. Run this command with the recorded execution choice:
 
 ```text
 configure-start \
@@ -71,18 +75,22 @@ configure-start \
   --bib <detected-bib> \
   --pdf <detected-pdf> \
   [--figures <detected-figures>] \
-  --ui-language zh|en
+  --ui-language zh|en \
+  --execution-mode visible-chatgpt|codex-host
 ```
 
-5. Tell the user only that the local page is open. Do not collect paper type, length, appendix, caption guidance, Prompt language, figure ratio, or reasoning settings in chat.
-6. Poll `configure-status --session <sessionPath>` without asking the user to report a click.
-7. `Exit` cancels without creating a run. `Start full automation` authorizes initialization from the same `sessionPath`; do not ask for another confirmation and do not inspect the private configuration file.
+If another caller omits `--execution-mode`, `configure-start` returns `executionModeChoice.question` and never opens a page; ask it once and rerun with the selected mode. Then continue as follows:
 
-Before the page confirms automation, do not create a run or transmit manuscript content.
+- If the user selects **Web ChatGPT**, rerun the same command with `--execution-mode visible-chatgpt`. Remind them briefly that ChatGPT must already be signed in and the required browser and file/upload permissions must be authorized. The command opens the complete local configuration page. Poll `configure-status --session <sessionPath>` without asking the user to report a click. `Exit` cancels without creating a run. `Start full automation` authorizes initialization from the same `sessionPath`; do not ask for another confirmation and do not inspect the private configuration file.
+- If the user selects **Current CLI**, rerun the same command with `--execution-mode codex-host`. It returns `configurationMode: inline` without opening a page. Ask `inlineConfiguration.question` exactly once. The single reply contains only: conference or journal; whether a separate appendix is allowed; and suggested main-text words as `none` or one number. Do not ask about caption length, Prompt language, figure ratio, reasoning, method/experiment limits, or any other setting. Map the reply into the returned `initialization.arguments`, run `init` directly, and use `codex-host`.
+- In Current CLI mode, never call `configure-status`, wait for a page, ask the user to report a click, open visible ChatGPT, or start a nested Codex process. The compact configuration reply authorizes uninterrupted full automation.
+- Do not switch modes automatically when a permission, login, or bridge check fails. Report the real blocker and let the user choose whether to change executor.
+
+Before the page click or the one inline reply authorizes automation, do not create a run or transmit manuscript content.
 
 ## Persist full automation
 
-`Start full automation` explicitly authorizes one uninterrupted five-round run. After that click:
+`Start full automation` on the page, or the single inline configuration reply, explicitly authorizes one uninterrupted five-round run. After that authorization:
 
 - Keep the Codex task active until all five rounds are finalized or a real blocker from the hard boundaries is reached.
 - Never send a final answer, handoff summary, “resume later” message, or request for “continue” while a round is `generating`, while an artifact still needs importing or correction, or between completed rounds.
@@ -93,13 +101,15 @@ Goal state only keeps orchestration alive. The run directory remains the source 
 
 ## Initialize and expose visible progress
 
-Run:
+For Web ChatGPT mode, run:
 
 ```text
 init --session <sessionPath>
 ```
 
-YanShu reads and validates the confirmed configuration internally. Do not open, display, link, or separately parse its JSON file.
+For Current CLI mode, run the returned `init` command arguments with the chosen `--style`, `--appendix`, and `--word-limit`, plus `--execution-adapter codex-host`. YanShu applies all other product defaults automatically.
+
+YanShu reads and validates page-confirmed configuration internally. Do not open, display, link, or separately parse its JSON file.
 
 Report the created run directory. YanShu creates five isolated round folders, each with a host-writable `workspace/` and YanShu-managed `output/`, plus `run.json`, `events.jsonl`, and a continuously updated `STATUS.md`. Original paper files remain read-only.
 
@@ -107,11 +117,11 @@ Run 4 reconstructs the Method Overview figure. Run 5 integrates and validates th
 
 ## Select one thin execution adapter
 
-Read `references/executor-adapter.md` when the visible browser bridge is unavailable or the user explicitly selects a non-default host.
+Read `references/executor-adapter.md` when the user selects Current CLI or an external host.
 
-- `auto` is the new-run default. Resolve it to `visible-chatgpt` when the signed-in bridge works; otherwise resolve it to `codex-host` only when running in Codex CLI.
-- `visible-chatgpt` keeps the existing browser, MCP/attachment, reasoning, and waiting flow.
-- `codex-host` executes the exact saved Prompt against the approved local materials in the current Codex CLI task. Use an available image-generation capability for Round 4; if none exists, require an external image adapter only for that round.
+- New runs do not use `auto`. Record the user's explicit `visible-chatgpt` or `codex-host` selection before initialization. If a legacy run still contains `auto`, `next` returns the same two-option question; record the answer and call `next` again without resubmitting work.
+- `visible-chatgpt` keeps the browser, MCP/attachment, reasoning, and waiting flow. It requires an active ChatGPT login and the necessary authorizations.
+- `codex-host` executes the exact saved Prompt against the approved local materials in the current Codex CLI task. For Round 4, use an available image-generation capability; if none exists, create and render a faithful vector schematic to the required PNG inside the round workspace. Do not open visible ChatGPT as a fallback.
 - `external` is the stable contract for Claude CLI or another host. Do not add product-specific branches to YanShu; that host must adapt submission, waiting, artifact collection, and image generation while returning YanShu's canonical files.
 
 Record the resolved choice once:
@@ -175,7 +185,7 @@ For each round:
 4. Submit exactly once through the selected adapter:
    - MCP mode: send only `bootstrapPrompt`, no files.
    - Attachment mode: send the generated Prompt plus exactly `approvedAttachments` as real files.
-   - Codex host: before reading or writing, set the process CWD and every file-edit workdir to `round.executorWorkspace.workingDirectory`. Keep scratch files and complete canonical artifacts there; never write into the paper root or another round.
+   - Codex host: continue in the current CLI task without spawning another Codex process. Before reading or writing, set the process CWD and every file-edit workdir to `round.executorWorkspace.workingDirectory`. Keep scratch files and complete canonical artifacts there; never write into the paper root or another round.
    - External adapter: pass the same Prompt, approved material manifest, and artifact contract without reinterpretation.
 5. Mark `waiting --checkpoint generating`. In `visible-chatgpt`, call the runtime-managed `waitForChatRound`; other adapters return the same normalized states through `references/executor-adapter.md`.
    - Medium and High: 60 seconds.
@@ -254,9 +264,10 @@ After Round 5, YanShu writes `final-manifest.json` with input/output SHA-256 has
 
 1. Locate the intended `run.json`.
 2. Run `version-handshake --run <run-path>`, then `status` and `next`.
-3. Read `STATUS.md` and the current checkpoint.
-4. Reopen the recorded Chat URL.
-5. Continue from `submitted`, `generating`, `artifact-ready`, `artifact-imported`, `correction-requested`, `compiled`, `validated`, or `finalized` without duplicating work.
-6. Preserve the run's saved Prompt snapshot.
+3. If `next` reports `execution-mode-required` for a legacy run, ask its executor question once, record the answer, and call `next` again.
+4. Read `STATUS.md` and the current checkpoint.
+5. In `visible-chatgpt`, reopen the recorded Chat URL. In `codex-host`, continue in the saved round workspace without creating a nested Codex process.
+6. Continue from `submitted`, `generating`, `artifact-ready`, `artifact-imported`, `correction-requested`, `compiled`, `validated`, or `finalized` without duplicating work.
+7. Preserve the run's saved Prompt snapshot.
 
 Finish only when all five rounds are finalized and `final-manifest.json` exists. Any earlier final response is a workflow failure, even when the run is safely resumable.

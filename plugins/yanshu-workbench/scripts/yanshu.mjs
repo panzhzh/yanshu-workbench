@@ -89,6 +89,11 @@ import {
   installApprovedExternalSkills,
   recordExternalSkillDecision,
 } from "./lib/external-skills.mjs";
+import {
+  buildExecutionModeChoice,
+  buildInlineReconstructionConfiguration,
+  RECONSTRUCTION_EXECUTION_MODES,
+} from "./lib/execution-choice.mjs";
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(scriptDirectory, "..");
@@ -106,8 +111,10 @@ function help() {
     commands: {
       doctor:
         "Check the local runtime and paper inputs without changing manuscript files.",
+      "execution-choice":
+        "Return the mandatory first choice between Web ChatGPT and the current CLI without inspecting paper files.",
       "configure-start":
-        "Open the local one-page configuration UI for a confirmed full-automation paper.",
+        "Ask the user to choose Web ChatGPT or the current CLI, then open the matching configuration surface.",
       "configure-status":
         "Read whether the local configuration page is waiting, confirmed, cancelled, or expired.",
       "workflow-configure-start":
@@ -312,6 +319,16 @@ async function doctor(flags) {
       };
   const marketplaceSnapshot = await discoverMarketplaceSnapshot();
   const externalSkills = await externalSkillsStatus();
+  const executionModeChoice = buildExecutionModeChoice({
+    projectRoot: project,
+    inputs: inputs ?? {},
+    uiLanguage: enumFlag(
+      flags,
+      "ui-language",
+      ["zh", "en"],
+      "zh",
+    ),
+  }).executionModeChoice;
   return {
     ok:
       projectExists &&
@@ -341,6 +358,11 @@ async function doctor(flags) {
       skillWorkflowRuntime,
       promptRelease,
       dynamicImportPaths,
+      executionModeChoice: {
+        required: true,
+        automaticEnvironmentSelection: false,
+        ...executionModeChoice,
+      },
       versionHandshake: {
         pluginVersion: pluginManifest.version,
         workflowVersion: promptRuntime.workflowVersion,
@@ -387,6 +409,17 @@ async function doctor(flags) {
   };
 }
 
+async function executionChoice(flags) {
+  return buildExecutionModeChoice({
+    uiLanguage: enumFlag(
+      flags,
+      "ui-language",
+      ["zh", "en"],
+      "zh",
+    ),
+  });
+}
+
 async function configureStart(flags) {
   const fileConfig = await loadConfig(flags);
   const projectRoot = path.resolve(
@@ -407,6 +440,26 @@ async function configureStart(flags) {
     ["zh", "en"],
     fileConfig.workflow?.language ?? "zh",
   );
+  const executionMode = enumFlag(
+    flags,
+    "execution-mode",
+    ["ask", ...RECONSTRUCTION_EXECUTION_MODES],
+    "ask",
+  );
+  if (executionMode === "ask") {
+    return buildExecutionModeChoice({
+      projectRoot,
+      inputs,
+      uiLanguage,
+    });
+  }
+  if (executionMode === "codex-host") {
+    return buildInlineReconstructionConfiguration({
+      projectRoot,
+      inputs,
+      uiLanguage,
+    });
+  }
   return startOnboardingSession({
     pluginRoot,
     projectRoot,
@@ -607,12 +660,33 @@ async function init(flags) {
       fileConfig.workflow?.chatExecution?.forceProForAllTurns ?? false,
     ),
   };
+  const configuredExecutionAdapter =
+    fileConfig.execution?.surface === "visible-chat"
+      ? "visible-chatgpt"
+      : fileConfig.workflow?.executionAdapter;
+  const requestedExecutionAdapter = stringFlag(
+    flags,
+    "execution-adapter",
+    configuredExecutionAdapter,
+  );
+  if (!requestedExecutionAdapter) {
+    throw new CliError(
+      "Choose Web ChatGPT or the current CLI before initialization.",
+      "execution_mode_required",
+    );
+  }
   const executionAdapter = enumFlag(
     flags,
     "execution-adapter",
     EXECUTION_ADAPTERS,
-    fileConfig.workflow?.executionAdapter ?? "auto",
+    requestedExecutionAdapter,
   );
+  if (executionAdapter === "auto") {
+    throw new CliError(
+      "Automatic executor selection is disabled. Choose visible-chatgpt or codex-host.",
+      "execution_mode_required",
+    );
+  }
 
   const engine = await loadPromptEngine();
   const workflow = engine.buildReconstructionWorkflow({
@@ -696,6 +770,21 @@ async function status(flags) {
 
 async function next(flags) {
   const state = await loadRun(requiredFlag(flags, "run"));
+  const executionAdapter =
+    state.execution?.adapter ?? "auto";
+  if (executionAdapter === "auto") {
+    const choice = buildExecutionModeChoice({
+      uiLanguage: state.config?.language ?? "zh",
+      runPath: state.runPath,
+    });
+    return {
+      ...choice,
+      runId: state.runId,
+      runPath: state.runPath,
+      run: summarizeRun(state),
+      instruction: `${choice.instruction} This is a legacy run without an explicit executor; record the selected adapter, then call next again without resubmitting any round.`,
+    };
+  }
   const round = nextRound(state);
   if (!round) {
     return {
@@ -708,15 +797,11 @@ async function next(flags) {
     state,
     round.id,
   );
-  const executionAdapter =
-    state.execution?.adapter ?? "visible-chatgpt";
   const executorWorkspace = await executorWorkspaceSpec(
     state,
     round.id,
   );
   const instructionByAdapter = {
-    auto:
-      "Prefer the visible ChatGPT bridge. If it is unavailable and the current host is Codex CLI, record `codex-host` and execute the same Prompt and artifact contract locally. Non-OpenAI hosts must record `external` and implement the portable adapter contract.",
     "visible-chatgpt":
       "Use the automatic visible-ChatGPT transfer handshake, prepare a fresh Chat thread, resolve reasoning with `chat-plan`, submit exactly once, preserve the returned thread URL, and call `waitForChatRound` again whenever it returns `shouldContinueMonitoring: true`.",
     "codex-host":
@@ -749,11 +834,18 @@ async function next(flags) {
     },
     approvedAttachments: await roundAttachments(state, round.id),
     artifactBundle: artifactBundleSpec(round, state.workflowVersion),
-    mcpWorkspace: {
-      available: true,
-      startCommand:
-        "Run `mcp-start --run <run-path>`, then perform the zero-sensitive visible MCP handshake. YanShu automatically switches to a verified approvedAttachments fallback when that handshake is unavailable.",
-    },
+    mcpWorkspace:
+      executionAdapter === "visible-chatgpt"
+        ? {
+            available: true,
+            startCommand:
+              "Run `mcp-start --run <run-path>`, then perform the zero-sensitive visible MCP handshake. YanShu automatically switches to a verified approvedAttachments fallback when that handshake is unavailable.",
+          }
+        : {
+            available: false,
+            reason:
+              "The current host reads approved local files directly; no visible-ChatGPT MCP handshake is needed.",
+          },
     execution: state.execution,
     executionAdapter: {
       selected: executionAdapter,
@@ -1120,6 +1212,9 @@ async function main() {
       break;
     case "doctor":
       result = await doctor(flags);
+      break;
+    case "execution-choice":
+      result = await executionChoice(flags);
       break;
     case "configure-start":
       result = await configureStart(flags);

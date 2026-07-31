@@ -227,8 +227,9 @@ function migrateRunState(state) {
   }
   if (!state.execution) {
     state.execution = {
-      adapter: "visible-chatgpt",
-      adapterReason: "legacy run created before execution adapters",
+      adapter: "auto",
+      adapterReason:
+        "legacy run requires explicit user executor selection",
       transferMode: "undecided",
       fallbackReason: null,
       mcpHandshake: null,
@@ -237,9 +238,9 @@ function migrateRunState(state) {
     };
     changed = true;
   } else if (state.execution.adapter === undefined) {
-    state.execution.adapter = "visible-chatgpt";
+    state.execution.adapter = "auto";
     state.execution.adapterReason =
-      "legacy run created before execution adapters";
+      "legacy run requires explicit user executor selection";
     changed = true;
   }
   if (!state.runtimeVersions) {
@@ -319,7 +320,7 @@ Updated: ${state.updatedAt}
 - Run: \`${state.runId}\`
 - Overall status: **${state.status}**
 - Progress: **${completed}/${state.rounds.length} rounds**
-- Execution adapter: **${state.execution?.adapter ?? "visible-chatgpt"}**
+- Execution adapter: **${state.execution?.adapter ?? "auto"}**
 - Transfer mode: **${state.execution?.transferMode ?? "undecided"}**
 - Current round: **${
     current
@@ -447,7 +448,7 @@ export async function createRun({
       adapter: executionAdapter,
       adapterReason:
         executionAdapter === "auto"
-          ? "resolve from host capabilities at execution time"
+          ? "explicit user executor selection required before execution"
           : "selected during run initialization",
       transferMode: "undecided",
       fallbackReason: null,
@@ -505,7 +506,7 @@ ${rounds}
 
 ## Safety boundary
 
-- Visible ChatGPT remains the default manuscript executor. A Codex host may write only when the run explicitly resolves to \`codex-host\`; other products must implement the portable adapter contract.
+- The user explicitly selects Web ChatGPT or Current CLI. A Codex host may write only when the run resolves to \`codex-host\`; other products must implement the portable adapter contract.
 - The selected adapter must preserve the same prompts, artifacts, validation, and recovery semantics.
 - Every round has its own \`workspace/\`. A host executor writes only there; YanShu alone imports canonical files into that round's \`output/\`.
 - The original paper root, run metadata, prior rounds, and canonical output directories remain read-only to the host executor.

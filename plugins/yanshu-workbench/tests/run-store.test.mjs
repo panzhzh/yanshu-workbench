@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import {
   mkdir,
   mkdtemp,
@@ -11,6 +12,7 @@ import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
 import { createRequire } from "node:module";
+import { fileURLToPath } from "node:url";
 import {
   buildReconstructionWorkflow,
   getReconstructionConfigurationModel,
@@ -78,6 +80,10 @@ import {
   summarizeRun,
   updateExecutionAdapter,
 } from "../scripts/lib/run-store.mjs";
+import {
+  buildExecutionModeChoice,
+  buildInlineReconstructionConfiguration,
+} from "../scripts/lib/execution-choice.mjs";
 
 const require = createRequire(import.meta.url);
 const nodeLauncher = require("../scripts/node-launcher.cjs");
@@ -890,7 +896,186 @@ test("Codex host writes only in a round workspace and imports complete artifacts
   }
 });
 
-test("skill uses one local configuration page and a no-intervention recoverable execution protocol", async () => {
+test("Paper Reconstruction always asks the user to choose its executor", () => {
+  const request = buildExecutionModeChoice({
+    projectRoot: "/srv/paper",
+    inputs: {
+      tex: "/srv/paper/main.tex",
+      bib: "/srv/paper/references.bib",
+      pdf: "/srv/paper/main.pdf",
+      figures: null,
+    },
+    uiLanguage: "zh",
+  });
+
+  assert.equal(request.status, "execution-mode-required");
+  assert.equal(request.configurationMode, "choice");
+  assert.equal(request.pageOpened, false);
+  assert.equal(request.sessionPath, null);
+  assert.match(request.executionModeChoice.question, /网页 ChatGPT/);
+  assert.match(request.executionModeChoice.question, /必须已登录 ChatGPT/);
+  assert.match(request.executionModeChoice.question, /授权/);
+  assert.match(request.executionModeChoice.question, /当前 CLI/);
+  assert.match(request.executionModeChoice.question, /更便捷/);
+  assert.match(request.executionModeChoice.question, /不如网页端/);
+  assert.deepEqual(
+    request.executionModeChoice.options.map((option) => option.id),
+    ["visible-chatgpt", "codex-host"],
+  );
+  assert.deepEqual(
+    request.executionModeChoice.options[0].next.arguments.slice(-2),
+    ["--execution-mode", "visible-chatgpt"],
+  );
+  assert.deepEqual(
+    request.executionModeChoice.options[1].next.arguments.slice(-2),
+    ["--execution-mode", "codex-host"],
+  );
+  assert.match(request.instruction, /Do not infer the executor/);
+  assert.match(request.instruction, /SSH, WSL, DISPLAY/);
+});
+
+test("execution-choice works before any paper path is known", () => {
+  const result = spawnSync(
+    process.execPath,
+    [
+      fileURLToPath(
+        new URL("../scripts/yanshu.mjs", import.meta.url),
+      ),
+      "execution-choice",
+      "--ui-language",
+      "zh",
+    ],
+    {
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        SSH_CONNECTION: "203.0.113.8 49152 203.0.113.10 22",
+        DISPLAY: ":0",
+      },
+    },
+  );
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const response = JSON.parse(result.stdout);
+  assert.equal(response.status, "execution-mode-required");
+  assert.equal(response.projectRoot, null);
+  assert.equal(response.pageOpened, false);
+  assert.match(response.instruction, /Then ask for the paper directory/);
+  assert.match(response.instruction, /do not run configure-start until/);
+  assert.deepEqual(
+    response.executionModeChoice.options.map((option) => option.id),
+    ["visible-chatgpt", "codex-host"],
+  );
+});
+
+test("the explicit CLI choice returns one compact configuration", () => {
+  const request = buildInlineReconstructionConfiguration({
+    projectRoot: "/srv/paper",
+    inputs: {
+      tex: "/srv/paper/main.tex",
+      bib: "/srv/paper/references.bib",
+      pdf: "/srv/paper/main.pdf",
+      figures: null,
+    },
+    uiLanguage: "zh",
+  });
+  assert.equal(request.pageOpened, false);
+  assert.equal(request.sessionPath, null);
+  assert.equal(request.inlineConfiguration.askOnce, true);
+  assert.match(request.inlineConfiguration.question, /会议或期刊/);
+  assert.match(request.inlineConfiguration.question, /单独附录/);
+  assert.match(request.inlineConfiguration.question, /正文建议字数/);
+  assert.deepEqual(
+    request.initialization.arguments.slice(-2),
+    ["--execution-adapter", "codex-host"],
+  );
+  assert.match(request.instruction, /Do not call configure-status/);
+  assert.match(request.instruction, /nested codex exec\/resume/);
+});
+
+test("configure-start asks first and uses CLI inline only after selection", async () => {
+  const temporaryRoot = await mkdtemp(
+    path.join(tmpdir(), "yanshu-explicit-executor-test-"),
+  );
+  try {
+    const paperRoot = path.join(temporaryRoot, "paper");
+    await mkdir(paperRoot, { recursive: true });
+    await writeFile(
+      path.join(paperRoot, "main.tex"),
+      "\\documentclass{article}\\begin{document}Test\\end{document}\n",
+      "utf8",
+    );
+    await writeFile(path.join(paperRoot, "references.bib"), "", "utf8");
+    await writeFile(path.join(paperRoot, "main.pdf"), "pdf fixture", "utf8");
+
+    const choiceResult = spawnSync(
+      process.execPath,
+      [
+        fileURLToPath(
+          new URL("../scripts/yanshu.mjs", import.meta.url),
+        ),
+        "configure-start",
+        "--project",
+        paperRoot,
+        "--ui-language",
+        "zh",
+      ],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          SSH_CONNECTION: "203.0.113.8 49152 203.0.113.10 22",
+        },
+      },
+    );
+    assert.equal(
+      choiceResult.status,
+      0,
+      choiceResult.stderr || choiceResult.stdout,
+    );
+    const choiceResponse = JSON.parse(choiceResult.stdout);
+    assert.equal(choiceResponse.status, "execution-mode-required");
+    assert.equal(choiceResponse.configurationMode, "choice");
+    assert.equal(choiceResponse.pageOpened, false);
+    assert.equal(choiceResponse.sessionPath, null);
+
+    const cliResult = spawnSync(
+      process.execPath,
+      [
+        fileURLToPath(
+          new URL("../scripts/yanshu.mjs", import.meta.url),
+        ),
+        "configure-start",
+        "--project",
+        paperRoot,
+        "--ui-language",
+        "zh",
+        "--execution-mode",
+        "codex-host",
+      ],
+      {
+        encoding: "utf8",
+        env: {
+          ...process.env,
+          DISPLAY: ":0",
+        },
+      },
+    );
+    assert.equal(cliResult.status, 0, cliResult.stderr || cliResult.stdout);
+    const cliResponse = JSON.parse(cliResult.stdout);
+    assert.equal(cliResponse.status, "inline-configuration-required");
+    assert.equal(cliResponse.configurationMode, "inline");
+    assert.equal(cliResponse.pageOpened, false);
+    assert.equal(cliResponse.sessionPath, null);
+    assert.equal(
+      cliResponse.initialization.executionAdapter,
+      "codex-host",
+    );
+  } finally {
+    await rm(temporaryRoot, { recursive: true, force: true });
+  }
+});
+
+test("skill asks for an explicit executor and keeps a no-intervention recoverable execution protocol", async () => {
   const skill = await readFile(
     new URL("../skills/paper-reconstruction/SKILL.md", import.meta.url),
     "utf8",
@@ -927,6 +1112,15 @@ test("skill uses one local configuration page and a no-intervention recoverable 
   assert.match(skill, /configure-start/);
   assert.match(skill, /configure-status/);
   assert.match(skill, /init --session <sessionPath>/);
+  assert.match(skill, /executionModeChoice\.question/);
+  assert.match(skill, /Web ChatGPT/);
+  assert.match(skill, /signed in/);
+  assert.match(skill, /Current CLI/);
+  assert.match(skill, /configurationMode: inline/);
+  assert.match(skill, /inlineConfiguration\.question/);
+  assert.match(skill, /--execution-adapter codex-host/);
+  assert.match(skill, /Never launch a nested `codex`/);
+  assert.match(skill, /never call `configure-status`/i);
   assert.match(skill, /Never open `plugin\.json`/);
   assert.doesNotMatch(skill, /configPath/);
   assert.match(
@@ -1671,6 +1865,35 @@ test("run state is recoverable and attachment-scoped", async () => {
     assert.equal(state.execution.transferMode, "undecided");
     assert.equal(nextRound(state)?.number, 1);
     assert.equal(summarizeRun(state).progress.completed, 0);
+    const legacyNext = spawnSync(
+      process.execPath,
+      [
+        fileURLToPath(
+          new URL("../scripts/yanshu.mjs", import.meta.url),
+        ),
+        "next",
+        "--run",
+        state.runPath,
+      ],
+      { encoding: "utf8" },
+    );
+    assert.equal(
+      legacyNext.status,
+      0,
+      legacyNext.stderr || legacyNext.stdout,
+    );
+    const legacyChoice = JSON.parse(legacyNext.stdout);
+    assert.equal(legacyChoice.status, "execution-mode-required");
+    assert.deepEqual(
+      legacyChoice.executionModeChoice.options.map(
+        (option) => option.id,
+      ),
+      ["visible-chatgpt", "codex-host"],
+    );
+    await updateExecutionAdapter(state, {
+      adapter: "visible-chatgpt",
+      reason: "explicit test selection",
+    });
     assert.match(
       await readFile(path.join(state.runPath, "STATUS.md"), "utf8"),
       /0\/5 rounds/,

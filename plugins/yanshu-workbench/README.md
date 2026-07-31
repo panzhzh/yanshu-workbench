@@ -25,8 +25,10 @@ compatibility. The product shown to users is **YanShu**.
 | **Experimental Plotting** | `$experimental-plotting` | Developer preview |
 
 These are six independent sub-skills in the YanShu plugin, not modes inside
-one skill. Every workflow supports direct `$skill-name` invocation and opens
-one loopback-only configuration page before execution.
+one skill. Every workflow supports direct `$skill-name` invocation and a
+loopback-only desktop configuration page. Paper Reconstruction first asks the
+user to choose Web ChatGPT or Current CLI; the CLI choice uses one compact
+inline configuration.
 Idea Discovery, Paper Drafting, Writing Diagnosis, Scientific Figure, and
 Experimental Plotting are bundled directly from the website's canonical
 configuration and Prompt builders. Paper Reconstruction runs five resumable
@@ -85,9 +87,9 @@ Use $experimental-plotting to create a publication plot from this experiment dir
 ```
 
 The current preview starts from Codex; an ordinary Chat conversation does not
-load this local plugin directly. Visible ChatGPT remains the default manuscript
-executor. Codex CLI can use the same five-round artifact contract locally when
-the browser bridge is unavailable.
+load this local plugin directly. Paper Reconstruction never guesses its
+executor from the environment. The user explicitly selects Web ChatGPT or the
+current CLI before configuration.
 
 Chinese is equally valid:
 
@@ -100,12 +102,19 @@ Chinese is equally valid:
 使用 $experimental-plotting 根据这个实验目录绘制论文实验图。
 ```
 
-YanShu asks for the workspace once and asks the user to choose only when it
-contains multiple plausible paper roots. It then opens a setup page on
-`127.0.0.1` instead of collecting options one by one in chat. The right rail
-shows the exact website-sourced Prompt live. Paper Reconstruction shows all
-five round Prompts. **Start full automation** is the sole launch authorization;
-**Exit** closes the page without creating a run or transmitting files.
+Paper Reconstruction first asks once which executor to use. Web ChatGPT
+usually provides stronger academic writing, but requires an active ChatGPT
+login and authorization for browser control plus the required file
+access/uploads. Current CLI is more convenient and browser-free, but its
+academic writing may be weaker. YanShu then asks for the workspace once and
+requests a paper choice only when it contains multiple plausible manuscript
+roots. After the paper is fixed, Web ChatGPT opens the setup page on
+`127.0.0.1`; Current CLI asks once for conference/journal, appendix allowance,
+and optional main-text word guidance, then executes in the current task without
+spawning a nested Codex process.
+**Start full automation** or the compact CLI configuration reply is the sole
+launch authorization; **Exit** closes the page path without creating a run or
+transmitting files.
 Configuration receipts and machine state remain private to the runtime:
 YanShu consumes the confirmed session directly and never opens internal JSON
 files in Chrome, the in-app browser, or an editor.
@@ -161,18 +170,20 @@ and context compaction.
 
 Paper Reconstruction keeps one workflow and three small transport choices:
 
-- `visible-chatgpt` is the default and retains the current browser behavior;
+- `visible-chatgpt` is the user's Web ChatGPT choice and retains the browser behavior;
 - `codex-host` lets Codex CLI execute the saved Prompts and local artifacts
-  directly, using an available image generator for Round 4. Every round receives
+  directly. Round 4 uses an available image generator or renders a vector
+  schematic locally when none is available. Every round receives
   an isolated `workspace/`; Codex writes only there, and YanShu atomically imports
   complete artifacts into the managed `output/`;
 - `external` exposes the same Prompt, material, state, and artifact contract for
   a user-maintained Claude CLI or other integration.
 
-`auto` prefers visible ChatGPT and falls back to `codex-host` only inside Codex
-CLI. YanShu does not maintain product-specific Claude selectors or APIs. Every
-adapter must return the same canonical files and pass the same compilation,
-reference, figure, and recovery gates.
+New runs do not use environment-based `auto` selection. YanShu records the
+user's Web ChatGPT or Current CLI choice before creating a run. YanShu does not
+maintain product-specific Claude selectors or APIs. Every adapter must return
+the same canonical files and pass the same compilation, reference, figure, and
+recovery gates.
 
 Before Round 5, the runtime also generates an automation-only Prompt handoff
 that names the exact Round 4 PNG and every identifiable stale framework
@@ -180,15 +191,14 @@ reference. This requirement is intentionally absent from the generic website
 Prompt.
 
 The website's Paper Reconstruction page can export these settings in a
-`.yanshu.json` file and use them to prefill the same local launch page. Without
-an export, every setting remains available on the local page; YanShu does not
-collect those choices one by one in chat. Runtime inspection is always the
-source of truth.
+`.yanshu.json` file and use them to prefill the Web ChatGPT launch page. Current
+CLI deliberately asks only the three compact configuration fields. Runtime
+inspection is always the source of truth.
 
 ## Trust boundary
 
 YanShu never receives hidden ChatGPT access and does not use an API key. Its
-default adapter includes a pinned copy of the unofficial
+Web ChatGPT adapter includes a pinned copy of the unofficial
 `codex-chatgpt-control` visible-session runtime, with its source revision,
 checksum, and MIT notice recorded in
 [`THIRD_PARTY_NOTICES.md`](./THIRD_PARTY_NOTICES.md). That adapter requires a
