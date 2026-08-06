@@ -23,15 +23,17 @@ compatibility. The product shown to users is **YanShu**.
 | **Paper Reconstruction** | `$paper-reconstruction` | Developer preview |
 | **Scientific Figure** | `$scientific-figure` | Developer preview |
 | **Experimental Plotting** | `$experimental-plotting` | Developer preview |
+| **Peer Review** | `$peer-review` | Developer preview |
+| **Revision Planning** | `$revision-planning` | Developer preview |
 
-These are six independent sub-skills in the YanShu plugin, not modes inside
+These are eight independent sub-skills in the YanShu plugin, not modes inside
 one skill. Every workflow supports direct `$skill-name` invocation and a
 loopback-only desktop configuration page. Paper Reconstruction first asks the
 user to choose Web ChatGPT or Current CLI; the CLI choice uses one compact
 inline configuration.
-Idea Discovery, Paper Drafting, Writing Diagnosis, Scientific Figure, and
-Experimental Plotting are bundled directly from the website's canonical
-configuration and Prompt builders. Paper Reconstruction runs five resumable
+Idea Discovery, Paper Drafting, Writing Diagnosis, Scientific Figure,
+Experimental Plotting, Peer Review, and Revision Planning are bundled directly
+from the website's canonical configuration and Prompt builders. Paper Reconstruction runs five resumable
 rounds, including a dedicated Method Overview figure round. The sync check
 fails when any bundled plugin runtime is stale.
 
@@ -84,6 +86,8 @@ Use $writing-diagnosis to diagnose recurring writing problems in this manuscript
 Use $paper-reconstruction to reconstruct this paper directory.
 Use $scientific-figure to create one research figure for this paper.
 Use $experimental-plotting to create a publication plot from this experiment directory.
+Use $peer-review to review the manuscript in this directory.
+Use $revision-planning to organize these reviews and build a revision plan.
 ```
 
 The current preview starts from Codex; an ordinary Chat conversation does not
@@ -100,6 +104,8 @@ Chinese is equally valid:
 使用 $paper-reconstruction 重构这个论文目录。
 使用 $scientific-figure 为这个论文目录绘制一张科研配图。
 使用 $experimental-plotting 根据这个实验目录绘制论文实验图。
+使用 $peer-review 审稿这个论文目录。
+使用 $revision-planning 整理这些审稿意见并制定返修计划。
 ```
 
 Paper Reconstruction first asks once which executor to use. Web ChatGPT

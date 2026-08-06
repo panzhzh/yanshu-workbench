@@ -20,6 +20,7 @@ import {
   CAS_ZONES,
   CITATION_INDEXES,
   DEFAULT_SUBMISSION_PREFERENCES,
+  EXCLUDED_PUBLISHERS,
   JCR_QUARTILES,
   SUBMISSION_COPY,
 } from "./config";
@@ -522,6 +523,37 @@ export default function SubmissionStrategy() {
                 ))}
               </div>
               <small>{copy.indexesHint}</small>
+            </fieldset>
+
+            <fieldset className="submission-filter-card compact-filter">
+              <legend>
+                <span className="control-index">08</span>
+                {copy.publisherExclusions}
+              </legend>
+              <button
+                className={`figure-rule-switch ${
+                  preferences.excludedPublishers.length > 0 ? "active" : ""
+                }`}
+                type="button"
+                role="switch"
+                aria-checked={preferences.excludedPublishers.length > 0}
+                onClick={() =>
+                  updatePreference(
+                    "excludedPublishers",
+                    preferences.excludedPublishers.length > 0
+                      ? []
+                      : [...EXCLUDED_PUBLISHERS],
+                  )
+                }
+              >
+                <span className="switch-track" aria-hidden="true">
+                  <span />
+                </span>
+                {preferences.excludedPublishers.length > 0
+                  ? copy.publisherExclusionsOn
+                  : copy.publisherExclusionsOff}
+              </button>
+              <small>{copy.publisherExclusionsHint}</small>
             </fieldset>
           </div>
         </section>

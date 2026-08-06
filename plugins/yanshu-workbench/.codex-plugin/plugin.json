@@ -1,6 +1,6 @@
 {
   "name": "yanshu-workbench",
-  "version": "0.2.0+codex.20260731102855",
+  "version": "0.2.0+codex.20260806164736",
   "description": "Extensible research workflows coordinated across local files, pluggable executors, and deterministic validation.",
   "author": {
     "name": "panzhzh",

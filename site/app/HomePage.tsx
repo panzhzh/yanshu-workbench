@@ -62,9 +62,9 @@ const HOME_COPY = {
     configureBody:
       "先选择网页 ChatGPT 或当前 CLI。网页模式需已登录并授权；CLI 模式更便捷，但论文写作能力通常不如网页端。",
     workflowEyebrow: "START WITH ONE SENTENCE",
-    workflowTitle: "六个重要的全链路入口",
+    workflowTitle: "八个重要的全链路入口",
     workflowBody:
-      "六个独立子 Skill 均支持 $ 调用；论文重构由用户明确选择网页或 CLI 执行。网站与插件共享 Prompt 数据。",
+      "八个独立子 Skill 均支持 $ 调用；论文重构由用户明确选择网页或 CLI 执行。网站与插件共享 Prompt 数据。",
     inputLabel: "准备",
     outputLabel: "得到",
     openWorkbench: "查看配置页",
@@ -144,9 +144,9 @@ const HOME_COPY = {
     configureBody:
       "Choose Web ChatGPT or Current CLI first. Web mode requires login and authorization; CLI is more convenient but may provide weaker academic writing.",
     workflowEyebrow: "START WITH ONE SENTENCE",
-    workflowTitle: "Six essential end-to-end entry points",
+    workflowTitle: "Eight essential end-to-end entry points",
     workflowBody:
-      "All six independent sub-skills support $ invocation; Paper Reconstruction explicitly asks the user to choose Web or CLI execution. Website and plugin share one Prompt source.",
+      "All eight independent sub-skills support $ invocation; Paper Reconstruction explicitly asks the user to choose Web or CLI execution. Website and plugin share one Prompt source.",
     inputLabel: "Prepare",
     outputLabel: "Receive",
     openWorkbench: "Open configuration",

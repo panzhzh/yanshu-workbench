@@ -1,8 +1,8 @@
 "use client";
 
 import ConfigurablePromptWorkbench from "../../workbench/ConfigurablePromptWorkbench";
-import { REVIEW_REVISION_WORKBENCH } from "../workflowConfig";
+import { PEER_REVIEW_WORKBENCH } from "../workflowConfig";
 
-export default function ReviewRevisionPage() {
-  return <ConfigurablePromptWorkbench definition={REVIEW_REVISION_WORKBENCH} />;
+export default function PeerReviewPage() {
+  return <ConfigurablePromptWorkbench definition={PEER_REVIEW_WORKBENCH} />;
 }

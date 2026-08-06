@@ -23,7 +23,8 @@ export type ActivePage =
   | "submission"
   | "pre-submission-check"
   | "submission-materials"
-  | "review-revision";
+  | "peer-review"
+  | "revision-planning";
 
 export type NavigationGroupId =
   | "writing"
@@ -410,14 +411,25 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         },
       },
       {
-        id: "review-revision",
-        label: { zh: "审稿与返修", en: "Review & Revision" },
+        id: "peer-review",
+        label: { zh: "审稿", en: "Peer Review" },
         status: "available",
         href: "/submission/review",
-        activePage: "review-revision",
+        activePage: "peer-review",
         keywords: {
-          zh: ["审稿意见", "回复信", "返修", "response letter"],
-          en: ["review comments", "response letter", "revision", "rebuttal"],
+          zh: ["同行评审", "审稿", "论文评估", "主要问题", "接收风险"],
+          en: ["peer review", "paper review", "major concerns", "readiness"],
+        },
+      },
+      {
+        id: "revision-planning",
+        label: { zh: "返修规划", en: "Revision Planning" },
+        status: "available",
+        href: "/submission/revision",
+        activePage: "revision-planning",
+        keywords: {
+          zh: ["审稿意见", "返修", "修改计划", "补实验", "优先级"],
+          en: ["review comments", "revision plan", "experiments", "priority"],
         },
       },
     ],

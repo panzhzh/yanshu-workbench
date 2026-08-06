@@ -1,0 +1,4 @@
+interface:
+  display_name: "Revision Planning"
+  short_description: "Prioritize reviews and plan manuscript revisions"
+  default_prompt: "Use $revision-planning to organize these reviews and build a revision plan."

@@ -794,7 +794,7 @@ The report must contain the final-audit summary and major revisions, Terminology
 ### 候选池与核验字段
 
 - 建立与领域规模相称的候选池，通常为 8–15 个；可信且当前可投稿的目标更少时，可以缩小候选池并说明原因，不得为凑数加入弱相关 venue；
-- MDPI、Hindawi 和 Frontiers 是用户明确排除的出版社：其旗下期刊不得进入候选池、评分或推荐梯队，只在排除记录中注明“用户排除”，不得对出版社作无依据的泛化质量定性；
+{{publisher_exclusion_bullet}}
 - 逐项核验全名、出版社/组织方、官网、范围匹配点、文章或 track 类型、当前索引/等级、正文/页数/图表/摘要/参考文献限制、附录与补充材料、匿名政策、OA/APC 或注册费用、附加文件、伦理/数据/可复现政策、投稿入口和关键日期；
 - 只有权威来源支持时才写 SCIE、SSCI、AHCI、ESCI、JCR 分区、会议等级或其他领域评价；不适用于当前学科或稿件类型的指标明确写“不适用”；
 - SJR/Scopus 信息必须明确标注，不能冒充 JCR；中科院分区与 JCR 必须分开并标注年份；
@@ -854,7 +854,7 @@ Do not redefine the scientific throughline for targeting.
 ### Candidate-pool and Verification Fields
 
 - Build a candidate pool proportionate to the field, normally eight to fifteen venues. If fewer credible venues are currently open for submission, use a smaller pool and explain why; never add weakly related venues to meet a quota;
-- MDPI, Hindawi, and Frontiers are explicit user exclusions. Do not place journals from these publishers in the candidate pool, scoring, or recommendation tiers. Record them only as “excluded by user” and do not make unsupported general quality claims about the publishers;
+{{publisher_exclusion_bullet}}
 - Verify full name, publisher/organizer, official site, specific scope fit, article or track type, current index/rank, main-text/page/figure/abstract/reference limits, appendix and supplementary policy, anonymity, OA/APC or registration cost, additional files, ethics/data/reproducibility rules, submission portal, and key dates;
 - State SCIE, SSCI, AHCI, ESCI, JCR quartiles, conference ranks, or another field-specific evaluation only when an authoritative source supports them. Mark a metric “Not applicable” when it does not suit the field or manuscript type;
 - Label SJR/Scopus information explicitly and never present it as JCR. Keep CAS and JCR rankings separate with years;

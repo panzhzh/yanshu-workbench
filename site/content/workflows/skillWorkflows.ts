@@ -1,5 +1,10 @@
 import type { Language } from "../../app/config";
-import type { WorkbenchControl } from "../../app/workbench/types";
+import type {
+  WorkbenchControl,
+  WorkbenchDefinition,
+  WorkbenchValue,
+  WorkbenchValues,
+} from "../../app/workbench/types";
 import {
   DEFAULT_IDEA_PREFERENCES_BY_MODE,
   IDEA_COUNT_OPTIONS,
@@ -61,6 +66,10 @@ import {
   getDefaultWritingDiagnosisValues,
   normalizeWritingDiagnosisValues,
 } from "../../app/writing/diagnosis/config";
+import {
+  PEER_REVIEW_WORKBENCH,
+  REVISION_PLANNING_WORKBENCH,
+} from "../../app/submission/workflowConfig";
 
 export type LocalizedWorkflowText = Record<Language, string>;
 
@@ -70,7 +79,9 @@ export type YanShuSkillId =
   | "writing-diagnosis"
   | "paper-reconstruction"
   | "scientific-figure"
-  | "experimental-plotting";
+  | "experimental-plotting"
+  | "peer-review"
+  | "revision-planning";
 
 export type ConfigurableSkillWorkflowId = Exclude<
   YanShuSkillId,
@@ -93,6 +104,7 @@ export interface SkillWorkflowChoice {
 export interface SkillWorkflowVisibility {
   fieldId: string;
   equals?: SkillWorkflowFieldValue;
+  notEquals?: SkillWorkflowFieldValue;
   includes?: SkillWorkflowFieldValue;
 }
 
@@ -155,7 +167,7 @@ export interface YanShuSkillCatalogItem {
   output: LocalizedWorkflowText;
 }
 
-export const SKILL_WORKFLOW_VERSION = "2026.07.30";
+export const SKILL_WORKFLOW_VERSION = "2026.08.07";
 
 export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   {
@@ -294,6 +306,52 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
     output: {
       zh: "可复现代码、出版级图件与派生数据",
       en: "Reproducible code, publication assets, and derived data",
+    },
+  },
+  {
+    id: "peer-review",
+    index: "07",
+    skillName: "Peer Review",
+    websitePath: "/submission/review",
+    title: { zh: "独立审稿", en: "Review a manuscript" },
+    description: {
+      zh: "从贡献、方法、证据、结论边界和可复现性等维度生成独立、可追溯的审稿报告。",
+      en: "Produce an independent, traceable review across contribution, method, evidence, claim calibration, and reproducibility.",
+    },
+    command: {
+      zh: "使用 $peer-review 审稿这个论文目录。",
+      en: "Use $peer-review to review the manuscript in this directory.",
+    },
+    input: {
+      zh: "论文、可选补充材料、代码与数据",
+      en: "Manuscript with optional supplement, code, and data",
+    },
+    output: {
+      zh: "结构化同行评审 Markdown",
+      en: "Structured peer-review Markdown",
+    },
+  },
+  {
+    id: "revision-planning",
+    index: "08",
+    skillName: "Revision Planning",
+    websitePath: "/submission/revision",
+    title: { zh: "规划论文返修", en: "Plan a manuscript revision" },
+    description: {
+      zh: "合并多位审稿人的重复意见，完成 P0/P1/P2 与 A/B/C/D 分类，并规划最小实验与修改顺序。",
+      en: "Merge repeated reviewer concerns, assign P0/P1/P2 and A/B/C/D classes, and plan minimum experiments and revision order.",
+    },
+    command: {
+      zh: "使用 $revision-planning 整理这些审稿意见并制定返修计划。",
+      en: "Use $revision-planning to organize these reviews and build a revision plan.",
+    },
+    input: {
+      zh: "审稿意见、编辑决定、论文与真实新增证据",
+      en: "Reviews, editor decision, manuscript, and authentic new evidence",
+    },
+    output: {
+      zh: "返修优先级与实验决策 Markdown",
+      en: "Revision-priority and experiment-decision Markdown",
     },
   },
 ] as const;
@@ -1103,6 +1161,174 @@ const WRITING_DIAGNOSIS_MODEL: SkillWorkflowModel = {
   },
 };
 
+function workbenchDefaults(definition: WorkbenchDefinition) {
+  return Object.fromEntries(
+    definition.controls.map((control) => [
+      control.id,
+      control.defaultValue as SkillWorkflowFieldValue,
+    ]),
+  );
+}
+
+const PEER_REVIEW_SECTIONS = [
+  {
+    id: "approach",
+    index: "01",
+    title: localized("评审任务", "Review task"),
+    description: localized(
+      "选择完整评审、风险筛查或压力测试，以及实际可用材料。",
+      "Choose full review, risk screening, or stress testing and define available materials.",
+    ),
+  },
+  {
+    id: "dimensions",
+    index: "02",
+    title: localized("证据与维度", "Evidence and dimensions"),
+    description: localized(
+      "控制需要检查的科学维度和是否联网核查文献。",
+      "Set the scientific dimensions and whether literature should be verified online.",
+    ),
+  },
+  {
+    id: "delivery",
+    index: "03",
+    title: localized("判断与交付", "Judgment and delivery"),
+    description: localized(
+      "选择通用评分卡并补充本次特别关注的问题。",
+      "Choose the venue-neutral scorecard and add concerns specific to this review.",
+    ),
+  },
+] as const;
+
+const PEER_REVIEW_FIELD_SECTIONS: Record<string, string> = {
+  mode: "approach",
+  materialScope: "approach",
+  dimensions: "dimensions",
+  browseLiterature: "dimensions",
+  scorecard: "delivery",
+  custom: "delivery",
+};
+
+function peerReviewWorkflowField(
+  control: WorkbenchControl,
+): SkillWorkflowField {
+  return configurableWorkbenchField(
+    control,
+    PEER_REVIEW_FIELD_SECTIONS[control.id] ?? "delivery",
+  );
+}
+
+const PEER_REVIEW_MODEL: SkillWorkflowModel = {
+  id: "peer-review",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "peer-review",
+  websitePath: "/submission/review",
+  title: localized("审稿", "Peer Review"),
+  eyebrow: "YANSHU · PEER REVIEW",
+  description: localized(
+    "从实际论文证据生成独立、分级且可执行的同行评审报告。",
+    "Generate an independent, severity-aware, actionable review from actual manuscript evidence.",
+  ),
+  materialTitle: localized("需要材料", "Required materials"),
+  materialItems: {
+    zh: ["论文主稿", "补充材料（建议）", "按配置提供代码与数据"],
+    en: ["Main manuscript", "Supplement (recommended)", "Code and data when configured"],
+  },
+  materialHint: localized(
+    "不区分会议或期刊；只评价实际提供且可读取的材料，不修改论文。",
+    "No conference/journal split: review only supplied readable material and never edit the manuscript.",
+  ),
+  output: localized(
+    "一份结构化 `peer_review.md`，包含主要问题、次要问题、澄清问题与总体风险。",
+    "A structured `peer_review.md` with major concerns, minor concerns, clarification questions, and overall risk.",
+  ),
+  sections: PEER_REVIEW_SECTIONS,
+  fields: PEER_REVIEW_WORKBENCH.controls.map(peerReviewWorkflowField),
+  defaults: workbenchDefaults(PEER_REVIEW_WORKBENCH),
+};
+
+const REVISION_PLANNING_SECTIONS = [
+  {
+    id: "evidence",
+    index: "01",
+    title: localized("证据与资源", "Evidence and resources"),
+    description: localized(
+      "限定规划中可考虑的新增证据与真实执行窗口。",
+      "Bound the new evidence and real execution window considered by the plan.",
+    ),
+  },
+  {
+    id: "context",
+    index: "02",
+    title: localized("本轮背景", "Revision context"),
+    description: localized(
+      "提供编辑决定、截止时间与作者现实边界。",
+      "Provide the editor decision, deadline, and real author constraints.",
+    ),
+  },
+  {
+    id: "delivery",
+    index: "03",
+    title: localized("计划交付", "Plan delivery"),
+    description: localized(
+      "控制是否进一步输出任务依赖、并行批次和阻塞点。",
+      "Choose whether to include dependencies, parallel batches, and blockers.",
+    ),
+  },
+] as const;
+
+const REVISION_PLANNING_FIELD_SECTIONS: Record<string, string> = {
+  evidencePolicy: "evidence",
+  resourceWindow: "evidence",
+  decisionContext: "context",
+  custom: "context",
+  executionPlan: "delivery",
+};
+
+function revisionPlanningWorkflowField(
+  control: WorkbenchControl,
+): SkillWorkflowField {
+  const field = configurableWorkbenchField(
+    control,
+    REVISION_PLANNING_FIELD_SECTIONS[control.id] ?? "delivery",
+  );
+  if (control.id === "resourceWindow") {
+    field.visibleWhen = { fieldId: "evidencePolicy", notEquals: "existing" };
+  }
+  return field;
+}
+
+const REVISION_PLANNING_MODEL: SkillWorkflowModel = {
+  id: "revision-planning",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "revision-planning",
+  websitePath: "/submission/revision",
+  title: localized("返修规划", "Revision Planning"),
+  eyebrow: "YANSHU · REVISION PLANNING",
+  description: localized(
+    "把多位审稿人的意见拆分、合并、分级并转化为证据诚实的修改计划。",
+    "Split, merge, prioritize, and classify multiple reviews into an evidence-honest revision plan.",
+  ),
+  materialTitle: localized("需要材料", "Required materials"),
+  materialItems: {
+    zh: ["全部审稿意见", "编辑决定", "被审稿件与补充材料", "真实新增证据（如有）"],
+    en: ["All reviews", "Editor decision", "Reviewed manuscript and supplement", "Authentic new evidence, if any"],
+  },
+  materialHint: localized(
+    "保留 reviewer 编号和原评论；本阶段不写回复信，也不修改论文。",
+    "Preserve reviewer IDs and source comments. This stage drafts neither a response letter nor a revised manuscript.",
+  ),
+  output: localized(
+    "一份 `revision_plan.md`，包含 P0/P1/P2、A/B/C/D、最小实验与推荐顺序。",
+    "A `revision_plan.md` containing P0/P1/P2 priorities, A/B/C/D classes, minimum experiments, and revision order.",
+  ),
+  sections: REVISION_PLANNING_SECTIONS,
+  fields: REVISION_PLANNING_WORKBENCH.controls.map(
+    revisionPlanningWorkflowField,
+  ),
+  defaults: workbenchDefaults(REVISION_PLANNING_WORKBENCH),
+};
+
 const CONFIGURABLE_MODELS: Record<
   ConfigurableSkillWorkflowId,
   SkillWorkflowModel
@@ -1112,6 +1338,8 @@ const CONFIGURABLE_MODELS: Record<
   "writing-diagnosis": WRITING_DIAGNOSIS_MODEL,
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
   "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
+  "peer-review": PEER_REVIEW_MODEL,
+  "revision-planning": REVISION_PLANNING_MODEL,
 };
 
 export const CONFIGURABLE_SKILL_WORKFLOW_IDS = Object.keys(
@@ -1143,6 +1371,67 @@ function allowedValue<T extends string | number>(
   fallback: T,
 ): T {
   return allowed.includes(value as T) ? (value as T) : fallback;
+}
+
+function normalizeWorkbenchPreferences(
+  definition: WorkbenchDefinition,
+  input: Record<string, unknown>,
+): WorkbenchValues {
+  const normalized: WorkbenchValues = {};
+
+  for (const control of definition.controls) {
+    const raw = input[control.id];
+    let value: WorkbenchValue = control.defaultValue;
+
+    if (control.kind === "toggle") {
+      value = booleanValue(raw, control.defaultValue);
+    } else if (control.kind === "number") {
+      value = numberValue(
+        raw,
+        control.defaultValue,
+        control.min,
+        control.max,
+      );
+    } else if (control.kind === "range") {
+      const candidate = Array.isArray(raw) ? raw : control.defaultValue;
+      const low = numberValue(
+        candidate[0],
+        control.defaultValue[0],
+        control.min,
+        control.max,
+      );
+      const high = numberValue(
+        candidate[1],
+        control.defaultValue[1],
+        control.min,
+        control.max,
+      );
+      value = [Math.min(low, high), Math.max(low, high)];
+    } else if (control.kind === "multi") {
+      const allowed = control.options.map((option) => option.value);
+      const candidate = Array.isArray(raw)
+        ? [...new Set(raw.filter((item): item is string =>
+            typeof item === "string" && allowed.includes(item),
+          ))]
+        : [...control.defaultValue];
+      value =
+        candidate.length >= (control.minSelected ?? 0)
+          ? candidate
+          : [...control.defaultValue];
+    } else if (control.kind === "select" || control.kind === "segmented") {
+      value = allowedValue(
+        raw,
+        control.options.map((option) => option.value),
+        control.defaultValue,
+      );
+    } else if (control.kind === "text" || control.kind === "textarea") {
+      value = textValue(raw, control.defaultValue);
+    }
+
+    normalized[control.id] = value;
+  }
+
+  return normalized;
 }
 
 function normalizeIdeaPreferences(
@@ -1308,6 +1597,12 @@ export function normalizeSkillWorkflowPreferences(
   if (workflowId === "experimental-plotting") {
     return normalizeExperimentalPlotValues(input);
   }
+  if (workflowId === "peer-review") {
+    return normalizeWorkbenchPreferences(PEER_REVIEW_WORKBENCH, input);
+  }
+  if (workflowId === "revision-planning") {
+    return normalizeWorkbenchPreferences(REVISION_PLANNING_WORKBENCH, input);
+  }
   return normalizeFigurePreferences(input);
 }
 
@@ -1372,6 +1667,28 @@ export function buildSkillWorkflowConfiguration(
       allowComposite: plotPreferences.allowComposite,
       panelCount: plotPreferences.panelCount,
       palette: plotPreferences.palette,
+    };
+  } else if (workflowId === "peer-review") {
+    const reviewPreferences = preferences as WorkbenchValues;
+    prompt = PEER_REVIEW_WORKBENCH.buildPrompt(
+      reviewPreferences,
+      promptLanguage,
+    );
+    selection = {
+      mode: reviewPreferences.mode,
+      materialScope: reviewPreferences.materialScope,
+      dimensions: reviewPreferences.dimensions,
+      browseLiterature: reviewPreferences.browseLiterature,
+    };
+  } else if (workflowId === "revision-planning") {
+    const revisionPreferences = preferences as WorkbenchValues;
+    prompt = REVISION_PLANNING_WORKBENCH.buildPrompt(
+      revisionPreferences,
+      promptLanguage,
+    );
+    selection = {
+      evidencePolicy: revisionPreferences.evidencePolicy,
+      executionPlan: revisionPreferences.executionPlan,
     };
   } else {
     const figurePreferences = preferences as FigurePreferences;

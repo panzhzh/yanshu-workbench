@@ -82,6 +82,9 @@ function fieldIsVisible(field) {
   if (Object.hasOwn(field.visibleWhen, "equals")) {
     return value === field.visibleWhen.equals;
   }
+  if (Object.hasOwn(field.visibleWhen, "notEquals")) {
+    return value !== field.visibleWhen.notEquals;
+  }
   if (Object.hasOwn(field.visibleWhen, "includes")) {
     return (
       Array.isArray(value) &&

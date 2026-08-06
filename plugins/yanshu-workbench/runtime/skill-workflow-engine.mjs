@@ -3162,8 +3162,913 @@ function buildWritingDiagnosisPrompt(input, language) {
   return WRITING_DIAGNOSIS_WORKBENCH.buildPrompt(values, language);
 }
 
+// app/submission/workflowConfig.ts
+var text3 = (zh, en) => ({ zh, en });
+function scalar3(values, id) {
+  return String(values[id] ?? "").trim();
+}
+function enabled3(values, id) {
+  return values[id] === true;
+}
+function selected3(values, id) {
+  return Array.isArray(values[id]) ? values[id] : [];
+}
+function labelFor2(value, labels, language) {
+  return labels[value]?.[language] ?? value;
+}
+function labelsFor3(values, id, labels, language) {
+  return selected3(values, id).map((value) => labelFor2(value, labels, language)).join(language === "zh" ? "\u3001" : ", ");
+}
+function sharedCopy3(seed) {
+  return {
+    zh: {
+      ...seed.zh,
+      reset: "\u6062\u590D\u9ED8\u8BA4\u914D\u7F6E",
+      resetHint: "\u6062\u590D\u672C\u9875\u63A8\u8350\u914D\u7F6E",
+      switchPromptLanguage: "\u5207\u6362 Prompt \u8BED\u8A00",
+      copy: "\u590D\u5236",
+      copied: "\u5DF2\u590D\u5236",
+      expand: "\u5C55\u5F00",
+      collapse: "\u6536\u8D77",
+      clipboardError: "\u590D\u5236\u5931\u8D25\uFF0C\u8BF7\u5C55\u5F00\u540E\u624B\u52A8\u9009\u62E9\u6587\u672C\u3002",
+      on: "\u5F00\u542F",
+      off: "\u5173\u95ED"
+    },
+    en: {
+      ...seed.en,
+      reset: "Restore defaults",
+      resetHint: "Restore the recommended configuration for this page",
+      switchPromptLanguage: "Switch prompt language",
+      copy: "Copy",
+      copied: "Copied",
+      expand: "Expand",
+      collapse: "Collapse",
+      clipboardError: "Copy failed. Expand the prompt and select the text manually.",
+      on: "On",
+      off: "Off"
+    }
+  };
+}
+var VENUE_TYPES = {
+  conference: text3("\u4F1A\u8BAE", "Conference"),
+  journal: text3("\u671F\u520A", "Journal"),
+  preprint: text3("\u9884\u5370\u672C", "Preprint")
+};
+var SUBMISSION_STAGES = {
+  initial: text3("\u9996\u6B21\u6295\u7A3F", "Initial submission"),
+  revision: text3("\u8FD4\u4FEE\u6295\u7A3F", "Revised submission"),
+  camera: text3("\u7EC8\u7A3F / Camera-ready", "Camera-ready or final files")
+};
+var CHECK_MODES = {
+  audit: text3("\u4EC5\u68C0\u67E5", "Check only"),
+  repair: text3("\u68C0\u67E5\u5E76\u5B89\u5168\u4FEE\u590D", "Check and safely repair")
+};
+var CHECK_SCOPES = {
+  official: text3("\u5B98\u65B9\u89C4\u5219\u4E0E\u6A21\u677F", "Official rules and template"),
+  anonymity: text3("\u533F\u540D\u4E0E\u8EAB\u4EFD\u4FE1\u606F", "Anonymity and identity"),
+  format: text3("\u683C\u5F0F\u3001\u9875\u6570\u4E0E\u6587\u4EF6", "Format, length, and files"),
+  metadata: text3("\u6295\u7A3F\u7CFB\u7EDF\u5143\u6570\u636E", "Submission-system metadata"),
+  references: text3("\u5F15\u7528\u4E0E\u53C2\u8003\u6587\u732E", "Citations and references"),
+  visuals: text3("\u56FE\u8868\u4E0E\u8865\u5145\u6750\u6599", "Visuals and supplementary material"),
+  integrity: text3("\u4F26\u7406\u3001\u8BB8\u53EF\u4E0E\u58F0\u660E", "Ethics, licenses, and declarations"),
+  build: text3("\u7F16\u8BD1\u4E0E\u4EA4\u53C9\u5F15\u7528", "Build and cross-references")
+};
+var SOURCE_LEVELS = {
+  project: text3("\u5B8C\u6574 LaTeX \u5DE5\u7A0B + PDF", "Complete LaTeX project and PDF"),
+  source: text3("TeX / Word + PDF", "TeX or Word source plus PDF"),
+  pdf: text3("\u4EC5\u6700\u7EC8 PDF", "Final PDF only")
+};
+var PRE_SUBMISSION_CHECK_WORKBENCH = {
+  id: "pre-submission-check-workbench",
+  activePage: "pre-submission-check",
+  copy: sharedCopy3({
+    zh: {
+      eyebrow: "PRE-SUBMISSION CHECK",
+      title: "\u6295\u7A3F\u524D\u7EC8\u68C0",
+      subtitle: "\u4EE5\u5F53\u524D\u5B98\u65B9\u89C4\u5219\u4E3A\u51C6\uFF0C\u68C0\u67E5\u4E00\u4EFD\u7A3F\u4EF6\u662F\u5426\u771F\u7684\u53EF\u4EE5\u63D0\u4EA4\uFF0C\u5E76\u628A\u963B\u585E\u9879\u4E0E\u5EFA\u8BAE\u9879\u5206\u5F00\u3002",
+      preset: "\u5B98\u7F51\u6838\u9A8C \xB7 \u963B\u585E\u9879\u4F18\u5148 \xB7 \u6700\u5C0F\u5B89\u5168\u4FEE\u590D",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: [
+        "\u6700\u7EC8\u7A3F\u6E90\u6587\u4EF6\u4E0E\u7F16\u8BD1 PDF",
+        "\u76EE\u6807 venue\u3001\u5C4A\u6B21\u4E0E\u6295\u7A3F\u9636\u6BB5",
+        "\u8865\u5145\u6750\u6599\u548C\u6295\u7A3F\u7CFB\u7EDF\u622A\u56FE\uFF08\u53EF\u9009\uFF09",
+        "\u4F26\u7406\u3001\u6570\u636E\u3001\u4EE3\u7801\u4E0E\u4F5C\u8005\u58F0\u660E"
+      ],
+      inputHint: "\u4F1A\u8BAE\u548C\u671F\u520A\u89C4\u5219\u4F1A\u53D8\u5316\uFF1BPrompt \u8981\u6C42\u6267\u884C\u65F6\u91CD\u65B0\u8BBF\u95EE\u5B98\u65B9\u9875\u9762\u3002",
+      promptTitle: "\u6295\u7A3F\u524D\u7EC8\u68C0 Prompt",
+      promptPurpose: "\u6838\u9A8C\u5F53\u524D\u89C4\u5219\uFF0C\u5B9A\u4F4D\u771F\u6B63\u4F1A\u963B\u585E\u6295\u7A3F\u7684\u95EE\u9898\uFF0C\u5E76\u7ED9\u51FA\u53EF\u9A8C\u8BC1\u7ED3\u8BBA\u3002"
+    },
+    en: {
+      eyebrow: "PRE-SUBMISSION CHECK",
+      title: "Pre-submission check",
+      subtitle: "Use current official rules to decide whether a manuscript is truly ready to submit, separating blockers from recommendations.",
+      preset: "Official verification \xB7 blocker-first \xB7 minimal safe repair",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "Final source project and compiled PDF",
+        "Target venue, edition, and submission stage",
+        "Supplement and submission-system screenshots (optional)",
+        "Ethics, data, code, and author declarations"
+      ],
+      inputHint: "Conference and journal rules change; the prompt requires fresh verification against official pages.",
+      promptTitle: "Pre-submission check prompt",
+      promptPurpose: "Verify current rules, identify genuine submission blockers, and return evidence-backed conclusions."
+    }
+  }),
+  controls: [
+    {
+      id: "venueType",
+      kind: "segmented",
+      label: text3("\u6295\u7A3F\u7C7B\u578B", "Venue type"),
+      description: text3(
+        "\u51B3\u5B9A\u5E94\u6838\u9A8C\u54EA\u4E9B\u5B98\u65B9\u9875\u9762\u4E0E\u6D41\u7A0B\u3002",
+        "Determines which official pages and workflow rules apply."
+      ),
+      defaultValue: "conference",
+      options: Object.entries(VENUE_TYPES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "venue",
+      kind: "text",
+      label: text3("\u76EE\u6807 venue \u4E0E\u5C4A\u6B21", "Target venue and edition"),
+      description: text3(
+        "\u586B\u5199\u5B8C\u6574\u540D\u79F0\uFF1B\u4F1A\u8BAE\u8BF7\u5199\u5E74\u4EFD\uFF0C\u671F\u520A\u8BF7\u5199\u520A\u540D\u3002",
+        "Use the full name; include the year for a conference."
+      ),
+      defaultValue: "",
+      placeholder: text3(
+        "\u4F8B\u5982\uFF1AACL 2027 / IEEE TPAMI",
+        "For example: ACL 2027 / IEEE TPAMI"
+      )
+    },
+    {
+      id: "stage",
+      kind: "select",
+      label: text3("\u6295\u7A3F\u9636\u6BB5", "Submission stage"),
+      description: text3(
+        "\u533F\u540D\u3001\u7248\u6743\u548C\u6587\u4EF6\u8981\u6C42\u968F\u9636\u6BB5\u53D8\u5316\u3002",
+        "Anonymity, copyright, and file requirements vary by stage."
+      ),
+      defaultValue: "initial",
+      options: Object.entries(SUBMISSION_STAGES).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "sourceLevel",
+      kind: "select",
+      label: text3("\u53EF\u7528\u6750\u6599", "Available sources"),
+      description: text3(
+        "\u6E90\u5DE5\u7A0B\u5141\u8BB8\u68C0\u67E5\u6A21\u677F\u3001\u7F16\u8BD1\u4E0E\u9690\u85CF\u8EAB\u4EFD\u4FE1\u606F\u3002",
+        "Source files enable template, build, and hidden-identity checks."
+      ),
+      defaultValue: "project",
+      options: Object.entries(SOURCE_LEVELS).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "mode",
+      kind: "segmented",
+      label: text3("\u5904\u7406\u65B9\u5F0F", "Action"),
+      description: text3(
+        "\u5B89\u5168\u4FEE\u590D\u53EA\u5904\u7406\u786E\u5B9A\u7684\u5408\u89C4\u9519\u8BEF\u3002",
+        "Safe repair addresses confirmed compliance errors only."
+      ),
+      defaultValue: "audit",
+      options: Object.entries(CHECK_MODES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "scopes",
+      kind: "multi",
+      label: text3("\u68C0\u67E5\u8303\u56F4", "Check scope"),
+      description: text3(
+        "\u9ED8\u8BA4\u8986\u76D6\u6295\u7A3F\u6700\u5E38\u89C1\u7684\u963B\u585E\u539F\u56E0\u3002",
+        "Defaults cover the most common causes of a blocked submission."
+      ),
+      defaultValue: [
+        "official",
+        "anonymity",
+        "format",
+        "metadata",
+        "references",
+        "visuals",
+        "integrity",
+        "build"
+      ],
+      minSelected: 1,
+      options: Object.entries(CHECK_SCOPES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "portalSnapshot",
+      kind: "toggle",
+      label: text3("\u6295\u7A3F\u7CFB\u7EDF\u6838\u5BF9", "Submission-system check"),
+      description: text3(
+        "\u63D0\u4F9B\u9875\u9762\u622A\u56FE\u65F6\uFF0C\u6838\u5BF9 PDF \u4E0E\u7CFB\u7EDF\u5B57\u6BB5\u662F\u5426\u4E00\u81F4\u3002",
+        "When screenshots are supplied, compare portal fields with the PDF."
+      ),
+      defaultValue: false,
+      enabledLabel: text3("\u6838\u5BF9\u7CFB\u7EDF\u5B57\u6BB5", "Check portal fields"),
+      disabledLabel: text3("\u4E0D\u6838\u5BF9", "Skip")
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text3("\u5DF2\u77E5\u7279\u6B8A\u89C4\u5219", "Known special rules"),
+      description: text3(
+        "\u4F8B\u5982 track\u3001\u53CC\u76F2\u4F8B\u5916\u6216\u5DF2\u83B7\u6279\u7684\u9875\u6570\u8C41\u514D\uFF1B\u4ECD\u9700\u5B98\u7F51\u6838\u9A8C\u3002",
+        "For example, a track, anonymity exception, or approved length waiver; still verify it officially."
+      ),
+      defaultValue: "",
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    }
+  ],
+  buildPrompt(values, language) {
+    const repair = scalar3(values, "mode") === "repair";
+    const venue = scalar3(values, "venue");
+    const sourceLevel = scalar3(values, "sourceLevel");
+    const scopes = selected3(values, "scopes");
+    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const repairInstruction = sourceLevel === "pdf" ? {
+      zh: "\u5F53\u524D\u53EA\u6709\u6700\u7EC8 PDF\uFF0C\u65E0\u6CD5\u5B89\u5168\u4FEE\u6539\u6E90\u7A3F\u6216\u9A8C\u8BC1\u91CD\u65B0\u7F16\u8BD1\uFF1B\u56E0\u6B64\u53EA\u8F93\u51FA\u5B9A\u4F4D\u7CBE\u786E\u7684\u4FEE\u590D\u6E05\u5355\uFF0C\u4E0D\u76F4\u63A5\u6D82\u6539 PDF\uFF0C\u4E5F\u4E0D\u5F97\u58F0\u79F0\u95EE\u9898\u5DF2\u4FEE\u590D\u3002\u53D6\u5F97\u6E90\u6587\u4EF6\u540E\u518D\u6267\u884C\u4FEE\u6539\u4E0E\u590D\u9A8C\u3002",
+      en: "Only the final PDF is available, so source-safe repair and rebuild verification are impossible. Return a precisely located remediation list only; do not edit rendered pixels or claim that an issue has been fixed. Apply and revalidate changes after source files are supplied."
+    } : {
+      zh: "\u53EA\u4FEE\u590D\u5DF2\u786E\u8BA4\u7684\u5408\u89C4\u9519\u8BEF\u53CA\u5176\u76F4\u63A5\u4F9D\u8D56\u5185\u5BB9\uFF1B\u5176\u4ED6\u79D1\u5B66\u5185\u5BB9\u3001\u63AA\u8F9E\u3001\u6570\u5B57\u3001\u7ED3\u6784\u4E0E\u7248\u5F0F\u4FDD\u6301\u4E0D\u53D8\u3002\u82E5\u5408\u89C4\u4FEE\u590D\u5FC5\u7136\u6539\u53D8\u79D1\u5B66 claim\u3001\u5927\u8303\u56F4\u7ED3\u6784\u6216\u975E\u5C40\u90E8\u7248\u5F0F\uFF0C\u505C\u6B62\u81EA\u52A8\u4FEE\u6539\u5E76\u5347\u7EA7\u4E3A high-risk \u51B3\u7B56\u3002\u5176\u4F59\u4FEE\u590D\u540E\u91CD\u65B0\u7F16\u8BD1\u5E76\u9010\u9879\u590D\u9A8C\uFF0C\u4EA4\u4ED8\u539F\u6587\u4EF6\u3001\u65B0\u6587\u4EF6\u4E0E\u7CBE\u786E diff\u3002",
+      en: "Change only confirmed compliance errors and their direct dependencies. Preserve all other scientific content, wording, values, structure, and layout. If compliance necessarily changes a scientific claim, broad structure, or nonlocal layout, stop automatic repair and escalate it as a high-risk decision. Rebuild and revalidate all remaining fixes, returning original and repaired files plus an exact diff."
+    };
+    const scopeInstructions = {
+      zh: [
+        scopes.includes("official") ? "\u6838\u5BF9\u5F53\u524D\u5B98\u65B9\u89C4\u5219\u3001\u6A21\u677F\u7248\u672C\u548C\u6240\u9009 track" : "",
+        scopes.includes("anonymity") ? sourceLevel === "pdf" ? "\u53EA\u68C0\u67E5 PDF \u53EF\u89C1\u8EAB\u4EFD\u7EBF\u7D22\uFF1B\u6E90\u6587\u4EF6\u5143\u6570\u636E\u6807\u4E3A\u65E0\u6CD5\u6838\u9A8C" : "\u68C0\u67E5\u4F5C\u8005\u3001\u81F4\u8C22\u3001\u81EA\u5F15\u3001PDF \u5143\u6570\u636E\u548C\u6E90\u6587\u4EF6\u8EAB\u4EFD\u7EBF\u7D22" : "",
+        scopes.includes("format") ? "\u68C0\u67E5\u9875\u9762/\u5B57\u6570\u3001\u5B57\u4F53\u3001\u8FB9\u8DDD\u3001\u680F\u5BBD\u3001\u6587\u4EF6\u683C\u5F0F\u548C\u9644\u4EF6\u8981\u6C42" : "",
+        scopes.includes("metadata") ? "\u6838\u5BF9\u6807\u9898\u3001\u6458\u8981\u3001\u5173\u952E\u8BCD\u3001\u4F5C\u8005\u987A\u5E8F\u3001track \u4E0E\u6295\u7A3F\u7CFB\u7EDF\u5B57\u6BB5" : "",
+        scopes.includes("references") ? "\u68C0\u67E5\u5F15\u7528\u5B8C\u6574\u6027\u3001\u533F\u540D\u98CE\u9669\u548C\u53C2\u8003\u6587\u732E\u683C\u5F0F" : "",
+        scopes.includes("visuals") ? "\u68C0\u67E5\u56FE\u8868\u3001caption\u3001\u5206\u8FA8\u7387\u3001\u8865\u5145\u6750\u6599\u4E0E\u6B63\u6587\u5F15\u7528" : "",
+        scopes.includes("integrity") ? "\u68C0\u67E5\u4F26\u7406\u3001\u8BB8\u53EF\u3001\u51B2\u7A81\u3001\u6570\u636E\u548C\u4EE3\u7801\u58F0\u660E" : "",
+        scopes.includes("build") ? sourceLevel === "pdf" ? "\u53EA\u6709 PDF\uFF0C\u7F16\u8BD1\u4E0E\u4EA4\u53C9\u5F15\u7528\u6E90\u68C0\u67E5\u6807\u4E3A\u65E0\u6CD5\u6838\u9A8C" : "\u5B9E\u9645\u7F16\u8BD1\u5E76\u68C0\u67E5\u9519\u8BEF\u3001\u7F3A\u5931\u6587\u4EF6\u548C\u4EA4\u53C9\u5F15\u7528" : ""
+      ].filter(Boolean).join("\uFF1B"),
+      en: [
+        scopes.includes("official") ? "verify current official rules, template version, and selected track" : "",
+        scopes.includes("anonymity") ? sourceLevel === "pdf" ? "inspect only visible identity clues in the PDF and mark source metadata unverifiable" : "inspect authorship, acknowledgments, self-citation, PDF metadata, and source-level identity clues" : "",
+        scopes.includes("format") ? "check page/word policy, fonts, margins, columns, file formats, and attachments" : "",
+        scopes.includes("metadata") ? "cross-check title, abstract, keywords, author order, track, and portal fields" : "",
+        scopes.includes("references") ? "check citation completeness, anonymity risk, and reference formatting" : "",
+        scopes.includes("visuals") ? "check visuals, captions, resolution, supplements, and prose references" : "",
+        scopes.includes("integrity") ? "check ethics, licenses, conflicts, data, and code declarations" : "",
+        scopes.includes("build") ? sourceLevel === "pdf" ? "mark compilation and source cross-reference checks unverifiable because only a PDF is available" : "build the project and inspect errors, missing files, and cross-references" : ""
+      ].filter(Boolean).join("; ")
+    };
+    if (language === "zh") {
+      return `# \u5BF9\u8BBA\u6587\u6267\u884C\u6295\u7A3F\u524D\u7EC8\u68C0${repair ? "\u5E76\u5B89\u5168\u4FEE\u590D" : ""}
+
+\u76EE\u6807\uFF1A${venue || "\u672A\u63D0\u4F9B\uFF1B\u4E0D\u5F97\u4ECE\u76F2\u7A3F\u731C\u6D4B"}\uFF08${labelFor2(scalar3(values, "venueType"), VENUE_TYPES, language)}\uFF0C${labelFor2(scalar3(values, "stage"), SUBMISSION_STAGES, language)}\uFF09\u3002\u6750\u6599\uFF1A${labelFor2(sourceLevel, SOURCE_LEVELS, language)}\u3002
+
+${venue ? "\u5F00\u59CB\u524D\u8054\u7F51\u6838\u9A8C\u672C\u6B21\u6295\u7A3F\u9002\u7528\u7684\u5B98\u65B9\u4F5C\u8005\u6307\u5357\u3001\u5F53\u524D\u6A21\u677F/author kit\u3001FAQ\u3001\u63D0\u4EA4\u7CFB\u7EDF\u8BF4\u660E\u4E0E\u8865\u5145\u6750\u6599\u653F\u7B56\u3002" : "\u76EE\u6807 venue \u7F3A\u5931\uFF0C\u4E0D\u80FD\u5B8C\u6210\u5177\u4F53\u89C4\u5219\u6838\u9A8C\uFF1B\u5148\u5217\u51FA\u5FC5\u987B\u8865\u5145\u7684 venue\u3001\u5C4A\u6B21/track \u548C\u9636\u6BB5\u4FE1\u606F\uFF0C\u5E76\u5C06\u6700\u7EC8\u72B6\u6001\u5224\u4E3A NOT READY\u3002"}\u516C\u5F00\u901A\u7528\u89C4\u5219\u4EE5 venue \u5B98\u7F51\u3001\u51FA\u7248\u793E\u6216\u5B98\u65B9\u7EC4\u7EC7\u65B9\u7EF4\u62A4\u9875\u9762\u4E3A\u51C6\uFF1B\u7528\u6237\u63D0\u4F9B\u7684\u7F16\u8F91\u51B3\u5B9A\u3001\u6295\u7A3F\u7CFB\u7EDF\u6D88\u606F\u6216\u4E66\u9762\u8C41\u514D\u662F\u672C\u7A3F\u4EF6\u4E13\u5C5E\u89C4\u5219\uFF0C\u82E5\u6765\u6E90\u53EF\u6838\u9A8C\u5219\u4F18\u5148\u4E8E\u901A\u7528\u9875\u9762\u3002\u8BB0\u5F55\u7248\u672C\u3001\u8BBF\u95EE\u65E5\u671F\u548C URL/\u6D88\u606F\u6765\u6E90\uFF1B\u51B2\u7A81\u4ECD\u65E0\u6CD5\u6D88\u89E3\u65F6\u6807\u4E3A\u201C\u9700\u4EBA\u5DE5\u786E\u8BA4\u201D\uFF0C\u4E0D\u5F97\u5957\u7528\u5F80\u5E74\u8BB0\u5FC6\u3002
+
+\u68C0\u67E5\uFF1A${labelsFor3(values, "scopes", CHECK_SCOPES, language)}${enabled3(values, "portalSnapshot") ? "\uFF0C\u4EE5\u53CA\u6295\u7A3F\u7CFB\u7EDF\u5B57\u6BB5\u4E0E\u6700\u7EC8\u7A3F\u7684\u4E00\u81F4\u6027" : ""}\u3002\u672C\u8F6E\u53EA\u6267\u884C\uFF1A${scopeInstructions.zh || "\u672A\u9009\u62E9\u6709\u6548\u8303\u56F4"}\u3002\u7279\u6B8A\u60C5\u51B5\uFF1A${custom}\u3002
+
+\u5C06\u7ED3\u679C\u5206\u4E3A\uFF1A\u963B\u585E\u6295\u7A3F\u3001\u63D0\u4EA4\u524D\u5FC5\u987B\u4FEE\u590D\u3001\u5EFA\u8BAE\u4F18\u5316\u3001\u5DF2\u901A\u8FC7\u3001\u6750\u6599\u4E0D\u8DB3\u65E0\u6CD5\u6838\u9A8C\u3002\u6BCF\u9879\u7ED9\u51FA\u89C4\u5219\u6216\u4E13\u5C5E\u901A\u77E5\u4F9D\u636E\u3001\u7A3F\u4EF6\u4F4D\u7F6E\u3001\u5F71\u54CD\u548C\u6700\u5C0F\u4FEE\u590D\uFF1B\u53EA\u5728\u6750\u6599\u548C\u6240\u9009\u8303\u56F4\u5141\u8BB8\u65F6\u505A\u6587\u4EF6\u9A8C\u8BC1\uFF0C\u4E0D\u4EE5\u81EA\u7136\u8BED\u8A00\u58F0\u660E\u4EE3\u66FF\u8BC1\u636E\u3002
+
+${repair ? repairInstruction.zh : "\u53EA\u8F93\u51FA\u7EC8\u68C0\u62A5\u544A\u548C\u4E00\u4EFD\u6309\u4F18\u5148\u7EA7\u6392\u5E8F\u7684\u63D0\u4EA4\u6E05\u5355\uFF0C\u4E0D\u4FEE\u6539\u6587\u4EF6\u3002"}
+
+\u6700\u7EC8\u660E\u786E\u7ED9\u51FA READY\u3001READY AFTER FIXES \u6216 NOT READY\uFF0C\u5E76\u5217\u51FA\u51B3\u5B9A\u8BE5\u72B6\u6001\u7684\u8BC1\u636E\u3002`;
+    }
+    return `# Run a Pre-submission Check${repair ? " and Repair Confirmed Issues Safely" : ""}
+
+Target: ${venue || "not supplied; do not infer it from a blind manuscript"} (${labelFor2(scalar3(values, "venueType"), VENUE_TYPES, language)}, ${labelFor2(scalar3(values, "stage"), SUBMISSION_STAGES, language)}). Sources: ${labelFor2(sourceLevel, SOURCE_LEVELS, language)}.
+
+${venue ? "Before checking the paper, browse and verify the official author instructions, current template or author kit, FAQ, submission-system guidance, and supplementary-material policy for this exact submission." : "The target venue is missing, so exact rule verification is impossible. List the required venue, edition/track, and stage inputs and assign NOT READY as the final state."} Use venue-, publisher-, or organizer-maintained pages for public general rules. A supplied editor decision, portal message, or written waiver is a manuscript-specific rule and takes priority over a general page when its provenance is verifiable. Record versions, access dates, URLs, or message provenance; mark conflicts that remain unresolved for human confirmation and never rely on remembered prior-year rules.
+
+Check: ${labelsFor3(values, "scopes", CHECK_SCOPES, language)}${enabled3(values, "portalSnapshot") ? ", including consistency between submission-system fields and the final manuscript" : ""}. Perform only: ${scopeInstructions.en || "no valid scope selected"}. Special circumstances: ${custom}.
+
+Classify results as submission blocker, mandatory fix, recommendation, passed, or unverifiable due to missing material. For each item, give the governing rule or case-specific notice, manuscript location, impact, and smallest remedy. Perform file-level verification only when the supplied sources and selected scope support it; do not trust prose claims in place of evidence.
+
+${repair ? repairInstruction.en : "Return the audit report and a prioritized submission checklist only; do not modify files."}
+
+End with exactly one readiness state\u2014READY, READY AFTER FIXES, or NOT READY\u2014and the evidence that determines it.`;
+  }
+};
+var MATERIAL_TYPES = {
+  cover: text3("Cover Letter", "Cover letter"),
+  highlights: text3("Highlights", "Highlights"),
+  plain: text3("\u901A\u4FD7\u6458\u8981", "Plain-language summary"),
+  contributions: text3("CRediT \u4F5C\u8005\u8D21\u732E", "CRediT author contributions"),
+  availability: text3("\u6570\u636E\u4E0E\u4EE3\u7801\u58F0\u660E", "Data and code availability"),
+  ethics: text3("\u4F26\u7406\u4E0E\u5229\u76CA\u51B2\u7A81\u58F0\u660E", "Ethics and conflict statements"),
+  reviewers: text3("\u5EFA\u8BAE / \u56DE\u907F\u5BA1\u7A3F\u4EBA", "Suggested or excluded reviewers")
+};
+var MATERIAL_STAGES = {
+  initial: text3("\u9996\u6B21\u6295\u7A3F", "Initial submission"),
+  transfer: text3("\u8F6C\u6295", "Transfer"),
+  revision: text3("\u8FD4\u4FEE\u63D0\u4EA4", "Revision submission")
+};
+var MATERIAL_OUTPUTS = {
+  english: text3("\u82F1\u6587", "English"),
+  bilingual: text3("\u4E2D\u82F1\u6587\u5BF9\u7167", "Chinese and English"),
+  official: text3("\u6309\u5B98\u65B9\u8981\u6C42", "Follow official language requirements")
+};
+var COVER_TONES = {
+  concise: text3("\u7B80\u6D01\u76F4\u63A5", "Concise and direct"),
+  editorial: text3("\u7F16\u8F91\u5224\u65AD\u5BFC\u5411", "Editor-oriented"),
+  neutral: text3("\u4E2D\u6027\u6B63\u5F0F", "Neutral and formal")
+};
+var SUBMISSION_MATERIALS_WORKBENCH = {
+  id: "submission-materials-workbench",
+  activePage: "submission-materials",
+  copy: sharedCopy3({
+    zh: {
+      eyebrow: "SUBMISSION MATERIALS",
+      title: "\u6295\u7A3F\u6750\u6599",
+      subtitle: "\u53EA\u751F\u6210\u672C\u6B21\u6295\u7A3F\u771F\u6B63\u9700\u8981\u7684\u6750\u6599\uFF0C\u5E76\u8BA9\u6BCF\u9879\u9648\u8FF0\u90FD\u80FD\u56DE\u5230\u8BBA\u6587\u6216\u4F5C\u8005\u63D0\u4F9B\u7684\u5143\u6570\u636E\u3002",
+      preset: "\u6309\u9700\u751F\u6210 \xB7 \u4E0D\u8865\u9020\u4FE1\u606F \xB7 \u670D\u4ECE\u5B98\u65B9\u5B57\u6BB5",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: [
+        "\u6700\u7EC8\u7A3F\u4E0E\u6458\u8981",
+        "\u76EE\u6807 venue \u548C\u6295\u7A3F\u9636\u6BB5",
+        "\u4F5C\u8005\u3001\u5355\u4F4D\u4E0E CRediT \u4FE1\u606F",
+        "\u57FA\u91D1\u3001\u4F26\u7406\u3001\u6570\u636E\u3001\u4EE3\u7801\u4E0E\u51B2\u7A81\u58F0\u660E"
+      ],
+      inputHint: "\u7F3A\u5931\u7684\u4F5C\u8005\u4E8B\u5B9E\u4F1A\u4FDD\u7559\u4E3A\u660E\u786E\u5B57\u6BB5\uFF0C\u4E0D\u4F1A\u7531\u6A21\u578B\u731C\u6D4B\u3002",
+      promptTitle: "\u6295\u7A3F\u6750\u6599 Prompt",
+      promptPurpose: "\u6838\u9A8C\u8981\u6C42\u540E\uFF0C\u53EA\u751F\u6210\u5DF2\u52FE\u9009\u6750\u6599\uFF0C\u5E76\u4FDD\u6301\u4E0E\u8BBA\u6587\u548C\u6295\u7A3F\u7CFB\u7EDF\u4E00\u81F4\u3002"
+    },
+    en: {
+      eyebrow: "SUBMISSION MATERIALS",
+      title: "Submission materials",
+      subtitle: "Generate only the materials required for this submission, with every statement traceable to the paper or author metadata.",
+      preset: "Selected outputs only \xB7 no invented metadata \xB7 official fields",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "Final manuscript and abstract",
+        "Target venue and submission stage",
+        "Author, affiliation, and CRediT information",
+        "Funding, ethics, data, code, and conflict declarations"
+      ],
+      inputHint: "Missing author facts remain explicit fields; the model must never guess them.",
+      promptTitle: "Submission materials prompt",
+      promptPurpose: "Verify requirements, then generate only selected materials consistent with the manuscript and portal."
+    }
+  }),
+  controls: [
+    {
+      id: "venue",
+      kind: "text",
+      label: text3("\u76EE\u6807 venue", "Target venue"),
+      description: text3(
+        "\u586B\u5199\u5B8C\u6574\u540D\u79F0\u548C\u4F1A\u8BAE\u5C4A\u6B21\uFF1B\u6267\u884C\u65F6\u6838\u9A8C\u5B98\u65B9\u8981\u6C42\u3002",
+        "Provide the full name and conference edition; verify official requirements at execution time."
+      ),
+      defaultValue: "",
+      placeholder: text3("\u4F8B\u5982\uFF1ANature Communications", "For example: Nature Communications")
+    },
+    {
+      id: "stage",
+      kind: "select",
+      label: text3("\u6295\u7A3F\u9636\u6BB5", "Submission stage"),
+      description: text3(
+        "\u6750\u6599\u5185\u5BB9\u5E94\u4E0E\u5F53\u524D\u9636\u6BB5\u4E00\u81F4\u3002",
+        "Materials must match the current submission stage."
+      ),
+      defaultValue: "initial",
+      options: Object.entries(MATERIAL_STAGES).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "materials",
+      kind: "multi",
+      label: text3("\u9700\u8981\u751F\u6210", "Generate"),
+      description: text3(
+        "\u672A\u9009\u62E9\u7684\u6750\u6599\u4E0D\u5F97\u751F\u6210\u3002",
+        "Do not generate unselected materials."
+      ),
+      defaultValue: ["cover"],
+      minSelected: 1,
+      options: Object.entries(MATERIAL_TYPES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "outputLanguage",
+      kind: "segmented",
+      label: text3("\u6750\u6599\u8BED\u8A00", "Material language"),
+      description: text3(
+        "\u754C\u9762\u4E0E Prompt \u8BED\u8A00\u4E0D\u9650\u5236\u6700\u7EC8\u6587\u4EF6\u8BED\u8A00\u3002",
+        "The interface and prompt language do not constrain file language."
+      ),
+      defaultValue: "official",
+      options: Object.entries(MATERIAL_OUTPUTS).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "coverTone",
+      kind: "select",
+      label: text3("\u6295\u7A3F\u4FE1\u8BED\u6C14", "Cover-letter tone"),
+      description: text3(
+        "\u7A81\u51FA\u7F16\u8F91\u5224\u65AD\u6240\u9700\u4FE1\u606F\uFF0C\u4E0D\u590D\u8FF0\u6458\u8981\u3002",
+        "Prioritize editorial decision signals rather than repeating the abstract."
+      ),
+      defaultValue: "editorial",
+      options: Object.entries(COVER_TONES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      visibleWhen: (values) => selected3(values, "materials").includes("cover")
+    },
+    {
+      id: "editor",
+      kind: "text",
+      label: text3("\u7F16\u8F91\u59D3\u540D\uFF08\u53EF\u9009\uFF09", "Editor name (optional)"),
+      description: text3(
+        "\u672A\u786E\u8BA4\u65F6\u4F7F\u7528\u4E2D\u6027\u79F0\u547C\uFF0C\u4E0D\u731C\u6D4B\u59D3\u540D\u6216\u804C\u52A1\u3002",
+        "Use a neutral salutation when unverified; never guess a name or title."
+      ),
+      defaultValue: "",
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      visibleWhen: (values) => selected3(values, "materials").includes("cover")
+    },
+    {
+      id: "highlightCount",
+      kind: "range",
+      label: text3("Highlights \u6761\u6570", "Number of highlights"),
+      description: text3(
+        "\u5B98\u65B9\u89C4\u5219\u4F18\u5148\uFF1B\u6B64\u533A\u95F4\u4EC5\u5728\u672A\u89C4\u5B9A\u65F6\u4F7F\u7528\u3002",
+        "Official rules override this range; use it only when unspecified."
+      ),
+      defaultValue: [3, 5],
+      min: 2,
+      max: 8,
+      visibleWhen: (values) => selected3(values, "materials").includes("highlights")
+    },
+    {
+      id: "reviewerConstraints",
+      kind: "textarea",
+      label: text3("\u5BA1\u7A3F\u4EBA\u7EA6\u675F", "Reviewer constraints"),
+      description: text3(
+        "\u63D0\u4F9B\u5730\u57DF\u3001\u673A\u6784\u3001\u8FD1\u5E74\u5408\u4F5C\u6216\u56DE\u907F\u5173\u7CFB\uFF1B\u4E0D\u51ED\u7A7A\u63A8\u8350\u3002",
+        "Provide geography, institution, recent collaboration, or exclusion constraints; do not invent candidates."
+      ),
+      defaultValue: "",
+      placeholder: text3(
+        "\u4F8B\u5982\uFF1A\u8FD1 5 \u5E74\u65E0\u5408\u4F5C\uFF1B\u56DE\u907F\u540C\u673A\u6784",
+        "For example: no collaboration in five years; exclude same institution"
+      ),
+      visibleWhen: (values) => selected3(values, "materials").includes("reviewers"),
+      span: "full"
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text3("\u8865\u5145\u5B57\u6BB5\u4E0E\u8981\u6C42", "Additional fields and requirements"),
+      description: text3(
+        "\u7C98\u8D34\u6295\u7A3F\u7CFB\u7EDF\u7684\u786E\u5207\u5B57\u6BB5\u3001\u5B57\u6570\u6216\u5B57\u7B26\u9650\u5236\u3002",
+        "Paste exact portal fields, word limits, or character limits."
+      ),
+      defaultValue: "",
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    }
+  ],
+  buildPrompt(values, language) {
+    const venue = scalar3(values, "venue");
+    const materials = labelsFor3(
+      values,
+      "materials",
+      MATERIAL_TYPES,
+      language
+    );
+    const includesCover = selected3(values, "materials").includes("cover");
+    const includesHighlights = selected3(values, "materials").includes("highlights");
+    const includesReviewers = selected3(values, "materials").includes("reviewers");
+    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const highlightRange = values.highlightCount;
+    if (language === "zh") {
+      return `# \u751F\u6210\u672C\u6B21\u6295\u7A3F\u6240\u9700\u6750\u6599
+
+\u8BF7\u8BFB\u53D6\u6700\u7EC8\u7A3F\u548C\u4F5C\u8005\u63D0\u4F9B\u7684\u5143\u6570\u636E\u3002\u76EE\u6807\uFF1A${venue || "\u672A\u63D0\u4F9B\uFF1B\u4E0D\u5F97\u731C\u6D4B"}\uFF1B\u9636\u6BB5\uFF1A${labelFor2(scalar3(values, "stage"), MATERIAL_STAGES, language)}\uFF1B\u53EA\u751F\u6210\uFF1A${materials}\uFF1B\u8BED\u8A00\uFF1A${labelFor2(scalar3(values, "outputLanguage"), MATERIAL_OUTPUTS, language)}\u3002
+
+${venue ? "\u5148\u8054\u7F51\u6838\u9A8C\u76EE\u6807 venue \u5F53\u524D\u5B98\u65B9\u6295\u7A3F\u8BF4\u660E\u548C\u7CFB\u7EDF\u5B57\u6BB5\uFF0C\u8BB0\u5F55 URL \u4E0E\u8BBF\u95EE\u65E5\u671F\u3002" : "\u76EE\u6807 venue \u672A\u63D0\u4F9B\u65F6\uFF0C\u53EA\u80FD\u751F\u6210 venue-neutral \u8349\u7A3F\u5E76\u5217\u51FA\u5F85\u8865\u89C4\u5219\uFF0C\u4E0D\u80FD\u58F0\u79F0\u7B26\u5408\u5B98\u65B9\u5B57\u6BB5\u3002"}\u516C\u5F00\u89C4\u5219\u4EE5\u5F53\u524D\u5B98\u7F51\u4E3A\u51C6\uFF1B\u7528\u6237\u63D0\u4F9B\u7684\u6295\u7A3F\u7CFB\u7EDF\u5B57\u6BB5\u3001\u7F16\u8F91\u6D88\u606F\u548C\u4E66\u9762\u8C41\u514D\u82E5\u6765\u6E90\u53EF\u6838\u9A8C\uFF0C\u5219\u4F5C\u4E3A\u672C\u7A3F\u4EF6\u4E13\u5C5E\u8981\u6C42\u4F18\u5148\u5904\u7406\u3002\u4E0D\u5F97\u751F\u6210\u672A\u52FE\u9009\u6750\u6599\u3002
+
+\u6240\u6709\u6807\u9898\u3001\u6458\u8981\u3001\u8D21\u732E\u3001\u6570\u5B57\u3001\u4F5C\u8005\u3001\u5355\u4F4D\u3001\u57FA\u91D1\u3001ORCID\u3001CRediT\u3001\u4F26\u7406\u3001\u51B2\u7A81\u3001\u6570\u636E\u4E0E\u4EE3\u7801\u72B6\u6001\u5FC5\u987B\u6765\u81EA\u8BBA\u6587\u6216\u4F5C\u8005\u6750\u6599\u3002\u4FE1\u606F\u7F3A\u5931\u65F6\u4F7F\u7528\u6E05\u695A\u7684 \`[AUTHOR INPUT REQUIRED: ...]\`\uFF0C\u4E0D\u5F97\u731C\u6D4B\u3002\u8F6C\u6295\u6750\u6599\u4E0D\u5F97\u6B8B\u7559\u4E0A\u4E00 venue \u540D\u79F0\u3002
+
+${includesCover ? `Cover Letter \u4F7F\u7528${labelFor2(scalar3(values, "coverTone"), COVER_TONES, language)}\u8BED\u6C14\uFF1B\u79F0\u547C ${scalar3(values, "editor") || "\u672A\u6838\u9A8C\u7F16\u8F91\u59D3\u540D\u65F6\u4F7F\u7528\u4E2D\u6027\u79F0\u547C"}\u3002\u8BF4\u660E\u8BBA\u6587\u95EE\u9898\u3001\u6838\u5FC3\u8D21\u732E\u3001venue \u5339\u914D\u548C\u5FC5\u8981\u58F0\u660E\uFF0C\u4F46\u4E0D\u9010\u53E5\u590D\u8FF0\u6458\u8981\u3001\u4E0D\u5938\u5927\u65B0\u9896\u6027\u3002` : ""}
+${includesHighlights ? `Highlights \u5728\u5B98\u65B9\u672A\u89C4\u5B9A\u65F6\u5199 ${highlightRange[0]}\u2013${highlightRange[1]} \u6761\uFF0C\u6BCF\u6761\u53EA\u4FDD\u7559\u4E00\u4E2A\u53EF\u7531\u6B63\u6587\u652F\u6301\u7684\u8981\u70B9\u3002` : ""}
+${includesReviewers ? `\u5EFA\u8BAE/\u56DE\u907F\u5BA1\u7A3F\u4EBA\u53EA\u57FA\u4E8E\u53EF\u6838\u9A8C\u7684\u4E13\u4E1A\u5339\u914D\u548C\u7EA6\u675F\uFF1A${scalar3(values, "reviewerConstraints") || "\u672A\u63D0\u4F9B\uFF1B\u7F3A\u5C11\u72EC\u7ACB\u6027\u8BC1\u636E\u65F6\u4E0D\u8F93\u51FA\u5177\u4F53\u4EBA\u9009"}\u3002\u6838\u67E5\u673A\u6784\u3001\u8FD1\u5E74\u5408\u4F5C\u4E0E\u663E\u8457\u51B2\u7A81\uFF0C\u8BF4\u660E\u9009\u62E9\u7406\u7531\uFF0C\u7EDD\u4E0D\u865A\u6784\u90AE\u7BB1\u6216\u8EAB\u4EFD\u3002` : ""}
+
+\u8865\u5145\u5B57\u6BB5\uFF1A${custom}\u3002\u6BCF\u79CD\u6750\u6599\u5355\u72EC\u8F93\u51FA\u4E3A\u6E05\u695A\u547D\u540D\u7684 Markdown \u6216\u5B98\u65B9\u8981\u6C42\u683C\u5F0F\uFF1B\u5728\u56DE\u590D\u672B\u5C3E\u7528\u7CBE\u7B80\u6E05\u5355\u6807\u51FA\u4E8B\u5B9E\u6765\u6E90\u4E0E\u4ECD\u9700\u4F5C\u8005\u586B\u5199\u7684\u5B57\u6BB5\uFF0C\u4E0D\u751F\u6210\u672A\u9009\u62E9\u7684\u989D\u5916\u6295\u7A3F\u6587\u4EF6\u3002`;
+    }
+    return `# Generate the Required Submission Materials
+
+Read the final manuscript and author-supplied metadata. Target: ${venue || "not supplied; do not guess"}; stage: ${labelFor2(scalar3(values, "stage"), MATERIAL_STAGES, language)}; generate only: ${materials}; language: ${labelFor2(scalar3(values, "outputLanguage"), MATERIAL_OUTPUTS, language)}.
+
+${venue ? "First browse and verify the target venue's current official submission instructions and portal fields, recording URLs and access dates." : "Without a target venue, create venue-neutral drafts only and list unresolved rules; do not claim official compliance."} Public rules come from current official pages. A supplied portal field, editor message, or written waiver is a manuscript-specific requirement and takes priority when its provenance is verifiable. Do not generate any unselected material.
+
+Every title, abstract statement, contribution, value, author, affiliation, funder, ORCID, CRediT role, ethics statement, conflict, and data/code status must come from the manuscript or author material. Mark missing facts as \`[AUTHOR INPUT REQUIRED: ...]\`; never guess. Transferred materials must contain no stale venue names.
+
+${includesCover ? `Use a ${labelFor2(scalar3(values, "coverTone"), COVER_TONES, language).toLowerCase()} cover-letter tone and ${scalar3(values, "editor") ? `address ${scalar3(values, "editor")}` : "use a neutral salutation because no editor is verified"}. State the problem, core contribution, venue fit, and required declarations without paraphrasing the abstract sentence by sentence or exaggerating novelty.` : ""}
+${includesHighlights ? `When no official count is specified, provide ${highlightRange[0]}\u2013${highlightRange[1]} highlights, each containing one manuscript-supported point.` : ""}
+${includesReviewers ? `Suggest or exclude reviewers only from verifiable expertise and these constraints: ${scalar3(values, "reviewerConstraints") || "none supplied; do not name candidates without evidence of independence"}. Check affiliations, recent collaboration, and material conflicts, explain each choice, and never invent an email or identity.` : ""}
+
+Additional fields: ${custom}. Return each selected material as a separately named Markdown file or the officially required format. End the response with a concise source and missing-field checklist; do not create any additional unselected submission file.`;
+  }
+};
+var PEER_REVIEW_MODES = {
+  full: text3("\u5B8C\u6574\u540C\u884C\u8BC4\u5BA1", "Full peer review"),
+  screening: text3("\u5FEB\u901F\u98CE\u9669\u7B5B\u67E5", "Editorial risk screening"),
+  stress: text3("\u4E25\u683C\u538B\u529B\u6D4B\u8BD5", "Adversarial stress test")
+};
+var PEER_REVIEW_DIMENSIONS = {
+  contribution: text3("\u95EE\u9898\u4EF7\u503C\u4E0E\u8D21\u732E", "Problem value and contribution"),
+  positioning: text3("\u6587\u732E\u5B9A\u4F4D\u4E0E\u65B0\u9896\u6027", "Positioning and novelty"),
+  method: text3("\u65B9\u6CD5\u6B63\u786E\u6027", "Methodological soundness"),
+  evidence: text3("\u5B9E\u9A8C\u4E0E\u8BC1\u636E\u5145\u5206\u6027", "Experimental and evidential adequacy"),
+  claims: text3("\u7ED3\u8BBA\u8FB9\u754C", "Claim calibration"),
+  presentation: text3("\u7ED3\u6784\u4E0E\u8868\u8FBE", "Structure and presentation"),
+  reproducibility: text3("\u53EF\u590D\u73B0\u6027", "Reproducibility"),
+  integrity: text3("\u4F26\u7406\u4E0E\u7814\u7A76\u5B8C\u6574\u6027", "Ethics and research integrity")
+};
+var REVIEW_MATERIAL_SCOPES = {
+  manuscript: text3("\u8BBA\u6587\u6B63\u6587", "Manuscript"),
+  supplement: text3("\u6B63\u6587 + \u8865\u5145\u6750\u6599", "Manuscript and supplement"),
+  artifacts: text3(
+    "\u6B63\u6587 + \u8865\u5145\u6750\u6599 + \u4EE3\u7801/\u6570\u636E",
+    "Manuscript, supplement, code, and data"
+  )
+};
+var EVIDENCE_POLICIES = {
+  existing: text3("\u4EC5\u4F7F\u7528\u73B0\u6709\u8BC1\u636E", "Existing evidence only"),
+  analysis: text3("\u5141\u8BB8\u8865\u5145\u5206\u6790", "Allow additional analyses"),
+  experiment: text3("\u5141\u8BB8\u65B0\u589E\u5B9E\u9A8C", "Allow new experiments")
+};
+var PEER_REVIEW_WORKBENCH = {
+  id: "peer-review-workbench",
+  activePage: "peer-review",
+  copy: sharedCopy3({
+    zh: {
+      eyebrow: "PEER REVIEW",
+      title: "\u5BA1\u7A3F",
+      subtitle: "\u4EE5\u72EC\u7ACB\u5BA1\u7A3F\u4EBA\u7684\u89C6\u89D2\u68C0\u67E5\u8BBA\u6587\u8D21\u732E\u3001\u65B9\u6CD5\u4E0E\u8BC1\u636E\uFF0C\u533A\u5206\u771F\u6B63\u7684\u79D1\u5B66\u98CE\u9669\u548C\u53EF\u4FEE\u590D\u7684\u8868\u8FBE\u95EE\u9898\u3002",
+      preset: "\u8BC1\u636E\u4F18\u5148 \xB7 \u95EE\u9898\u5206\u7EA7 \xB7 \u5EFA\u8BAE\u53EF\u6267\u884C",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: [
+        "\u5B8C\u6574\u8BBA\u6587\u6216\u5F53\u524D\u6295\u7A3F\u7A3F",
+        "\u8865\u5145\u6750\u6599\uFF08\u5982\u6709\uFF09",
+        "\u4EE3\u7801\u3001\u6570\u636E\u4E0E\u590D\u73B0\u8BF4\u660E\uFF08\u6309\u914D\u7F6E\u9009\u7528\uFF09",
+        "\u5E0C\u671B\u989D\u5916\u68C0\u67E5\u7684\u95EE\u9898\uFF08\u53EF\u9009\uFF09"
+      ],
+      inputHint: "\u672C\u9875\u4E0D\u533A\u5206\u4F1A\u8BAE\u6216\u671F\u520A\uFF0C\u4E5F\u4E0D\u4FEE\u6539\u8BBA\u6587\uFF1B\u5982\u63D0\u4F9B\u5177\u4F53\u8BC4\u5BA1\u6807\u51C6\uFF0C\u53EF\u5199\u5165\u8865\u5145\u8981\u6C42\u3002",
+      promptTitle: "\u8BBA\u6587\u5BA1\u7A3F Prompt",
+      promptPurpose: "\u751F\u6210\u8BC1\u636E\u53EF\u8FFD\u6EAF\u3001\u8F7B\u91CD\u5206\u660E\u4E14\u80FD\u6307\u5BFC\u540E\u7EED\u4FEE\u6539\u7684\u72EC\u7ACB\u5BA1\u7A3F\u62A5\u544A\u3002"
+    },
+    en: {
+      eyebrow: "PEER REVIEW",
+      title: "Peer review",
+      subtitle: "Review contribution, method, and evidence independently while separating scientific risks from repairable presentation issues.",
+      preset: "Evidence-first \xB7 severity-aware \xB7 actionable guidance",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "Complete manuscript or current submission",
+        "Supplementary material, if available",
+        "Code, data, and reproducibility notes when selected",
+        "Any additional questions to inspect"
+      ],
+      inputHint: "This page does not distinguish conferences from journals and never edits the manuscript. Add any specific review standard under additional requirements.",
+      promptTitle: "Peer-review prompt",
+      promptPurpose: "Produce an independent review whose evidence, severity, and recommendations remain traceable."
+    }
+  }),
+  controls: [
+    {
+      id: "mode",
+      kind: "segmented",
+      label: text3("\u8BC4\u5BA1\u65B9\u5F0F", "Review mode"),
+      description: text3(
+        "\u5B8C\u6574\u8BC4\u5BA1\u4E3A\u9ED8\u8BA4\uFF1B\u7B5B\u67E5\u66F4\u5173\u6CE8\u963B\u585E\u98CE\u9669\uFF0C\u538B\u529B\u6D4B\u8BD5\u66F4\u5F3A\u8C03\u6700\u5F3A\u53CD\u4F8B\u3002",
+        "Full review is the default; screening prioritizes blockers, while stress testing seeks the strongest counterarguments."
+      ),
+      defaultValue: "full",
+      options: Object.entries(PEER_REVIEW_MODES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "materialScope",
+      kind: "select",
+      label: text3("\u8BC4\u5BA1\u6750\u6599\u8303\u56F4", "Review materials"),
+      description: text3(
+        "\u53EA\u8BC4\u4EF7\u5B9E\u9645\u63D0\u4F9B\u4E14\u80FD\u591F\u8BFB\u53D6\u7684\u6750\u6599\u3002",
+        "Evaluate only materials that are actually supplied and readable."
+      ),
+      defaultValue: "supplement",
+      options: Object.entries(REVIEW_MATERIAL_SCOPES).map(([value, label]) => ({
+        value,
+        label
+      }))
+    },
+    {
+      id: "dimensions",
+      kind: "multi",
+      label: text3("\u8BC4\u5BA1\u7EF4\u5EA6", "Review dimensions"),
+      description: text3(
+        "\u9ED8\u8BA4\u8986\u76D6\u51B3\u5B9A\u8BBA\u6587\u53EF\u4FE1\u5EA6\u4E0E\u53EF\u8BFB\u6027\u7684\u4E3B\u8981\u7EF4\u5EA6\u3002",
+        "Defaults cover the main dimensions that determine credibility and readability."
+      ),
+      defaultValue: Object.keys(PEER_REVIEW_DIMENSIONS),
+      minSelected: 1,
+      options: Object.entries(PEER_REVIEW_DIMENSIONS).map(
+        ([value, label]) => ({ value, label })
+      ),
+      span: "full"
+    },
+    {
+      id: "browseLiterature",
+      kind: "toggle",
+      label: text3("\u8054\u7F51\u6838\u67E5\u76F8\u5173\u6587\u732E", "Verify related literature online"),
+      description: text3(
+        "\u6838\u67E5\u65B0\u9896\u6027\u3001\u5B9A\u4F4D\u548C\u91CD\u8981\u5F15\u7528\u65F6\u4F7F\u7528\u539F\u59CB\u8BBA\u6587\u4E0E\u53EF\u9760\u51FA\u7248\u8BB0\u5F55\u3002",
+        "Use original papers and reliable publication records when checking novelty, positioning, and important citations."
+      ),
+      defaultValue: true,
+      enabledLabel: text3("\u6838\u67E5\u6587\u732E", "Verify literature"),
+      disabledLabel: text3("\u53EA\u7528\u63D0\u4F9B\u6750\u6599", "Use supplied materials only")
+    },
+    {
+      id: "scorecard",
+      kind: "toggle",
+      label: text3("\u901A\u7528\u8BC4\u5206\u5361", "General scorecard"),
+      description: text3(
+        "\u4F7F\u7528\u8DE8 venue \u7684 1\u20135 \u5206\u7EF4\u5EA6\u8BC4\u5206\uFF0C\u4E0D\u5957\u7528\u67D0\u4E2A\u6295\u7A3F\u7CFB\u7EDF\u7684\u91CF\u8868\u3002",
+        "Use a venue-neutral 1\u20135 dimensional scorecard rather than a portal-specific scale."
+      ),
+      defaultValue: true,
+      enabledLabel: text3("\u8F93\u51FA\u8BC4\u5206\u5361", "Include scorecard"),
+      disabledLabel: text3("\u53EA\u8F93\u51FA\u6587\u5B57\u5224\u65AD", "Narrative judgment only")
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text3("\u8865\u5145\u8BC4\u5BA1\u8981\u6C42", "Additional review requirements"),
+      description: text3(
+        "\u4F8B\u5982\u91CD\u70B9\u68C0\u67E5\u67D0\u9879\u7406\u8BBA\u5047\u8BBE\u3001\u5E94\u7528\u98CE\u9669\u6216\u7279\u5B9A\u8BC4\u5BA1\u6807\u51C6\u3002",
+        "For example, inspect a theoretical assumption, deployment risk, or specific review criterion."
+      ),
+      defaultValue: "",
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    }
+  ],
+  buildPrompt(values, language) {
+    const mode = scalar3(values, "mode");
+    const materialScope = scalar3(values, "materialScope");
+    const dimensions = labelsFor3(
+      values,
+      "dimensions",
+      PEER_REVIEW_DIMENSIONS,
+      language
+    );
+    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    if (language === "zh") {
+      return `# \u5BF9\u8BBA\u6587\u8FDB\u884C\u72EC\u7ACB\u540C\u884C\u8BC4\u5BA1
+
+\u4F60\u662F\u4E00\u540D\u4E25\u683C\u3001\u5EFA\u8BBE\u6027\u4E14\u719F\u6089\u5B66\u672F\u8BC4\u5BA1\u903B\u8F91\u7684\u72EC\u7ACB\u5BA1\u7A3F\u4EBA\u3002\u5148\u4ECE\u8BBA\u6587\u4E2D\u5224\u65AD\u7814\u7A76\u9886\u57DF\u3001\u8BBA\u6587\u7C7B\u578B\u3001\u6838\u5FC3\u95EE\u9898\u3001\u4E3B\u8981\u8D21\u732E\u4E0E\u8BC1\u636E\u94FE\uFF0C\u4E0D\u9884\u8BBE\u5176\u5C5E\u4E8E\u4F1A\u8BAE\u6216\u671F\u520A\uFF0C\u4E5F\u4E0D\u5957\u7528\u67D0\u4E2A\u6295\u7A3F\u7CFB\u7EDF\u7684\u8BC4\u5206\u5C3A\u5EA6\u3002
+
+\u8BC4\u5BA1\u65B9\u5F0F\uFF1A${labelFor2(mode, PEER_REVIEW_MODES, language)}\uFF1B\u6750\u6599\u8303\u56F4\uFF1A${labelFor2(materialScope, REVIEW_MATERIAL_SCOPES, language)}\uFF1B\u8BC4\u5BA1\u7EF4\u5EA6\uFF1A${dimensions}\u3002\u53EA\u8BC4\u4EF7\u5B9E\u9645\u63D0\u4F9B\u4E14\u80FD\u591F\u8BFB\u53D6\u7684\u6750\u6599\uFF0C\u7F3A\u5931\u6750\u6599\u6807\u4E3A\u201C\u65E0\u6CD5\u6838\u9A8C\u201D\uFF0C\u4E0D\u5F97\u53CD\u5411\u731C\u6D4B\u3002
+
+${enabled3(values, "browseLiterature") ? "\u8054\u7F51\u6838\u67E5\u6587\u732E\u5B9A\u4F4D\u3001\u65B0\u9896\u6027\u548C\u5173\u952E\u5F15\u7528\u3002\u4F18\u5148\u4F7F\u7528\u539F\u59CB\u8BBA\u6587\u3001\u5B98\u65B9\u51FA\u7248\u9875\u6216\u53EF\u9760\u7D22\u5F15\uFF0C\u7ED9\u51FA\u94FE\u63A5\u4E0E\u6838\u67E5\u65E5\u671F\uFF1B\u533A\u5206\u5DF2\u6838\u9A8C\u4E8B\u5B9E\u4E0E\u5BA1\u7A3F\u5224\u65AD\u3002" : "\u4E0D\u8054\u7F51\u6269\u5C55\u6587\u732E\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u6750\u6599\u5224\u65AD\uFF1B\u6D89\u53CA\u65B0\u9896\u6027\u6216\u6587\u732E\u5B8C\u6574\u6027\u7684\u7ED3\u8BBA\u987B\u8BF4\u660E\u8BC1\u636E\u8303\u56F4\u3002"}
+
+\u5148\u7528\u7B80\u77ED\u6587\u5B57\u590D\u8FF0\u8BBA\u6587\u8BD5\u56FE\u89E3\u51B3\u7684\u95EE\u9898\u3001\u6838\u5FC3\u4E3B\u5F20\u4E0E\u8BC1\u636E\u8DEF\u5F84\uFF0C\u518D\u8BC4\u4F30\u4F18\u70B9\u548C\u95EE\u9898\u3002\u6BCF\u4E2A\u95EE\u9898\u5206\u914D\u7A33\u5B9A ID\uFF0C\u5E76\u5199\u660E\uFF1A\u4E25\u91CD\u6027\uFF08\u963B\u585E / \u4E3B\u8981 / \u6B21\u8981\uFF09\u3001\u8BBA\u6587\u4F4D\u7F6E\u3001\u4F9D\u636E\u3001\u4E3A\u4F55\u91CD\u8981\u3001\u8FBE\u5230\u4F55\u79CD\u8BC1\u636E\u6216\u4FEE\u6539\u6807\u51C6\u624D\u7B97\u89E3\u51B3\u3002\u533A\u5206\u79D1\u5B66\u9519\u8BEF\u3001\u8BC1\u636E\u4E0D\u8DB3\u3001\u7ED3\u8BBA\u8D8A\u754C\u3001\u53EF\u590D\u73B0\u6027\u98CE\u9669\u548C\u8868\u8FBE\u4E0D\u6E05\uFF0C\u907F\u514D\u628A\u4E2A\u4EBA\u504F\u597D\u5305\u88C5\u6210\u786C\u6027\u8981\u6C42\u3002
+
+\u5B9E\u9A8C\u5EFA\u8BAE\u5FC5\u987B\u56DE\u7B54\u4E00\u4E2A\u771F\u5B9E\u672A\u51B3\u95EE\u9898\uFF1B\u4E0D\u8981\u4E60\u60EF\u6027\u8981\u6C42\u66F4\u591A\u6570\u636E\u3001\u66F4\u591A baseline \u6216\u66F4\u5927\u6A21\u578B\u3002\u82E5\u73B0\u6709\u5206\u6790\u5373\u53EF\u89E3\u51B3\uFF0C\u4F18\u5148\u63D0\u51FA\u6700\u5C0F\u5145\u5206\u65B9\u6848\uFF1B\u82E5\u65B0\u5B9E\u9A8C\u5BF9\u6838\u5FC3\u7ED3\u8BBA\u786E\u6709\u5FC5\u8981\uFF0C\u8BF4\u660E\u5176\u5047\u8BBE\u3001\u5BF9\u7167\u3001\u6307\u6807\u548C\u80FD\u591F\u6539\u53D8\u5224\u65AD\u7684\u7ED3\u679C\u3002\u4E0D\u5F97\u865A\u6784\u8BBA\u6587\u5185\u5BB9\u3001\u7ED3\u679C\u3001\u5F15\u7528\u6216\u4EE3\u7801\u72B6\u6001\u3002
+
+\u6309\u4EE5\u4E0B\u7ED3\u6784\u8F93\u51FA\uFF1A
+1. \u8BBA\u6587\u4E3B\u5F20\u4E0E\u603B\u4F53\u5224\u65AD\uFF1B
+2. \u503C\u5F97\u4FDD\u7559\u7684\u4F18\u70B9\uFF1B
+3. \u4E3B\u8981\u95EE\u9898\u8868\uFF08ID\u3001\u4E25\u91CD\u6027\u3001\u4F4D\u7F6E\u3001\u8BC1\u636E\u3001\u5F71\u54CD\u3001\u89E3\u51B3\u6807\u51C6\uFF09\uFF1B
+4. \u6B21\u8981\u95EE\u9898\u4E0E\u53EF\u76F4\u63A5\u4FEE\u6B63\u9879\uFF1B
+5. \u9700\u8981\u4F5C\u8005\u6F84\u6E05\u7684\u95EE\u9898\uFF1B
+${enabled3(values, "scorecard") ? "6. \u901A\u7528 1\u20135 \u5206\u8BC4\u5206\u5361\uFF1A\u95EE\u9898\u4EF7\u503C\u3001\u8D21\u732E\u6E05\u6670\u5EA6\u3001\u65B9\u6CD5\u6B63\u786E\u6027\u3001\u8BC1\u636E\u5145\u5206\u6027\u3001\u8868\u8FBE\u8D28\u91CF\u548C\u53EF\u590D\u73B0\u6027\uFF0C\u5E76\u7ED9\u51FA\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\uFF1B\n7. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002" : "6. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002"}
+
+\u8865\u5145\u8981\u6C42\uFF1A${custom}\u3002\u5F53\u524D\u4EFB\u52A1\u53EA\u8F93\u51FA\u5BA1\u7A3F\u62A5\u544A\uFF0C\u4E0D\u4FEE\u6539\u8BBA\u6587\uFF0C\u4E0D\u64B0\u5199\u4F5C\u8005\u56DE\u590D\uFF0C\u4E5F\u4E0D\u66FF\u4F5C\u8005\u4F5C\u51FA\u4E0D\u5B58\u5728\u8BC1\u636E\u652F\u6301\u7684\u627F\u8BFA\u3002`;
+    }
+    return `# Conduct an Independent Peer Review
+
+Act as a rigorous, constructive independent reviewer familiar with scholarly evaluation. Infer the paper's field, contribution type, central problem, main claims, and evidence chain from the manuscript. Do not assume a conference or journal category and do not imitate a submission portal's rating scale.
+
+Review mode: ${labelFor2(mode, PEER_REVIEW_MODES, language)}; materials: ${labelFor2(materialScope, REVIEW_MATERIAL_SCOPES, language)}; dimensions: ${dimensions}. Evaluate only supplied and readable materials. Mark missing evidence as \u201Cnot verifiable\u201D rather than inferring it.
+
+${enabled3(values, "browseLiterature") ? "Browse to verify positioning, novelty, and important citations. Prefer original papers, official publication pages, and reliable indexes; provide links and access dates and distinguish verified facts from reviewer judgment." : "Use only supplied materials. State the evidence boundary for any judgment about novelty or literature coverage."}
+
+Briefly reconstruct the paper's problem, central claim, and evidence path before assessing strengths and weaknesses. Give every concern a stable ID and state its severity (blocking, major, or minor), manuscript location, basis, importance, and the evidence or change required for resolution. Distinguish scientific error, insufficient evidence, overclaiming, reproducibility risk, and unclear exposition. Do not present personal preference as a mandatory rule.
+
+Recommend an experiment only when it resolves a genuine open question; do not reflexively demand more data, baselines, or larger models. Prefer the smallest sufficient analysis when it can resolve the concern. When a new experiment is essential to the central claim, specify its hypothesis, comparison, metric, and what result would change the judgment. Never invent manuscript content, results, citations, or code status.
+
+Return:
+1. Paper claim and overall assessment;
+2. Strengths worth preserving;
+3. Major-concern table (ID, severity, location, evidence, impact, resolution threshold);
+4. Minor concerns and directly repairable issues;
+5. Questions requiring author clarification;
+${enabled3(values, "scorecard") ? "6. Venue-neutral 1\u20135 scorecard for problem value, contribution clarity, methodological soundness, evidence adequacy, presentation, and reproducibility, plus review confidence;\n7. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment." : "6. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment."}
+
+Additional requirements: ${custom}. Produce only the review report. Do not edit the manuscript, draft an author response, or make unsupported commitments on the author's behalf.`;
+  }
+};
+var REVISION_PLANNING_WORKBENCH = {
+  id: "revision-planning-workbench",
+  activePage: "revision-planning",
+  copy: sharedCopy3({
+    zh: {
+      eyebrow: "REVISION PLANNING",
+      title: "\u8FD4\u4FEE\u89C4\u5212",
+      subtitle: "\u5148\u628A\u591A\u4F4D\u5BA1\u7A3F\u4EBA\u7684\u610F\u89C1\u62C6\u5206\u3001\u53BB\u91CD\u548C\u5206\u7EA7\uFF0C\u518D\u51B3\u5B9A\u54EA\u4E9B\u95EE\u9898\u9700\u8981\u5B9E\u9A8C\u3001\u5206\u6790\u3001\u89E3\u91CA\u6216\u6536\u7F29\u7ED3\u8BBA\u3002",
+      preset: "\u610F\u89C1\u53BB\u91CD \xB7 P0/P1/P2 \xB7 A/B/C/D \u5206\u7C7B",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: [
+        "\u5168\u90E8\u5BA1\u7A3F\u610F\u89C1\u4E0E\u7F16\u8F91\u51B3\u5B9A",
+        "\u5BA1\u7A3F\u65F6\u63D0\u4EA4\u7684\u8BBA\u6587\u4E0E\u8865\u5145\u6750\u6599",
+        "\u5DF2\u6709\u65B0\u589E\u5206\u6790\u6216\u5B9E\u9A8C\u7ED3\u679C\uFF08\u5982\u6709\uFF09",
+        "\u73B0\u5B9E\u8D44\u6E90\u3001\u622A\u6B62\u65F6\u95F4\u4E0E\u4F5C\u8005\u8FB9\u754C"
+      ],
+      inputHint: "\u8BF7\u4FDD\u7559 reviewer \u7F16\u53F7\u548C\u8BC4\u8BBA\u539F\u6587\u3002\u5F53\u524D\u9636\u6BB5\u53EA\u5F62\u6210\u4FEE\u6539\u8BA1\u5212\uFF0C\u4E0D\u76F4\u63A5\u5199\u56DE\u590D\u4FE1\u6216\u4FEE\u6539\u8BBA\u6587\u3002",
+      promptTitle: "\u8FD4\u4FEE\u89C4\u5212 Prompt",
+      promptPurpose: "\u628A\u5BA1\u7A3F\u610F\u89C1\u8F6C\u5316\u4E3A\u53EF\u6392\u5E8F\u3001\u53EF\u5224\u65AD\u3001\u53EF\u6267\u884C\u7684\u4FEE\u6539\u4EFB\u52A1\u3002"
+    },
+    en: {
+      eyebrow: "REVISION PLANNING",
+      title: "Revision planning",
+      subtitle: "Split, deduplicate, and prioritize multiple reviews before deciding which concerns need experiments, analysis, explanation, or claim narrowing.",
+      preset: "Deduplicated concerns \xB7 P0/P1/P2 \xB7 A/B/C/D classes",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "All reviews and the editor decision",
+        "The reviewed manuscript and supplement",
+        "Any completed additional analyses or experiments",
+        "Real resource limits, deadline, and author boundaries"
+      ],
+      inputHint: "Preserve reviewer identifiers and original wording. This stage creates a revision plan only; it does not draft the response letter or edit the manuscript.",
+      promptTitle: "Revision-planning prompt",
+      promptPurpose: "Convert reviews into ordered, classifiable, and executable revision tasks."
+    }
+  }),
+  controls: [
+    {
+      id: "evidencePolicy",
+      kind: "segmented",
+      label: text3("\u53EF\u8003\u8651\u7684\u65B0\u589E\u8BC1\u636E", "Permitted new evidence"),
+      description: text3(
+        "\u8FD9\u662F\u89C4\u5212\u4E0A\u9650\uFF0C\u4E0D\u4EE3\u8868\u9ED8\u8BA4\u9700\u8981\u8865\u5B9E\u9A8C\u3002",
+        "This is the planning ceiling, not a default requirement to add experiments."
+      ),
+      defaultValue: "analysis",
+      options: Object.entries(EVIDENCE_POLICIES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      span: "full"
+    },
+    {
+      id: "resourceWindow",
+      kind: "text",
+      label: text3("\u8D44\u6E90\u4E0E\u65F6\u95F4\u7A97\u53E3", "Resource and time window"),
+      description: text3(
+        "\u7528\u4E8E\u5224\u65AD\u6700\u5C0F\u53EF\u884C\u5B9E\u9A8C\u548C\u4FEE\u6539\u987A\u5E8F\uFF0C\u4E0D\u7528\u6765\u63A9\u76D6\u5173\u952E\u8BC1\u636E\u7F3A\u53E3\u3002",
+        "Use this to scope minimum viable experiments and ordering, not to conceal critical evidence gaps."
+      ),
+      defaultValue: "",
+      placeholder: text3(
+        "\u4F8B\u5982\uFF1A14 \u5929\uFF0C2\xD7A100\uFF0C\u4E0D\u80FD\u65B0\u589E\u4EBA\u5DE5\u6807\u6CE8",
+        "For example: 14 days, 2\xD7A100, no new manual annotation"
+      ),
+      visibleWhen: (values) => scalar3(values, "evidencePolicy") !== "existing"
+    },
+    {
+      id: "executionPlan",
+      kind: "toggle",
+      label: text3("\u4EFB\u52A1\u4F9D\u8D56\u4E0E\u6267\u884C\u6279\u6B21", "Dependencies and execution batches"),
+      description: text3(
+        "\u5728\u63A8\u8350\u987A\u5E8F\u4E4B\u5916\uFF0C\u6807\u51FA\u53EF\u5E76\u884C\u4EFB\u52A1\u548C\u5FC5\u987B\u7B49\u5F85\u7684\u4F9D\u8D56\u3002",
+        "Beyond the recommended order, identify parallel tasks and blocking dependencies."
+      ),
+      defaultValue: true,
+      enabledLabel: text3("\u8F93\u51FA\u6267\u884C\u6279\u6B21", "Include execution batches"),
+      disabledLabel: text3("\u53EA\u7ED9\u63A8\u8350\u987A\u5E8F", "Recommended order only")
+    },
+    {
+      id: "decisionContext",
+      kind: "textarea",
+      label: text3("\u7F16\u8F91\u51B3\u5B9A\u4E0E\u672C\u8F6E\u80CC\u666F", "Decision and revision context"),
+      description: text3(
+        "\u53EF\u586B\u5199\u7F16\u8F91\u6458\u8981\u3001\u622A\u6B62\u65F6\u95F4\u3001\u56DE\u590D\u7BC7\u5E45\u6216\u672C\u8F6E\u5FC5\u987B\u5904\u7406\u7684\u4E8B\u9879\u3002",
+        "Optionally include the editor summary, deadline, response limit, or mandatory items for this round."
+      ),
+      defaultValue: "",
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text3("\u4F5C\u8005\u8D44\u6E90\u4E0E\u8FB9\u754C", "Author resources and boundaries"),
+      description: text3(
+        "\u4F8B\u5982\u65E0\u6CD5\u83B7\u53D6\u65B0\u6570\u636E\u3001\u67D0\u9879\u5B9E\u9A8C\u5DF2\u5931\u8D25\uFF0C\u6216\u67D0\u4E2A\u7ED3\u8BBA\u5141\u8BB8\u4E3B\u52A8\u6536\u7F29\u3002",
+        "For example, unavailable new data, a failed experiment, or a claim that may be narrowed."
+      ),
+      defaultValue: "",
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    }
+  ],
+  buildPrompt(values, language) {
+    const evidencePolicy = scalar3(values, "evidencePolicy");
+    const resourceWindow = scalar3(values, "resourceWindow");
+    const decisionContext = scalar3(values, "decisionContext") || (language === "zh" ? "\u672A\u63D0\u4F9B" : "Not supplied");
+    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    if (language === "zh") {
+      return `# \u6574\u7406\u5BA1\u7A3F\u610F\u89C1\u5E76\u5236\u5B9A\u8FD4\u4FEE\u8BA1\u5212
+
+\u4F60\u662F\u4E00\u540D\u7ECF\u9A8C\u4E30\u5BCC\u7684\u8BBA\u6587\u8FD4\u4FEE\u89C4\u5212\u987E\u95EE\u3002\u8BF7\u5B8C\u6574\u9605\u8BFB\u8BBA\u6587\u3001\u8865\u5145\u6750\u6599\u3001\u7F16\u8F91\u51B3\u5B9A\u548C\u591A\u4F4D\u5BA1\u7A3F\u4EBA\u7684\u539F\u59CB\u610F\u89C1\u3002\u5F53\u524D\u9636\u6BB5\u5148\u4E0D\u8981\u5199\u56DE\u590D\u4FE1\uFF0C\u4E5F\u4E0D\u8981\u4FEE\u6539\u8BBA\u6587\uFF1B\u76EE\u6807\u662F\u628A\u610F\u89C1\u6574\u7406\u6210\u4E00\u4EFD\u6E05\u6670\u3001\u53EF\u6267\u884C\u4E14\u8BC1\u636E\u8BDA\u5B9E\u7684\u4FEE\u6539\u8BA1\u5212\u3002
+
+\u7F16\u8F91\u51B3\u5B9A\u4E0E\u672C\u8F6E\u80CC\u666F\uFF1A${decisionContext}\u3002\u53EF\u8003\u8651\u7684\u65B0\u589E\u8BC1\u636E\uFF1A${labelFor2(evidencePolicy, EVIDENCE_POLICIES, language)}${evidencePolicy !== "existing" ? `\uFF1B\u73B0\u5B9E\u8D44\u6E90\u4E0E\u65F6\u95F4\uFF1A${resourceWindow || "\u672A\u63D0\u4F9B\uFF0C\u65B9\u6848\u987B\u4FDD\u5B88\u5E76\u6807\u51FA\u4F9D\u8D56\u4F5C\u8005\u786E\u8BA4\u7684\u8D44\u6E90"}` : "\uFF1B\u5373\u4F7F\u53D1\u73B0\u6838\u5FC3\u7ED3\u8BBA\u5FC5\u987B\u8865\u5B9E\u9A8C\uFF0C\u4E5F\u8981\u5982\u5B9E\u6807\u4E3A\u963B\u585E\u9879\uFF0C\u4E0D\u5F97\u5047\u88C5\u53EF\u7531\u6587\u5B57\u89E3\u51B3"}\u3002\u4F5C\u8005\u8D44\u6E90\u4E0E\u8FB9\u754C\uFF1A${custom}\u3002
+
+\u8BF7\u5B8C\u6210\uFF1A
+1. \u6309 reviewer \u548C\u539F\u59CB\u8BC4\u8BBA\u987A\u5E8F\u62C6\u5206\u72EC\u7ACB\u95EE\u9898\uFF0C\u4E3A\u539F\u8BC4\u8BBA\u5EFA\u7ACB\u7A33\u5B9A\u5F15\u7528\uFF08\u5982 R1-C1\uFF09\uFF0C\u4E0D\u8981\u628A\u4E00\u6761\u590D\u5408\u610F\u89C1\u6F0F\u6389\u5B50\u95EE\u9898\u3002
+2. \u5C06\u4E0D\u540C\u5BA1\u7A3F\u4EBA\u7684\u76F8\u540C\u6216\u76F8\u4F3C\u95EE\u9898\u5408\u5E76\u4E3A\u4E3B\u9898\u95EE\u9898\uFF0C\u540C\u65F6\u4FDD\u7559\u5168\u90E8\u6765\u6E90\u548C\u539F\u8BC4\u8BBA\u6620\u5C04\uFF1B\u76F8\u4F3C\u4F46\u8BC1\u636E\u8981\u6C42\u4E0D\u540C\u7684\u95EE\u9898\u4E0D\u8981\u5F3A\u884C\u5408\u5E76\u3002
+3. \u6807\u6CE8\u4F18\u5148\u7EA7\uFF1AP0\uFF1D\u5F71\u54CD\u6838\u5FC3\u7ED3\u8BBA\u6216\u63A5\u6536\u5224\u65AD\uFF0C\u5FC5\u987B\u4F18\u5148\uFF1BP1\uFF1D\u91CD\u8981\u95EE\u9898\uFF0C\u9700\u8981\u8BA4\u771F\u4FEE\u6539\u6216\u89E3\u91CA\uFF1BP2\uFF1D\u6587\u5B57\u3001\u683C\u5F0F\u3001\u56FE\u8868\u3001\u5F15\u7528\u7B49\u6B21\u8981\u95EE\u9898\u3002
+4. \u6807\u6CE8\u5206\u7C7B\uFF1AA\uFF1D\u65E0\u9700\u8865\u5B9E\u9A8C\uFF0C\u53EF\u901A\u8FC7\u89E3\u91CA\u3001\u6B63\u6587\u4FEE\u6539\u3001\u8865\u5145\u5206\u6790\u6216\u6587\u732E\u89E3\u51B3\uFF1BB\uFF1D\u5FC5\u987B\u8865\u5B9E\u9A8C\u6216\u6570\u636E\uFF0C\u5426\u5219\u6838\u5FC3\u7ED3\u8BBA\u96BE\u4EE5\u6210\u7ACB\uFF1BC\uFF1D\u5BA1\u7A3F\u4EBA\u8981\u6C42\u5B9E\u9A8C\uFF0C\u4F46\u53EF\u901A\u8FC7\u660E\u786E\u8303\u56F4\u3001\u8865\u5145\u8BA8\u8BBA\u3001\u964D\u4F4E\u7ED3\u8BBA\u5F3A\u5EA6\u6216\u89E3\u91CA\u73B0\u5B9E\u9650\u5236\u4E89\u53D6\u4E0D\u8865\uFF1BD\uFF1D\u4FE1\u606F\u4E0D\u8DB3\uFF0C\u6682\u65F6\u65E0\u6CD5\u5224\u65AD\u3002
+5. \u5BF9\u9700\u8981\u5B9E\u9A8C\u7684\u95EE\u9898\uFF0C\u7ED9\u51FA\u6700\u5C0F\u53EF\u884C\u5B9E\u9A8C\u6216\u5206\u6790\uFF1A\u5F85\u9A8C\u8BC1\u5047\u8BBE\u3001\u6700\u5C0F\u5BF9\u7167\u3001\u6570\u636E\u3001\u6307\u6807\u3001\u5224\u65AD\u6807\u51C6\u548C\u5173\u952E\u8D44\u6E90\u3002\u4E0D\u8981\u6269\u5F20\u6210\u65B0\u7684\u7814\u7A76\u9879\u76EE\uFF0C\u4E5F\u4E0D\u8981\u865A\u6784\u9884\u671F\u7ED3\u679C\u3002
+6. \u5BF9\u5EFA\u8BAE\u4E0D\u8865\u5B9E\u9A8C\u7684\u95EE\u9898\uFF0C\u8BF4\u660E\u4E0D\u8865\u7406\u7531\u3001\u6B8B\u4F59\u98CE\u9669\uFF0C\u4EE5\u53CA\u6B63\u6587\u548C\u672A\u6765\u56DE\u590D\u4FE1\u5206\u522B\u5E94\u5982\u4F55\u5904\u7406\u3002\u4FE1\u606F\u4E0D\u8DB3\u65F6\u5199\u201C\u9700\u8981\u4F5C\u8005\u786E\u8BA4\u201D\uFF0C\u4E0D\u8981\u81EA\u884C\u5047\u8BBE\u3002
+
+\u8BF7\u8F93\u51FA\uFF1A
+
+| \u7F16\u53F7 | \u95EE\u9898 | \u6765\u6E90 | \u4F18\u5148\u7EA7 | \u5206\u7C7B | \u662F\u5426\u5F71\u54CD\u6838\u5FC3\u7ED3\u8BBA | \u5EFA\u8BAE\u89E3\u51B3\u65B9\u5F0F | \u662F\u5426\u8865\u5B9E\u9A8C | \u6700\u5C0F\u5B9E\u9A8C/\u5206\u6790\u65B9\u6848 | \u4E0D\u8865\u5B9E\u9A8C\u7684\u7406\u7531\u4E0E\u98CE\u9669 | \u4FEE\u6539\u4F4D\u7F6E |
+| -- | -- | -- | --- | -- | -------- | ------ | ----- | --------- | ---------- | ---- |
+
+\u8868\u683C\u540E\u603B\u7ED3\uFF1A
+1. \u4E0D\u8865\u5B9E\u9A8C\u5373\u53EF\u89E3\u51B3\u7684\u95EE\u9898\uFF1B
+2. \u5FC5\u987B\u8865\u5B9E\u9A8C\u7684\u95EE\u9898\uFF1B
+3. \u5BA1\u7A3F\u4EBA\u8981\u6C42\u5B9E\u9A8C\u4F46\u53EF\u4EE5\u4E89\u53D6\u4E0D\u8865\u7684\u95EE\u9898\uFF1B
+4. \u591A\u4F4D\u5BA1\u7A3F\u4EBA\u91CD\u590D\u63D0\u51FA\u7684\u95EE\u9898\uFF1B
+5. \u6700\u53EF\u80FD\u5F71\u54CD\u8BBA\u6587\u63A5\u6536\u7684 3 \u4E2A\u95EE\u9898\uFF1B
+6. \u63A8\u8350\u7684\u4FEE\u6539\u987A\u5E8F\u3002${enabled3(values, "executionPlan") ? "\n7. \u4EFB\u52A1\u4F9D\u8D56\u4E0E\u6267\u884C\u6279\u6B21\uFF1A\u6807\u51FA\u53EF\u5E76\u884C\u4EFB\u52A1\u3001\u524D\u7F6E\u4F9D\u8D56\u548C\u963B\u585E\u70B9\u3002" : ""}
+
+\u4E0D\u8981\u9ED8\u8BA4\u6240\u6709\u5B9E\u9A8C\u90FD\u5FC5\u987B\u8865\uFF0C\u4E5F\u4E0D\u8981\u4E3A\u4E86\u51CF\u5C11\u5DE5\u4F5C\u91CF\u800C\u62D2\u7EDD\u652F\u6491\u6838\u5FC3\u7ED3\u8BBA\u6240\u5FC5\u9700\u7684\u5B9E\u9A8C\u3002\u82E5\u610F\u89C1\u53EF\u80FD\u6765\u81EA\u8BBA\u6587\u8868\u8FBE\u4E0D\u6E05\uFF0C\u6307\u51FA\u6700\u9700\u8981\u6F84\u6E05\u7684\u4F4D\u7F6E\u548C\u8BEF\u8BFB\u8DEF\u5F84\u3002\u6240\u6709\u201C\u5DF2\u6709\u7ED3\u679C\u201D\u201C\u5DF2\u5B8C\u6210\u4FEE\u6539\u201D\u6216\u201C\u6587\u732E\u652F\u6301\u201D\u90FD\u5FC5\u987B\u6765\u81EA\u5B9E\u9645\u6750\u6599\uFF1B\u5F53\u524D\u53EA\u4EA4\u4ED8\u4FEE\u6539\u8BA1\u5212\uFF0C\u4E0D\u751F\u6210\u5B8C\u6574\u56DE\u590D\u4FE1\u3001\u4FEE\u6539\u7A3F\u6216\u865A\u6784\u627F\u8BFA\u3002`;
+    }
+    return `# Organize Reviews and Build a Revision Plan
+
+Act as an experienced manuscript-revision planning advisor. Read the paper, supplement, editor decision, and every review in full. Do not draft the response letter or edit the manuscript at this stage. Build a clear, executable, and evidence-honest revision plan first.
+
+Decision and revision context: ${decisionContext}. Permitted new evidence: ${labelFor2(evidencePolicy, EVIDENCE_POLICIES, language)}${evidencePolicy !== "existing" ? `; real resources and time: ${resourceWindow || "not supplied, so keep plans conservative and mark resource assumptions for author confirmation"}` : "; if the central claim truly requires a new experiment, mark it as a blocker rather than pretending prose can resolve it"}. Author resources and boundaries: ${custom}.
+
+Complete these tasks:
+1. Split every review into independent concerns in reviewer and original-comment order. Give each source comment a stable reference such as R1-C1, and preserve every sub-question in a compound comment.
+2. Merge genuinely identical or similar concerns across reviewers into thematic issues while preserving every source and source-comment mapping. Do not merge concerns whose evidence requirements differ materially.
+3. Assign priority: P0 affects the central conclusion or acceptance judgment and must be handled first; P1 is important and requires substantive revision or explanation; P2 covers secondary wording, format, figure, table, or citation issues.
+4. Assign class: A needs no new experiment and can be handled through explanation, manuscript revision, additional analysis, or literature; B requires an experiment or data because the central conclusion otherwise fails; C requests an experiment but may be resolved by clarifying scope, expanding discussion, narrowing claims, or explaining a real constraint; D lacks enough information to judge.
+5. For experimental concerns, give the minimum viable experiment or analysis: hypothesis, smallest meaningful comparison, data, metric, decision criterion, and critical resources. Do not expand it into a new research project or invent expected results.
+6. When recommending no new experiment, state the rationale, residual risk, and how the manuscript and a future response letter should each handle the concern. Mark insufficient information as \u201Cauthor confirmation required\u201D rather than guessing.
+
+Return this table:
+
+| ID | Concern | Source | Priority | Class | Affects central conclusion? | Recommended resolution | New experiment? | Minimum experiment/analysis | Rationale and risk of no experiment | Revision location |
+| -- | -- | -- | --- | -- | -------- | ------ | ----- | --------- | ---------- | ---- |
+
+Then summarize:
+1. Concerns resolvable without new experiments;
+2. Concerns that require experiments;
+3. Experiment requests that may reasonably be declined;
+4. Concerns repeated by multiple reviewers;
+5. The three issues most likely to affect acceptance;
+6. Recommended revision order.${enabled3(values, "executionPlan") ? "\n7. Dependencies and execution batches, including parallel tasks, prerequisites, and blockers." : ""}
+
+Do not assume every requested experiment is necessary, but do not reject evidence essential to the central claim merely to reduce workload. When a concern may arise from unclear writing, identify the likely location and misreading path. Every statement that a result exists, a change is complete, or literature supports a claim must come from supplied evidence. Deliver only the revision plan\u2014no full response letter, revised manuscript, or invented commitment.`;
+  }
+};
+
 // content/workflows/skillWorkflows.ts
-var SKILL_WORKFLOW_VERSION = "2026.07.30";
+var SKILL_WORKFLOW_VERSION = "2026.08.07";
 var YANSHU_SKILL_CATALOG = [
   {
     id: "idea-discovery",
@@ -3301,6 +4206,52 @@ var YANSHU_SKILL_CATALOG = [
     output: {
       zh: "\u53EF\u590D\u73B0\u4EE3\u7801\u3001\u51FA\u7248\u7EA7\u56FE\u4EF6\u4E0E\u6D3E\u751F\u6570\u636E",
       en: "Reproducible code, publication assets, and derived data"
+    }
+  },
+  {
+    id: "peer-review",
+    index: "07",
+    skillName: "Peer Review",
+    websitePath: "/submission/review",
+    title: { zh: "\u72EC\u7ACB\u5BA1\u7A3F", en: "Review a manuscript" },
+    description: {
+      zh: "\u4ECE\u8D21\u732E\u3001\u65B9\u6CD5\u3001\u8BC1\u636E\u3001\u7ED3\u8BBA\u8FB9\u754C\u548C\u53EF\u590D\u73B0\u6027\u7B49\u7EF4\u5EA6\u751F\u6210\u72EC\u7ACB\u3001\u53EF\u8FFD\u6EAF\u7684\u5BA1\u7A3F\u62A5\u544A\u3002",
+      en: "Produce an independent, traceable review across contribution, method, evidence, claim calibration, and reproducibility."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $peer-review \u5BA1\u7A3F\u8FD9\u4E2A\u8BBA\u6587\u76EE\u5F55\u3002",
+      en: "Use $peer-review to review the manuscript in this directory."
+    },
+    input: {
+      zh: "\u8BBA\u6587\u3001\u53EF\u9009\u8865\u5145\u6750\u6599\u3001\u4EE3\u7801\u4E0E\u6570\u636E",
+      en: "Manuscript with optional supplement, code, and data"
+    },
+    output: {
+      zh: "\u7ED3\u6784\u5316\u540C\u884C\u8BC4\u5BA1 Markdown",
+      en: "Structured peer-review Markdown"
+    }
+  },
+  {
+    id: "revision-planning",
+    index: "08",
+    skillName: "Revision Planning",
+    websitePath: "/submission/revision",
+    title: { zh: "\u89C4\u5212\u8BBA\u6587\u8FD4\u4FEE", en: "Plan a manuscript revision" },
+    description: {
+      zh: "\u5408\u5E76\u591A\u4F4D\u5BA1\u7A3F\u4EBA\u7684\u91CD\u590D\u610F\u89C1\uFF0C\u5B8C\u6210 P0/P1/P2 \u4E0E A/B/C/D \u5206\u7C7B\uFF0C\u5E76\u89C4\u5212\u6700\u5C0F\u5B9E\u9A8C\u4E0E\u4FEE\u6539\u987A\u5E8F\u3002",
+      en: "Merge repeated reviewer concerns, assign P0/P1/P2 and A/B/C/D classes, and plan minimum experiments and revision order."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $revision-planning \u6574\u7406\u8FD9\u4E9B\u5BA1\u7A3F\u610F\u89C1\u5E76\u5236\u5B9A\u8FD4\u4FEE\u8BA1\u5212\u3002",
+      en: "Use $revision-planning to organize these reviews and build a revision plan."
+    },
+    input: {
+      zh: "\u5BA1\u7A3F\u610F\u89C1\u3001\u7F16\u8F91\u51B3\u5B9A\u3001\u8BBA\u6587\u4E0E\u771F\u5B9E\u65B0\u589E\u8BC1\u636E",
+      en: "Reviews, editor decision, manuscript, and authentic new evidence"
+    },
+    output: {
+      zh: "\u8FD4\u4FEE\u4F18\u5148\u7EA7\u4E0E\u5B9E\u9A8C\u51B3\u7B56 Markdown",
+      en: "Revision-priority and experiment-decision Markdown"
     }
   }
 ];
@@ -4076,12 +5027,169 @@ var WRITING_DIAGNOSIS_MODEL = {
     ...getDefaultWritingDiagnosisValues()
   }
 };
+function workbenchDefaults(definition) {
+  return Object.fromEntries(
+    definition.controls.map((control) => [
+      control.id,
+      control.defaultValue
+    ])
+  );
+}
+var PEER_REVIEW_SECTIONS = [
+  {
+    id: "approach",
+    index: "01",
+    title: localized("\u8BC4\u5BA1\u4EFB\u52A1", "Review task"),
+    description: localized(
+      "\u9009\u62E9\u5B8C\u6574\u8BC4\u5BA1\u3001\u98CE\u9669\u7B5B\u67E5\u6216\u538B\u529B\u6D4B\u8BD5\uFF0C\u4EE5\u53CA\u5B9E\u9645\u53EF\u7528\u6750\u6599\u3002",
+      "Choose full review, risk screening, or stress testing and define available materials."
+    )
+  },
+  {
+    id: "dimensions",
+    index: "02",
+    title: localized("\u8BC1\u636E\u4E0E\u7EF4\u5EA6", "Evidence and dimensions"),
+    description: localized(
+      "\u63A7\u5236\u9700\u8981\u68C0\u67E5\u7684\u79D1\u5B66\u7EF4\u5EA6\u548C\u662F\u5426\u8054\u7F51\u6838\u67E5\u6587\u732E\u3002",
+      "Set the scientific dimensions and whether literature should be verified online."
+    )
+  },
+  {
+    id: "delivery",
+    index: "03",
+    title: localized("\u5224\u65AD\u4E0E\u4EA4\u4ED8", "Judgment and delivery"),
+    description: localized(
+      "\u9009\u62E9\u901A\u7528\u8BC4\u5206\u5361\u5E76\u8865\u5145\u672C\u6B21\u7279\u522B\u5173\u6CE8\u7684\u95EE\u9898\u3002",
+      "Choose the venue-neutral scorecard and add concerns specific to this review."
+    )
+  }
+];
+var PEER_REVIEW_FIELD_SECTIONS = {
+  mode: "approach",
+  materialScope: "approach",
+  dimensions: "dimensions",
+  browseLiterature: "dimensions",
+  scorecard: "delivery",
+  custom: "delivery"
+};
+function peerReviewWorkflowField(control) {
+  return configurableWorkbenchField(
+    control,
+    PEER_REVIEW_FIELD_SECTIONS[control.id] ?? "delivery"
+  );
+}
+var PEER_REVIEW_MODEL = {
+  id: "peer-review",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "peer-review",
+  websitePath: "/submission/review",
+  title: localized("\u5BA1\u7A3F", "Peer Review"),
+  eyebrow: "YANSHU \xB7 PEER REVIEW",
+  description: localized(
+    "\u4ECE\u5B9E\u9645\u8BBA\u6587\u8BC1\u636E\u751F\u6210\u72EC\u7ACB\u3001\u5206\u7EA7\u4E14\u53EF\u6267\u884C\u7684\u540C\u884C\u8BC4\u5BA1\u62A5\u544A\u3002",
+    "Generate an independent, severity-aware, actionable review from actual manuscript evidence."
+  ),
+  materialTitle: localized("\u9700\u8981\u6750\u6599", "Required materials"),
+  materialItems: {
+    zh: ["\u8BBA\u6587\u4E3B\u7A3F", "\u8865\u5145\u6750\u6599\uFF08\u5EFA\u8BAE\uFF09", "\u6309\u914D\u7F6E\u63D0\u4F9B\u4EE3\u7801\u4E0E\u6570\u636E"],
+    en: ["Main manuscript", "Supplement (recommended)", "Code and data when configured"]
+  },
+  materialHint: localized(
+    "\u4E0D\u533A\u5206\u4F1A\u8BAE\u6216\u671F\u520A\uFF1B\u53EA\u8BC4\u4EF7\u5B9E\u9645\u63D0\u4F9B\u4E14\u53EF\u8BFB\u53D6\u7684\u6750\u6599\uFF0C\u4E0D\u4FEE\u6539\u8BBA\u6587\u3002",
+    "No conference/journal split: review only supplied readable material and never edit the manuscript."
+  ),
+  output: localized(
+    "\u4E00\u4EFD\u7ED3\u6784\u5316 `peer_review.md`\uFF0C\u5305\u542B\u4E3B\u8981\u95EE\u9898\u3001\u6B21\u8981\u95EE\u9898\u3001\u6F84\u6E05\u95EE\u9898\u4E0E\u603B\u4F53\u98CE\u9669\u3002",
+    "A structured `peer_review.md` with major concerns, minor concerns, clarification questions, and overall risk."
+  ),
+  sections: PEER_REVIEW_SECTIONS,
+  fields: PEER_REVIEW_WORKBENCH.controls.map(peerReviewWorkflowField),
+  defaults: workbenchDefaults(PEER_REVIEW_WORKBENCH)
+};
+var REVISION_PLANNING_SECTIONS = [
+  {
+    id: "evidence",
+    index: "01",
+    title: localized("\u8BC1\u636E\u4E0E\u8D44\u6E90", "Evidence and resources"),
+    description: localized(
+      "\u9650\u5B9A\u89C4\u5212\u4E2D\u53EF\u8003\u8651\u7684\u65B0\u589E\u8BC1\u636E\u4E0E\u771F\u5B9E\u6267\u884C\u7A97\u53E3\u3002",
+      "Bound the new evidence and real execution window considered by the plan."
+    )
+  },
+  {
+    id: "context",
+    index: "02",
+    title: localized("\u672C\u8F6E\u80CC\u666F", "Revision context"),
+    description: localized(
+      "\u63D0\u4F9B\u7F16\u8F91\u51B3\u5B9A\u3001\u622A\u6B62\u65F6\u95F4\u4E0E\u4F5C\u8005\u73B0\u5B9E\u8FB9\u754C\u3002",
+      "Provide the editor decision, deadline, and real author constraints."
+    )
+  },
+  {
+    id: "delivery",
+    index: "03",
+    title: localized("\u8BA1\u5212\u4EA4\u4ED8", "Plan delivery"),
+    description: localized(
+      "\u63A7\u5236\u662F\u5426\u8FDB\u4E00\u6B65\u8F93\u51FA\u4EFB\u52A1\u4F9D\u8D56\u3001\u5E76\u884C\u6279\u6B21\u548C\u963B\u585E\u70B9\u3002",
+      "Choose whether to include dependencies, parallel batches, and blockers."
+    )
+  }
+];
+var REVISION_PLANNING_FIELD_SECTIONS = {
+  evidencePolicy: "evidence",
+  resourceWindow: "evidence",
+  decisionContext: "context",
+  custom: "context",
+  executionPlan: "delivery"
+};
+function revisionPlanningWorkflowField(control) {
+  const field = configurableWorkbenchField(
+    control,
+    REVISION_PLANNING_FIELD_SECTIONS[control.id] ?? "delivery"
+  );
+  if (control.id === "resourceWindow") {
+    field.visibleWhen = { fieldId: "evidencePolicy", notEquals: "existing" };
+  }
+  return field;
+}
+var REVISION_PLANNING_MODEL = {
+  id: "revision-planning",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "revision-planning",
+  websitePath: "/submission/revision",
+  title: localized("\u8FD4\u4FEE\u89C4\u5212", "Revision Planning"),
+  eyebrow: "YANSHU \xB7 REVISION PLANNING",
+  description: localized(
+    "\u628A\u591A\u4F4D\u5BA1\u7A3F\u4EBA\u7684\u610F\u89C1\u62C6\u5206\u3001\u5408\u5E76\u3001\u5206\u7EA7\u5E76\u8F6C\u5316\u4E3A\u8BC1\u636E\u8BDA\u5B9E\u7684\u4FEE\u6539\u8BA1\u5212\u3002",
+    "Split, merge, prioritize, and classify multiple reviews into an evidence-honest revision plan."
+  ),
+  materialTitle: localized("\u9700\u8981\u6750\u6599", "Required materials"),
+  materialItems: {
+    zh: ["\u5168\u90E8\u5BA1\u7A3F\u610F\u89C1", "\u7F16\u8F91\u51B3\u5B9A", "\u88AB\u5BA1\u7A3F\u4EF6\u4E0E\u8865\u5145\u6750\u6599", "\u771F\u5B9E\u65B0\u589E\u8BC1\u636E\uFF08\u5982\u6709\uFF09"],
+    en: ["All reviews", "Editor decision", "Reviewed manuscript and supplement", "Authentic new evidence, if any"]
+  },
+  materialHint: localized(
+    "\u4FDD\u7559 reviewer \u7F16\u53F7\u548C\u539F\u8BC4\u8BBA\uFF1B\u672C\u9636\u6BB5\u4E0D\u5199\u56DE\u590D\u4FE1\uFF0C\u4E5F\u4E0D\u4FEE\u6539\u8BBA\u6587\u3002",
+    "Preserve reviewer IDs and source comments. This stage drafts neither a response letter nor a revised manuscript."
+  ),
+  output: localized(
+    "\u4E00\u4EFD `revision_plan.md`\uFF0C\u5305\u542B P0/P1/P2\u3001A/B/C/D\u3001\u6700\u5C0F\u5B9E\u9A8C\u4E0E\u63A8\u8350\u987A\u5E8F\u3002",
+    "A `revision_plan.md` containing P0/P1/P2 priorities, A/B/C/D classes, minimum experiments, and revision order."
+  ),
+  sections: REVISION_PLANNING_SECTIONS,
+  fields: REVISION_PLANNING_WORKBENCH.controls.map(
+    revisionPlanningWorkflowField
+  ),
+  defaults: workbenchDefaults(REVISION_PLANNING_WORKBENCH)
+};
 var CONFIGURABLE_MODELS = {
   "idea-discovery": IDEA_DISCOVERY_MODEL,
   "paper-drafting": PAPER_DRAFTING_MODEL,
   "writing-diagnosis": WRITING_DIAGNOSIS_MODEL,
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
-  "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL
+  "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
+  "peer-review": PEER_REVIEW_MODEL,
+  "revision-planning": REVISION_PLANNING_MODEL
 };
 var CONFIGURABLE_SKILL_WORKFLOW_IDS = Object.keys(
   CONFIGURABLE_MODELS
@@ -4099,6 +5207,54 @@ function numberValue(value, fallback, min, max) {
 }
 function allowedValue(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
+}
+function normalizeWorkbenchPreferences(definition, input) {
+  const normalized = {};
+  for (const control of definition.controls) {
+    const raw = input[control.id];
+    let value = control.defaultValue;
+    if (control.kind === "toggle") {
+      value = booleanValue(raw, control.defaultValue);
+    } else if (control.kind === "number") {
+      value = numberValue(
+        raw,
+        control.defaultValue,
+        control.min,
+        control.max
+      );
+    } else if (control.kind === "range") {
+      const candidate = Array.isArray(raw) ? raw : control.defaultValue;
+      const low = numberValue(
+        candidate[0],
+        control.defaultValue[0],
+        control.min,
+        control.max
+      );
+      const high = numberValue(
+        candidate[1],
+        control.defaultValue[1],
+        control.min,
+        control.max
+      );
+      value = [Math.min(low, high), Math.max(low, high)];
+    } else if (control.kind === "multi") {
+      const allowed = control.options.map((option) => option.value);
+      const candidate = Array.isArray(raw) ? [...new Set(raw.filter(
+        (item) => typeof item === "string" && allowed.includes(item)
+      ))] : [...control.defaultValue];
+      value = candidate.length >= (control.minSelected ?? 0) ? candidate : [...control.defaultValue];
+    } else if (control.kind === "select" || control.kind === "segmented") {
+      value = allowedValue(
+        raw,
+        control.options.map((option) => option.value),
+        control.defaultValue
+      );
+    } else if (control.kind === "text" || control.kind === "textarea") {
+      value = textValue(raw, control.defaultValue);
+    }
+    normalized[control.id] = value;
+  }
+  return normalized;
 }
 function normalizeIdeaPreferences(input) {
   const defaults = DEFAULT_IDEA_PREFERENCES_BY_MODE.discovery;
@@ -4250,6 +5406,12 @@ function normalizeSkillWorkflowPreferences(workflowId, input = {}) {
   if (workflowId === "experimental-plotting") {
     return normalizeExperimentalPlotValues(input);
   }
+  if (workflowId === "peer-review") {
+    return normalizeWorkbenchPreferences(PEER_REVIEW_WORKBENCH, input);
+  }
+  if (workflowId === "revision-planning") {
+    return normalizeWorkbenchPreferences(REVISION_PLANNING_WORKBENCH, input);
+  }
   return normalizeFigurePreferences(input);
 }
 function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage = "zh") {
@@ -4302,6 +5464,28 @@ function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage 
       allowComposite: plotPreferences.allowComposite,
       panelCount: plotPreferences.panelCount,
       palette: plotPreferences.palette
+    };
+  } else if (workflowId === "peer-review") {
+    const reviewPreferences = preferences;
+    prompt = PEER_REVIEW_WORKBENCH.buildPrompt(
+      reviewPreferences,
+      promptLanguage
+    );
+    selection = {
+      mode: reviewPreferences.mode,
+      materialScope: reviewPreferences.materialScope,
+      dimensions: reviewPreferences.dimensions,
+      browseLiterature: reviewPreferences.browseLiterature
+    };
+  } else if (workflowId === "revision-planning") {
+    const revisionPreferences = preferences;
+    prompt = REVISION_PLANNING_WORKBENCH.buildPrompt(
+      revisionPreferences,
+      promptLanguage
+    );
+    selection = {
+      evidencePolicy: revisionPreferences.evidencePolicy,
+      executionPlan: revisionPreferences.executionPlan
     };
   } else {
     const figurePreferences = preferences;

@@ -46,13 +46,15 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /一句话启动/);
   assert.match(html, /先选择由谁执行/);
   assert.match(html, /一次配置后直接执行/);
-  assert.match(html, /六个重要的全链路入口/);
+  assert.match(html, /八个重要的全链路入口/);
   assert.match(html, /Idea Discovery/);
   assert.match(html, /Paper Drafting/);
   assert.match(html, /Writing Diagnosis/);
   assert.match(html, /Paper Reconstruction/);
   assert.match(html, /Scientific Figure/);
   assert.match(html, /Experimental Plotting/);
+  assert.match(html, /Peer Review/);
+  assert.match(html, /Revision Planning/);
   assert.match(
     html,
     /使用 \$paper-drafting 根据这个实验目录撰写论文初稿/,
@@ -65,6 +67,8 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /\$writing-diagnosis/);
   assert.match(html, /\$scientific-figure/);
   assert.match(html, /\$experimental-plotting/);
+  assert.match(html, /\$peer-review/);
+  assert.match(html, /\$revision-planning/);
   assert.match(html, /自动执行，或只复制 Prompt/);
   assert.match(html, /网站与插件共享 Prompt 数据/);
   assert.match(html, /论文写作/);
@@ -94,7 +98,8 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /投稿定位/);
   assert.match(html, /投稿前终检/);
   assert.match(html, /投稿材料/);
-  assert.match(html, /审稿与返修/);
+  assert.match(html, /审稿/);
+  assert.match(html, /返修规划/);
   assert.match(html, /搜索功能或页面/);
   assert.doesNotMatch(html, /关于研术台|About YanShu/);
   assert.match(html, /href="\/draft"/);
@@ -116,6 +121,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/submission\/check"/);
   assert.match(html, /href="\/submission\/materials"/);
   assert.match(html, /href="\/submission\/review"/);
+  assert.match(html, /href="\/submission\/revision"/);
   assert.match(html, /class="home-demo"/);
   assert.match(html, /class="home-guide-grid"/);
   assert.match(html, /class="home-skill-grid"/);
@@ -140,7 +146,8 @@ test("server-renders every configured research workbench", async (context) => {
     ["/figures/audit", "图表审计"],
     ["/submission/check", "投稿前终检"],
     ["/submission/materials", "投稿材料"],
-    ["/submission/review", "审稿与返修"],
+    ["/submission/review", "审稿"],
+    ["/submission/revision", "返修规划"],
   ];
 
   for (const [path, title] of pages) {
@@ -155,6 +162,36 @@ test("server-renders every configured research workbench", async (context) => {
       assert.match(html, /恢复默认配置/, path);
     });
   }
+});
+
+test("separates independent peer review from revision planning", async () => {
+  const reviewResponse = await render("/submission/review");
+  assert.equal(reviewResponse.status, 200);
+  const review = await reviewResponse.text();
+  assert.match(review, /完整同行评审/);
+  assert.match(review, /评审材料范围/);
+  assert.match(review, /评审维度/);
+  assert.match(review, /联网核查相关文献/);
+  assert.match(review, /通用评分卡/);
+  assert.match(review, /不预设其属于会议或期刊/);
+  assert.match(review, /主要问题表/);
+  assert.match(review, /当前任务只输出审稿报告，不修改论文/);
+  assert.doesNotMatch(review, /任务类型|审稿阶段|回复语气|修改交付/);
+
+  const revisionResponse = await render("/submission/revision");
+  assert.equal(revisionResponse.status, 200);
+  const revision = await revisionResponse.text();
+  assert.match(revision, /返修规划/);
+  assert.match(revision, /可考虑的新增证据/);
+  assert.match(revision, /任务依赖与执行批次/);
+  assert.match(revision, /P0＝影响核心结论或接收判断/);
+  assert.match(revision, /A＝无需补实验/);
+  assert.match(revision, /B＝必须补实验或数据/);
+  assert.match(revision, /C＝审稿人要求实验/);
+  assert.match(revision, /D＝信息不足/);
+  assert.match(revision, /最小实验\/分析方案/);
+  assert.match(revision, /当前只交付修改计划，不生成完整回复信/);
+  assert.doesNotMatch(revision, /投稿类型|会议讨论 \/ Rebuttal/);
 });
 
 test("server-renders the habit-focused academic-writing diagnosis workbench", async () => {
@@ -266,8 +303,13 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
     submissionWorkflow,
     /id:\s*"materials"[\s\S]*?defaultValue:\s*\["cover"\]/,
   );
-  assert.match(submissionWorkflow, /id:\s*"responseLimits"/);
-  assert.match(submissionWorkflow, /next\.decision = "discussion"/);
+  assert.match(submissionWorkflow, /PEER_REVIEW_WORKBENCH/);
+  assert.match(submissionWorkflow, /REVISION_PLANNING_WORKBENCH/);
+  assert.match(submissionWorkflow, /id:\s*"browseLiterature"/);
+  assert.match(submissionWorkflow, /不预设其属于会议或期刊/);
+  assert.match(submissionWorkflow, /P0＝影响核心结论或接收判断/);
+  assert.match(submissionWorkflow, /A＝无需补实验/);
+  assert.match(submissionWorkflow, /当前只交付修改计划/);
 });
 
 test("server-renders the evidence-grounded idea-discovery workbench", async () => {
@@ -603,6 +645,9 @@ test("server-renders submission strategy filters and its live prompt", async () 
   assert.match(html, /SSCI/);
   assert.match(html, /AHCI/);
   assert.match(html, /ESCI/);
+  assert.match(html, /排除指定出版社/);
+  assert.match(html, /排除 MDPI、Hindawi、Frontiers/);
+  assert.match(html, /默认排除这三家出版社旗下期刊/);
   assert.match(html, /投稿目标检索与官网核验/);
   assert.match(
     html,
@@ -627,11 +672,12 @@ test("server-renders submission strategy filters and its live prompt", async () 
   assert.match(html, /JCR 分区：不限/);
   assert.match(html, /中科院分区：不限/);
   assert.match(html, /收录索引：不限/);
-  assert.match(html, /固定排除：MDPI, Hindawi, Frontiers/);
+  assert.match(html, /排除出版社：MDPI, Hindawi, Frontiers/);
+  assert.doesNotMatch(html, /固定排除/);
   assert.match(html, /以上均为候选池筛选条件/);
   assert.match(html, /当前可投稿状态/);
   assert.match(html, /不能仅凭历史上发表过综述推断/);
-  assert.match(html, /MDPI、Hindawi 和 Frontiers 是用户明确排除项/);
+  assert.match(html, /用户已选择排除 MDPI、Hindawi、Frontiers/);
   assert.match(html, /直接在当前对话中给出完整中文检索结果/);
   assert.match(html, /未生成文件/);
   assert.doesNotMatch(html, /### 文件名/);
@@ -1052,7 +1098,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.doesNotMatch(originalPrompts, /## 本轮文件名[\s\S]*journal_targeting/);
   assert.match(
     originalPrompts,
-    /MDPI、Hindawi 和 Frontiers 是用户明确排除的出版社/,
+    /\{\{publisher_exclusion_bullet\}\}/,
   );
   assert.match(
     originalPrompts,
@@ -1130,7 +1176,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /href:\s*"\/submission"/);
   assert.equal(
     (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
-    22,
+    23,
   );
   assert.equal(
     (navigationConfig.match(/status:\s*"future",/g) ?? []).length,
@@ -1182,6 +1228,9 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(builder, /labels\.casZones/);
   assert.match(builder, /labels\.citationIndexes/);
   assert.match(builder, /labels\.excludedPublishers/);
+  assert.match(builder, /interpolateSubmissionPreferences/);
+  assert.match(builder, /publisher_exclusion_sentence/);
+  assert.match(builder, /publisher_exclusion_bullet/);
   assert.match(builder, /PROMPT_DETAILED_CONSTRAINTS/);
   assert.match(builder, /PROMPT_STEP_POLICIES/);
   assert.match(builder, /temporary_ceiling_words/);
@@ -1261,6 +1310,8 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(submission, /preferences\.apc === "yes"/);
   assert.match(submission, /preferences\.useImpactFactorRange/);
   assert.match(submission, /preferences\.requireReviewArticles/);
+  assert.match(submission, /preferences\.excludedPublishers\.length > 0/);
+  assert.match(submission, /\.\.\.EXCLUDED_PUBLISHERS/);
   assert.match(submission, /updateImpactFactorMinimum/);
   assert.match(submission, /updateImpactFactorMaximum/);
   assert.match(submission, /toggleValue<JcrQuartile>/);
@@ -1277,9 +1328,10 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(submissionConfig, /impactFactorMin:\s*0/);
   assert.match(submissionConfig, /impactFactorMax:\s*20/);
   assert.match(submissionConfig, /requireReviewArticles:\s*false/);
+  assert.match(submissionConfig, /EXCLUDED_PUBLISHERS[\s\S]*?"MDPI"[\s\S]*?"Hindawi"[\s\S]*?"Frontiers"/);
   assert.match(
     submissionConfig,
-    /excludedPublishers:\s*\["MDPI", "Hindawi", "Frontiers"\]/,
+    /excludedPublishers:\s*\[\.\.\.EXCLUDED_PUBLISHERS\]/,
   );
   assert.match(
     promptReadme,

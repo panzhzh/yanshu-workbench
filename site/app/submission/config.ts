@@ -5,6 +5,12 @@ import type {
   SubmissionPreferences,
 } from "../../content/prompts/types";
 
+export const EXCLUDED_PUBLISHERS = [
+  "MDPI",
+  "Hindawi",
+  "Frontiers",
+] as const;
+
 export const DEFAULT_SUBMISSION_PREFERENCES: SubmissionPreferences = {
   openAccess: "any",
   apc: "any",
@@ -18,7 +24,7 @@ export const DEFAULT_SUBMISSION_PREFERENCES: SubmissionPreferences = {
   jcrQuartiles: [],
   casZones: [],
   citationIndexes: [],
-  excludedPublishers: ["MDPI", "Hindawi", "Frontiers"],
+  excludedPublishers: [...EXCLUDED_PUBLISHERS],
 };
 
 export const JCR_QUARTILES: JcrQuartile[] = ["Q1", "Q2", "Q3", "Q4"];
@@ -38,7 +44,7 @@ export const SUBMISSION_COPY = {
       "先判断论文所属领域与稿件类型，再建立候选投稿池并核验匹配度、规则、收录和费用。",
     preset: "投稿目标检索 · 动态筛选条件",
     reset: "恢复默认筛选",
-    resetHint: "清除 OA、APC、IF、综述、分区和收录筛选。",
+    resetHint: "恢复 OA、APC、IF、综述、分区、收录和出版社排除设置。",
     any: "不限",
     yes: "是",
     no: "否",
@@ -68,6 +74,11 @@ export const SUBMISSION_COPY = {
     zone: "区",
     indexes: "收录索引",
     indexesHint: "可多选；未选择表示不以 SCIE、SSCI、AHCI 或 ESCI 限制候选池。",
+    publisherExclusions: "排除指定出版社",
+    publisherExclusionsOn: "排除 MDPI、Hindawi、Frontiers",
+    publisherExclusionsOff: "不排除",
+    publisherExclusionsHint:
+      "默认排除这三家出版社旗下期刊；关闭后仍按论文匹配度和可核验规则正常筛选。",
     switchPromptLanguage: "切换 Prompt 语言",
     copy: "复制",
     copied: "已复制",
@@ -82,7 +93,8 @@ export const SUBMISSION_COPY = {
       "Classify the manuscript first, then build a candidate pool and verify fit, rules, indexing, and fees against official or authoritative sources.",
     preset: "Venue targeting · dynamic filters",
     reset: "Reset filters",
-    resetHint: "Clear OA, APC, IF, review-article, ranking, and indexing filters.",
+    resetHint:
+      "Restore OA, APC, IF, review-article, ranking, indexing, and publisher-exclusion settings.",
     any: "Any",
     yes: "Yes",
     no: "No",
@@ -115,6 +127,11 @@ export const SUBMISSION_COPY = {
     indexes: "Citation index",
     indexesHint:
       "Select multiple if needed; no selection leaves SCIE, SSCI, AHCI, and ESCI unrestricted.",
+    publisherExclusions: "Exclude named publishers",
+    publisherExclusionsOn: "Exclude MDPI, Hindawi, and Frontiers",
+    publisherExclusionsOff: "Do not exclude",
+    publisherExclusionsHint:
+      "Journals from these three publishers are excluded by default. When disabled, evaluate them normally using manuscript fit and verifiable rules.",
     switchPromptLanguage: "Switch prompt language",
     copy: "Copy",
     copied: "Copied",

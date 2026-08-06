@@ -57,7 +57,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
    都在这一页完成；点击“全自动开始”后直接执行，不再在聊天中逐项确认。若只想
    手动使用，复制右侧 Prompt 后退出即可。
 
-首页也提供相同的动态三步演示和六个核心工作流的可复制启动语。
+首页也提供相同的动态三步演示和八个核心工作流的可复制启动语。
 
 ## 一个 YanShu，多项科研工作流
 
@@ -72,6 +72,8 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | 重构 | **Paper Reconstruction** | `$paper-reconstruction` | 五轮论文重构、框架图重构、产物恢复与编译检查 |
 | 绘图 | **Scientific Figure** | `$scientific-figure` | 从论文证据生成一张高清科研示意图 |
 | 图表 | **Experimental Plotting** | `$experimental-plotting` | 从真实实验数据生成可复现的出版级代码图 |
+| 审校 | **Peer Review** | `$peer-review` | 独立检查贡献、方法、证据、结论边界和可复现性 |
+| 审校 | **Revision Planning** | `$revision-planning` | 合并审稿意见并形成优先级、实验决策与修改顺序 |
 
 插件清单、Skill 文件和内部标识统一使用英文，便于公开分发；与用户的问答语言以及 Prompt 输出语言仍可选择中文或英文。
 
@@ -97,11 +99,12 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [实验绘图](https://yanshu-workbench.pages.dev/figures/plots/) | 需要从数据生成统计图 | 以真实数据和绘图代码为核心，配置统计表达、组合图与 1–3 个默认子图、精确科研配色、图型策略和导出格式，不调用生图模型 |
 | [论文表格](https://yanshu-workbench.pages.dev/figures/tables/) | 需要整理结果或对比表 | 逐格核对数值与单位，配置表格职责、排序、高亮、显著性和单栏/双栏可读性 |
 | [图表审计](https://yanshu-workbench.pages.dev/figures/audit/) | 图表接近交付 | 联合检查数据、caption、正文引用、标签、可读性和一致性；安全修复只触及已确认错误及其直接依赖 |
-| [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | 先判断论文类别，再按 OA、APC、IF、综述文章、JCR/中科院分区和 SCIE/SSCI/AHCI/ESCI 等条件动态筛选并完成官网核验 |
+| [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | 先判断论文类别，再按 OA、APC、IF、综述文章、分区和收录等条件动态筛选；默认排除 MDPI、Hindawi 与 Frontiers，也可关闭该排除条件 |
 | [投稿前终检](https://yanshu-workbench.pages.dev/submission/check/) | 即将提交 | 以目标 venue 最新官方规则为准，检查格式、匿名、材料、伦理、可复现性和阻塞项 |
 | [投稿材料](https://yanshu-workbench.pages.dev/submission/materials/) | 需要准备附加材料 | 仅生成所选 cover letter、highlights、声明等材料；作者元数据缺失时保留明确占位，不得补造 |
-| [审稿与返修](https://yanshu-workbench.pages.dev/submission/review/) | 收到审稿意见后 | 逐条映射评论、证据、修改位置和回复，支持 rebuttal、major/minor revision 与可追踪差异 |
-| YanShu 插件 | 需要全链路执行 | Idea Discovery、Paper Drafting、Writing Diagnosis、Paper Reconstruction、Scientific Figure 与 Experimental Plotting 均先打开同源本地配置页，再协调可见 ChatGPT 与本地产物；当前为开发者预览 |
+| [审稿](https://yanshu-workbench.pages.dev/submission/review/) | 投稿前独立评估 | 不区分会议与期刊，从贡献、方法、证据、结论边界、表达和可复现性生成分级审稿报告，不修改论文 |
+| [返修规划](https://yanshu-workbench.pages.dev/submission/revision/) | 收到审稿意见后 | 拆分并合并多位 reviewer 意见，完成 P0/P1/P2 与 A/B/C/D 分类，规划最小实验、风险和修改顺序；不提前写回复信 |
+| YanShu 插件 | 需要全链路执行 | 八个核心子 Skill 均使用官网同源配置和 Prompt，再协调可见 ChatGPT 与本地产物；当前为开发者预览 |
 
 ## 设计原则
 
@@ -261,7 +264,7 @@ yanshu-workbench/
     │   ├── reconstruction/     # 全文重构、精修、审计与版本转换
     │   ├── experiments/        # 实验设计、复现、代码、分析与可复现性
     │   ├── figures/            # 科研示意图、实验图、表格与图表审计
-    │   ├── submission/         # 投稿定位、终检、材料与审稿返修
+    │   ├── submission/         # 投稿定位、终检、材料、审稿与返修规划
     │   └── workbench/          # 配置式工作台共用组件
     ├── content/prompts/        # 重构模板、变量模型与字数规则
     ├── content/workflows/      # 网站与核心 Skills 共用的工作流目录与配置导出
@@ -277,9 +280,9 @@ yanshu-workbench/
 - [x] 全文重构、章节精修、专项审计、分章节写作与版本转换
 - [x] 实验设计、Baseline 复现、实验代码、结果分析与可复现性
 - [x] 科学示意图、实验绘图、论文表格与图表审计
-- [x] 投稿定位、投稿前终检、投稿材料与审稿返修
+- [x] 投稿定位、投稿前终检、投稿材料、审稿与返修规划
 - [x] 可恢复的五轮论文重构插件基础
-- [x] Idea Discovery、Paper Drafting、Scientific Figure 与 Experimental Plotting 同源配置 Skills；初稿与实验绘图支持可选外部增强
+- [x] 八个核心子 Skill 使用网站同源配置；初稿与实验绘图支持可选外部增强
 - [ ] 浏览器桥接的一体化安装与首次使用向导
 - [ ] 为更多专项工作台补充可恢复的全链路插件执行
 - [ ] 更细的会议、期刊和出版商配置

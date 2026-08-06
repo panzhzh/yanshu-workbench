@@ -23,13 +23,15 @@ import {
 
 const pluginRoot = path.resolve(new URL("..", import.meta.url).pathname);
 
-test("website-sourced runtime exposes the five configurable YanShu skills", () => {
+test("website-sourced runtime exposes the seven configurable YanShu skills", () => {
   assert.deepEqual(CONFIGURABLE_SKILL_WORKFLOW_IDS, [
     "idea-discovery",
     "paper-drafting",
     "writing-diagnosis",
     "scientific-figure",
     "experimental-plotting",
+    "peer-review",
+    "revision-planning",
   ]);
   assert.deepEqual(
     YANSHU_SKILL_CATALOG.map((item) => item.id),
@@ -40,6 +42,8 @@ test("website-sourced runtime exposes the five configurable YanShu skills", () =
       "paper-reconstruction",
       "scientific-figure",
       "experimental-plotting",
+      "peer-review",
+      "revision-planning",
     ],
   );
 
@@ -112,6 +116,27 @@ test("website-sourced runtime exposes the five configurable YanShu skills", () =
   assert.match(plot.prompt, /\$nature-figure/);
   assert.match(plot.prompt, /允许组合图，使用 1–3 个子图/);
   assert.match(plot.prompt, /#0077BB, #EE7733, #009988, #CC3311/);
+
+  const review = buildSkillWorkflowConfiguration("peer-review", {}, "zh");
+  assert.equal(review.preferences.mode, "full");
+  assert.equal(review.preferences.materialScope, "supplement");
+  assert.equal(review.preferences.browseLiterature, true);
+  assert.equal(review.preferences.scorecard, true);
+  assert.match(review.prompt, /对论文进行独立同行评审/);
+  assert.match(review.prompt, /不预设其属于会议或期刊/);
+  assert.match(review.prompt, /当前任务只输出审稿报告，不修改论文/);
+
+  const revision = buildSkillWorkflowConfiguration(
+    "revision-planning",
+    {},
+    "zh",
+  );
+  assert.equal(revision.preferences.evidencePolicy, "analysis");
+  assert.equal(revision.preferences.executionPlan, true);
+  assert.match(revision.prompt, /整理审稿意见并制定返修计划/);
+  assert.match(revision.prompt, /P0＝影响核心结论或接收判断/);
+  assert.match(revision.prompt, /A＝无需补实验/);
+  assert.match(revision.prompt, /当前只交付修改计划/);
 });
 
 test("all new skill definitions are complete and open the shared page", async () => {
@@ -298,6 +323,24 @@ test("shared workflow models retain website defaults", () => {
     diagnosis.fields.find((field) => field.id === "browseCitations")
       ?.visibleWhen?.includes,
     "citation-practice",
+  );
+
+  const review = getSkillWorkflowConfigurationModel("peer-review");
+  assert.equal(review.defaults.mode, "full");
+  assert.equal(review.defaults.materialScope, "supplement");
+  assert.equal(review.defaults.browseLiterature, true);
+  assert.equal(review.defaults.scorecard, true);
+
+  const revision = getSkillWorkflowConfigurationModel("revision-planning");
+  assert.equal(revision.defaults.evidencePolicy, "analysis");
+  assert.equal(revision.defaults.executionPlan, true);
+  assert.ok(
+    revision.fields.some((field) => field.id === "resourceWindow"),
+  );
+  assert.equal(
+    revision.fields.find((field) => field.id === "resourceWindow")
+      ?.visibleWhen?.notEquals,
+    "existing",
   );
 });
 

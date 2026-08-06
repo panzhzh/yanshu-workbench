@@ -2024,8 +2024,8 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
           en: "B. Build a Candidate Pool, Then Verify It"
         },
         body: {
-          zh: "\u5EFA\u7ACB\u4E0E\u9886\u57DF\u89C4\u6A21\u76F8\u79F0\u7684\u5019\u9009\u6C60\uFF0C\u901A\u5E38\u4E3A 8\u201315 \u4E2A\uFF1B\u82E5\u53EF\u4FE1\u4E14\u5F53\u524D\u53EF\u6295\u7A3F\u7684\u76EE\u6807\u66F4\u5C11\uFF0C\u53EF\u4EE5\u7F29\u5C0F\u5019\u9009\u6C60\u5E76\u8BF4\u660E\u539F\u56E0\uFF0C\u4E0D\u5F97\u4E3A\u51D1\u6570\u52A0\u5165\u5F31\u76F8\u5173 venue\u3002\u9010\u9879\u6838\u9A8C\u540D\u79F0\u3001\u5B98\u65B9\u94FE\u63A5\u3001\u8303\u56F4\u5339\u914D\u3001\u5F53\u524D\u662F\u5426\u6B63\u5E38\u63A5\u6536\u6295\u7A3F\u3001\u6587\u7AE0/track \u7C7B\u578B\u3001\u5F53\u524D\u6536\u5F55\u6216\u7B49\u7EA7\u4FE1\u606F\u3001\u7BC7\u5E45\u4E0E\u9644\u5F55\u653F\u7B56\u3001\u8D39\u7528\u3001\u989D\u5916\u6750\u6599\u3001\u6295\u7A3F\u5165\u53E3\u548C\u6240\u6709\u5F71\u54CD\u6295\u7A3F\u7684\u89C4\u5219\u3002\u6BCF\u4E2A\u5F53\u524D\u4E8B\u5B9E\u90FD\u9644\u5B98\u65B9\u6216\u6743\u5A01\u6765\u6E90\uFF1B\u65E0\u6CD5\u6838\u9A8C\u5C31\u660E\u786E\u5199\u201C\u672A\u6838\u9A8C\u201D\u3002\u5DF2\u505C\u520A\u3001\u4EC5\u4FDD\u7559\u5386\u53F2\u9875\u9762\u3001\u8F6C\u6295\u4E13\u7528\u6216\u5F53\u524D\u65E0\u6CD5\u6B63\u5E38\u6295\u7A3F\u7684 venue \u4E0D\u5F97\u8FDB\u5165\u63A8\u8350\u68AF\u961F\u3002MDPI\u3001Hindawi \u548C Frontiers \u662F\u7528\u6237\u660E\u786E\u6392\u9664\u9879\uFF0C\u5176\u65D7\u4E0B\u671F\u520A\u4E0D\u5F97\u8FDB\u5165\u5019\u9009\u6C60\u3001\u8BC4\u5206\u6216\u63A8\u8350\u68AF\u961F\uFF0C\u53EA\u5728\u6392\u9664\u8BB0\u5F55\u4E2D\u6CE8\u660E\u201C\u7528\u6237\u6392\u9664\u201D\uFF0C\u4E0D\u5F97\u4F5C\u65E0\u4F9D\u636E\u7684\u6CDB\u5316\u8D28\u91CF\u5B9A\u6027\u3002",
-          en: "Build a candidate pool proportionate to the field, normally eight to fifteen venues. If fewer credible venues are currently open for submission, use a smaller pool and explain why; never add weakly related venues to meet a quota. For each, verify name, official link, scope fit, whether it is active and currently accepting normal submissions, article/track type, current indexing or ranking information, length and appendix policy, fees, additional materials, submission portal, and every rule that affects submission. Cite an official or authoritative source for each current fact and mark anything unresolved as 'Not verified.' Do not recommend venues that have ceased publication, retain only an archive page, accept transfer-only submissions, or are otherwise not open for normal submission. MDPI, Hindawi, and Frontiers are explicit user exclusions: do not place their journals in the pool, scoring, or recommendation tiers. Record them only as 'excluded by user' without unsupported general quality claims."
+          zh: "\u5EFA\u7ACB\u4E0E\u9886\u57DF\u89C4\u6A21\u76F8\u79F0\u7684\u5019\u9009\u6C60\uFF0C\u901A\u5E38\u4E3A 8\u201315 \u4E2A\uFF1B\u82E5\u53EF\u4FE1\u4E14\u5F53\u524D\u53EF\u6295\u7A3F\u7684\u76EE\u6807\u66F4\u5C11\uFF0C\u53EF\u4EE5\u7F29\u5C0F\u5019\u9009\u6C60\u5E76\u8BF4\u660E\u539F\u56E0\uFF0C\u4E0D\u5F97\u4E3A\u51D1\u6570\u52A0\u5165\u5F31\u76F8\u5173 venue\u3002\u9010\u9879\u6838\u9A8C\u540D\u79F0\u3001\u5B98\u65B9\u94FE\u63A5\u3001\u8303\u56F4\u5339\u914D\u3001\u5F53\u524D\u662F\u5426\u6B63\u5E38\u63A5\u6536\u6295\u7A3F\u3001\u6587\u7AE0/track \u7C7B\u578B\u3001\u5F53\u524D\u6536\u5F55\u6216\u7B49\u7EA7\u4FE1\u606F\u3001\u7BC7\u5E45\u4E0E\u9644\u5F55\u653F\u7B56\u3001\u8D39\u7528\u3001\u989D\u5916\u6750\u6599\u3001\u6295\u7A3F\u5165\u53E3\u548C\u6240\u6709\u5F71\u54CD\u6295\u7A3F\u7684\u89C4\u5219\u3002\u6BCF\u4E2A\u5F53\u524D\u4E8B\u5B9E\u90FD\u9644\u5B98\u65B9\u6216\u6743\u5A01\u6765\u6E90\uFF1B\u65E0\u6CD5\u6838\u9A8C\u5C31\u660E\u786E\u5199\u201C\u672A\u6838\u9A8C\u201D\u3002\u5DF2\u505C\u520A\u3001\u4EC5\u4FDD\u7559\u5386\u53F2\u9875\u9762\u3001\u8F6C\u6295\u4E13\u7528\u6216\u5F53\u524D\u65E0\u6CD5\u6B63\u5E38\u6295\u7A3F\u7684 venue \u4E0D\u5F97\u8FDB\u5165\u63A8\u8350\u68AF\u961F\u3002{{publisher_exclusion_sentence}}",
+          en: "Build a candidate pool proportionate to the field, normally eight to fifteen venues. If fewer credible venues are currently open for submission, use a smaller pool and explain why; never add weakly related venues to meet a quota. For each, verify name, official link, scope fit, whether it is active and currently accepting normal submissions, article/track type, current indexing or ranking information, length and appendix policy, fees, additional materials, submission portal, and every rule that affects submission. Cite an official or authoritative source for each current fact and mark anything unresolved as 'Not verified.' Do not recommend venues that have ceased publication, retain only an archive page, accept transfer-only submissions, or are otherwise not open for normal submission. {{publisher_exclusion_sentence}}"
         }
       },
       {
@@ -2836,7 +2836,7 @@ The report must contain the final-audit summary and major revisions, Terminology
 ### \u5019\u9009\u6C60\u4E0E\u6838\u9A8C\u5B57\u6BB5
 
 - \u5EFA\u7ACB\u4E0E\u9886\u57DF\u89C4\u6A21\u76F8\u79F0\u7684\u5019\u9009\u6C60\uFF0C\u901A\u5E38\u4E3A 8\u201315 \u4E2A\uFF1B\u53EF\u4FE1\u4E14\u5F53\u524D\u53EF\u6295\u7A3F\u7684\u76EE\u6807\u66F4\u5C11\u65F6\uFF0C\u53EF\u4EE5\u7F29\u5C0F\u5019\u9009\u6C60\u5E76\u8BF4\u660E\u539F\u56E0\uFF0C\u4E0D\u5F97\u4E3A\u51D1\u6570\u52A0\u5165\u5F31\u76F8\u5173 venue\uFF1B
-- MDPI\u3001Hindawi \u548C Frontiers \u662F\u7528\u6237\u660E\u786E\u6392\u9664\u7684\u51FA\u7248\u793E\uFF1A\u5176\u65D7\u4E0B\u671F\u520A\u4E0D\u5F97\u8FDB\u5165\u5019\u9009\u6C60\u3001\u8BC4\u5206\u6216\u63A8\u8350\u68AF\u961F\uFF0C\u53EA\u5728\u6392\u9664\u8BB0\u5F55\u4E2D\u6CE8\u660E\u201C\u7528\u6237\u6392\u9664\u201D\uFF0C\u4E0D\u5F97\u5BF9\u51FA\u7248\u793E\u4F5C\u65E0\u4F9D\u636E\u7684\u6CDB\u5316\u8D28\u91CF\u5B9A\u6027\uFF1B
+{{publisher_exclusion_bullet}}
 - \u9010\u9879\u6838\u9A8C\u5168\u540D\u3001\u51FA\u7248\u793E/\u7EC4\u7EC7\u65B9\u3001\u5B98\u7F51\u3001\u8303\u56F4\u5339\u914D\u70B9\u3001\u6587\u7AE0\u6216 track \u7C7B\u578B\u3001\u5F53\u524D\u7D22\u5F15/\u7B49\u7EA7\u3001\u6B63\u6587/\u9875\u6570/\u56FE\u8868/\u6458\u8981/\u53C2\u8003\u6587\u732E\u9650\u5236\u3001\u9644\u5F55\u4E0E\u8865\u5145\u6750\u6599\u3001\u533F\u540D\u653F\u7B56\u3001OA/APC \u6216\u6CE8\u518C\u8D39\u7528\u3001\u9644\u52A0\u6587\u4EF6\u3001\u4F26\u7406/\u6570\u636E/\u53EF\u590D\u73B0\u653F\u7B56\u3001\u6295\u7A3F\u5165\u53E3\u548C\u5173\u952E\u65E5\u671F\uFF1B
 - \u53EA\u6709\u6743\u5A01\u6765\u6E90\u652F\u6301\u65F6\u624D\u5199 SCIE\u3001SSCI\u3001AHCI\u3001ESCI\u3001JCR \u5206\u533A\u3001\u4F1A\u8BAE\u7B49\u7EA7\u6216\u5176\u4ED6\u9886\u57DF\u8BC4\u4EF7\uFF1B\u4E0D\u9002\u7528\u4E8E\u5F53\u524D\u5B66\u79D1\u6216\u7A3F\u4EF6\u7C7B\u578B\u7684\u6307\u6807\u660E\u786E\u5199\u201C\u4E0D\u9002\u7528\u201D\uFF1B
 - SJR/Scopus \u4FE1\u606F\u5FC5\u987B\u660E\u786E\u6807\u6CE8\uFF0C\u4E0D\u80FD\u5192\u5145 JCR\uFF1B\u4E2D\u79D1\u9662\u5206\u533A\u4E0E JCR \u5FC5\u987B\u5206\u5F00\u5E76\u6807\u6CE8\u5E74\u4EFD\uFF1B
@@ -2896,7 +2896,7 @@ Do not redefine the scientific throughline for targeting.
 ### Candidate-pool and Verification Fields
 
 - Build a candidate pool proportionate to the field, normally eight to fifteen venues. If fewer credible venues are currently open for submission, use a smaller pool and explain why; never add weakly related venues to meet a quota;
-- MDPI, Hindawi, and Frontiers are explicit user exclusions. Do not place journals from these publishers in the candidate pool, scoring, or recommendation tiers. Record them only as \u201Cexcluded by user\u201D and do not make unsupported general quality claims about the publishers;
+{{publisher_exclusion_bullet}}
 - Verify full name, publisher/organizer, official site, specific scope fit, article or track type, current index/rank, main-text/page/figure/abstract/reference limits, appendix and supplementary policy, anonymity, OA/APC or registration cost, additional files, ethics/data/reproducibility rules, submission portal, and key dates;
 - State SCIE, SSCI, AHCI, ESCI, JCR quartiles, conference ranks, or another field-specific evaluation only when an authoritative source supports them. Mark a metric \u201CNot applicable\u201D when it does not suit the field or manuscript type;
 - Label SJR/Scopus information explicitly and never present it as JCR. Keep CAS and JCR rankings separate with years;
@@ -2951,7 +2951,8 @@ var LABELS = {
     jcrQuartiles: "JCR \u5206\u533A",
     casZones: "\u4E2D\u79D1\u9662\u5206\u533A",
     citationIndexes: "\u6536\u5F55\u7D22\u5F15",
-    excludedPublishers: "\u56FA\u5B9A\u6392\u9664",
+    excludedPublishers: "\u6392\u9664\u51FA\u7248\u793E",
+    noPublisherExclusions: "\u4E0D\u6392\u9664",
     unrestricted: "\u4E0D\u9650",
     yes: "\u662F",
     no: "\u5426",
@@ -3004,6 +3005,7 @@ var LABELS = {
     casZones: "CAS zones",
     citationIndexes: "Citation indexes",
     excludedPublishers: "Excluded publishers",
+    noPublisherExclusions: "None",
     unrestricted: "Any",
     yes: "Yes",
     no: "No",
@@ -3082,7 +3084,7 @@ function buildConfiguration(template, context) {
       ),
       field(
         labels.excludedPublishers,
-        selectedOrAny(preferences?.excludedPublishers ?? [])
+        preferences?.excludedPublishers.length ? preferences.excludedPublishers.join(", ") : labels.noPublisherExclusions
       ),
       "",
       labels.submissionFilterInstruction
@@ -3112,6 +3114,15 @@ function buildConfiguration(template, context) {
       context.appendixDirective
     ]
   ].join("\n");
+}
+function interpolateSubmissionPreferences(text, context) {
+  const publishers = context.submissionPreferences?.excludedPublishers ?? [];
+  const names = publishers.join(context.language === "zh" ? "\u3001" : ", ");
+  const sentence = publishers.length === 0 ? "" : context.language === "zh" ? `\u7528\u6237\u5DF2\u9009\u62E9\u6392\u9664 ${names}\uFF1A\u5176\u65D7\u4E0B\u671F\u520A\u4E0D\u5F97\u8FDB\u5165\u5019\u9009\u6C60\u3001\u8BC4\u5206\u6216\u63A8\u8350\u68AF\u961F\uFF0C\u53EA\u5728\u6392\u9664\u8BB0\u5F55\u4E2D\u6CE8\u660E\u201C\u7528\u6237\u6392\u9664\u201D\uFF0C\u4E0D\u5F97\u636E\u6B64\u4F5C\u65E0\u4F9D\u636E\u7684\u6CDB\u5316\u8D28\u91CF\u5B9A\u6027\u3002` : `The user has chosen to exclude ${names}. Do not place journals from these publishers in the candidate pool, scoring, or recommendation tiers. Record them only as \u201Cexcluded by user\u201D without making unsupported general quality claims.`;
+  return text.replaceAll("{{publisher_exclusion_sentence}}", sentence).replaceAll(
+    "{{publisher_exclusion_bullet}}",
+    sentence ? `- ${sentence}` : ""
+  ).replace(/\n{3,}/g, "\n\n").trim();
 }
 function buildLengthBudget(context) {
   if (!context.hasWordLimit) return "";
@@ -3287,7 +3298,7 @@ function buildDetailedCore(constraints, context, templateId) {
     ) : "";
     core = core.replaceAll(`{{${fragment.marker}}}`, value);
   }
-  return core.replace(/\n{3,}/g, "\n\n").trim();
+  return interpolateSubmissionPreferences(core, context);
 }
 function buildPrompt(template, context) {
   if (template.contentKind === "framework-figure") {
@@ -3301,7 +3312,7 @@ function buildPrompt(template, context) {
   const common = COMMON_PROMPT_BLOCKS;
   const taskBlocks = template.tasks.flatMap((task) => [
     `### ${task.heading[language]}`,
-    task.body[language],
+    interpolateSubmissionPreferences(task.body[language], context),
     ""
   ]);
   const styleBranch = template.profile === "targeting" ? template.styleBranches?.[context.styleId]?.[language] : void 0;

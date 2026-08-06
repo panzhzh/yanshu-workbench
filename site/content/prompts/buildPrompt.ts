@@ -36,7 +36,8 @@ const LABELS = {
     jcrQuartiles: "JCR 分区",
     casZones: "中科院分区",
     citationIndexes: "收录索引",
-    excludedPublishers: "固定排除",
+    excludedPublishers: "排除出版社",
+    noPublisherExclusions: "不排除",
     unrestricted: "不限",
     yes: "是",
     no: "否",
@@ -94,6 +95,7 @@ const LABELS = {
     casZones: "CAS zones",
     citationIndexes: "Citation indexes",
     excludedPublishers: "Excluded publishers",
+    noPublisherExclusions: "None",
     unrestricted: "Any",
     yes: "Yes",
     no: "No",
@@ -197,7 +199,9 @@ function buildConfiguration(
       ),
       field(
         labels.excludedPublishers,
-        selectedOrAny(preferences?.excludedPublishers ?? []),
+        preferences?.excludedPublishers.length
+          ? preferences.excludedPublishers.join(", ")
+          : labels.noPublisherExclusions,
       ),
       "",
       labels.submissionFilterInstruction,
@@ -238,6 +242,29 @@ function buildConfiguration(
           context.appendixDirective,
         ]),
   ].join("\n");
+}
+
+function interpolateSubmissionPreferences(
+  text: string,
+  context: PromptBuildContext,
+) {
+  const publishers = context.submissionPreferences?.excludedPublishers ?? [];
+  const names = publishers.join(context.language === "zh" ? "、" : ", ");
+  const sentence =
+    publishers.length === 0
+      ? ""
+      : context.language === "zh"
+        ? `用户已选择排除 ${names}：其旗下期刊不得进入候选池、评分或推荐梯队，只在排除记录中注明“用户排除”，不得据此作无依据的泛化质量定性。`
+        : `The user has chosen to exclude ${names}. Do not place journals from these publishers in the candidate pool, scoring, or recommendation tiers. Record them only as “excluded by user” without making unsupported general quality claims.`;
+
+  return text
+    .replaceAll("{{publisher_exclusion_sentence}}", sentence)
+    .replaceAll(
+      "{{publisher_exclusion_bullet}}",
+      sentence ? `- ${sentence}` : "",
+    )
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
 }
 
 function buildLengthBudget(context: PromptBuildContext) {
@@ -498,7 +525,7 @@ function buildDetailedCore(
     core = core.replaceAll(`{{${fragment.marker}}}`, value);
   }
 
-  return core.replace(/\n{3,}/g, "\n\n").trim();
+  return interpolateSubmissionPreferences(core, context);
 }
 
 export function buildPrompt(
@@ -517,7 +544,7 @@ export function buildPrompt(
   const common = COMMON_PROMPT_BLOCKS;
   const taskBlocks = template.tasks.flatMap((task) => [
     `### ${task.heading[language]}`,
-    task.body[language],
+    interpolateSubmissionPreferences(task.body[language], context),
     "",
   ]);
   const styleBranch =

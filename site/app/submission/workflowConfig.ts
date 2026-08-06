@@ -649,17 +649,30 @@ Additional fields: ${custom}. Return each selected material as a separately name
   },
 } satisfies WorkbenchDefinition;
 
-const REVIEW_MODES = {
-  rebuttal: text("Rebuttal", "Rebuttal"),
-  revision: text("返修稿", "Revised manuscript"),
-  response: text("Response Letter", "Response letter"),
+const PEER_REVIEW_MODES = {
+  full: text("完整同行评审", "Full peer review"),
+  screening: text("快速风险筛查", "Editorial risk screening"),
+  stress: text("严格压力测试", "Adversarial stress test"),
 };
 
-const DECISION_TYPES = {
-  discussion: text("会议讨论 / Rebuttal", "Conference discussion or rebuttal"),
-  major: text("Major Revision", "Major revision"),
-  minor: text("Minor Revision", "Minor revision"),
-  reject: text("拒稿后重投", "Revise after rejection"),
+const PEER_REVIEW_DIMENSIONS = {
+  contribution: text("问题价值与贡献", "Problem value and contribution"),
+  positioning: text("文献定位与新颖性", "Positioning and novelty"),
+  method: text("方法正确性", "Methodological soundness"),
+  evidence: text("实验与证据充分性", "Experimental and evidential adequacy"),
+  claims: text("结论边界", "Claim calibration"),
+  presentation: text("结构与表达", "Structure and presentation"),
+  reproducibility: text("可复现性", "Reproducibility"),
+  integrity: text("伦理与研究完整性", "Ethics and research integrity"),
+};
+
+const REVIEW_MATERIAL_SCOPES = {
+  manuscript: text("论文正文", "Manuscript"),
+  supplement: text("正文 + 补充材料", "Manuscript and supplement"),
+  artifacts: text(
+    "正文 + 补充材料 + 代码/数据",
+    "Manuscript, supplement, code, and data",
+  ),
 };
 
 const EVIDENCE_POLICIES = {
@@ -668,108 +681,241 @@ const EVIDENCE_POLICIES = {
   experiment: text("允许新增实验", "Allow new experiments"),
 };
 
-const RESPONSE_TONES = {
-  concise: text("简洁直接", "Concise and direct"),
-  balanced: text("礼貌且坚定", "Courteous and firm"),
-  explanatory: text("充分解释", "Explanatory"),
-};
-
-const CHANGE_POLICIES = {
-  responseOnly: text("只生成回复", "Response only"),
-  marked: text("回复 + 带标记修改稿", "Response plus marked manuscript"),
-  clean: text("回复 + 干净稿 + 差异", "Response, clean manuscript, and diff"),
-};
-
-export const REVIEW_REVISION_WORKBENCH = {
-  id: "review-revision-workbench",
-  activePage: "review-revision",
+export const PEER_REVIEW_WORKBENCH = {
+  id: "peer-review-workbench",
+  activePage: "peer-review",
   copy: sharedCopy({
     zh: {
-      eyebrow: "REVIEW & REVISION",
-      title: "审稿与返修",
+      eyebrow: "PEER REVIEW",
+      title: "审稿",
       subtitle:
-        "把审稿意见拆成可追踪任务，逐条回应并映射到证据和实际修改，不虚构新增实验。",
-      preset: "逐条映射 · 证据诚实 · 修改可追踪",
+        "以独立审稿人的视角检查论文贡献、方法与证据，区分真正的科学风险和可修复的表达问题。",
+      preset: "证据优先 · 问题分级 · 建议可执行",
       inputTitle: "准备材料",
       inputItems: [
-        "全部审稿意见与编辑决定",
-        "投稿稿件和补充材料",
-        "真实新增实验或分析（如有）",
-        "字数、页数与回复期限",
+        "完整论文或当前投稿稿",
+        "补充材料（如有）",
+        "代码、数据与复现说明（按配置选用）",
+        "希望额外检查的问题（可选）",
       ],
       inputHint:
-        "请保留 reviewer 编号和原始评论顺序；模型会为每条意见分配稳定 ID。",
-      promptTitle: "审稿与返修 Prompt",
-      promptPurpose: "形成逐条回应、修改位置和未完成证据的闭环。",
+        "本页不区分会议或期刊，也不修改论文；如提供具体评审标准，可写入补充要求。",
+      promptTitle: "论文审稿 Prompt",
+      promptPurpose: "生成证据可追溯、轻重分明且能指导后续修改的独立审稿报告。",
     },
     en: {
-      eyebrow: "REVIEW & REVISION",
-      title: "Review and revision",
+      eyebrow: "PEER REVIEW",
+      title: "Peer review",
       subtitle:
-        "Turn reviews into traceable tasks, map every response to evidence and actual edits, and never invent new experiments.",
-      preset: "Comment-level mapping · evidence honesty · traceable changes",
+        "Review contribution, method, and evidence independently while separating scientific risks from repairable presentation issues.",
+      preset: "Evidence-first · severity-aware · actionable guidance",
       inputTitle: "Prepare materials",
       inputItems: [
-        "All reviews and the editor decision",
-        "Submitted manuscript and supplement",
-        "Authentic new experiments or analyses, if any",
-        "Word/page limits and response deadline",
+        "Complete manuscript or current submission",
+        "Supplementary material, if available",
+        "Code, data, and reproducibility notes when selected",
+        "Any additional questions to inspect",
       ],
       inputHint:
-        "Preserve reviewer IDs and original comment order; the model assigns a stable ID to every comment.",
-      promptTitle: "Review and revision prompt",
+        "This page does not distinguish conferences from journals and never edits the manuscript. Add any specific review standard under additional requirements.",
+      promptTitle: "Peer-review prompt",
       promptPurpose:
-        "Close the loop among each comment, response, manuscript location, and unresolved evidence.",
+        "Produce an independent review whose evidence, severity, and recommendations remain traceable.",
     },
   }),
   controls: [
     {
       id: "mode",
       kind: "segmented",
-      label: text("任务类型", "Task type"),
+      label: text("评审方式", "Review mode"),
       description: text(
-        "决定正文是否修改以及回复文件结构。",
-        "Determines whether the manuscript changes and how responses are packaged.",
+        "完整评审为默认；筛查更关注阻塞风险，压力测试更强调最强反例。",
+        "Full review is the default; screening prioritizes blockers, while stress testing seeks the strongest counterarguments.",
       ),
-      defaultValue: "revision",
-      options: Object.entries(REVIEW_MODES).map(([value, label]) => ({
+      defaultValue: "full",
+      options: Object.entries(PEER_REVIEW_MODES).map(([value, label]) => ({
         value,
         label,
       })),
       span: "full",
     },
     {
-      id: "decision",
+      id: "materialScope",
       kind: "select",
-      label: text("审稿阶段", "Review stage"),
+      label: text("评审材料范围", "Review materials"),
       description: text(
-        "根据阶段控制承诺范围和篇幅。",
-        "Controls commitment scope and response length.",
+        "只评价实际提供且能够读取的材料。",
+        "Evaluate only materials that are actually supplied and readable.",
       ),
-      defaultValue: "major",
-      options: Object.entries(DECISION_TYPES).map(([value, label]) => ({
+      defaultValue: "supplement",
+      options: Object.entries(REVIEW_MATERIAL_SCOPES).map(([value, label]) => ({
         value,
         label,
       })),
     },
     {
-      id: "venue",
-      kind: "text",
-      label: text("venue 与规则", "Venue and edition"),
+      id: "dimensions",
+      kind: "multi",
+      label: text("评审维度", "Review dimensions"),
       description: text(
-        "用于联网核验 rebuttal 或返修规则。",
-        "Used to verify current rebuttal or revision rules online.",
+        "默认覆盖决定论文可信度与可读性的主要维度。",
+        "Defaults cover the main dimensions that determine credibility and readability.",
+      ),
+      defaultValue: Object.keys(PEER_REVIEW_DIMENSIONS),
+      minSelected: 1,
+      options: Object.entries(PEER_REVIEW_DIMENSIONS).map(
+        ([value, label]) => ({ value, label }),
+      ),
+      span: "full",
+    },
+    {
+      id: "browseLiterature",
+      kind: "toggle",
+      label: text("联网核查相关文献", "Verify related literature online"),
+      description: text(
+        "核查新颖性、定位和重要引用时使用原始论文与可靠出版记录。",
+        "Use original papers and reliable publication records when checking novelty, positioning, and important citations.",
+      ),
+      defaultValue: true,
+      enabledLabel: text("核查文献", "Verify literature"),
+      disabledLabel: text("只用提供材料", "Use supplied materials only"),
+    },
+    {
+      id: "scorecard",
+      kind: "toggle",
+      label: text("通用评分卡", "General scorecard"),
+      description: text(
+        "使用跨 venue 的 1–5 分维度评分，不套用某个投稿系统的量表。",
+        "Use a venue-neutral 1–5 dimensional scorecard rather than a portal-specific scale.",
+      ),
+      defaultValue: true,
+      enabledLabel: text("输出评分卡", "Include scorecard"),
+      disabledLabel: text("只输出文字判断", "Narrative judgment only"),
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text("补充评审要求", "Additional review requirements"),
+      description: text(
+        "例如重点检查某项理论假设、应用风险或特定评审标准。",
+        "For example, inspect a theoretical assumption, deployment risk, or specific review criterion.",
       ),
       defaultValue: "",
-      placeholder: text("例如：ICLR 2027", "For example: ICLR 2027"),
+      placeholder: text("可留空", "Optional"),
+      span: "full",
     },
+  ],
+  buildPrompt(values, language) {
+    const mode = scalar(values, "mode");
+    const materialScope = scalar(values, "materialScope");
+    const dimensions = labelsFor(
+      values,
+      "dimensions",
+      PEER_REVIEW_DIMENSIONS,
+      language,
+    );
+    const custom =
+      scalar(values, "custom") ||
+      (language === "zh" ? "无" : "None");
+
+    if (language === "zh") {
+      return `# 对论文进行独立同行评审
+
+你是一名严格、建设性且熟悉学术评审逻辑的独立审稿人。先从论文中判断研究领域、论文类型、核心问题、主要贡献与证据链，不预设其属于会议或期刊，也不套用某个投稿系统的评分尺度。
+
+评审方式：${labelFor(mode, PEER_REVIEW_MODES, language)}；材料范围：${labelFor(materialScope, REVIEW_MATERIAL_SCOPES, language)}；评审维度：${dimensions}。只评价实际提供且能够读取的材料，缺失材料标为“无法核验”，不得反向猜测。
+
+${enabled(values, "browseLiterature") ? "联网核查文献定位、新颖性和关键引用。优先使用原始论文、官方出版页或可靠索引，给出链接与核查日期；区分已核验事实与审稿判断。" : "不联网扩展文献，只依据提供材料判断；涉及新颖性或文献完整性的结论须说明证据范围。"}
+
+先用简短文字复述论文试图解决的问题、核心主张与证据路径，再评估优点和问题。每个问题分配稳定 ID，并写明：严重性（阻塞 / 主要 / 次要）、论文位置、依据、为何重要、达到何种证据或修改标准才算解决。区分科学错误、证据不足、结论越界、可复现性风险和表达不清，避免把个人偏好包装成硬性要求。
+
+实验建议必须回答一个真实未决问题；不要习惯性要求更多数据、更多 baseline 或更大模型。若现有分析即可解决，优先提出最小充分方案；若新实验对核心结论确有必要，说明其假设、对照、指标和能够改变判断的结果。不得虚构论文内容、结果、引用或代码状态。
+
+按以下结构输出：
+1. 论文主张与总体判断；
+2. 值得保留的优点；
+3. 主要问题表（ID、严重性、位置、证据、影响、解决标准）；
+4. 次要问题与可直接修正项；
+5. 需要作者澄清的问题；
+${enabled(values, "scorecard") ? "6. 通用 1–5 分评分卡：问题价值、贡献清晰度、方法正确性、证据充分性、表达质量和可复现性，并给出评审置信度；\n7. 就绪度：可继续投稿 / 小幅修改 / 重大修改 / 存在基础性风险，以及最可能影响判断的 3 个问题。" : "6. 就绪度：可继续投稿 / 小幅修改 / 重大修改 / 存在基础性风险，以及最可能影响判断的 3 个问题。"}
+
+补充要求：${custom}。当前任务只输出审稿报告，不修改论文，不撰写作者回复，也不替作者作出不存在证据支持的承诺。`;
+    }
+
+    return `# Conduct an Independent Peer Review
+
+Act as a rigorous, constructive independent reviewer familiar with scholarly evaluation. Infer the paper's field, contribution type, central problem, main claims, and evidence chain from the manuscript. Do not assume a conference or journal category and do not imitate a submission portal's rating scale.
+
+Review mode: ${labelFor(mode, PEER_REVIEW_MODES, language)}; materials: ${labelFor(materialScope, REVIEW_MATERIAL_SCOPES, language)}; dimensions: ${dimensions}. Evaluate only supplied and readable materials. Mark missing evidence as “not verifiable” rather than inferring it.
+
+${enabled(values, "browseLiterature") ? "Browse to verify positioning, novelty, and important citations. Prefer original papers, official publication pages, and reliable indexes; provide links and access dates and distinguish verified facts from reviewer judgment." : "Use only supplied materials. State the evidence boundary for any judgment about novelty or literature coverage."}
+
+Briefly reconstruct the paper's problem, central claim, and evidence path before assessing strengths and weaknesses. Give every concern a stable ID and state its severity (blocking, major, or minor), manuscript location, basis, importance, and the evidence or change required for resolution. Distinguish scientific error, insufficient evidence, overclaiming, reproducibility risk, and unclear exposition. Do not present personal preference as a mandatory rule.
+
+Recommend an experiment only when it resolves a genuine open question; do not reflexively demand more data, baselines, or larger models. Prefer the smallest sufficient analysis when it can resolve the concern. When a new experiment is essential to the central claim, specify its hypothesis, comparison, metric, and what result would change the judgment. Never invent manuscript content, results, citations, or code status.
+
+Return:
+1. Paper claim and overall assessment;
+2. Strengths worth preserving;
+3. Major-concern table (ID, severity, location, evidence, impact, resolution threshold);
+4. Minor concerns and directly repairable issues;
+5. Questions requiring author clarification;
+${enabled(values, "scorecard") ? "6. Venue-neutral 1–5 scorecard for problem value, contribution clarity, methodological soundness, evidence adequacy, presentation, and reproducibility, plus review confidence;\n7. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment." : "6. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment."}
+
+Additional requirements: ${custom}. Produce only the review report. Do not edit the manuscript, draft an author response, or make unsupported commitments on the author's behalf.`;
+  },
+} satisfies WorkbenchDefinition;
+
+export const REVISION_PLANNING_WORKBENCH = {
+  id: "revision-planning-workbench",
+  activePage: "revision-planning",
+  copy: sharedCopy({
+    zh: {
+      eyebrow: "REVISION PLANNING",
+      title: "返修规划",
+      subtitle:
+        "先把多位审稿人的意见拆分、去重和分级，再决定哪些问题需要实验、分析、解释或收缩结论。",
+      preset: "意见去重 · P0/P1/P2 · A/B/C/D 分类",
+      inputTitle: "准备材料",
+      inputItems: [
+        "全部审稿意见与编辑决定",
+        "审稿时提交的论文与补充材料",
+        "已有新增分析或实验结果（如有）",
+        "现实资源、截止时间与作者边界",
+      ],
+      inputHint:
+        "请保留 reviewer 编号和评论原文。当前阶段只形成修改计划，不直接写回复信或修改论文。",
+      promptTitle: "返修规划 Prompt",
+      promptPurpose: "把审稿意见转化为可排序、可判断、可执行的修改任务。",
+    },
+    en: {
+      eyebrow: "REVISION PLANNING",
+      title: "Revision planning",
+      subtitle:
+        "Split, deduplicate, and prioritize multiple reviews before deciding which concerns need experiments, analysis, explanation, or claim narrowing.",
+      preset: "Deduplicated concerns · P0/P1/P2 · A/B/C/D classes",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "All reviews and the editor decision",
+        "The reviewed manuscript and supplement",
+        "Any completed additional analyses or experiments",
+        "Real resource limits, deadline, and author boundaries",
+      ],
+      inputHint:
+        "Preserve reviewer identifiers and original wording. This stage creates a revision plan only; it does not draft the response letter or edit the manuscript.",
+      promptTitle: "Revision-planning prompt",
+      promptPurpose:
+        "Convert reviews into ordered, classifiable, and executable revision tasks.",
+    },
+  }),
+  controls: [
     {
       id: "evidencePolicy",
       kind: "segmented",
-      label: text("可新增证据", "Permitted new evidence"),
+      label: text("可考虑的新增证据", "Permitted new evidence"),
       description: text(
-        "选择允许执行的上限，不代表必须新增。",
-        "This is the maximum permitted scope, not a requirement to add work.",
+        "这是规划上限，不代表默认需要补实验。",
+        "This is the planning ceiling, not a default requirement to add experiments.",
       ),
       defaultValue: "analysis",
       options: Object.entries(EVIDENCE_POLICIES).map(([value, label]) => ({
@@ -779,82 +925,51 @@ export const REVIEW_REVISION_WORKBENCH = {
       span: "full",
     },
     {
-      id: "responseLimits",
-      kind: "text",
-      label: text("回复限制与截止时间", "Response limits and deadline"),
-      description: text(
-        "优先填写编辑决定或投稿系统给出的字数、字符和时间限制。",
-        "Prefer the word, character, and time limits stated in the editor decision or portal.",
-      ),
-      defaultValue: "",
-      placeholder: text(
-        "例如：5,000 characters；2027-02-10 23:59 AoE",
-        "For example: 5,000 characters; 2027-02-10 23:59 AoE",
-      ),
-    },
-    {
       id: "resourceWindow",
       kind: "text",
       label: text("资源与时间窗口", "Resource and time window"),
       description: text(
-        "限制新增分析或实验的承诺。",
-        "Bounds commitments to new analyses or experiments.",
+        "用于判断最小可行实验和修改顺序，不用来掩盖关键证据缺口。",
+        "Use this to scope minimum viable experiments and ordering, not to conceal critical evidence gaps.",
       ),
       defaultValue: "",
       placeholder: text(
-        "例如：7 天，2×A100，不新增标注",
-        "For example: 7 days, 2×A100, no new annotation",
+        "例如：14 天，2×A100，不能新增人工标注",
+        "For example: 14 days, 2×A100, no new manual annotation",
       ),
       visibleWhen: (values) => scalar(values, "evidencePolicy") !== "existing",
     },
     {
-      id: "tone",
-      kind: "select",
-      label: text("回复语气", "Response tone"),
-      description: text(
-        "礼貌不等于无条件接受；异议必须有证据。",
-        "Courtesy does not require unconditional agreement; disagreement needs evidence.",
-      ),
-      defaultValue: "balanced",
-      options: Object.entries(RESPONSE_TONES).map(([value, label]) => ({
-        value,
-        label,
-      })),
-    },
-    {
-      id: "changePolicy",
-      kind: "select",
-      label: text("修改交付", "Revision deliverable"),
-      description: text(
-        "回复中的每项“已修改”必须对应真实 diff。",
-        "Every claim that the manuscript was changed must map to a real diff.",
-      ),
-      defaultValue: "clean",
-      options: Object.entries(CHANGE_POLICIES).map(([value, label]) => ({
-        value,
-        label,
-      })),
-      visibleWhen: (values) => scalar(values, "mode") !== "rebuttal",
-    },
-    {
-      id: "mergeDuplicates",
+      id: "executionPlan",
       kind: "toggle",
-      label: text("合并重复意见", "Group duplicate concerns"),
+      label: text("任务依赖与执行批次", "Dependencies and execution batches"),
       description: text(
-        "可以共享分析，但每位 reviewer 仍获得独立回应。",
-        "Analysis may be shared, but every reviewer still receives an explicit response.",
+        "在推荐顺序之外，标出可并行任务和必须等待的依赖。",
+        "Beyond the recommended order, identify parallel tasks and blocking dependencies.",
       ),
       defaultValue: true,
-      enabledLabel: text("建立主题映射", "Build theme map"),
-      disabledLabel: text("完全逐条处理", "Process independently"),
+      enabledLabel: text("输出执行批次", "Include execution batches"),
+      disabledLabel: text("只给推荐顺序", "Recommended order only"),
+    },
+    {
+      id: "decisionContext",
+      kind: "textarea",
+      label: text("编辑决定与本轮背景", "Decision and revision context"),
+      description: text(
+        "可填写编辑摘要、截止时间、回复篇幅或本轮必须处理的事项。",
+        "Optionally include the editor summary, deadline, response limit, or mandatory items for this round.",
+      ),
+      defaultValue: "",
+      placeholder: text("可留空", "Optional"),
+      span: "full",
     },
     {
       id: "custom",
       kind: "textarea",
-      label: text("作者立场与禁区", "Author position and boundaries"),
+      label: text("作者资源与边界", "Author resources and boundaries"),
       description: text(
-        "例如不能新增数据、不同意某项假设或必须保留某个结论。",
-        "For example, no new data, a disputed premise, or a conclusion that must remain.",
+        "例如无法获取新数据、某项实验已失败，或某个结论允许主动收缩。",
+        "For example, unavailable new data, a failed experiment, or a claim that may be narrowed.",
       ),
       defaultValue: "",
       placeholder: text("可留空", "Optional"),
@@ -862,68 +977,73 @@ export const REVIEW_REVISION_WORKBENCH = {
     },
   ],
   buildPrompt(values, language) {
-    const mode = scalar(values, "mode");
-    const venue = scalar(values, "venue");
     const evidencePolicy = scalar(values, "evidencePolicy");
-    const responseLimits = scalar(values, "responseLimits");
+    const resourceWindow = scalar(values, "resourceWindow");
+    const decisionContext =
+      scalar(values, "decisionContext") ||
+      (language === "zh" ? "未提供" : "Not supplied");
     const custom =
       scalar(values, "custom") ||
       (language === "zh" ? "无" : "None");
 
     if (language === "zh") {
-      return `# 处理审稿意见并生成${labelFor(mode, REVIEW_MODES, language)}
+      return `# 整理审稿意见并制定返修计划
 
-请完整读取审稿意见、编辑决定、原投稿稿件、补充材料和真实新增证据。阶段：${labelFor(scalar(values, "decision"), DECISION_TYPES, language)}；venue：${venue || "未指定"}；回复语气：${labelFor(scalar(values, "tone"), RESPONSE_TONES, language)}。
+你是一名经验丰富的论文返修规划顾问。请完整阅读论文、补充材料、编辑决定和多位审稿人的原始意见。当前阶段先不要写回复信，也不要修改论文；目标是把意见整理成一份清晰、可执行且证据诚实的修改计划。
 
-回复限制与截止时间：${responseLimits || "未提供；先从编辑决定或投稿系统消息核查，不能凭公开页面猜测本稿件截止时间"}。若指定 venue，联网核验当前公开的回复格式、匿名、附件和可修改范围并记录 URL 与日期；用户提供的编辑决定或投稿系统消息是本稿件专属依据，来源可核验时优先于公开通用规则。
+编辑决定与本轮背景：${decisionContext}。可考虑的新增证据：${labelFor(evidencePolicy, EVIDENCE_POLICIES, language)}${evidencePolicy !== "existing" ? `；现实资源与时间：${resourceWindow || "未提供，方案须保守并标出依赖作者确认的资源"}` : "；即使发现核心结论必须补实验，也要如实标为阻塞项，不得假装可由文字解决"}。作者资源与边界：${custom}。
 
-保持 reviewer 与原评论顺序，为每条意见分配稳定 ID。先提取该意见的真实诉求、严重性、需要的证据和对应稿件位置；${enabled(values, "mergeDuplicates") ? "建立跨 reviewer 主题映射以避免重复劳动，但仍逐条独立回应" : "不合并意见"}。回应必须形成“评论 → 判断 → 行动/理由 → 证据 → 修改位置”的闭环。
+请完成：
+1. 按 reviewer 和原始评论顺序拆分独立问题，为原评论建立稳定引用（如 R1-C1），不要把一条复合意见漏掉子问题。
+2. 将不同审稿人的相同或相似问题合并为主题问题，同时保留全部来源和原评论映射；相似但证据要求不同的问题不要强行合并。
+3. 标注优先级：P0＝影响核心结论或接收判断，必须优先；P1＝重要问题，需要认真修改或解释；P2＝文字、格式、图表、引用等次要问题。
+4. 标注分类：A＝无需补实验，可通过解释、正文修改、补充分析或文献解决；B＝必须补实验或数据，否则核心结论难以成立；C＝审稿人要求实验，但可通过明确范围、补充讨论、降低结论强度或解释现实限制争取不补；D＝信息不足，暂时无法判断。
+5. 对需要实验的问题，给出最小可行实验或分析：待验证假设、最小对照、数据、指标、判断标准和关键资源。不要扩张成新的研究项目，也不要虚构预期结果。
+6. 对建议不补实验的问题，说明不补理由、残余风险，以及正文和未来回复信分别应如何处理。信息不足时写“需要作者确认”，不要自行假设。
 
-新增证据边界：${labelFor(evidencePolicy, EVIDENCE_POLICIES, language)}${evidencePolicy !== "existing" ? `；资源限制：${scalar(values, "resourceWindow") || "未提供，禁止作超出材料的承诺"}` : ""}。只能陈述已经实际完成并提供结果的实验或分析。计划、运行中和未完成内容必须明确标记；不得虚构数字、显著性、引用、实现或 reviewer 认同。合理异议可以礼貌反驳，但必须准确复述对方观点并用正文或证据支持。
+请输出：
 
-${mode === "rebuttal" ? "生成适合限制篇幅的逐条 rebuttal，不修改论文文件，也不承诺规则不允许的新内容。" : `交付：${labelFor(scalar(values, "changePolicy"), CHANGE_POLICIES, language)}。每项“已修改”必须指向实际页码/章节/行号和真实 diff；融合修改到论证中，不在正文堆叠“为回应审稿人”的补丁句。`}
+| 编号 | 问题 | 来源 | 优先级 | 分类 | 是否影响核心结论 | 建议解决方式 | 是否补实验 | 最小实验/分析方案 | 不补实验的理由与风险 | 修改位置 |
+| -- | -- | -- | --- | -- | -------- | ------ | ----- | --------- | ---------- | ---- |
 
-作者边界：${custom}。最后输出意见—回应—证据—修改状态矩阵，标出未解决项和下一步；不要用感谢套话掩盖未完成工作。`;
+表格后总结：
+1. 不补实验即可解决的问题；
+2. 必须补实验的问题；
+3. 审稿人要求实验但可以争取不补的问题；
+4. 多位审稿人重复提出的问题；
+5. 最可能影响论文接收的 3 个问题；
+6. 推荐的修改顺序。${enabled(values, "executionPlan") ? "\n7. 任务依赖与执行批次：标出可并行任务、前置依赖和阻塞点。" : ""}
+
+不要默认所有实验都必须补，也不要为了减少工作量而拒绝支撑核心结论所必需的实验。若意见可能来自论文表达不清，指出最需要澄清的位置和误读路径。所有“已有结果”“已完成修改”或“文献支持”都必须来自实际材料；当前只交付修改计划，不生成完整回复信、修改稿或虚构承诺。`;
     }
 
-    return `# Address Reviews and Produce a ${labelFor(mode, REVIEW_MODES, language)}
+    return `# Organize Reviews and Build a Revision Plan
 
-Read all reviews, the editor decision, submitted manuscript, supplement, and authentic new evidence. Stage: ${labelFor(scalar(values, "decision"), DECISION_TYPES, language)}; venue: ${venue || "unspecified"}; tone: ${labelFor(scalar(values, "tone"), RESPONSE_TONES, language)}.
+Act as an experienced manuscript-revision planning advisor. Read the paper, supplement, editor decision, and every review in full. Do not draft the response letter or edit the manuscript at this stage. Build a clear, executable, and evidence-honest revision plan first.
 
-Response limits and deadline: ${responseLimits || "not supplied; inspect the editor decision or portal message first and never infer this manuscript's deadline from a public page"}. When a venue is named, browse and verify public response-format, anonymity, attachment, and permitted-change rules and record URLs and access dates. A supplied editor decision or portal message is manuscript-specific evidence and takes priority over a public general rule when its provenance is verifiable.
+Decision and revision context: ${decisionContext}. Permitted new evidence: ${labelFor(evidencePolicy, EVIDENCE_POLICIES, language)}${evidencePolicy !== "existing" ? `; real resources and time: ${resourceWindow || "not supplied, so keep plans conservative and mark resource assumptions for author confirmation"}` : "; if the central claim truly requires a new experiment, mark it as a blocker rather than pretending prose can resolve it"}. Author resources and boundaries: ${custom}.
 
-Preserve reviewer and comment order and assign every comment a stable ID. Extract the real request, severity, required evidence, and manuscript location before drafting. ${enabled(values, "mergeDuplicates") ? "Build a cross-reviewer theme map to share analysis while still answering every comment explicitly" : "Keep all comments independent"}. Close the loop from comment to judgment, action or rationale, evidence, and revised location.
+Complete these tasks:
+1. Split every review into independent concerns in reviewer and original-comment order. Give each source comment a stable reference such as R1-C1, and preserve every sub-question in a compound comment.
+2. Merge genuinely identical or similar concerns across reviewers into thematic issues while preserving every source and source-comment mapping. Do not merge concerns whose evidence requirements differ materially.
+3. Assign priority: P0 affects the central conclusion or acceptance judgment and must be handled first; P1 is important and requires substantive revision or explanation; P2 covers secondary wording, format, figure, table, or citation issues.
+4. Assign class: A needs no new experiment and can be handled through explanation, manuscript revision, additional analysis, or literature; B requires an experiment or data because the central conclusion otherwise fails; C requests an experiment but may be resolved by clarifying scope, expanding discussion, narrowing claims, or explaining a real constraint; D lacks enough information to judge.
+5. For experimental concerns, give the minimum viable experiment or analysis: hypothesis, smallest meaningful comparison, data, metric, decision criterion, and critical resources. Do not expand it into a new research project or invent expected results.
+6. When recommending no new experiment, state the rationale, residual risk, and how the manuscript and a future response letter should each handle the concern. Mark insufficient information as “author confirmation required” rather than guessing.
 
-New-evidence boundary: ${labelFor(evidencePolicy, EVIDENCE_POLICIES, language)}${evidencePolicy !== "existing" ? `; resources: ${scalar(values, "resourceWindow") || "not supplied, so do not make commitments beyond available material"}` : ""}. Describe an experiment or analysis as completed only when its actual output is supplied. Label planned, running, and unfinished work explicitly. Never invent values, significance, citations, implementation, or reviewer agreement. A reasoned disagreement is allowed, but restate the concern fairly and support the response with manuscript evidence.
+Return this table:
 
-${mode === "rebuttal" ? "Produce a length-aware point-by-point rebuttal. Do not edit manuscript files or promise work the rules do not permit." : `Deliver: ${labelFor(scalar(values, "changePolicy"), CHANGE_POLICIES, language)}. Every “we revised” statement must point to a real page/section/line and diff. Integrate revisions into the scientific argument rather than appending reviewer-facing patch sentences.`}
+| ID | Concern | Source | Priority | Class | Affects central conclusion? | Recommended resolution | New experiment? | Minimum experiment/analysis | Rationale and risk of no experiment | Revision location |
+| -- | -- | -- | --- | -- | -------- | ------ | ----- | --------- | ---------- | ---- |
 
-Author boundaries: ${custom}. End with a comment–response–evidence–revision status matrix, unresolved items, and next actions. Do not let courtesy language conceal incomplete work.`;
-  },
-  updateValues(current, id, value) {
-    const next = { ...current, [id]: value };
-    if (id === "mode" && value === "rebuttal") {
-      next.decision = "discussion";
-      next.changePolicy = "responseOnly";
-    }
-    if (
-      id === "mode" &&
-      value !== "rebuttal" &&
-      scalar(current, "decision") === "discussion"
-    ) {
-      next.decision = "major";
-    }
-    if (id === "decision" && value === "discussion") {
-      next.mode = "rebuttal";
-      next.changePolicy = "responseOnly";
-    }
-    if (
-      id === "decision" &&
-      value !== "discussion" &&
-      scalar(current, "mode") === "rebuttal"
-    ) {
-      next.mode = "revision";
-    }
-    return next;
+Then summarize:
+1. Concerns resolvable without new experiments;
+2. Concerns that require experiments;
+3. Experiment requests that may reasonably be declined;
+4. Concerns repeated by multiple reviewers;
+5. The three issues most likely to affect acceptance;
+6. Recommended revision order.${enabled(values, "executionPlan") ? "\n7. Dependencies and execution batches, including parallel tasks, prerequisites, and blockers." : ""}
+
+Do not assume every requested experiment is necessary, but do not reject evidence essential to the central claim merely to reduce workload. When a concern may arise from unclear writing, identify the likely location and misreading path. Every statement that a result exists, a change is complete, or literature supports a claim must come from supplied evidence. Deliver only the revision plan—no full response letter, revised manuscript, or invented commitment.`;
   },
 } satisfies WorkbenchDefinition;
