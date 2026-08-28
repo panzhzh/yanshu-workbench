@@ -46,7 +46,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /一句话启动/);
   assert.match(html, /先选择由谁执行/);
   assert.match(html, /一次配置后直接执行/);
-  assert.match(html, /八个重要的全链路入口/);
+  assert.match(html, /九个重要的全链路入口/);
   assert.match(html, /Idea Discovery/);
   assert.match(html, /Paper Drafting/);
   assert.match(html, /Writing Diagnosis/);
@@ -55,6 +55,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /Experimental Plotting/);
   assert.match(html, /Peer Review/);
   assert.match(html, /Revision Planning/);
+  assert.match(html, /Revision Audit/);
   assert.match(
     html,
     /使用 \$paper-drafting 根据这个实验目录撰写论文初稿/,
@@ -69,6 +70,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /\$experimental-plotting/);
   assert.match(html, /\$peer-review/);
   assert.match(html, /\$revision-planning/);
+  assert.match(html, /\$revision-audit/);
   assert.match(html, /自动执行，或只复制 Prompt/);
   assert.match(html, /网站与插件共享 Prompt 数据/);
   assert.match(html, /论文写作/);
@@ -100,6 +102,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /投稿材料/);
   assert.match(html, /审稿/);
   assert.match(html, /返修规划/);
+  assert.match(html, /返修稿审查/);
   assert.match(html, /搜索功能或页面/);
   assert.doesNotMatch(html, /关于研术台|About YanShu/);
   assert.match(html, /href="\/draft"/);
@@ -122,6 +125,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/submission\/materials"/);
   assert.match(html, /href="\/submission\/review"/);
   assert.match(html, /href="\/submission\/revision"/);
+  assert.match(html, /href="\/submission\/revision-audit"/);
   assert.match(html, /class="home-demo"/);
   assert.match(html, /class="home-guide-grid"/);
   assert.match(html, /class="home-skill-grid"/);
@@ -148,6 +152,7 @@ test("server-renders every configured research workbench", async (context) => {
     ["/submission/materials", "投稿材料"],
     ["/submission/review", "审稿"],
     ["/submission/revision", "返修规划"],
+    ["/submission/revision-audit", "返修稿审查"],
   ];
 
   for (const [path, title] of pages) {
@@ -192,6 +197,22 @@ test("separates independent peer review from revision planning", async () => {
   assert.match(revision, /最小实验\/分析方案/);
   assert.match(revision, /当前只交付修改计划，不生成完整回复信/);
   assert.doesNotMatch(revision, /投稿类型|会议讨论 \/ Rebuttal/);
+});
+
+test("audits journal revisions and conference rebuttals without re-reviewing", async () => {
+  const response = await render("/submission/revision-audit");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /返修场景（可选）/);
+  assert.match(html, /期刊或会议（可选）/);
+  assert.match(html, /Reviewer comments/);
+  assert.match(html, /Original manuscript 与 diff manuscript/);
+  assert.match(html, /Adequately addressed/);
+  assert.match(html, /Partially addressed/);
+  assert.match(html, /Not adequately addressed/);
+  assert.match(html, /会议 rebuttal\/discussion 若规则不允许改稿/);
+  assert.match(html, /不得因为回复信写了“we have revised”就默认修改成立/);
+  assert.match(html, /而不是重新独立审稿/);
 });
 
 test("server-renders the habit-focused academic-writing diagnosis workbench", async () => {
@@ -305,6 +326,7 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
   );
   assert.match(submissionWorkflow, /PEER_REVIEW_WORKBENCH/);
   assert.match(submissionWorkflow, /REVISION_PLANNING_WORKBENCH/);
+  assert.match(submissionWorkflow, /REVISION_AUDIT_WORKBENCH/);
   assert.match(submissionWorkflow, /id:\s*"browseLiterature"/);
   assert.match(submissionWorkflow, /不预设其属于会议或期刊/);
   assert.match(submissionWorkflow, /P0＝影响核心结论或接收判断/);
@@ -1176,7 +1198,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /href:\s*"\/submission"/);
   assert.equal(
     (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
-    23,
+    24,
   );
   assert.equal(
     (navigationConfig.match(/status:\s*"future",/g) ?? []).length,

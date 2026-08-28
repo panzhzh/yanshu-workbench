@@ -68,6 +68,7 @@ import {
 } from "../../app/writing/diagnosis/config";
 import {
   PEER_REVIEW_WORKBENCH,
+  REVISION_AUDIT_WORKBENCH,
   REVISION_PLANNING_WORKBENCH,
 } from "../../app/submission/workflowConfig";
 
@@ -81,7 +82,8 @@ export type YanShuSkillId =
   | "scientific-figure"
   | "experimental-plotting"
   | "peer-review"
-  | "revision-planning";
+  | "revision-planning"
+  | "revision-audit";
 
 export type ConfigurableSkillWorkflowId = Exclude<
   YanShuSkillId,
@@ -167,7 +169,7 @@ export interface YanShuSkillCatalogItem {
   output: LocalizedWorkflowText;
 }
 
-export const SKILL_WORKFLOW_VERSION = "2026.08.07";
+export const SKILL_WORKFLOW_VERSION = "2026.08.28";
 
 export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   {
@@ -352,6 +354,29 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
     output: {
       zh: "返修优先级与实验决策 Markdown",
       en: "Revision-priority and experiment-decision Markdown",
+    },
+  },
+  {
+    id: "revision-audit",
+    index: "09",
+    skillName: "Revision Audit",
+    websitePath: "/submission/revision-audit",
+    title: { zh: "审查论文返修稿", en: "Audit a manuscript revision" },
+    description: {
+      zh: "逐条核验审稿回复与实际修改是否闭环，并区分期刊返修和会议 rebuttal 的证据要求。",
+      en: "Verify every response against the actual revision while adapting evidence requirements for journal revisions and conference rebuttals.",
+    },
+    command: {
+      zh: "使用 $revision-audit 审查这份返修稿和回复信。",
+      en: "Use $revision-audit to audit this revised manuscript and response.",
+    },
+    input: {
+      zh: "审稿意见、回复信、修改稿、原稿与 diff",
+      en: "Reviews, response, revised manuscript, original manuscript, and diff",
+    },
+    output: {
+      zh: "逐条返修核验与重新提交风险 Markdown",
+      en: "Comment-level revision verification and resubmission-risk Markdown",
     },
   },
 ] as const;
@@ -1329,6 +1354,68 @@ const REVISION_PLANNING_MODEL: SkillWorkflowModel = {
   defaults: workbenchDefaults(REVISION_PLANNING_WORKBENCH),
 };
 
+const REVISION_AUDIT_SECTIONS = [
+  {
+    id: "context",
+    index: "01",
+    title: localized("返修语境", "Revision context"),
+    description: localized(
+      "可选指定期刊、会议与本轮允许的修改范围。",
+      "Optionally identify the journal, conference, and permitted revision scope.",
+    ),
+  },
+  {
+    id: "focus",
+    index: "02",
+    title: localized("审查重点", "Audit focus"),
+    description: localized(
+      "补充需要重点取证的 reviewer、实验或 claim。",
+      "Add a reviewer, experiment, or claim that needs particular verification.",
+    ),
+  },
+] as const;
+
+const REVISION_AUDIT_FIELD_SECTIONS: Record<string, string> = {
+  scenario: "context",
+  venue: "context",
+  decisionContext: "context",
+  custom: "focus",
+};
+
+const REVISION_AUDIT_MODEL: SkillWorkflowModel = {
+  id: "revision-audit",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "revision-audit",
+  websitePath: "/submission/revision-audit",
+  title: localized("返修稿审查", "Revision Audit"),
+  eyebrow: "YANSHU · REVISION AUDIT",
+  description: localized(
+    "逐条核验回复信或 rebuttal 中的主张是否由实际修改与证据支持。",
+    "Verify comment by comment whether response-letter or rebuttal claims are supported by actual changes and evidence.",
+  ),
+  materialTitle: localized("需要材料", "Required materials"),
+  materialItems: {
+    zh: ["Reviewer comments 与编辑决定", "Response Letter 或 rebuttal", "Revised manuscript", "Original manuscript 与 diff manuscript（强烈建议）"],
+    en: ["Reviewer comments and editor decision", "Response letter or rebuttal", "Revised manuscript", "Original manuscript and diff manuscript (strongly recommended)"],
+  },
+  materialHint: localized(
+    "期刊或会议可留空并自动判断；缺失材料会被标为无法核验。",
+    "Journal or conference may be omitted and inferred; missing evidence is marked not verifiable.",
+  ),
+  output: localized(
+    "一份 `revision_audit.md`，包含逐条判断、修改证据、遗留风险和最小修正。",
+    "A `revision_audit.md` with comment-level judgments, change evidence, residual risk, and minimum corrections.",
+  ),
+  sections: REVISION_AUDIT_SECTIONS,
+  fields: REVISION_AUDIT_WORKBENCH.controls.map((control) =>
+    configurableWorkbenchField(
+      control,
+      REVISION_AUDIT_FIELD_SECTIONS[control.id] ?? "focus",
+    ),
+  ),
+  defaults: workbenchDefaults(REVISION_AUDIT_WORKBENCH),
+};
+
 const CONFIGURABLE_MODELS: Record<
   ConfigurableSkillWorkflowId,
   SkillWorkflowModel
@@ -1340,6 +1427,7 @@ const CONFIGURABLE_MODELS: Record<
   "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
   "peer-review": PEER_REVIEW_MODEL,
   "revision-planning": REVISION_PLANNING_MODEL,
+  "revision-audit": REVISION_AUDIT_MODEL,
 };
 
 export const CONFIGURABLE_SKILL_WORKFLOW_IDS = Object.keys(
@@ -1603,6 +1691,9 @@ export function normalizeSkillWorkflowPreferences(
   if (workflowId === "revision-planning") {
     return normalizeWorkbenchPreferences(REVISION_PLANNING_WORKBENCH, input);
   }
+  if (workflowId === "revision-audit") {
+    return normalizeWorkbenchPreferences(REVISION_AUDIT_WORKBENCH, input);
+  }
   return normalizeFigurePreferences(input);
 }
 
@@ -1689,6 +1780,16 @@ export function buildSkillWorkflowConfiguration(
     selection = {
       evidencePolicy: revisionPreferences.evidencePolicy,
       executionPlan: revisionPreferences.executionPlan,
+    };
+  } else if (workflowId === "revision-audit") {
+    const auditPreferences = preferences as WorkbenchValues;
+    prompt = REVISION_AUDIT_WORKBENCH.buildPrompt(
+      auditPreferences,
+      promptLanguage,
+    );
+    selection = {
+      scenario: auditPreferences.scenario,
+      venue: auditPreferences.venue,
     };
   } else {
     const figurePreferences = preferences as FigurePreferences;

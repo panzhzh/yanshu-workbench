@@ -1047,3 +1047,141 @@ Then summarize:
 Do not assume every requested experiment is necessary, but do not reject evidence essential to the central claim merely to reduce workload. When a concern may arise from unclear writing, identify the likely location and misreading path. Every statement that a result exists, a change is complete, or literature supports a claim must come from supplied evidence. Deliver only the revision plan—no full response letter, revised manuscript, or invented commitment.`;
   },
 } satisfies WorkbenchDefinition;
+
+const REVISION_AUDIT_SCENARIOS = {
+  auto: text("自动判断", "Infer automatically"),
+  journal: text("期刊返修", "Journal revision"),
+  conference: text("会议 Rebuttal / Discussion", "Conference rebuttal or discussion"),
+};
+
+export const REVISION_AUDIT_WORKBENCH = {
+  id: "revision-audit-workbench",
+  activePage: "revision-audit",
+  copy: sharedCopy({
+    zh: {
+      eyebrow: "REVISION AUDIT",
+      title: "返修稿审查",
+      subtitle: "逐条核验回复与实际修改是否闭环，定位重新提交前仍可能被追问的问题。",
+      preset: "逐条映射 · 修改取证 · 最小修正",
+      inputTitle: "准备材料",
+      inputItems: [
+        "Reviewer comments 与编辑决定",
+        "Response Letter 或 rebuttal",
+        "Revised manuscript",
+        "Original manuscript 与 diff manuscript（强烈建议）",
+      ],
+      inputHint: "材料不完整时仍可审查，但无法完成的核验会被明确标出。",
+      promptTitle: "返修稿审查 Prompt",
+      promptPurpose: "从审稿人和编辑视角核验每条意见是否被真实、充分且一致地解决。",
+    },
+    en: {
+      eyebrow: "REVISION AUDIT",
+      title: "Revision Audit",
+      subtitle: "Verify each response against the actual revision and identify concerns likely to survive resubmission.",
+      preset: "Comment mapping · change verification · minimum correction",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "Reviewer comments and editor decision",
+        "Response letter or rebuttal",
+        "Revised manuscript",
+        "Original manuscript and diff manuscript (strongly recommended)",
+      ],
+      inputHint: "The audit can proceed with incomplete materials, but unverifiable checks will be stated explicitly.",
+      promptTitle: "Revision-audit prompt",
+      promptPurpose: "Verify from a reviewer and editor perspective whether every concern was actually and sufficiently resolved.",
+    },
+  }),
+  controls: [
+    {
+      id: "scenario",
+      kind: "segmented",
+      label: text("返修场景（可选）", "Revision context (optional)"),
+      description: text("不确定时保持自动判断。", "Keep automatic inference when uncertain."),
+      defaultValue: "auto",
+      options: Object.entries(REVISION_AUDIT_SCENARIOS).map(([value, label]) => ({ value, label })),
+      span: "full",
+    },
+    {
+      id: "venue",
+      kind: "text",
+      label: text("期刊或会议（可选）", "Journal or conference (optional)"),
+      description: text("仅用于理解本轮规则与决策语境。", "Used only to understand the rules and decision context."),
+      defaultValue: "",
+      placeholder: text("例如：IEEE TPAMI / NeurIPS 2027", "For example: IEEE TPAMI / NeurIPS 2027"),
+    },
+    {
+      id: "decisionContext",
+      kind: "textarea",
+      label: text("本轮规则与背景", "Round rules and context"),
+      description: text("可填写 major/minor revision、rebuttal 篇幅、允许修改范围或截止时间。", "Optionally include major/minor revision, rebuttal limit, permitted changes, or deadline."),
+      defaultValue: "",
+      placeholder: text("可留空", "Optional"),
+      span: "full",
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text("特别关注", "Special focus"),
+      description: text("例如重点核查新增实验、降级 claim 或某位 reviewer。", "For example, focus on new experiments, narrowed claims, or one reviewer."),
+      defaultValue: "",
+      placeholder: text("可留空", "Optional"),
+      span: "full",
+    },
+  ],
+  buildPrompt(values, language) {
+    const scenario = scalar(values, "scenario") || "auto";
+    const venue = scalar(values, "venue") || (language === "zh" ? "未指定" : "Not specified");
+    const decisionContext = scalar(values, "decisionContext") || (language === "zh" ? "未提供；依据材料自动判断" : "Not supplied; infer from the materials");
+    const custom = scalar(values, "custom") || (language === "zh" ? "无" : "None");
+    const scenarioLabel = labelFor(scenario, REVISION_AUDIT_SCENARIOS, language);
+
+    if (language === "zh") {
+      return `# 审查返修稿是否充分回应审稿意见
+
+你是一名经验丰富的论文返修审查顾问。请站在审稿人以及期刊编辑或会议领域主席的角度，逐条核验现有回复和修改是否真实、准确、充分地解决了本轮意见，而不是重新独立审稿。
+
+返修场景：${scenarioLabel}；目标期刊或会议：${venue}；本轮规则与背景：${decisionContext}。若场景为“自动判断”，请从决定信、意见和材料中判断期刊返修、会议 rebuttal/discussion 或允许修改的会议阶段；能够可靠判断时直接继续并说明依据，不要要求作者确认。
+
+请完整读取 reviewer comments、编辑决定、Response Letter 或 rebuttal、revised manuscript、original manuscript 和 diff manuscript。先建立 reviewer—comment—response—change 的完整映射，保留原始编号；缺失或无法读取的材料标为“无法核验”，不得猜测，也不得因为回复信写了“we have revised”就默认修改成立。
+
+对每条 comment 同时检查：
+1. 审稿人真正关心的问题及其解决标准；
+2. 回复是否直接、完整且证据充分，是否遗漏子问题或答非所问；
+3. 回复声称的每项修改能否在 revised manuscript 与 diff 中定位，位置、内容和强度是否一致；
+4. 修改是否真正解决 concern，而非只做措辞回应；新增实验、分析、引用或降级 claim 是否支持回复中的结论；
+5. 是否存在过度声称、前后矛盾、跨 reviewer 回复不一致或容易引发继续追问的残余风险。
+
+期刊返修应以修改稿、diff 和回复信的闭环为核心。会议 rebuttal/discussion 若规则不允许改稿，不要因缺少正文修改而扣分；此时核查 rebuttal 是否在允许篇幅和证据边界内充分回答，并把“当前稿件已有证据”“澄清”与“承诺未来修改”分开。若会议阶段允许改稿，则按修改稿同样取证。编辑决定或投稿系统的明确规则优先于一般惯例。
+
+逐条输出：
+
+| 编号 | 来源 | 核心关切 | Response 核验 | 稿件与 diff 证据 | 判断 | 遗留风险 | 最小修正 | 位置 |
+| -- | -- | -- | -- | -- | -- | -- | -- | -- |
+
+“判断”只能使用 **Adequately addressed / Partially addressed / Not adequately addressed**。充分解决的问题简要说明闭环证据；其余问题明确区分 Response Letter/rebuttal 与 manuscript 各自最小需要修改什么。不得借机扩写全文或提出与原 comment 无直接关系的新要求；只有返修造成的直接矛盾或新风险可以记录。
+
+表格后给出：已安全解决的问题；仍为高风险的问题；遗漏或无法核验的问题；跨意见不一致；重新提交前最值得优先修正的事项；以及整体结论 **Ready to resubmit / Ready after minor correction / Not ready to resubmit**。特别关注：${custom}。只输出审查报告，不直接改稿或代写完整回复信。`;
+    }
+
+    return `# Audit Whether the Revision Adequately Addresses the Reviews
+
+Act as an experienced revision-audit advisor. From the perspective of a reviewer and a journal editor or conference area chair, verify comment by comment whether the existing response and revision genuinely, accurately, and sufficiently resolve this round of concerns. Do not conduct a new independent review of the paper.
+
+Revision context: ${scenarioLabel}; target journal or conference: ${venue}; round rules and context: ${decisionContext}. When automatic inference is selected, infer journal revision, conference rebuttal/discussion, or a revision-enabled conference phase from the decision, reviews, and supplied files. Proceed without author confirmation when the evidence is sufficient and state the basis.
+
+Read the reviewer comments, editor decision, response letter or rebuttal, revised manuscript, original manuscript, and diff manuscript in full. Build a complete reviewer–comment–response–change map while preserving source IDs. Mark missing or unreadable evidence as “not verifiable”; never infer it, and never accept “we have revised” without locating the change in the manuscript.
+
+For every comment, verify: the reviewer's actual concern and resolution threshold; whether the response directly and completely addresses every sub-question; whether each claimed change exists at a traceable location in the revised manuscript and diff; whether the substantive change resolves the concern rather than merely acknowledging it; and whether overclaiming, contradictions, inconsistent cross-reviewer responses, or residual follow-up risk remains.
+
+For journal revisions, center the audit on closure across the response letter, revised manuscript, and diff. For conference rebuttal or discussion phases that prohibit manuscript changes, do not penalize the absence of edits; instead verify that the rebuttal resolves the concern within the permitted scope and distinguish existing manuscript evidence, clarification, and promises of future revision. When manuscript revision is allowed, verify changes exactly as for a journal. Explicit editor or submission-system instructions override generic practice.
+
+Return:
+
+| ID | Source | Core concern | Response verification | Manuscript and diff evidence | Judgment | Residual risk | Minimum correction | Location |
+| -- | -- | -- | -- | -- | -- | -- | -- | -- |
+
+The judgment must be exactly **Adequately addressed / Partially addressed / Not adequately addressed**. Briefly state the closure evidence for adequately resolved concerns. Otherwise separate the minimum correction needed in the response letter/rebuttal from the minimum manuscript correction. Do not rewrite the paper or introduce concerns unrelated to the source comments; report only direct contradictions or risks created by the revision itself.
+
+After the table, summarize safely resolved comments, high-risk comments, omissions or unverifiable claims, cross-comment inconsistencies, resubmission priorities, and one overall verdict: **Ready to resubmit / Ready after minor correction / Not ready to resubmit**. Special focus: ${custom}. Produce only the audit report; do not directly edit the manuscript or draft a full replacement response letter.`;
+  },
+} satisfies WorkbenchDefinition;

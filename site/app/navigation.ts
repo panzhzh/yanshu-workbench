@@ -24,7 +24,8 @@ export type ActivePage =
   | "pre-submission-check"
   | "submission-materials"
   | "peer-review"
-  | "revision-planning";
+  | "revision-planning"
+  | "revision-audit";
 
 export type NavigationGroupId =
   | "writing"
@@ -430,6 +431,17 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         keywords: {
           zh: ["审稿意见", "返修", "修改计划", "补实验", "优先级"],
           en: ["review comments", "revision plan", "experiments", "priority"],
+        },
+      },
+      {
+        id: "revision-audit",
+        label: { zh: "返修稿审查", en: "Revision Audit" },
+        status: "available",
+        href: "/submission/revision-audit",
+        activePage: "revision-audit",
+        keywords: {
+          zh: ["返修稿", "回复信", "rebuttal", "diff", "逐条核验"],
+          en: ["revision audit", "response letter", "rebuttal", "diff", "verification"],
         },
       },
     ],

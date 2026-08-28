@@ -57,7 +57,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
    都在这一页完成；点击“全自动开始”后直接执行，不再在聊天中逐项确认。若只想
    手动使用，复制右侧 Prompt 后退出即可。
 
-首页也提供相同的动态三步演示和八个核心工作流的可复制启动语。
+首页也提供相同的动态三步演示和九个核心工作流的可复制启动语。
 
 ## 一个 YanShu，多项科研工作流
 
@@ -74,6 +74,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | 图表 | **Experimental Plotting** | `$experimental-plotting` | 从真实实验数据生成可复现的出版级代码图 |
 | 审校 | **Peer Review** | `$peer-review` | 独立检查贡献、方法、证据、结论边界和可复现性 |
 | 审校 | **Revision Planning** | `$revision-planning` | 合并审稿意见并形成优先级、实验决策与修改顺序 |
+| 审校 | **Revision Audit** | `$revision-audit` | 逐条核验回复信或 rebuttal 与实际修改是否闭环 |
 
 插件清单、Skill 文件和内部标识统一使用英文，便于公开分发；与用户的问答语言以及 Prompt 输出语言仍可选择中文或英文。
 
@@ -104,7 +105,8 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [投稿材料](https://yanshu-workbench.pages.dev/submission/materials/) | 需要准备附加材料 | 仅生成所选 cover letter、highlights、声明等材料；作者元数据缺失时保留明确占位，不得补造 |
 | [审稿](https://yanshu-workbench.pages.dev/submission/review/) | 投稿前独立评估 | 不区分会议与期刊，从贡献、方法、证据、结论边界、表达和可复现性生成分级审稿报告，不修改论文 |
 | [返修规划](https://yanshu-workbench.pages.dev/submission/revision/) | 收到审稿意见后 | 拆分并合并多位 reviewer 意见，完成 P0/P1/P2 与 A/B/C/D 分类，规划最小实验、风险和修改顺序；不提前写回复信 |
-| YanShu 插件 | 需要全链路执行 | 八个核心子 Skill 均使用官网同源配置和 Prompt，再协调可见 ChatGPT 与本地产物；当前为开发者预览 |
+| [返修稿审查](https://yanshu-workbench.pages.dev/submission/revision-audit/) | 完成回复与修改后 | 逐条核查 reviewer concern、回复主张、修改稿与 diff，区分期刊返修和会议 rebuttal |
+| YanShu 插件 | 需要全链路执行 | 九个核心子 Skill 均使用官网同源配置和 Prompt，再协调可见 ChatGPT 与本地产物；当前为开发者预览 |
 
 ## 设计原则
 
@@ -264,7 +266,7 @@ yanshu-workbench/
     │   ├── reconstruction/     # 全文重构、精修、审计与版本转换
     │   ├── experiments/        # 实验设计、复现、代码、分析与可复现性
     │   ├── figures/            # 科研示意图、实验图、表格与图表审计
-    │   ├── submission/         # 投稿定位、终检、材料、审稿与返修规划
+    │   ├── submission/         # 投稿定位、终检、材料、审稿、返修规划与返修稿审查
     │   └── workbench/          # 配置式工作台共用组件
     ├── content/prompts/        # 重构模板、变量模型与字数规则
     ├── content/workflows/      # 网站与核心 Skills 共用的工作流目录与配置导出
@@ -280,9 +282,9 @@ yanshu-workbench/
 - [x] 全文重构、章节精修、专项审计、分章节写作与版本转换
 - [x] 实验设计、Baseline 复现、实验代码、结果分析与可复现性
 - [x] 科学示意图、实验绘图、论文表格与图表审计
-- [x] 投稿定位、投稿前终检、投稿材料、审稿与返修规划
+- [x] 投稿定位、投稿前终检、投稿材料、审稿、返修规划与返修稿审查
 - [x] 可恢复的五轮论文重构插件基础
-- [x] 八个核心子 Skill 使用网站同源配置；初稿与实验绘图支持可选外部增强
+- [x] 九个核心子 Skill 使用网站同源配置；初稿与实验绘图支持可选外部增强
 - [ ] 浏览器桥接的一体化安装与首次使用向导
 - [ ] 为更多专项工作台补充可恢复的全链路插件执行
 - [ ] 更细的会议、期刊和出版商配置

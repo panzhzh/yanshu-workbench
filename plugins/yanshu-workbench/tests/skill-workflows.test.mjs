@@ -23,7 +23,7 @@ import {
 
 const pluginRoot = path.resolve(new URL("..", import.meta.url).pathname);
 
-test("website-sourced runtime exposes the seven configurable YanShu skills", () => {
+test("website-sourced runtime exposes the eight configurable YanShu skills", () => {
   assert.deepEqual(CONFIGURABLE_SKILL_WORKFLOW_IDS, [
     "idea-discovery",
     "paper-drafting",
@@ -32,6 +32,7 @@ test("website-sourced runtime exposes the seven configurable YanShu skills", () 
     "experimental-plotting",
     "peer-review",
     "revision-planning",
+    "revision-audit",
   ]);
   assert.deepEqual(
     YANSHU_SKILL_CATALOG.map((item) => item.id),
@@ -44,6 +45,7 @@ test("website-sourced runtime exposes the seven configurable YanShu skills", () 
       "experimental-plotting",
       "peer-review",
       "revision-planning",
+      "revision-audit",
     ],
   );
 
@@ -137,6 +139,18 @@ test("website-sourced runtime exposes the seven configurable YanShu skills", () 
   assert.match(revision.prompt, /P0＝影响核心结论或接收判断/);
   assert.match(revision.prompt, /A＝无需补实验/);
   assert.match(revision.prompt, /当前只交付修改计划/);
+
+  const revisionAudit = buildSkillWorkflowConfiguration(
+    "revision-audit",
+    {},
+    "zh",
+  );
+  assert.equal(revisionAudit.preferences.scenario, "auto");
+  assert.equal(revisionAudit.preferences.venue, "");
+  assert.match(revisionAudit.prompt, /审查返修稿是否充分回应审稿意见/);
+  assert.match(revisionAudit.prompt, /Adequately addressed/);
+  assert.match(revisionAudit.prompt, /会议 rebuttal\/discussion 若规则不允许改稿/);
+  assert.match(revisionAudit.prompt, /不得因为回复信写了“we have revised”就默认修改成立/);
 });
 
 test("all new skill definitions are complete and open the shared page", async () => {
@@ -342,6 +356,11 @@ test("shared workflow models retain website defaults", () => {
       ?.visibleWhen?.notEquals,
     "existing",
   );
+
+  const revisionAudit = getSkillWorkflowConfigurationModel("revision-audit");
+  assert.equal(revisionAudit.defaults.scenario, "auto");
+  assert.equal(revisionAudit.defaults.venue, "");
+  assert.ok(revisionAudit.fields.some((field) => field.id === "decisionContext"));
 });
 
 test("writing diagnosis keeps repair and citation search conservative", () => {

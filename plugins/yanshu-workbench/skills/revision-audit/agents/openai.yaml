@@ -1,0 +1,4 @@
+interface:
+  display_name: "Revision Audit"
+  short_description: "Verify review responses against actual manuscript revisions"
+  default_prompt: "Use $revision-audit to audit this revised manuscript and response."

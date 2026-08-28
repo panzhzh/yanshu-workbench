@@ -25,6 +25,7 @@ compatibility. The product shown to users is **YanShu**.
 | **Experimental Plotting** | `$experimental-plotting` | Developer preview |
 | **Peer Review** | `$peer-review` | Developer preview |
 | **Revision Planning** | `$revision-planning` | Developer preview |
+| **Revision Audit** | `$revision-audit` | Developer preview |
 
 These are eight independent sub-skills in the YanShu plugin, not modes inside
 one skill. Every workflow supports direct `$skill-name` invocation and a
@@ -90,6 +91,10 @@ Use $peer-review to review the manuscript in this directory.
 Use $revision-planning to organize these reviews and build a revision plan.
 ```
 
+```text
+Use $revision-audit to audit this revised manuscript and response.
+```
+
 The current preview starts from Codex; an ordinary Chat conversation does not
 load this local plugin directly. Paper Reconstruction never guesses its
 executor from the environment. The user explicitly selects Web ChatGPT or the
@@ -106,6 +111,10 @@ Chinese is equally valid:
 使用 $experimental-plotting 根据这个实验目录绘制论文实验图。
 使用 $peer-review 审稿这个论文目录。
 使用 $revision-planning 整理这些审稿意见并制定返修计划。
+```
+
+```text
+使用 $revision-audit 审查这份返修稿和回复信。
 ```
 
 Paper Reconstruction first asks once which executor to use. Web ChatGPT

@@ -4066,9 +4066,143 @@ Then summarize:
 Do not assume every requested experiment is necessary, but do not reject evidence essential to the central claim merely to reduce workload. When a concern may arise from unclear writing, identify the likely location and misreading path. Every statement that a result exists, a change is complete, or literature supports a claim must come from supplied evidence. Deliver only the revision plan\u2014no full response letter, revised manuscript, or invented commitment.`;
   }
 };
+var REVISION_AUDIT_SCENARIOS = {
+  auto: text3("\u81EA\u52A8\u5224\u65AD", "Infer automatically"),
+  journal: text3("\u671F\u520A\u8FD4\u4FEE", "Journal revision"),
+  conference: text3("\u4F1A\u8BAE Rebuttal / Discussion", "Conference rebuttal or discussion")
+};
+var REVISION_AUDIT_WORKBENCH = {
+  id: "revision-audit-workbench",
+  activePage: "revision-audit",
+  copy: sharedCopy3({
+    zh: {
+      eyebrow: "REVISION AUDIT",
+      title: "\u8FD4\u4FEE\u7A3F\u5BA1\u67E5",
+      subtitle: "\u9010\u6761\u6838\u9A8C\u56DE\u590D\u4E0E\u5B9E\u9645\u4FEE\u6539\u662F\u5426\u95ED\u73AF\uFF0C\u5B9A\u4F4D\u91CD\u65B0\u63D0\u4EA4\u524D\u4ECD\u53EF\u80FD\u88AB\u8FFD\u95EE\u7684\u95EE\u9898\u3002",
+      preset: "\u9010\u6761\u6620\u5C04 \xB7 \u4FEE\u6539\u53D6\u8BC1 \xB7 \u6700\u5C0F\u4FEE\u6B63",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: [
+        "Reviewer comments \u4E0E\u7F16\u8F91\u51B3\u5B9A",
+        "Response Letter \u6216 rebuttal",
+        "Revised manuscript",
+        "Original manuscript \u4E0E diff manuscript\uFF08\u5F3A\u70C8\u5EFA\u8BAE\uFF09"
+      ],
+      inputHint: "\u6750\u6599\u4E0D\u5B8C\u6574\u65F6\u4ECD\u53EF\u5BA1\u67E5\uFF0C\u4F46\u65E0\u6CD5\u5B8C\u6210\u7684\u6838\u9A8C\u4F1A\u88AB\u660E\u786E\u6807\u51FA\u3002",
+      promptTitle: "\u8FD4\u4FEE\u7A3F\u5BA1\u67E5 Prompt",
+      promptPurpose: "\u4ECE\u5BA1\u7A3F\u4EBA\u548C\u7F16\u8F91\u89C6\u89D2\u6838\u9A8C\u6BCF\u6761\u610F\u89C1\u662F\u5426\u88AB\u771F\u5B9E\u3001\u5145\u5206\u4E14\u4E00\u81F4\u5730\u89E3\u51B3\u3002"
+    },
+    en: {
+      eyebrow: "REVISION AUDIT",
+      title: "Revision Audit",
+      subtitle: "Verify each response against the actual revision and identify concerns likely to survive resubmission.",
+      preset: "Comment mapping \xB7 change verification \xB7 minimum correction",
+      inputTitle: "Prepare materials",
+      inputItems: [
+        "Reviewer comments and editor decision",
+        "Response letter or rebuttal",
+        "Revised manuscript",
+        "Original manuscript and diff manuscript (strongly recommended)"
+      ],
+      inputHint: "The audit can proceed with incomplete materials, but unverifiable checks will be stated explicitly.",
+      promptTitle: "Revision-audit prompt",
+      promptPurpose: "Verify from a reviewer and editor perspective whether every concern was actually and sufficiently resolved."
+    }
+  }),
+  controls: [
+    {
+      id: "scenario",
+      kind: "segmented",
+      label: text3("\u8FD4\u4FEE\u573A\u666F\uFF08\u53EF\u9009\uFF09", "Revision context (optional)"),
+      description: text3("\u4E0D\u786E\u5B9A\u65F6\u4FDD\u6301\u81EA\u52A8\u5224\u65AD\u3002", "Keep automatic inference when uncertain."),
+      defaultValue: "auto",
+      options: Object.entries(REVISION_AUDIT_SCENARIOS).map(([value, label]) => ({ value, label })),
+      span: "full"
+    },
+    {
+      id: "venue",
+      kind: "text",
+      label: text3("\u671F\u520A\u6216\u4F1A\u8BAE\uFF08\u53EF\u9009\uFF09", "Journal or conference (optional)"),
+      description: text3("\u4EC5\u7528\u4E8E\u7406\u89E3\u672C\u8F6E\u89C4\u5219\u4E0E\u51B3\u7B56\u8BED\u5883\u3002", "Used only to understand the rules and decision context."),
+      defaultValue: "",
+      placeholder: text3("\u4F8B\u5982\uFF1AIEEE TPAMI / NeurIPS 2027", "For example: IEEE TPAMI / NeurIPS 2027")
+    },
+    {
+      id: "decisionContext",
+      kind: "textarea",
+      label: text3("\u672C\u8F6E\u89C4\u5219\u4E0E\u80CC\u666F", "Round rules and context"),
+      description: text3("\u53EF\u586B\u5199 major/minor revision\u3001rebuttal \u7BC7\u5E45\u3001\u5141\u8BB8\u4FEE\u6539\u8303\u56F4\u6216\u622A\u6B62\u65F6\u95F4\u3002", "Optionally include major/minor revision, rebuttal limit, permitted changes, or deadline."),
+      defaultValue: "",
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text3("\u7279\u522B\u5173\u6CE8", "Special focus"),
+      description: text3("\u4F8B\u5982\u91CD\u70B9\u6838\u67E5\u65B0\u589E\u5B9E\u9A8C\u3001\u964D\u7EA7 claim \u6216\u67D0\u4F4D reviewer\u3002", "For example, focus on new experiments, narrowed claims, or one reviewer."),
+      defaultValue: "",
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      span: "full"
+    }
+  ],
+  buildPrompt(values, language) {
+    const scenario = scalar3(values, "scenario") || "auto";
+    const venue = scalar3(values, "venue") || (language === "zh" ? "\u672A\u6307\u5B9A" : "Not specified");
+    const decisionContext = scalar3(values, "decisionContext") || (language === "zh" ? "\u672A\u63D0\u4F9B\uFF1B\u4F9D\u636E\u6750\u6599\u81EA\u52A8\u5224\u65AD" : "Not supplied; infer from the materials");
+    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const scenarioLabel = labelFor2(scenario, REVISION_AUDIT_SCENARIOS, language);
+    if (language === "zh") {
+      return `# \u5BA1\u67E5\u8FD4\u4FEE\u7A3F\u662F\u5426\u5145\u5206\u56DE\u5E94\u5BA1\u7A3F\u610F\u89C1
+
+\u4F60\u662F\u4E00\u540D\u7ECF\u9A8C\u4E30\u5BCC\u7684\u8BBA\u6587\u8FD4\u4FEE\u5BA1\u67E5\u987E\u95EE\u3002\u8BF7\u7AD9\u5728\u5BA1\u7A3F\u4EBA\u4EE5\u53CA\u671F\u520A\u7F16\u8F91\u6216\u4F1A\u8BAE\u9886\u57DF\u4E3B\u5E2D\u7684\u89D2\u5EA6\uFF0C\u9010\u6761\u6838\u9A8C\u73B0\u6709\u56DE\u590D\u548C\u4FEE\u6539\u662F\u5426\u771F\u5B9E\u3001\u51C6\u786E\u3001\u5145\u5206\u5730\u89E3\u51B3\u4E86\u672C\u8F6E\u610F\u89C1\uFF0C\u800C\u4E0D\u662F\u91CD\u65B0\u72EC\u7ACB\u5BA1\u7A3F\u3002
+
+\u8FD4\u4FEE\u573A\u666F\uFF1A${scenarioLabel}\uFF1B\u76EE\u6807\u671F\u520A\u6216\u4F1A\u8BAE\uFF1A${venue}\uFF1B\u672C\u8F6E\u89C4\u5219\u4E0E\u80CC\u666F\uFF1A${decisionContext}\u3002\u82E5\u573A\u666F\u4E3A\u201C\u81EA\u52A8\u5224\u65AD\u201D\uFF0C\u8BF7\u4ECE\u51B3\u5B9A\u4FE1\u3001\u610F\u89C1\u548C\u6750\u6599\u4E2D\u5224\u65AD\u671F\u520A\u8FD4\u4FEE\u3001\u4F1A\u8BAE rebuttal/discussion \u6216\u5141\u8BB8\u4FEE\u6539\u7684\u4F1A\u8BAE\u9636\u6BB5\uFF1B\u80FD\u591F\u53EF\u9760\u5224\u65AD\u65F6\u76F4\u63A5\u7EE7\u7EED\u5E76\u8BF4\u660E\u4F9D\u636E\uFF0C\u4E0D\u8981\u8981\u6C42\u4F5C\u8005\u786E\u8BA4\u3002
+
+\u8BF7\u5B8C\u6574\u8BFB\u53D6 reviewer comments\u3001\u7F16\u8F91\u51B3\u5B9A\u3001Response Letter \u6216 rebuttal\u3001revised manuscript\u3001original manuscript \u548C diff manuscript\u3002\u5148\u5EFA\u7ACB reviewer\u2014comment\u2014response\u2014change \u7684\u5B8C\u6574\u6620\u5C04\uFF0C\u4FDD\u7559\u539F\u59CB\u7F16\u53F7\uFF1B\u7F3A\u5931\u6216\u65E0\u6CD5\u8BFB\u53D6\u7684\u6750\u6599\u6807\u4E3A\u201C\u65E0\u6CD5\u6838\u9A8C\u201D\uFF0C\u4E0D\u5F97\u731C\u6D4B\uFF0C\u4E5F\u4E0D\u5F97\u56E0\u4E3A\u56DE\u590D\u4FE1\u5199\u4E86\u201Cwe have revised\u201D\u5C31\u9ED8\u8BA4\u4FEE\u6539\u6210\u7ACB\u3002
+
+\u5BF9\u6BCF\u6761 comment \u540C\u65F6\u68C0\u67E5\uFF1A
+1. \u5BA1\u7A3F\u4EBA\u771F\u6B63\u5173\u5FC3\u7684\u95EE\u9898\u53CA\u5176\u89E3\u51B3\u6807\u51C6\uFF1B
+2. \u56DE\u590D\u662F\u5426\u76F4\u63A5\u3001\u5B8C\u6574\u4E14\u8BC1\u636E\u5145\u5206\uFF0C\u662F\u5426\u9057\u6F0F\u5B50\u95EE\u9898\u6216\u7B54\u975E\u6240\u95EE\uFF1B
+3. \u56DE\u590D\u58F0\u79F0\u7684\u6BCF\u9879\u4FEE\u6539\u80FD\u5426\u5728 revised manuscript \u4E0E diff \u4E2D\u5B9A\u4F4D\uFF0C\u4F4D\u7F6E\u3001\u5185\u5BB9\u548C\u5F3A\u5EA6\u662F\u5426\u4E00\u81F4\uFF1B
+4. \u4FEE\u6539\u662F\u5426\u771F\u6B63\u89E3\u51B3 concern\uFF0C\u800C\u975E\u53EA\u505A\u63AA\u8F9E\u56DE\u5E94\uFF1B\u65B0\u589E\u5B9E\u9A8C\u3001\u5206\u6790\u3001\u5F15\u7528\u6216\u964D\u7EA7 claim \u662F\u5426\u652F\u6301\u56DE\u590D\u4E2D\u7684\u7ED3\u8BBA\uFF1B
+5. \u662F\u5426\u5B58\u5728\u8FC7\u5EA6\u58F0\u79F0\u3001\u524D\u540E\u77DB\u76FE\u3001\u8DE8 reviewer \u56DE\u590D\u4E0D\u4E00\u81F4\u6216\u5BB9\u6613\u5F15\u53D1\u7EE7\u7EED\u8FFD\u95EE\u7684\u6B8B\u4F59\u98CE\u9669\u3002
+
+\u671F\u520A\u8FD4\u4FEE\u5E94\u4EE5\u4FEE\u6539\u7A3F\u3001diff \u548C\u56DE\u590D\u4FE1\u7684\u95ED\u73AF\u4E3A\u6838\u5FC3\u3002\u4F1A\u8BAE rebuttal/discussion \u82E5\u89C4\u5219\u4E0D\u5141\u8BB8\u6539\u7A3F\uFF0C\u4E0D\u8981\u56E0\u7F3A\u5C11\u6B63\u6587\u4FEE\u6539\u800C\u6263\u5206\uFF1B\u6B64\u65F6\u6838\u67E5 rebuttal \u662F\u5426\u5728\u5141\u8BB8\u7BC7\u5E45\u548C\u8BC1\u636E\u8FB9\u754C\u5185\u5145\u5206\u56DE\u7B54\uFF0C\u5E76\u628A\u201C\u5F53\u524D\u7A3F\u4EF6\u5DF2\u6709\u8BC1\u636E\u201D\u201C\u6F84\u6E05\u201D\u4E0E\u201C\u627F\u8BFA\u672A\u6765\u4FEE\u6539\u201D\u5206\u5F00\u3002\u82E5\u4F1A\u8BAE\u9636\u6BB5\u5141\u8BB8\u6539\u7A3F\uFF0C\u5219\u6309\u4FEE\u6539\u7A3F\u540C\u6837\u53D6\u8BC1\u3002\u7F16\u8F91\u51B3\u5B9A\u6216\u6295\u7A3F\u7CFB\u7EDF\u7684\u660E\u786E\u89C4\u5219\u4F18\u5148\u4E8E\u4E00\u822C\u60EF\u4F8B\u3002
+
+\u9010\u6761\u8F93\u51FA\uFF1A
+
+| \u7F16\u53F7 | \u6765\u6E90 | \u6838\u5FC3\u5173\u5207 | Response \u6838\u9A8C | \u7A3F\u4EF6\u4E0E diff \u8BC1\u636E | \u5224\u65AD | \u9057\u7559\u98CE\u9669 | \u6700\u5C0F\u4FEE\u6B63 | \u4F4D\u7F6E |
+| -- | -- | -- | -- | -- | -- | -- | -- | -- |
+
+\u201C\u5224\u65AD\u201D\u53EA\u80FD\u4F7F\u7528 **Adequately addressed / Partially addressed / Not adequately addressed**\u3002\u5145\u5206\u89E3\u51B3\u7684\u95EE\u9898\u7B80\u8981\u8BF4\u660E\u95ED\u73AF\u8BC1\u636E\uFF1B\u5176\u4F59\u95EE\u9898\u660E\u786E\u533A\u5206 Response Letter/rebuttal \u4E0E manuscript \u5404\u81EA\u6700\u5C0F\u9700\u8981\u4FEE\u6539\u4EC0\u4E48\u3002\u4E0D\u5F97\u501F\u673A\u6269\u5199\u5168\u6587\u6216\u63D0\u51FA\u4E0E\u539F comment \u65E0\u76F4\u63A5\u5173\u7CFB\u7684\u65B0\u8981\u6C42\uFF1B\u53EA\u6709\u8FD4\u4FEE\u9020\u6210\u7684\u76F4\u63A5\u77DB\u76FE\u6216\u65B0\u98CE\u9669\u53EF\u4EE5\u8BB0\u5F55\u3002
+
+\u8868\u683C\u540E\u7ED9\u51FA\uFF1A\u5DF2\u5B89\u5168\u89E3\u51B3\u7684\u95EE\u9898\uFF1B\u4ECD\u4E3A\u9AD8\u98CE\u9669\u7684\u95EE\u9898\uFF1B\u9057\u6F0F\u6216\u65E0\u6CD5\u6838\u9A8C\u7684\u95EE\u9898\uFF1B\u8DE8\u610F\u89C1\u4E0D\u4E00\u81F4\uFF1B\u91CD\u65B0\u63D0\u4EA4\u524D\u6700\u503C\u5F97\u4F18\u5148\u4FEE\u6B63\u7684\u4E8B\u9879\uFF1B\u4EE5\u53CA\u6574\u4F53\u7ED3\u8BBA **Ready to resubmit / Ready after minor correction / Not ready to resubmit**\u3002\u7279\u522B\u5173\u6CE8\uFF1A${custom}\u3002\u53EA\u8F93\u51FA\u5BA1\u67E5\u62A5\u544A\uFF0C\u4E0D\u76F4\u63A5\u6539\u7A3F\u6216\u4EE3\u5199\u5B8C\u6574\u56DE\u590D\u4FE1\u3002`;
+    }
+    return `# Audit Whether the Revision Adequately Addresses the Reviews
+
+Act as an experienced revision-audit advisor. From the perspective of a reviewer and a journal editor or conference area chair, verify comment by comment whether the existing response and revision genuinely, accurately, and sufficiently resolve this round of concerns. Do not conduct a new independent review of the paper.
+
+Revision context: ${scenarioLabel}; target journal or conference: ${venue}; round rules and context: ${decisionContext}. When automatic inference is selected, infer journal revision, conference rebuttal/discussion, or a revision-enabled conference phase from the decision, reviews, and supplied files. Proceed without author confirmation when the evidence is sufficient and state the basis.
+
+Read the reviewer comments, editor decision, response letter or rebuttal, revised manuscript, original manuscript, and diff manuscript in full. Build a complete reviewer\u2013comment\u2013response\u2013change map while preserving source IDs. Mark missing or unreadable evidence as \u201Cnot verifiable\u201D; never infer it, and never accept \u201Cwe have revised\u201D without locating the change in the manuscript.
+
+For every comment, verify: the reviewer's actual concern and resolution threshold; whether the response directly and completely addresses every sub-question; whether each claimed change exists at a traceable location in the revised manuscript and diff; whether the substantive change resolves the concern rather than merely acknowledging it; and whether overclaiming, contradictions, inconsistent cross-reviewer responses, or residual follow-up risk remains.
+
+For journal revisions, center the audit on closure across the response letter, revised manuscript, and diff. For conference rebuttal or discussion phases that prohibit manuscript changes, do not penalize the absence of edits; instead verify that the rebuttal resolves the concern within the permitted scope and distinguish existing manuscript evidence, clarification, and promises of future revision. When manuscript revision is allowed, verify changes exactly as for a journal. Explicit editor or submission-system instructions override generic practice.
+
+Return:
+
+| ID | Source | Core concern | Response verification | Manuscript and diff evidence | Judgment | Residual risk | Minimum correction | Location |
+| -- | -- | -- | -- | -- | -- | -- | -- | -- |
+
+The judgment must be exactly **Adequately addressed / Partially addressed / Not adequately addressed**. Briefly state the closure evidence for adequately resolved concerns. Otherwise separate the minimum correction needed in the response letter/rebuttal from the minimum manuscript correction. Do not rewrite the paper or introduce concerns unrelated to the source comments; report only direct contradictions or risks created by the revision itself.
+
+After the table, summarize safely resolved comments, high-risk comments, omissions or unverifiable claims, cross-comment inconsistencies, resubmission priorities, and one overall verdict: **Ready to resubmit / Ready after minor correction / Not ready to resubmit**. Special focus: ${custom}. Produce only the audit report; do not directly edit the manuscript or draft a full replacement response letter.`;
+  }
+};
 
 // content/workflows/skillWorkflows.ts
-var SKILL_WORKFLOW_VERSION = "2026.08.07";
+var SKILL_WORKFLOW_VERSION = "2026.08.28";
 var YANSHU_SKILL_CATALOG = [
   {
     id: "idea-discovery",
@@ -4252,6 +4386,29 @@ var YANSHU_SKILL_CATALOG = [
     output: {
       zh: "\u8FD4\u4FEE\u4F18\u5148\u7EA7\u4E0E\u5B9E\u9A8C\u51B3\u7B56 Markdown",
       en: "Revision-priority and experiment-decision Markdown"
+    }
+  },
+  {
+    id: "revision-audit",
+    index: "09",
+    skillName: "Revision Audit",
+    websitePath: "/submission/revision-audit",
+    title: { zh: "\u5BA1\u67E5\u8BBA\u6587\u8FD4\u4FEE\u7A3F", en: "Audit a manuscript revision" },
+    description: {
+      zh: "\u9010\u6761\u6838\u9A8C\u5BA1\u7A3F\u56DE\u590D\u4E0E\u5B9E\u9645\u4FEE\u6539\u662F\u5426\u95ED\u73AF\uFF0C\u5E76\u533A\u5206\u671F\u520A\u8FD4\u4FEE\u548C\u4F1A\u8BAE rebuttal \u7684\u8BC1\u636E\u8981\u6C42\u3002",
+      en: "Verify every response against the actual revision while adapting evidence requirements for journal revisions and conference rebuttals."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $revision-audit \u5BA1\u67E5\u8FD9\u4EFD\u8FD4\u4FEE\u7A3F\u548C\u56DE\u590D\u4FE1\u3002",
+      en: "Use $revision-audit to audit this revised manuscript and response."
+    },
+    input: {
+      zh: "\u5BA1\u7A3F\u610F\u89C1\u3001\u56DE\u590D\u4FE1\u3001\u4FEE\u6539\u7A3F\u3001\u539F\u7A3F\u4E0E diff",
+      en: "Reviews, response, revised manuscript, original manuscript, and diff"
+    },
+    output: {
+      zh: "\u9010\u6761\u8FD4\u4FEE\u6838\u9A8C\u4E0E\u91CD\u65B0\u63D0\u4EA4\u98CE\u9669 Markdown",
+      en: "Comment-level revision verification and resubmission-risk Markdown"
     }
   }
 ];
@@ -5182,6 +5339,65 @@ var REVISION_PLANNING_MODEL = {
   ),
   defaults: workbenchDefaults(REVISION_PLANNING_WORKBENCH)
 };
+var REVISION_AUDIT_SECTIONS = [
+  {
+    id: "context",
+    index: "01",
+    title: localized("\u8FD4\u4FEE\u8BED\u5883", "Revision context"),
+    description: localized(
+      "\u53EF\u9009\u6307\u5B9A\u671F\u520A\u3001\u4F1A\u8BAE\u4E0E\u672C\u8F6E\u5141\u8BB8\u7684\u4FEE\u6539\u8303\u56F4\u3002",
+      "Optionally identify the journal, conference, and permitted revision scope."
+    )
+  },
+  {
+    id: "focus",
+    index: "02",
+    title: localized("\u5BA1\u67E5\u91CD\u70B9", "Audit focus"),
+    description: localized(
+      "\u8865\u5145\u9700\u8981\u91CD\u70B9\u53D6\u8BC1\u7684 reviewer\u3001\u5B9E\u9A8C\u6216 claim\u3002",
+      "Add a reviewer, experiment, or claim that needs particular verification."
+    )
+  }
+];
+var REVISION_AUDIT_FIELD_SECTIONS = {
+  scenario: "context",
+  venue: "context",
+  decisionContext: "context",
+  custom: "focus"
+};
+var REVISION_AUDIT_MODEL = {
+  id: "revision-audit",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "revision-audit",
+  websitePath: "/submission/revision-audit",
+  title: localized("\u8FD4\u4FEE\u7A3F\u5BA1\u67E5", "Revision Audit"),
+  eyebrow: "YANSHU \xB7 REVISION AUDIT",
+  description: localized(
+    "\u9010\u6761\u6838\u9A8C\u56DE\u590D\u4FE1\u6216 rebuttal \u4E2D\u7684\u4E3B\u5F20\u662F\u5426\u7531\u5B9E\u9645\u4FEE\u6539\u4E0E\u8BC1\u636E\u652F\u6301\u3002",
+    "Verify comment by comment whether response-letter or rebuttal claims are supported by actual changes and evidence."
+  ),
+  materialTitle: localized("\u9700\u8981\u6750\u6599", "Required materials"),
+  materialItems: {
+    zh: ["Reviewer comments \u4E0E\u7F16\u8F91\u51B3\u5B9A", "Response Letter \u6216 rebuttal", "Revised manuscript", "Original manuscript \u4E0E diff manuscript\uFF08\u5F3A\u70C8\u5EFA\u8BAE\uFF09"],
+    en: ["Reviewer comments and editor decision", "Response letter or rebuttal", "Revised manuscript", "Original manuscript and diff manuscript (strongly recommended)"]
+  },
+  materialHint: localized(
+    "\u671F\u520A\u6216\u4F1A\u8BAE\u53EF\u7559\u7A7A\u5E76\u81EA\u52A8\u5224\u65AD\uFF1B\u7F3A\u5931\u6750\u6599\u4F1A\u88AB\u6807\u4E3A\u65E0\u6CD5\u6838\u9A8C\u3002",
+    "Journal or conference may be omitted and inferred; missing evidence is marked not verifiable."
+  ),
+  output: localized(
+    "\u4E00\u4EFD `revision_audit.md`\uFF0C\u5305\u542B\u9010\u6761\u5224\u65AD\u3001\u4FEE\u6539\u8BC1\u636E\u3001\u9057\u7559\u98CE\u9669\u548C\u6700\u5C0F\u4FEE\u6B63\u3002",
+    "A `revision_audit.md` with comment-level judgments, change evidence, residual risk, and minimum corrections."
+  ),
+  sections: REVISION_AUDIT_SECTIONS,
+  fields: REVISION_AUDIT_WORKBENCH.controls.map(
+    (control) => configurableWorkbenchField(
+      control,
+      REVISION_AUDIT_FIELD_SECTIONS[control.id] ?? "focus"
+    )
+  ),
+  defaults: workbenchDefaults(REVISION_AUDIT_WORKBENCH)
+};
 var CONFIGURABLE_MODELS = {
   "idea-discovery": IDEA_DISCOVERY_MODEL,
   "paper-drafting": PAPER_DRAFTING_MODEL,
@@ -5189,7 +5405,8 @@ var CONFIGURABLE_MODELS = {
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
   "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
   "peer-review": PEER_REVIEW_MODEL,
-  "revision-planning": REVISION_PLANNING_MODEL
+  "revision-planning": REVISION_PLANNING_MODEL,
+  "revision-audit": REVISION_AUDIT_MODEL
 };
 var CONFIGURABLE_SKILL_WORKFLOW_IDS = Object.keys(
   CONFIGURABLE_MODELS
@@ -5412,6 +5629,9 @@ function normalizeSkillWorkflowPreferences(workflowId, input = {}) {
   if (workflowId === "revision-planning") {
     return normalizeWorkbenchPreferences(REVISION_PLANNING_WORKBENCH, input);
   }
+  if (workflowId === "revision-audit") {
+    return normalizeWorkbenchPreferences(REVISION_AUDIT_WORKBENCH, input);
+  }
   return normalizeFigurePreferences(input);
 }
 function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage = "zh") {
@@ -5486,6 +5706,16 @@ function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage 
     selection = {
       evidencePolicy: revisionPreferences.evidencePolicy,
       executionPlan: revisionPreferences.executionPlan
+    };
+  } else if (workflowId === "revision-audit") {
+    const auditPreferences = preferences;
+    prompt = REVISION_AUDIT_WORKBENCH.buildPrompt(
+      auditPreferences,
+      promptLanguage
+    );
+    selection = {
+      scenario: auditPreferences.scenario,
+      venue: auditPreferences.venue
     };
   } else {
     const figurePreferences = preferences;
