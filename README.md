@@ -90,7 +90,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [章节精修](https://yanshu-workbench.pages.dev/reconstruction/refinement/) | 需要精修单章或合并实验叙事 | 按 Abstract、Introduction、Related Work、Method、Experiments & Results、Discussion、Conclusion 分别生成章节专用 Prompt |
 | [专项审计](https://yanshu-workbench.pages.dev/reconstruction/audit/) | 论文接近终稿 | 可组合审计术语、引用与 BibTeX、数据、图表、Claim–证据、符号、可复现性和跨章节重复 |
 | [分章节写作](https://yanshu-workbench.pages.dev/writing/sections/) | 从提纲或局部证据撰写章节 | 根据章节功能显示专用配置，覆盖贡献列表、引用核验、Method Overview、伪代码、图表对应段落和 Discussion 主题 |
-| [版本转换](https://yanshu-workbench.pages.dev/reconstruction/conversion/) | 会议、期刊、预印本或投稿版本迁移 | 核验目标规则后处理扩写、压缩、匿名、附录、模板和图表迁移，并输出高风险差异 |
+| [TeX 模板迁移](https://yanshu-workbench.pages.dev/reconstruction/conversion/) | 更换投稿模板 | 下载并核验目标 venue 最新官方 LaTeX 模板，在不修改论文内容的前提下完成可编译迁移与一致性验收 |
 | [实验方案设计](https://yanshu-workbench.pages.dev/experiments/design/) | 实验尚未完整落地 | 从研究问题、资源和证据边界生成主实验、对照、消融、稳健性和停止条件 |
 | [Baseline 与复现](https://yanshu-workbench.pages.dev/experiments/baselines/) | 需要选择公平对照并复现 | 优先核验官方论文与仓库，明确同协议重跑、可比性、公平调参和失败记录 |
 | [实验代码](https://yanshu-workbench.pages.dev/experiments/code/) | 需要实现可运行实验 | 按仓库环境、实现范围、配置与测试要求生成代码任务，保留可追溯日志和运行入口 |
@@ -101,6 +101,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [论文表格](https://yanshu-workbench.pages.dev/figures/tables/) | 需要整理结果或对比表 | 逐格核对数值与单位，配置表格职责、排序、高亮、显著性和单栏/双栏可读性 |
 | [图表审计](https://yanshu-workbench.pages.dev/figures/audit/) | 图表接近交付 | 联合检查数据、caption、正文引用、标签、可读性和一致性；安全修复只触及已确认错误及其直接依赖 |
 | [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | 先判断论文类别，再按 OA、APC、IF、综述文章、分区和收录等条件动态筛选；默认排除 MDPI、Hindawi 与 Frontiers，也可关闭该排除条件 |
+| [投稿前全文精修](https://yanshu-workbench.pages.dev/submission/polishing/) | 完成稿投稿前 | 以最小必要干预消除冗余、机械化表达、防御性写作与全文不一致，并返回完整修改文件 |
 | [投稿前终检](https://yanshu-workbench.pages.dev/submission/check/) | 即将提交 | 以目标 venue 最新官方规则为准，检查格式、匿名、材料、伦理、可复现性和阻塞项 |
 | [投稿材料](https://yanshu-workbench.pages.dev/submission/materials/) | 需要准备附加材料 | 仅生成所选 cover letter、highlights、声明等材料；作者元数据缺失时保留明确占位，不得补造 |
 | [审稿](https://yanshu-workbench.pages.dev/submission/review/) | 投稿前独立评估 | 不区分会议与期刊，从贡献、方法、证据、结论边界、表达和可复现性生成分级审稿报告，不修改论文 |
@@ -263,10 +264,10 @@ yanshu-workbench/
     │   ├── draft/              # 论文初稿配置与 Prompt
     │   ├── ideas/              # Idea 查找、评估与优化
     │   ├── writing/            # 分章节写作
-    │   ├── reconstruction/     # 全文重构、精修、审计与版本转换
+    │   ├── reconstruction/     # 全文重构、精修、审计与 TeX 模板迁移
     │   ├── experiments/        # 实验设计、复现、代码、分析与可复现性
     │   ├── figures/            # 科研示意图、实验图、表格与图表审计
-    │   ├── submission/         # 投稿定位、终检、材料、审稿、返修规划与返修稿审查
+    │   ├── submission/         # 投稿定位、全文精修、终检、材料、审稿与返修
     │   └── workbench/          # 配置式工作台共用组件
     ├── content/prompts/        # 重构模板、变量模型与字数规则
     ├── content/workflows/      # 网站与核心 Skills 共用的工作流目录与配置导出
@@ -279,10 +280,10 @@ yanshu-workbench/
 - [x] 简洁首页与顶部导航
 - [x] Idea 查找、评估与优化工作台
 - [x] 论文初稿工作台
-- [x] 全文重构、章节精修、专项审计、分章节写作与版本转换
+- [x] 全文重构、章节精修、专项审计、分章节写作与 TeX 模板迁移
 - [x] 实验设计、Baseline 复现、实验代码、结果分析与可复现性
 - [x] 科学示意图、实验绘图、论文表格与图表审计
-- [x] 投稿定位、投稿前终检、投稿材料、审稿、返修规划与返修稿审查
+- [x] 投稿定位、投稿前全文精修、投稿前终检、投稿材料、审稿、返修规划与返修稿审查
 - [x] 可恢复的五轮论文重构插件基础
 - [x] 九个核心子 Skill 使用网站同源配置；初稿与实验绘图支持可选外部增强
 - [ ] 浏览器桥接的一体化安装与首次使用向导

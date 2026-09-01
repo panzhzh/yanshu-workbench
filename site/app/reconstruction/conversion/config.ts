@@ -1,548 +1,33 @@
 import type { Language } from "../../config";
 import type {
-  NumberRange,
+  LocalizedText,
+  WorkbenchCopy,
   WorkbenchDefinition,
   WorkbenchValues,
 } from "../../workbench/types";
-import {
-  CAPTION_LENGTH_POLICY,
-  buildCaptionLengthGuidance,
-} from "../../../content/prompts/captionLength";
 
-const CONVERSION_IDS = [
-  "conference-journal",
-  "journal-conference",
-  "preprint-submission",
-  "blind-camera-ready",
-  "venue-migration",
-] as const;
+const text = (zh: string, en: string): LocalizedText => ({ zh, en });
 
-type ConversionId = (typeof CONVERSION_IDS)[number];
+function scalar(values: Readonly<WorkbenchValues>, id: string) {
+  return String(values[id] ?? "").trim();
+}
 
-const CONVERSION_NAMES: Record<ConversionId, Record<Language, string>> = {
-  "conference-journal": {
-    zh: "会议论文 → 期刊扩展版",
-    en: "Conference paper → journal extension",
-  },
-  "journal-conference": {
-    zh: "期刊论文 → 会议版本",
-    en: "Journal paper → conference version",
-  },
-  "preprint-submission": {
-    zh: "预印本 → 投稿版本",
-    en: "Preprint → submission version",
-  },
-  "blind-camera-ready": {
-    zh: "匿名稿 → Camera-ready",
-    en: "Blind manuscript → camera-ready",
-  },
-  "venue-migration": {
-    zh: "Venue / 模板迁移",
-    en: "Venue / template migration",
-  },
+const TARGET_STAGES = {
+  submission: text("投稿 / 审稿版", "Submission / review version"),
+  camera: text("Camera-ready / 正式版", "Camera-ready / final version"),
 };
 
-const EXECUTION_NAMES = {
-  convert: { zh: "直接完成转换", en: "Perform the conversion" },
-  plan: { zh: "只输出转换方案", en: "Conversion plan only" },
-} as const;
+const TEMPLATE_SOURCES = {
+  official: text("联网获取最新官方模板", "Fetch the latest official template"),
+  provided: text("使用用户提供的官方模板", "Use an official template supplied by the user"),
+};
 
-const DEPTH_NAMES = {
-  format: { zh: "仅格式与模板", en: "Format and template only" },
-  adaptive: { zh: "格式 + 叙事适配", en: "Format + narrative adaptation" },
-  extension: {
-    zh: "基于现有证据扩展",
-    en: "Evidence-supported extension",
-  },
-} as const;
-
-const TEMPLATE_NAMES = {
-  official: {
-    zh: "联网获取最新官方模板",
-    en: "Fetch the latest official template",
-  },
-  provided: {
-    zh: "使用用户提供模板",
-    en: "Use the provided template",
-  },
-  preserve: {
-    zh: "暂时沿用当前模板",
-    en: "Preserve the current template",
-  },
-} as const;
-
-const ANONYMITY_NAMES = {
-  verify: { zh: "按官方规则核验", en: "Verify official policy" },
-  double: { zh: "双盲匿名", en: "Double-blind" },
-  single: { zh: "单盲投稿", en: "Single-blind" },
-  public: { zh: "非匿名 / Camera-ready", en: "Non-anonymous / camera-ready" },
-} as const;
-
-const APPENDIX_NAMES = {
-  verify: { zh: "按官方规则决定", en: "Follow official policy" },
-  allow: { zh: "允许作为补充", en: "Allow supplementary appendix" },
-  none: { zh: "不使用附录", en: "No appendix" },
-} as const;
-
-const EXTENSION_FOCUS_NAMES = {
-  theory: { zh: "理论与问题定义", en: "Theory and problem formulation" },
-  method: { zh: "方法与机制", en: "Method and mechanisms" },
-  experiments: { zh: "新增实验", en: "New experiments" },
-  analysis: { zh: "结果与稳健性分析", en: "Results and robustness analysis" },
-  literature: { zh: "文献定位", en: "Literature positioning" },
-  discussion: { zh: "讨论与外部效度", en: "Discussion and external validity" },
-} as const;
-
-function stringValue(
-  values: Readonly<WorkbenchValues>,
-  id: string,
-  fallback = "",
-) {
-  const value = values[id];
-  return typeof value === "string" ? value : fallback;
-}
-
-function booleanValue(
-  values: Readonly<WorkbenchValues>,
-  id: string,
-  fallback = false,
-) {
-  const value = values[id];
-  return typeof value === "boolean" ? value : fallback;
-}
-
-function rangeValue(
-  values: Readonly<WorkbenchValues>,
-  id: string,
-  fallback: NumberRange,
-): NumberRange {
-  const value = values[id];
-  if (
-    Array.isArray(value) &&
-    value.length === 2 &&
-    typeof value[0] === "number" &&
-    typeof value[1] === "number"
-  ) {
-    return [value[0], value[1]];
-  }
-  return fallback;
-}
-
-function multiValue(values: Readonly<WorkbenchValues>, id: string) {
-  const value = values[id];
-  return Array.isArray(value) && value.every((item) => typeof item === "string")
-    ? value
-    : [];
-}
-
-function enumValue<T extends string>(
-  values: Readonly<WorkbenchValues>,
-  id: string,
-  allowed: readonly T[],
-  fallback: T,
-) {
-  const value = values[id];
-  return typeof value === "string" && allowed.includes(value as T)
-    ? (value as T)
-    : fallback;
-}
-
-function rangeText(range: NumberRange, unit: string) {
-  return `${range[0]}–${range[1]} ${unit}`;
-}
-
-function directionInstructions(
-  values: Readonly<WorkbenchValues>,
-  direction: ConversionId,
-  language: Language,
-) {
-  if (direction === "conference-journal") {
-    const depth = enumValue(
-      values,
-      "conversionDepth",
-      ["format", "adaptive", "extension"] as const,
-      "adaptive",
-    );
-    const extensionFocus = multiValue(values, "extensionFocus")
-      .map(
-        (id) =>
-          EXTENSION_FOCUS_NAMES[
-            id as keyof typeof EXTENSION_FOCUS_NAMES
-          ]?.[language],
-      )
-      .filter(Boolean)
-      .join(language === "zh" ? "、" : ", ");
-    const priorDisclosure = booleanValue(values, "priorDisclosure", true);
-    if (depth === "format") {
-      return language === "zh"
-        ? `- 只建立会议版—期刊模板映射并完成必要格式迁移，不扩写研究内容。
-- ${priorDisclosure ? "核验并按目标期刊官方政策处理既有会议版本的引用与披露。" : "仍需核验 prior-publication 政策；官方要求披露时必须执行并记录配置冲突。"}`
-        : `- Build the conference-to-journal template mapping and perform only required formatting migration; do not extend research content.
-- ${priorDisclosure ? "Verify and follow the target journal's official citation and disclosure policy for the conference version." : "Still verify prior-publication policy; comply and record a configuration conflict when disclosure is required."}`;
-    }
-    if (depth === "adaptive") {
-      return language === "zh"
-        ? `- 建立会议版—期刊版结构与叙事 delta，补足期刊读者需要的解释和过渡，但不新增实验、分析或科学结论。
-- ${priorDisclosure ? "核验并按目标期刊官方政策处理既有会议版本的引用与披露。" : "仍需核验 prior-publication 政策；官方要求披露时必须执行并记录配置冲突。"}`
-        : `- Build the conference-to-journal structural and narrative delta, adding explanation and transitions needed by journal readers without adding experiments, analyses, or scientific conclusions.
-- ${priorDisclosure ? "Verify and follow the target journal's official citation and disclosure policy for the conference version." : "Still verify prior-publication policy; comply and record a configuration conflict when disclosure is required."}`;
-    }
-    return language === "zh"
-      ? `- 先建立会议版—期刊版 delta map，确认期刊扩展带来新的研究价值，而不是拉长段落。当前扩展重点：${extensionFocus || "由证据决定"}。
-- 只整合已经提供且可核验的新理论、方法、实验或分析；材料尚未提供的扩展写入行动清单，不得生成结果。
-- ${priorDisclosure ? "核验目标期刊对既有会议版本、实质扩展、原文引用和披露的官方政策，并在稿件与报告中按规则处理。" : "仍需核验目标期刊的 prior-publication 政策；若披露是官方要求，必须执行并在报告中说明与当前配置的冲突。"}`
-      : `- Build a conference-to-journal delta map first and ensure the journal version adds research value rather than longer prose. Current extension priorities: ${extensionFocus || "evidence-driven"}.
-- Integrate only new theory, methods, experiments, or analyses that are supplied and verifiable; place any unsupported extension in an action list instead of generating results.
-- ${priorDisclosure ? "Verify and follow the target journal's official policy for prior conference versions, substantive extension, citation of the earlier paper, and disclosure." : "Still verify the target journal's prior-publication policy; if disclosure is officially required, comply and explain the configuration conflict in the report."}`;
-  }
-
-  if (direction === "journal-conference") {
-    const priority = enumValue(
-      values,
-      "compressionPriority",
-      ["core-evidence", "argument", "balanced"] as const,
-      "core-evidence",
-    );
-    const priorityText =
-      priority === "core-evidence"
-        ? language === "zh"
-          ? "优先保留核心 Method 与 Experiments and Results"
-          : "prioritize core Method and Experiments & Results"
-        : priority === "argument"
-          ? language === "zh"
-            ? "围绕最强创新主线重组"
-            : "reorganize around the strongest novelty spine"
-          : language === "zh"
-            ? "均衡保留论证与证据"
-            : "balance argument and evidence";
-    const appendixAllowed =
-      enumValue(
-        values,
-        "appendix",
-        ["verify", "allow", "none"] as const,
-        "verify",
-      ) !== "none";
-    return language === "zh"
-      ? `- ${priorityText}。先区分决定性内容与真正补充内容，再压缩重复背景、次要推导和低增量分析；不按章节同比例删减。
-- ${appendixAllowed ? "任何移入附录的内容必须在官方规则允许且不影响方法复现、结果判断和局限理解时才移动" : "当前不使用附录，所有必要方法、结果和边界必须留在正文；只能删除真实重复或非必要内容"}；不得隐藏不利结果。
-- 建立删除/迁移台账，逐项说明原位置、科学功能、去向和对 claim 的影响。`
-      : `- ${priorityText}. Separate decisive from genuinely supplementary material before compressing repeated background, secondary derivations, and low-increment analysis; never cut every section by the same ratio.
-- ${appendixAllowed ? "Move content to an appendix only when official rules permit it and method reproduction, result assessment, and limitation understanding remain intact" : "No appendix is allowed: keep every necessary method, result, and boundary in the main text, removing only true redundancy or nonessential material"}; never hide unfavorable evidence.
-- Maintain a deletion/movement ledger with original location, scientific function, destination, and claim impact.`;
-  }
-
-  if (direction === "preprint-submission") {
-    const priorDisclosure = booleanValue(values, "priorDisclosure", true);
-    return language === "zh"
-      ? `- 将预印本适配为可审稿版本：核对匿名、页面或字数、补充材料、代码链接和预印本政策，并只处理官方规则要求的差异。
-- 保留预印本中的高价值表述和完整证据；为目标读者调整定位时，不静默改变 claim 强度或删去边界。
-- ${priorDisclosure ? "在报告中记录预印本状态、官方政策和需要披露或处理的位置。" : "若官方政策要求披露预印本，必须执行并在报告中标记配置冲突。"}`
-      : `- Adapt the preprint into a review-ready submission by checking anonymity, page or word policy, supplements, code links, and preprint policy, changing only differences required by official rules.
-- Preserve strong preprint prose and complete evidence. Audience-specific repositioning must not silently change claim strength or remove boundaries.
-- ${priorDisclosure ? "Record the preprint status, official policy, and every required disclosure or treatment in the report." : "If official policy requires preprint disclosure, comply and mark the configuration conflict in the report."}`;
-  }
-
-  if (direction === "blind-camera-ready") {
-    const restoreMetadata = booleanValue(values, "restoreMetadata", true);
-    return language === "zh"
-      ? `- 从匿名稿生成 Camera-ready：${restoreMetadata ? "恢复作者提供的姓名、单位、致谢、资助和代码/项目链接" : "暂不恢复身份元数据，仅完成其余 Camera-ready 转换"}；没有提供的身份或资助信息必须列为待补，不能猜测。
-- 保留评审后确认的科学内容，移除匿名化占位和审稿期标记；对任何实质内容变化单列 high-risk diff。
-- 使用正式版模板重新核查版权、页眉、作者块、补充材料与最终页数，并完成编译。`
-      : `- Produce a camera-ready version from the blind manuscript: ${restoreMetadata ? "restore author-supplied names, affiliations, acknowledgments, funding, and code/project links" : "leave identity metadata unresolved while completing the remaining camera-ready conversion"}. List missing identity or funding information rather than guessing.
-- Preserve scientifically accepted content and remove anonymization placeholders and review-stage markers; list every substantive content change in a high-risk diff.
-- Recheck copyright, running headers, author block, supplements, and final length against the production template, then compile.`;
-  }
-
-  return language === "zh"
-    ? `- 先比较源与目标的官方模板、结构和政策，再建立迁移映射；区分纯格式差异、叙事适配和可能改变科学含义的高风险变化。
-- 模板迁移应保留公式、算法、图表、引用、label/ref/cite、宏语义和图像质量；只有目标模板明确需要时才替换命令或重排浮动体。
-- 允许为目标读者重组定位与过渡，但核心 claim、方法定义、数据和实验结论必须保持证据等价。`
-    : `- Compare source and target official templates, structures, and policies before building a migration map; separate formatting differences, narrative adaptation, and high-risk changes that may alter scientific meaning.
-- Preserve equations, algorithms, visuals, citations, label/ref/cite links, macro semantics, and image quality during template migration; replace commands or reflow floats only when the target template requires it.
-- Positioning and transitions may be adapted for the target audience, but core claims, method definitions, values, and experimental conclusions must remain evidence-equivalent.`;
-}
-
-function planningInstructions(
-  direction: ConversionId,
-  language: Language,
-) {
-  const focus = {
-    "conference-journal": {
-      zh: "建立会议版—期刊版 delta map，列出可由现有或待提供证据支持的实质扩展、prior-publication 披露和执行顺序；不实际扩写或编译。",
-      en: "Build a conference-to-journal delta map covering evidence-supported substantive extensions, prior-publication disclosure, and execution order; do not expand or compile the manuscript.",
-    },
-    "journal-conference": {
-      zh: "建立保留、压缩、删除与附录候选台账，评估每项对核心 claim 和复现性的影响；不实际删改。",
-      en: "Build a retain/compress/remove/appendix-candidate ledger and assess the impact on core claims and reproducibility; do not edit the manuscript.",
-    },
-    "preprint-submission": {
-      zh: "比较预印本与目标投稿版本的匿名、格式、补充材料和披露差异，形成逐项迁移计划；不修改预印本。",
-      en: "Compare anonymity, formatting, supplement, and disclosure requirements between the preprint and target submission, producing an itemized migration plan without editing the preprint.",
-    },
-    "blind-camera-ready": {
-      zh: "盘点需要恢复的作者元数据、致谢、链接、版权和正式版模板字段，标出缺失信息与验证步骤；不恢复身份或生成正式稿。",
-      en: "Inventory identity metadata, acknowledgments, links, copyright, and production-template fields to restore, marking missing inputs and validation steps; do not reveal identities or generate final files.",
-    },
-    "venue-migration": {
-      zh: "建立源—目标模板、政策、结构、宏、图表和附件映射，区分自动迁移项与高风险人工复核项；不修改文件。",
-      en: "Map source and target templates, policies, structure, macros, visuals, and attachments, separating mechanical migration from high-risk review; do not modify files.",
-    },
-  } as const;
-  return `- ${focus[direction][language]}`;
-}
-
-function depthInstructions(
-  depth: "format" | "adaptive" | "extension",
-  language: Language,
-) {
-  if (depth === "format") {
-    return language === "zh"
-      ? "只处理模板、宏、浮动体、元数据和官方格式差异；除模板适配必需内容外，保持叙事与科学内容不变。"
-      : "Handle template, macro, float, metadata, and official-format differences only; preserve narrative and scientific content except for wording strictly required by migration.";
-  }
-  if (depth === "extension") {
-    return language === "zh"
-      ? "允许整合作者已提供且可核验的新理论、实验或分析，并同步调整叙事；未提供的扩展只能列入行动清单。"
-      : "Integrate author-supplied, verifiable new theory, experiments, or analyses and adapt the narrative accordingly; unsupported extensions belong in an action list only.";
-  }
-  return language === "zh"
-    ? "在保持证据等价的前提下完成格式、结构和过渡适配；不新增实验或科学结论。"
-    : "Adapt formatting, structure, and transitions while preserving evidential equivalence; add no experiment or scientific conclusion.";
-}
-
-function buildVersionConversionPrompt(
-  values: Readonly<WorkbenchValues>,
-  language: Language,
-) {
-  const direction = enumValue(
-    values,
-    "conversion",
-    CONVERSION_IDS,
-    "conference-journal",
-  );
-  const execution = enumValue(
-    values,
-    "execution",
-    ["convert", "plan"] as const,
-    "convert",
-  );
-  const depth = enumValue(
-    values,
-    "conversionDepth",
-    ["format", "adaptive", "extension"] as const,
-    "adaptive",
-  );
-  const templatePolicy = enumValue(
-    values,
-    "templatePolicy",
-    ["official", "provided", "preserve"] as const,
-    "official",
-  );
-  const anonymity = enumValue(
-    values,
-    "anonymity",
-    ["verify", "double", "single", "public"] as const,
-    "verify",
-  );
-  const appendix = enumValue(
-    values,
-    "appendix",
-    ["verify", "allow", "none"] as const,
-    "verify",
-  );
-  const figurePolicy = enumValue(
-    values,
-    "figurePolicy",
-    ["preserve", "reflow", "supplement"] as const,
-    "reflow",
-  );
-  const reportLanguage = enumValue(
-    values,
-    "reportLanguage",
-    ["zh", "en", "bilingual"] as const,
-    "zh",
-  );
-  const targetVenue = stringValue(values, "targetVenue").trim();
-  const useLengthGuidance = booleanValue(values, "useLengthGuidance", false);
-  const suggestedWords = rangeValue(values, "suggestedWords", [4500, 8000]);
-  const captionWordRange = rangeValue(
-    values,
-    "captionWordRange",
-    CAPTION_LENGTH_POLICY.defaultRange,
-  );
-  const captionGuidance = buildCaptionLengthGuidance(
-    captionWordRange,
-    language,
-  );
-  const customInstructions = stringValue(values, "customInstructions").trim();
-
-  const reportLanguageText =
-    reportLanguage === "bilingual"
-      ? language === "zh"
-        ? "中英双语"
-        : "Chinese and English"
-      : reportLanguage === "zh"
-        ? language === "zh"
-          ? "中文"
-          : "Chinese"
-        : language === "zh"
-          ? "英文"
-          : "English";
-
-  const figureText =
-    figurePolicy === "preserve"
-      ? language === "zh"
-        ? "保持现有图表内容、顺序与正文归属，仅做模板必需的尺寸适配"
-        : "preserve visual content, order, and main-text placement, changing size only when the template requires it"
-      : figurePolicy === "reflow"
-        ? language === "zh"
-          ? "允许为版面和论证顺序重排图表，但不得改变图中证据或 caption 含义"
-          : "allow visual reflow for layout and argument order without changing visual evidence or caption meaning"
-        : language === "zh"
-          ? "允许把真正补充性的图表列为附录/补充材料候选，但不得自动移动决定性证据"
-          : "allow genuinely supplementary visuals to become appendix/supplement candidates without automatically moving decisive evidence";
-
-  const venueRules = targetVenue
-    ? language === "zh"
-      ? `目标 venue：${targetVenue}。联网核验并优先采用其当前官方作者指南、官方模板、投稿系统说明和 prior-publication/扩展政策；记录 URL 与核验日期。`
-      : `Target venue: ${targetVenue}. Verify and prioritize its current official author instructions, official template, submission-system guidance, and prior-publication/extension policy; record URLs and the verification date.`
-    : language === "zh"
-      ? "未指定目标 venue：不得假定页数、匿名、模板、附录或扩展比例；输出通用转换结果及待确定规则。"
-      : "No target venue is specified: do not assume any page, anonymity, template, appendix, or extension-percentage rule; deliver a venue-neutral conversion and list unresolved rules.";
-
-  const lengthText = useLengthGuidance
-    ? language === "zh"
-      ? `建议正文 ${rangeText(suggestedWords, "词")}；这是可根据论文内容与官方规则接受、调整或忽略的参考，不是硬上限。`
-      : `Suggested main-text length: ${rangeText(suggestedWords, "words")}; this is flexible guidance that may be accepted, adjusted, or ignored for content and official rules, not a hard cap.`
-    : language === "zh"
-      ? "默认不设置字数建议；以完整科学论证和核验后的官方规则为准。"
-      : "No length guidance by default; prioritize a complete scientific argument and verified official rules.";
-
-  const customText = customInstructions
-    ? language === "zh"
-      ? `\n- 个性化要求：${customInstructions}`
-      : `\n- Custom requirement: ${customInstructions}`
-    : "";
-  const directionGuidance =
-    execution === "plan"
-      ? planningInstructions(direction, language)
-      : directionInstructions(values, direction, language);
-  const depthGuidance = depthInstructions(depth, language);
-  const executionGuidance =
-    execution === "plan"
-      ? language === "zh"
-        ? "本轮只建立规则、内容与文件迁移方案；所有“恢复、扩写、压缩、迁移、编译”均写为未来步骤，不执行任何修改或下载。"
-        : "This run produces the rule, content, and file-migration plan only. Treat every restore, expand, compress, migrate, download, or compile action as a future step; execute no change."
-      : language === "zh"
-        ? "先建立源—目标规则与内容 delta，再执行并验证转换。"
-        : "Build the source-to-target rule and content delta before executing and validating the conversion.";
-
-  const deliverables =
-    execution === "plan"
-      ? language === "zh"
-        ? `只输出 \`<base_name>_conversion_plan_${reportLanguage === "en" ? "en" : reportLanguage === "zh" ? "zh" : "bilingual"}.md\`：官方规则台账、源—目标结构映射、保留/压缩/扩展/迁移清单、材料缺口、编译计划和 high-risk diff 预案。本模式不修改论文文件。`
-        : `Return only \`<base_name>_conversion_plan_${reportLanguage === "en" ? "en" : reportLanguage === "zh" ? "zh" : "bilingual"}.md\`: official-rule ledger, source-to-target structure map, retain/compress/extend/move register, missing inputs, compilation plan, and anticipated high-risk diff. Do not modify manuscript files in this mode.`
-      : language === "zh"
-        ? `交付一个可复现转换包：
-1. \`<base_name>_converted.tex\` 及目标模板必需文件；
-2. 完整 \`<base_name>_converted_references.bib\`，未修改条目也必须保留；
-3. figures/ 文件映射与实际使用的图表；
-4. 成功编译的 PDF 与简短编译说明；
-5. ${reportLanguageText} Markdown 转换报告：官方规则来源、结构 delta、删改迁移台账、未完成材料和 high-risk diff。`
-        : `Deliver a reproducible conversion package:
-1. \`<base_name>_converted.tex\` and required target-template files;
-2. the complete \`<base_name>_converted_references.bib\`, retaining unchanged entries;
-3. the figures/ mapping and visuals actually used;
-4. a successfully compiled PDF and concise compilation note;
-5. a ${reportLanguageText} Markdown conversion report with official-rule sources, structural delta, edit/movement ledger, unresolved inputs, and high-risk diff.`;
-
-  if (language === "zh") {
-    return `# 学术论文版本转换
-
-## 角色
-你是一名熟悉学术出版政策、LaTeX 模板迁移和研究叙事的论文版本编辑。先识别论文所属领域、当前版本和科学主线，再完成“${CONVERSION_NAMES[direction].zh}”。
-
-## 输入与取证
-在同一对话中读取完整主 .tex 及所有 \`\\input\` / \`\\include\` 文件、当前 .bib、与源稿一致的最新 PDF、figures/（如有）、作者提供的新实验或元数据，以及目标模板（如选择用户提供）。先编译或检查源稿基线并建立文件清单。论文事实只来自输入材料；缺失内容进入待办，不得补造数据、引用、作者信息或实验。
-
-## 配置目标
-- 执行方式：${EXECUTION_NAMES[execution].zh}
-- 转换深度：${DEPTH_NAMES[depth].zh}
-- 模板策略：${TEMPLATE_NAMES[templatePolicy].zh}
-- 匿名策略：${ANONYMITY_NAMES[anonymity].zh}
-- 附录策略：${APPENDIX_NAMES[appendix].zh}
-- 图表策略：${figureText}
-- ${lengthText}
-- Caption 建议：${captionGuidance}
-- ${venueRules}${customText}
-
-## 执行重点
-- ${executionGuidance}
-- 转换深度边界：${depthGuidance}
-- 保留可复现证据链：claim、方法定义、公式、数字、图表、cite key 与结论必须前后一致。AI 可自动选择最优转换方案，但任何可能改变标题/缩写、claim 强度、实验解释、作者身份或内容归属的变化都应进入 high-risk diff。
-${directionGuidance}
-
-## 交付
-${deliverables}
-
-${execution === "plan" ? "输出前核对方案是否覆盖 cite/ref/label、图片路径、模板选项、匿名信息和正文/附录归属，并列出未来编译验收标准。" : "输出前核验所有 cite/ref/label、图片路径、模板选项、匿名信息、正文与附录归属及编译结果。"}官方规则与用户偏好冲突时遵循官方规则，并在报告中明确说明。`;
-  }
-
-  return `# Academic Manuscript Version Conversion
-
-## Role
-Act as a manuscript-version editor experienced in scholarly publishing policy, LaTeX template migration, and research narrative. Identify the paper's field, current version, and scientific throughline before completing “${CONVERSION_NAMES[direction].en}.”
-
-## Inputs and Evidence
-Read the complete main .tex and every \`\\input\` / \`\\include\` file, current .bib, latest PDF matching the source, figures/ when available, author-supplied new experiments or metadata, and the target template when the provided-template option is selected. Compile or inspect a source baseline and build a file manifest first. Paper facts come only from the inputs; list missing data, citations, identities, or experiments instead of inventing them.
-
-## Configured Target
-- Execution: ${EXECUTION_NAMES[execution].en}
-- Conversion depth: ${DEPTH_NAMES[depth].en}
-- Template policy: ${TEMPLATE_NAMES[templatePolicy].en}
-- Anonymity: ${ANONYMITY_NAMES[anonymity].en}
-- Appendix: ${APPENDIX_NAMES[appendix].en}
-- Visual policy: ${figureText}
-- ${lengthText}
-- Caption guidance: ${captionGuidance}
-- ${venueRules}${customText}
-
-## Execution Priorities
-- ${executionGuidance}
-- Conversion-depth boundary: ${depthGuidance}
-- Preserve the reproducible evidence chain: claims, method definitions, equations, values, visuals, cite keys, and conclusions must remain consistent. The AI may choose the best conversion automatically, but every change that may affect the title/acronym, claim strength, result interpretation, author identity, or content placement belongs in a high-risk diff.
-${directionGuidance}
-
-## Deliverables
-${deliverables}
-
-${execution === "plan" ? "Before delivery, check that the plan covers cite/ref/label links, image paths, template options, anonymity, and main-text/appendix placement, and define future compilation acceptance criteria." : "Before delivery, verify every cite/ref/label, image path, template option, anonymity field, main-text/appendix placement, and compilation result."} When an official rule conflicts with a preference, follow the official rule and explain the conflict in the report.`;
-}
-
-export const VERSION_CONVERSION_WORKBENCH = {
-  id: "version-conversion",
-  activePage: "version-conversion",
-  copy: {
+function sharedCopy(seed: Record<Language, Pick<WorkbenchCopy, "eyebrow" | "title" | "subtitle" | "preset" | "inputTitle" | "inputItems" | "inputHint" | "promptTitle" | "promptPurpose">>) {
+  return {
     zh: {
-      eyebrow: "VERSION CONVERSION",
-      title: "版本转换",
-      subtitle:
-        "在保留科学证据链的前提下，完成会议、期刊、预印本与投稿版本之间的结构和模板迁移。",
-      preset: "官方规则核验 · 证据等价 · 可编译交付",
+      ...seed.zh,
       reset: "恢复默认配置",
-      resetHint: "恢复会议转期刊、完整转换和沿用当前模板策略。",
-      inputTitle: "转换材料",
-      inputItems: [
-        "完整 .tex",
-        "当前 .bib",
-        "最新 PDF",
-        "目标模板 / figures（按需）",
-      ],
-      inputHint:
-        "figures/ 非必需，但涉及图表迁移时建议提供；身份信息、新实验和扩展内容只使用作者明确给出的材料。",
-      promptTitle: "论文版本转换",
-      promptPurpose:
-        "核验源与目标规则，建立内容 delta，并输出证据等价、可编译的新版本。",
+      resetHint: "恢复投稿版与最新官方模板。",
       switchPromptLanguage: "切换 Prompt 语言",
       copy: "复制",
       copied: "已复制",
@@ -553,374 +38,155 @@ export const VERSION_CONVERSION_WORKBENCH = {
       off: "关闭",
     },
     en: {
-      eyebrow: "VERSION CONVERSION",
-      title: "Version conversion",
-      subtitle:
-        "Migrate structure and templates across conference, journal, preprint, and submission versions while preserving the scientific evidence chain.",
-      preset: "Official rules · evidence equivalence · compilable delivery",
+      ...seed.en,
       reset: "Restore defaults",
-      resetHint:
-        "Restore conference-to-journal, full conversion, and preserve-template defaults.",
-      inputTitle: "Conversion materials",
-      inputItems: [
-        "Complete .tex",
-        "Current .bib",
-        "Latest PDF",
-        "Target template / figures (as needed)",
-      ],
-      inputHint:
-        "figures/ is optional but useful for visual migration. Use identity data, new experiments, and extension material only when explicitly supplied.",
-      promptTitle: "Manuscript version conversion",
-      promptPurpose:
-        "Verify source and target rules, build a content delta, and deliver an evidence-equivalent compilable version.",
-      switchPromptLanguage: "Switch Prompt language",
+      resetHint: "Restore submission stage and latest official template.",
+      switchPromptLanguage: "Switch prompt language",
       copy: "Copy",
       copied: "Copied",
       expand: "Expand",
       collapse: "Collapse",
-      clipboardError:
-        "Copy failed. Expand the card and select the text manually.",
+      clipboardError: "Copy failed. Expand the prompt and select it manually.",
       on: "On",
       off: "Off",
     },
-  },
+  } satisfies Record<Language, WorkbenchCopy>;
+}
+
+export const VERSION_CONVERSION_WORKBENCH = {
+  id: "tex-template-migration",
+  activePage: "version-conversion",
+  copy: sharedCopy({
+    zh: {
+      eyebrow: "TEX TEMPLATE MIGRATION",
+      title: "TeX 模板迁移",
+      subtitle: "将现有论文无损迁移到目标 venue 的最新官方 LaTeX 模板，不修改论文内容。",
+      preset: "最新官方模板 · 原稿只读 · 内容零改写",
+      inputTitle: "准备材料",
+      inputItems: ["完整论文 TeX 工程", "BibTeX 与 figures/", "当前可编译 PDF", "目标 venue 与年份"],
+      inputHint: "转换在新目录完成；原论文目录和文件保持不变。",
+      promptTitle: "TeX 模板迁移 Prompt",
+      promptPurpose: "获取并核验最新官方模板，只完成模板必需的 LaTeX 结构映射。",
+    },
+    en: {
+      eyebrow: "TEX TEMPLATE MIGRATION",
+      title: "TeX Template Migration",
+      subtitle: "Migrate an existing paper losslessly into the target venue's latest official LaTeX template without editing its content.",
+      preset: "Latest official template · read-only source · zero prose edits",
+      inputTitle: "Prepare materials",
+      inputItems: ["Complete TeX project", "BibTeX and figures/", "Current compiled PDF", "Target venue and year"],
+      inputHint: "Perform the migration in a new directory and leave the original manuscript untouched.",
+      promptTitle: "TeX-template migration prompt",
+      promptPurpose: "Fetch and verify the latest official template and perform only required LaTeX structure mapping.",
+    },
+  }),
   controls: [
-    {
-      id: "conversion",
-      kind: "select",
-      label: { zh: "转换方向", en: "Conversion direction" },
-      description: {
-        zh: "不同方向使用独立的扩展、压缩、匿名和披露策略。",
-        en: "Each direction receives its own extension, compression, anonymity, and disclosure logic.",
-      },
-      defaultValue: "conference-journal",
-      options: CONVERSION_IDS.map((value) => ({
-        value,
-        label: CONVERSION_NAMES[value],
-      })),
-    },
-    {
-      id: "execution",
-      kind: "segmented",
-      label: { zh: "执行方式", en: "Execution mode" },
-      description: {
-        zh: "材料完整时直接转换；高风险投稿可先只生成可审计方案。",
-        en: "Convert when materials are complete, or create an auditable plan first for a high-risk submission.",
-      },
-      defaultValue: "convert",
-      options: [
-        {
-          value: "convert",
-          label: { zh: "直接转换", en: "Convert" },
-          description: {
-            zh: "输出完整可编译版本",
-            en: "Deliver a complete compilable version",
-          },
-        },
-        {
-          value: "plan",
-          label: { zh: "只做方案", en: "Plan only" },
-          description: {
-            zh: "不修改论文文件",
-            en: "Do not modify manuscript files",
-          },
-        },
-      ],
-    },
-    {
-      id: "conversionDepth",
-      kind: "select",
-      label: { zh: "转换深度", en: "Conversion depth" },
-      description: {
-        zh: "默认同时适配模板与叙事；扩展模式仍只能使用已提供证据。",
-        en: "Template and narrative adaptation is the default; extension still uses only supplied evidence.",
-      },
-      defaultValue: "adaptive",
-      options: [
-        {
-          value: "format",
-          label: { zh: "仅格式与模板", en: "Format & template only" },
-        },
-        {
-          value: "adaptive",
-          label: { zh: "格式 + 叙事适配", en: "Format + narrative" },
-        },
-        {
-          value: "extension",
-          label: { zh: "基于证据扩展", en: "Evidence-supported extension" },
-        },
-      ],
-    },
     {
       id: "targetVenue",
       kind: "text",
-      label: { zh: "目标 venue（建议填写）", en: "Target venue (recommended)" },
-      description: {
-        zh: "填写正式名称和年份；Prompt 将要求联网核验当前官方规则。",
-        en: "Enter the formal name and year so the Prompt can verify current official rules online.",
-      },
+      label: text("目标 venue 与年份", "Target venue and year"),
+      description: text("用于定位对应届次或当前有效的官方模板。", "Used to identify the correct edition or currently effective official template."),
       defaultValue: "",
-      placeholder: {
-        zh: "例如 IEEE T-PAMI / ACL 2027",
-        en: "e.g., IEEE T-PAMI / ACL 2027",
-      },
+      placeholder: text("例如：ACL 2027 / IEEE TPAMI", "For example: ACL 2027 / IEEE TPAMI"),
+      span: "full",
     },
     {
-      id: "templatePolicy",
+      id: "targetStage",
       kind: "segmented",
-      label: { zh: "目标模板", en: "Target template" },
-      description: {
-        zh: "未指定 venue 时默认沿用当前模板；填写目标后可选择最新官方模板。",
-        en: "Preserve the current template when no venue is named; choose the latest official template after specifying a target.",
-      },
-      defaultValue: "preserve",
-      options: [
-        { value: "official", label: { zh: "最新官方", en: "Latest official" } },
-        { value: "provided", label: { zh: "用户提供", en: "Provided" } },
-        { value: "preserve", label: { zh: "沿用当前", en: "Preserve current" } },
-      ],
+      label: text("目标阶段", "Target stage"),
+      description: text("决定采用匿名投稿模板还是正式出版模板。", "Determines whether to use the anonymous submission or final publication template."),
+      defaultValue: "submission",
+      options: Object.entries(TARGET_STAGES).map(([value, label]) => ({ value, label })),
+      span: "full",
     },
     {
-      id: "anonymity",
-      kind: "select",
-      label: { zh: "匿名策略", en: "Anonymity policy" },
-      description: {
-        zh: "默认由目标官方规则决定；Camera-ready 只恢复作者提供的信息。",
-        en: "Verify the target policy by default; camera-ready restores only author-supplied metadata.",
-      },
-      defaultValue: "verify",
-      options: [
-        { value: "verify", label: { zh: "核验官方规则", en: "Verify policy" } },
-        { value: "double", label: { zh: "双盲", en: "Double-blind" } },
-        { value: "single", label: { zh: "单盲", en: "Single-blind" } },
-        {
-          value: "public",
-          label: { zh: "非匿名 / 正式版", en: "Non-anonymous / final" },
-        },
-      ],
-      visibleWhen: (values) =>
-        stringValue(values, "conversion") !== "blind-camera-ready",
-    },
-    {
-      id: "appendix",
+      id: "templateSource",
       kind: "segmented",
-      label: { zh: "附录策略", en: "Appendix policy" },
-      description: {
-        zh: "附录只放真正补充内容，不能成为压缩核心证据的默认出口。",
-        en: "Use an appendix only for genuinely supplementary material, never as the default outlet for core evidence.",
-      },
-      defaultValue: "verify",
-      options: [
-        { value: "verify", label: { zh: "按官方规则", en: "Verify policy" } },
-        { value: "allow", label: { zh: "允许", en: "Allow" } },
-        { value: "none", label: { zh: "不使用", en: "None" } },
-      ],
-    },
-    {
-      id: "extensionFocus",
-      kind: "multi",
-      label: { zh: "期刊扩展重点", en: "Journal extension priorities" },
-      description: {
-        zh: "只代表优先方向；未提供的新实验和分析只能进入行动清单。",
-        en: "These are priorities only; unavailable new experiments and analyses become action items.",
-      },
-      defaultValue: ["experiments", "analysis", "discussion"],
-      minSelected: 1,
-      options: [
-        { value: "theory", label: { zh: "理论与定义", en: "Theory" } },
-        { value: "method", label: { zh: "方法与机制", en: "Method" } },
-        { value: "experiments", label: { zh: "新增实验", en: "Experiments" } },
-        { value: "analysis", label: { zh: "深入分析", en: "Analysis" } },
-        { value: "literature", label: { zh: "文献定位", en: "Literature" } },
-        { value: "discussion", label: { zh: "讨论与边界", en: "Discussion" } },
-      ],
-      visibleWhen: (values) =>
-        stringValue(values, "conversion") === "conference-journal" &&
-        stringValue(values, "conversionDepth") === "extension",
-    },
-    {
-      id: "compressionPriority",
-      kind: "select",
-      label: { zh: "会议版压缩优先级", en: "Conference compression priority" },
-      description: {
-        zh: "默认保护核心方法与实验，不按章节比例机械删减。",
-        en: "Protect core methods and experiments by default; never trim sections proportionally.",
-      },
-      defaultValue: "core-evidence",
-      options: [
-        {
-          value: "core-evidence",
-          label: { zh: "核心方法与证据优先", en: "Core method & evidence" },
-        },
-        {
-          value: "argument",
-          label: { zh: "最强创新主线优先", en: "Strongest novelty spine" },
-        },
-        { value: "balanced", label: { zh: "均衡", en: "Balanced" } },
-      ],
-      visibleWhen: (values) =>
-        stringValue(values, "conversion") === "journal-conference",
-    },
-    {
-      id: "priorDisclosure",
-      kind: "toggle",
-      label: { zh: "既有版本披露", en: "Prior-version disclosure" },
-      description: {
-        zh: "默认核验并处理既有会议稿或预印本；官方要求始终优先。",
-        en: "Verify and handle the conference paper or preprint by default; official policy always prevails.",
-      },
-      defaultValue: true,
-      enabledLabel: { zh: "核验并披露", en: "Verify and disclose" },
-      disabledLabel: { zh: "不主动披露", en: "Do not proactively disclose" },
-      visibleWhen: (values) =>
-        ["conference-journal", "preprint-submission"].includes(
-          stringValue(values, "conversion"),
-        ),
-    },
-    {
-      id: "restoreMetadata",
-      kind: "toggle",
-      label: { zh: "恢复身份与致谢", en: "Restore identity and acknowledgments" },
-      description: {
-        zh: "仅恢复作者明确提供的姓名、单位、资助与项目链接。",
-        en: "Restore only author-supplied names, affiliations, funding, and project links.",
-      },
-      defaultValue: true,
-      enabledLabel: { zh: "恢复已提供信息", en: "Restore supplied metadata" },
-      disabledLabel: { zh: "暂不恢复", en: "Leave unresolved" },
-      visibleWhen: (values) =>
-        stringValue(values, "conversion") === "blind-camera-ready",
-    },
-    {
-      id: "figurePolicy",
-      kind: "select",
-      label: { zh: "图表迁移", en: "Visual migration" },
-      description: {
-        zh: "重排只改变版面与阅读顺序，不改变图中证据或 caption 含义。",
-        en: "Reflow may change layout and reading order, never evidence or caption meaning.",
-      },
-      defaultValue: "reflow",
-      options: [
-        {
-          value: "preserve",
-          label: { zh: "保持位置与顺序", en: "Preserve placement" },
-        },
-        {
-          value: "reflow",
-          label: { zh: "允许合理重排", en: "Allow reasoned reflow" },
-        },
-        {
-          value: "supplement",
-          label: { zh: "允许补充材料候选", en: "Allow supplement candidates" },
-        },
-      ],
-    },
-    {
-      id: "useLengthGuidance",
-      kind: "toggle",
-      label: { zh: "篇幅建议", en: "Length guidance" },
-      description: {
-        zh: "默认不限制；官方硬性规则仍须核验和遵守。",
-        en: "Off by default; verified official hard limits still apply.",
-      },
-      defaultValue: false,
-      enabledLabel: { zh: "使用建议区间", en: "Use suggested range" },
-      disabledLabel: { zh: "不设置建议", en: "No guidance" },
-    },
-    {
-      id: "suggestedWords",
-      kind: "range",
-      label: { zh: "建议正文字数", en: "Suggested main-text words" },
-      description: {
-        zh: "只是规划参考；模型可根据论文内容决定是否采纳。",
-        en: "Planning guidance only; the model may accept or depart based on the paper.",
-      },
-      defaultValue: [4500, 8000],
-      min: 1000,
-      max: 20000,
-      step: 100,
-      suffix: { zh: "词", en: "words" },
-      visibleWhen: (values) => booleanValue(values, "useLengthGuidance"),
-    },
-    {
-      id: "captionWordRange",
-      kind: "range",
-      label: { zh: "Caption 建议长度", en: "Suggested caption length" },
-      description: {
-        zh: "默认 10–40 words，仅用于平衡简洁与自包含性；必要时允许超出。",
-        en: "Defaults to 10–40 words for concision and self-containment and may be exceeded when necessary.",
-      },
-      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
-      min: CAPTION_LENGTH_POLICY.min,
-      max: CAPTION_LENGTH_POLICY.max,
-      step: CAPTION_LENGTH_POLICY.step,
-      suffix: { zh: "words", en: "words" },
-    },
-    {
-      id: "reportLanguage",
-      kind: "segmented",
-      label: { zh: "转换报告语言", en: "Conversion report language" },
-      description: {
-        zh: "论文正文语言沿用源稿；这里只控制规则和差异报告。",
-        en: "The manuscript keeps its source language; this controls only the rule and diff report.",
-      },
-      defaultValue: "zh",
-      options: [
-        { value: "zh", label: { zh: "中文", en: "Chinese" } },
-        { value: "en", label: { zh: "English", en: "English" } },
-        { value: "bilingual", label: { zh: "中英双语", en: "Bilingual" } },
-      ],
+      label: text("模板来源", "Template source"),
+      description: text("默认只从 venue 或出版方官方页面获取。", "By default, use only the venue or publisher's official source."),
+      defaultValue: "official",
+      options: Object.entries(TEMPLATE_SOURCES).map(([value, label]) => ({ value, label })),
+      span: "full",
     },
     {
       id: "customInstructions",
       kind: "textarea",
-      label: { zh: "个性化要求（可选）", en: "Custom requirements (optional)" },
-      description: {
-        zh: "填写必须保留的章节、现有新证据、模板约束或投稿背景。",
-        en: "Add must-keep sections, available new evidence, template constraints, or submission context.",
-      },
+      label: text("补充要求", "Additional requirements"),
+      description: text("可填写官方模板链接、特殊编译方式或必须保留的工程约定。", "Optionally provide an official template link, special build command, or project convention to preserve."),
       defaultValue: "",
-      placeholder: {
-        zh: "例如：保留全部三个数据集结果；新增长期实验已在 appendix_new.tex；不要改变方法缩写。",
-        en: "e.g., Keep results for all three datasets; new longitudinal evidence is in appendix_new.tex; preserve the method acronym.",
-      },
+      placeholder: text("可留空", "Optional"),
       span: "full",
     },
   ],
-  updateValues(current, id, value) {
-    const next = { ...current, [id]: value };
-    if (id === "conversion") {
-      if (value === "blind-camera-ready") {
-        next.anonymity = "public";
-        next.restoreMetadata = true;
-      } else if (stringValue(current, "conversion") === "blind-camera-ready") {
-        next.anonymity = "verify";
-      }
+  buildPrompt(values, language) {
+    const venue = scalar(values, "targetVenue");
+    const stage = scalar(values, "targetStage") || "submission";
+    const source = scalar(values, "templateSource") || "official";
+    const custom = scalar(values, "customInstructions");
+
+    if (language === "zh") {
+      return `# 将论文迁移到目标 TeX 模板
+
+你需要把我现有的完整论文工程无损迁移到目标 venue 的 LaTeX 模板中。这是纯模板迁移，不是论文修改、精修、压缩、扩写或重构。
+
+目标 venue 与年份：${venue || "未填写；请先从材料判断，无法唯一判断时只询问这一项"}。目标阶段：${TARGET_STAGES[stage as keyof typeof TARGET_STAGES]?.zh ?? stage}。模板来源：${TEMPLATE_SOURCES[source as keyof typeof TEMPLATE_SOURCES]?.zh ?? source}。${custom ? `补充要求：${custom}。` : ""}
+
+## 获取并核验模板
+
+${source === "official" ? "联网访问目标 venue 或出版方的官方作者页面，下载当前目标阶段最新且适用的完整 TeX 模板包。优先使用官方作者指南、官方模板下载页或官方 Overleaf 链接；不要以博客、第三方镜像、历史缓存或其他年份模板替代。记录模板名称、适用年份或版本、官方 URL、下载日期和文件哈希。" : "使用我提供的模板包，但仍需联网核对它是否来自官方来源、是否适用于目标阶段以及是否仍为当前版本；发现不一致时停止迁移并在报告中说明。"}
+
+先阅读模板 README、示例 TeX、document class、bibliography 样式和官方编译说明，确认必需文件、编译引擎、匿名规则、作者区、附录和补充材料的组织方式。不要仅凭模板外观猜测用法。
+
+## 绝对内容保护
+
+原论文目录只读。先建立源文件清单并成功编译当前基线，再在新的迁移目录中工作。
+
+坚决不修改论文的标题、摘要、关键词、正文、章节顺序、段落顺序、句子、术语、缩写、claim、数字、引用、公式、算法、表格内容、caption、图片内容、附录内容、致谢或作者提供的元数据。不得删减、补写、润色、改写、概括、扩展或为了页数和版面重新组织科学内容。
+
+只允许完成目标模板实际要求的机械映射，例如：
+
+- 替换 documentclass，并加载目标模板要求的官方 style/class 文件；
+- 把标题、作者、单位、摘要和关键词原样放入目标模板对应字段；
+- 按目标阶段应用官方匿名或正式作者格式，但不得猜测缺失信息；
+- 映射模板要求的 section、bibliography、appendix、supplement 和浮动体外壳；
+- 在语义完全不变时处理目标模板不兼容的 LaTeX 命令、宏定义、路径或 package 冲突；
+- 保持所有 label、ref、eqref、cite key、公式、表格、图片及其源代码内容不变。
+
+若目标模板或官方限制与当前稿件冲突，例如超页、超字数、图表过宽、附录不允许或某个 package 不兼容，不得擅自压缩或改写正文。先完成能够安全完成的迁移，再把冲突、位置、官方依据和最小候选处理方式写入报告，由作者另行决定。
+
+## 迁移与验收
+
+1. 复制源工程到新的目标目录并引入完整官方模板；不得覆盖原稿。
+2. 建立“源文件/命令 → 目标文件/命令”映射，只执行模板必需变化。
+3. 使用官方要求的编译引擎完成干净编译，修复模板兼容错误，但不能通过删除内容规避错误。
+4. 对比迁移前后的正文抽取结果，核查标题、摘要、各段文本、数字、cite key、label/ref、公式、表格、图、caption、附录和 bibliography 是否逐项等价。
+5. 核查没有未解析引用、缺图、缺失文献、静默 package 降级或模板示例占位内容残留。
+
+## 交付
+
+返回一个完整、独立、可编译的目标模板工程及编译 PDF，并提供简洁的 \`template_migration_report.md\`，记录官方模板来源与版本、编译命令、仅涉及模板的文件变化、内容一致性检查结果、尚未解决的官方规则冲突以及需要作者填写的信息。
+
+报告必须明确确认原始论文未被修改，并区分“模板机械变化”和“未执行的内容候选变化”。不要返回经过润色、压缩或重写的论文。`;
     }
-    if (id === "targetVenue") {
-      const targetVenue = typeof value === "string" ? value.trim() : "";
-      if (targetVenue && stringValue(current, "templatePolicy") === "preserve") {
-        next.templatePolicy = "official";
-      }
-      if (!targetVenue && stringValue(current, "templatePolicy") === "official") {
-        next.templatePolicy = "preserve";
-      }
-    }
-    if (
-      id === "appendix" &&
-      value === "none" &&
-      stringValue(next, "figurePolicy") === "supplement"
-    ) {
-      next.figurePolicy = "reflow";
-    }
-    if (
-      id === "figurePolicy" &&
-      value === "supplement" &&
-      stringValue(next, "appendix") === "none"
-    ) {
-      next.appendix = "allow";
-    }
-    return next;
+
+    return `# Migrate a Paper into the Target TeX Template
+
+Migrate my complete manuscript project losslessly into the target venue's LaTeX template. This is template migration only—not manuscript editing, polishing, compression, expansion, or reconstruction.
+
+Target venue and year: ${venue || "not provided; infer it from the materials when unique, otherwise ask only for this item"}. Target stage: ${TARGET_STAGES[stage as keyof typeof TARGET_STAGES]?.en ?? stage}. Template source: ${TEMPLATE_SOURCES[source as keyof typeof TEMPLATE_SOURCES]?.en ?? source}.${custom ? ` Additional requirements: ${custom}.` : ""}
+
+${source === "official" ? "Browse the official venue or publisher author site and download the latest complete TeX template applicable to this stage. Prefer the official author instructions, official download, or official Overleaf link. Do not substitute a blog, third-party mirror, cache, historical edition, or another year's template. Record the template name, version or applicable year, official URL, download date, and file hash." : "Use the supplied template package, but verify online that it is official, applicable to this stage, and current. Stop and report any mismatch before migration."}
+
+Read the template README, example TeX, document class, bibliography style, and official build instructions before acting. Keep the original project read-only, inventory it, and compile a source baseline. Work only in a new migration directory.
+
+Do not change the title, abstract, keywords, prose, section order, paragraph order, sentences, terminology, acronyms, claims, values, citations, equations, algorithms, table content, captions, image content, appendix, acknowledgments, or author-supplied metadata. Do not delete, add, polish, paraphrase, summarize, expand, or reorganize scientific content for length or layout.
+
+Only mechanical mappings required by the target template are allowed: document class and official style files; verbatim placement of title, author, affiliation, abstract, and keywords into target fields; official anonymous or final-author formatting without guessing missing data; required section, bibliography, appendix, supplement, and float wrappers; and semantics-preserving fixes for incompatible commands, macros, paths, or package conflicts. Preserve every label, ref, eqref, cite key, equation, table, figure, caption, and source-code payload.
+
+When an official limit or template rule conflicts with the manuscript—page or word excess, wide displays, appendix restrictions, or package incompatibility—do not rewrite or compress content. Complete only safe migration work and report the conflict, location, official basis, and minimum candidate resolution for the author to decide.
+
+Migration and validation: copy the source into a new target directory and add the complete official template; create a source-to-target command/file map; compile cleanly with the official toolchain without deleting content to suppress errors; compare extracted manuscript text and verify title, abstract, paragraphs, values, cite keys, labels/refs, equations, tables, figures, captions, appendix, and bibliography for equivalence; and check unresolved references, missing figures or citations, silent package fallback, and leftover template examples.
+
+Deliver a complete standalone compilable target-template project, its PDF, and a concise \`template_migration_report.md\` recording the official template source and version, build command, template-only file changes, content-equivalence checks, unresolved official-rule conflicts, and missing author inputs. Explicitly confirm that the original manuscript was not modified and separate mechanical template changes from unexecuted content-change candidates. Do not return a polished, compressed, or rewritten paper.`;
   },
-  buildPrompt: buildVersionConversionPrompt,
 } satisfies WorkbenchDefinition;

@@ -21,6 +21,7 @@ export type ActivePage =
   | "paper-tables"
   | "figure-table-audit"
   | "submission"
+  | "final-polishing"
   | "pre-submission-check"
   | "submission-materials"
   | "peer-review"
@@ -243,13 +244,13 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
       },
       {
         id: "version-conversion",
-        label: { zh: "版本转换", en: "Version Conversion" },
+        label: { zh: "TeX 模板迁移", en: "TeX Template Migration" },
         status: "available",
         href: "/reconstruction/conversion",
         activePage: "version-conversion",
         keywords: {
-          zh: ["会议转期刊", "期刊转会议", "模板", "格式转换"],
-          en: ["conference to journal", "journal to conference", "template", "format"],
+          zh: ["LaTeX", "官方模板", "格式迁移", "Camera-ready"],
+          en: ["latex", "official template", "format migration", "camera-ready"],
         },
       },
     ],
@@ -387,6 +388,17 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         keywords: {
           zh: ["期刊推荐", "投稿策略", "分区", "影响因子", "OA"],
           en: ["journal recommendation", "venue strategy", "quartile", "impact factor", "oa"],
+        },
+      },
+      {
+        id: "final-polishing",
+        label: { zh: "投稿前全文精修", en: "Final Manuscript Polishing" },
+        status: "available",
+        href: "/submission/polishing",
+        activePage: "final-polishing",
+        keywords: {
+          zh: ["全文精修", "冗余", "AI 写作痕迹", "防御性写作", "语言润色"],
+          en: ["final polishing", "redundancy", "AI writing patterns", "defensive writing", "copyediting"],
         },
       },
       {

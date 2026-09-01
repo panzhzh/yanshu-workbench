@@ -87,7 +87,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /章节精修/);
   assert.match(html, /专项审计/);
   assert.match(html, /href="\/reconstruction\/audit"/);
-  assert.match(html, /版本转换/);
+  assert.match(html, /TeX 模板迁移/);
   assert.match(html, /实验方案设计/);
   assert.match(html, /Baseline 与复现/);
   assert.match(html, /实验代码/);
@@ -98,6 +98,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /论文表格/);
   assert.match(html, /图表审计/);
   assert.match(html, /投稿定位/);
+  assert.match(html, /投稿前全文精修/);
   assert.match(html, /投稿前终检/);
   assert.match(html, /投稿材料/);
   assert.match(html, /审稿/);
@@ -122,6 +123,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/figures\/tables"/);
   assert.match(html, /href="\/figures\/audit"/);
   assert.match(html, /href="\/submission\/check"/);
+  assert.match(html, /href="\/submission\/polishing"/);
   assert.match(html, /href="\/submission\/materials"/);
   assert.match(html, /href="\/submission\/review"/);
   assert.match(html, /href="\/submission\/revision"/);
@@ -139,7 +141,7 @@ test("server-renders every configured research workbench", async (context) => {
   const pages = [
     ["/writing/sections", "分章节写作"],
     ["/writing/diagnosis", "学术写作诊断"],
-    ["/reconstruction/conversion", "版本转换"],
+    ["/reconstruction/conversion", "TeX 模板迁移"],
     ["/experiments/design", "实验方案设计"],
     ["/experiments/baselines", "Baseline 与复现"],
     ["/experiments/code", "实验代码"],
@@ -149,6 +151,7 @@ test("server-renders every configured research workbench", async (context) => {
     ["/figures/tables", "论文表格"],
     ["/figures/audit", "图表审计"],
     ["/submission/check", "投稿前终检"],
+    ["/submission/polishing", "投稿前全文精修"],
     ["/submission/materials", "投稿材料"],
     ["/submission/review", "审稿"],
     ["/submission/revision", "返修规划"],
@@ -213,6 +216,33 @@ test("audits journal revisions and conference rebuttals without re-reviewing", a
   assert.match(html, /会议 rebuttal\/discussion 若规则不允许改稿/);
   assert.match(html, /不得因为回复信写了“we have revised”就默认修改成立/);
   assert.match(html, /而不是重新独立审稿/);
+});
+
+test("server-renders conservative final pre-submission polishing", async () => {
+  const response = await render("/submission/polishing");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /冗余与重复/);
+  assert.match(html, /明显的 AI 写作痕迹/);
+  assert.match(html, /过于防御性的写作/);
+  assert.doesNotMatch(html, /修改强度|Caption 建议长度/);
+  assert.match(html, /minimum necessary intervention/);
+  assert.match(html, /不要只给修改建议或零散修改片段/);
+  assert.match(html, /修改后的完整文件/);
+});
+
+test("migrates TeX templates without changing manuscript content", async () => {
+  const response = await render("/reconstruction/conversion");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /TeX 模板迁移/);
+  assert.match(html, /目标 venue 与年份/);
+  assert.match(html, /联网获取最新官方模板/);
+  assert.match(html, /原论文目录只读/);
+  assert.match(html, /坚决不修改论文的标题、摘要、关键词、正文/);
+  assert.match(html, /不得擅自压缩或改写正文/);
+  assert.match(html, /template_migration_report\.md/);
+  assert.doesNotMatch(html, /会议论文 → 期刊扩展版|格式 \+ 叙事适配/);
 });
 
 test("server-renders the habit-focused academic-writing diagnosis workbench", async () => {
@@ -292,11 +322,12 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
   assert.match(writingDiagnosis, /不在段末追加补丁句/);
   assert.match(writingDiagnosis, /不评价 Idea 创新性/);
 
-  assert.match(conversion, /function planningInstructions/);
-  assert.match(conversion, /defaultValue:\s*"preserve"/);
-  assert.match(conversion, /不得运行命令|不执行任何修改或下载/);
-  assert.match(conversion, /next\.anonymity = "public"/);
-  assert.match(conversion, /next\.figurePolicy = "reflow"/);
+  assert.match(conversion, /title: "TeX 模板迁移"/);
+  assert.match(conversion, /联网获取最新官方模板/);
+  assert.match(conversion, /坚决不修改论文的标题、摘要、关键词、正文/);
+  assert.match(conversion, /原论文目录只读/);
+  assert.match(conversion, /template_migration_report\.md/);
+  assert.doesNotMatch(conversion, /conference-journal|conversionDepth/);
 
   assert.match(experiments, /id:\s*"maxBaselines"/);
   assert.match(
@@ -1198,7 +1229,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /href:\s*"\/submission"/);
   assert.equal(
     (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
-    24,
+    25,
   );
   assert.equal(
     (navigationConfig.match(/status:\s*"future",/g) ?? []).length,
