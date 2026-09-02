@@ -16,7 +16,7 @@ Follow the user's conversation language. Use the saved Prompt language for the r
 - Mark missing evidence `not verifiable`; do not invent a response, change, result, rule, or source location.
 - In a rebuttal-only conference phase, do not require manuscript edits that the venue prohibits. Distinguish existing evidence, clarification, and future promises.
 - Do not re-review the whole manuscript or introduce unrelated concerns. Report only unresolved source comments and direct contradictions or risks created by the revision.
-- Keep source materials read-only and save outputs under a new YanShu run directory.
+- Keep source materials read-only. Do not create files unless the user requests a saved audit or persistent run.
 - Never open `plugin.json`, `session.json`, `confirmed.yanshu-workflow.json`, `run.json`, or any internal JSON in a browser, editor, or user-visible tab.
 
 ## Start with one local page
@@ -35,7 +35,20 @@ workflow-configure-start \
 
 5. Poll `workflow-configure-status --session <sessionPath>`. `Exit` stops without transmitting materials. After `Start full automation`, run `workflow-configure-result --session <sessionPath>` and use the authorized configuration directly. Do not ask the settings again or expose the private configuration JSON.
 
-## Execute
+## Choose execution and delivery
+
+The page's `Start full automation` action authorizes uninterrupted execution; it does not by itself require a visible ChatGPT session, Markdown audit, or YanShu run directory.
+
+- **Current-task mode is the default.** Execute the authorized Prompt in the current Codex or CLI task and return the comment-level audit directly in chat. Do not create `revision_audit.md`, a configuration snapshot, Prompt copy, or `run.json` by default.
+- **Persistent automation mode is explicit.** Use the visible-ChatGPT and saved-audit path below only when the user asks for Web ChatGPT, a persistent/resumable run, or a Markdown audit.
+
+## Execute in the current task
+
+1. Assign stable source IDs, split compound comments without losing parent mappings, and build a coverage ledger from the supplied materials.
+2. Execute the exact authorized Prompt in the current task and verify every claimed change against the revised manuscript and diff.
+3. Validate the audit with the gate below, then return it directly in chat without modifying any source file.
+
+## Persistent automation
 
 1. Create `<revision-root>/yanshu-revision-audit/<UTC-run-id>/` and save the exact configuration and Prompt.
 2. Inventory each input with its version and hash. Assign stable source IDs such as `R1-C1`, split compound comments without losing their parent mapping, and create a coverage ledger before semantic analysis.
@@ -51,4 +64,4 @@ workflow-configure-start \
 - The report must separate response/rebuttal corrections from manuscript corrections and include a resubmission-readiness verdict.
 - Source files must remain unchanged and the report must not contain an unrelated independent review.
 
-Finish with `run.json` containing input hashes, configuration, Prompt, Chat URL, actual model and reasoning labels, inferred scenario and basis, source coverage, judgment counts, unverifiable items, output hash, and validation result. Return the run directory and `revision_audit.md`.
+In current-task mode, return the validated audit directly in chat and create no report or state file. In persistent automation mode, finish with `run.json` containing input hashes, configuration, Prompt, Chat URL, actual model and reasoning labels, inferred scenario and basis, source coverage, judgment counts, unverifiable items, output hash, and validation result, then return the run directory and `revision_audit.md`.

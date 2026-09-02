@@ -169,7 +169,7 @@ export interface YanShuSkillCatalogItem {
   output: LocalizedWorkflowText;
 }
 
-export const SKILL_WORKFLOW_VERSION = "2026.08.28";
+export const SKILL_WORKFLOW_VERSION = "2026.09.02";
 
 export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   {
@@ -237,8 +237,8 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
       en: "Main TeX, with PDF and BibTeX recommended",
     },
     output: {
-      zh: "写作诊断报告与可选安全修订稿",
-      en: "Writing diagnosis report and optional safe revision",
+      zh: "聊天内诊断；安全修复时交付修订文件",
+      en: "In-chat diagnosis, with revised files for safe repair",
     },
   },
   {
@@ -283,8 +283,8 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
       en: "Paper TeX, optional PDF, and a reference image only when configured",
     },
     output: {
-      zh: "一张高清 PNG 与配置快照",
-      en: "One high-resolution PNG and its configuration snapshot",
+      zh: "一张高清 PNG",
+      en: "One high-resolution PNG",
     },
   },
   {
@@ -329,8 +329,8 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
       en: "Manuscript with optional supplement, code, and data",
     },
     output: {
-      zh: "结构化同行评审 Markdown",
-      en: "Structured peer-review Markdown",
+      zh: "聊天内结构化同行评审；可选保存 Markdown",
+      en: "Structured peer review in chat, optionally saved as Markdown",
     },
   },
   {
@@ -352,8 +352,8 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
       en: "Reviews, editor decision, manuscript, and authentic new evidence",
     },
     output: {
-      zh: "返修优先级与实验决策 Markdown",
-      en: "Revision-priority and experiment-decision Markdown",
+      zh: "聊天内返修优先级与实验决策；可选保存 Markdown",
+      en: "Revision priorities and experiment decisions in chat, optionally saved as Markdown",
     },
   },
   {
@@ -375,8 +375,8 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
       en: "Reviews, response, revised manuscript, original manuscript, and diff",
     },
     output: {
-      zh: "逐条返修核验与重新提交风险 Markdown",
-      en: "Comment-level revision verification and resubmission-risk Markdown",
+      zh: "聊天内逐条返修核验与重新提交风险；可选保存 Markdown",
+      en: "Comment-level revision verification and resubmission risk in chat, optionally saved as Markdown",
     },
   },
 ] as const;
@@ -722,8 +722,8 @@ const SCIENTIFIC_FIGURE_MODEL: SkillWorkflowModel = {
     "Reference images are off by default. When enabled, ordinary images supply visual style only; structure becomes a cue only for an explicitly labeled figure draft verified against the paper.",
   ),
   output: localized(
-    "只生成一张高清 PNG，并保存配置与最终英文生图 Prompt。",
-    "Generate one high-resolution PNG and save its configuration and final English image prompt.",
+    "默认只交付一张高清 PNG；仅在明确要求持久留档时保存配置与生图 Prompt。",
+    "Deliver one high-resolution PNG by default; save configuration and the image prompt only when persistent provenance is explicitly requested.",
   ),
   sections: [
     {
@@ -1174,8 +1174,8 @@ const WRITING_DIAGNOSIS_MODEL: SkillWorkflowModel = {
     "Figures and raw experimental data are unnecessary; this workflow diagnoses writing rather than re-reviewing the science.",
   ),
   output: localized(
-    "写作诊断 Markdown，以及选择安全修复时的完整修订 TeX 与 high-risk diff。",
-    "A writing-diagnosis Markdown report plus a complete revised TeX and high-risk diff when safe repair is selected.",
+    "默认在当前聊天返回诊断；选择安全修复时交付完整修订 TeX，只有明确要求才另存 Markdown 或 diff 文档。",
+    "Return the diagnosis in the current chat by default; safe repair delivers complete revised TeX, while Markdown or diff documents are saved only when explicitly requested.",
   ),
   sections: WRITING_DIAGNOSIS_SECTIONS,
   fields: WRITING_DIAGNOSIS_WORKBENCH.controls.map(
@@ -1226,9 +1226,13 @@ const PEER_REVIEW_SECTIONS = [
 ] as const;
 
 const PEER_REVIEW_FIELD_SECTIONS: Record<string, string> = {
+  useTarget: "approach",
+  targetType: "approach",
+  targetVenue: "approach",
   mode: "approach",
   materialScope: "approach",
   dimensions: "dimensions",
+  ignoreNonScientificPresentation: "dimensions",
   browseLiterature: "dimensions",
   scorecard: "delivery",
   custom: "delivery",
@@ -1237,10 +1241,14 @@ const PEER_REVIEW_FIELD_SECTIONS: Record<string, string> = {
 function peerReviewWorkflowField(
   control: WorkbenchControl,
 ): SkillWorkflowField {
-  return configurableWorkbenchField(
+  const field = configurableWorkbenchField(
     control,
     PEER_REVIEW_FIELD_SECTIONS[control.id] ?? "delivery",
   );
+  if (control.id === "targetType" || control.id === "targetVenue") {
+    field.visibleWhen = { fieldId: "useTarget", equals: true };
+  }
+  return field;
 }
 
 const PEER_REVIEW_MODEL: SkillWorkflowModel = {
@@ -1264,8 +1272,8 @@ const PEER_REVIEW_MODEL: SkillWorkflowModel = {
     "No conference/journal split: review only supplied readable material and never edit the manuscript.",
   ),
   output: localized(
-    "一份结构化 `peer_review.md`，包含主要问题、次要问题、澄清问题与总体风险。",
-    "A structured `peer_review.md` with major concerns, minor concerns, clarification questions, and overall risk.",
+    "默认在当前聊天返回主要问题、次要问题、澄清问题与总体风险；明确要求时才保存 `peer_review.md`。",
+    "Return major concerns, minor concerns, clarification questions, and overall risk in the current chat by default; save `peer_review.md` only when requested.",
   ),
   sections: PEER_REVIEW_SECTIONS,
   fields: PEER_REVIEW_WORKBENCH.controls.map(peerReviewWorkflowField),
@@ -1344,8 +1352,8 @@ const REVISION_PLANNING_MODEL: SkillWorkflowModel = {
     "Preserve reviewer IDs and source comments. This stage drafts neither a response letter nor a revised manuscript.",
   ),
   output: localized(
-    "一份 `revision_plan.md`，包含 P0/P1/P2、A/B/C/D、最小实验与推荐顺序。",
-    "A `revision_plan.md` containing P0/P1/P2 priorities, A/B/C/D classes, minimum experiments, and revision order.",
+    "默认在当前聊天返回 P0/P1/P2、A/B/C/D、最小实验与推荐顺序；明确要求时才保存 `revision_plan.md`。",
+    "Return P0/P1/P2 priorities, A/B/C/D classes, minimum experiments, and revision order in the current chat by default; save `revision_plan.md` only when requested.",
   ),
   sections: REVISION_PLANNING_SECTIONS,
   fields: REVISION_PLANNING_WORKBENCH.controls.map(
@@ -1403,8 +1411,8 @@ const REVISION_AUDIT_MODEL: SkillWorkflowModel = {
     "Journal or conference may be omitted and inferred; missing evidence is marked not verifiable.",
   ),
   output: localized(
-    "一份 `revision_audit.md`，包含逐条判断、修改证据、遗留风险和最小修正。",
-    "A `revision_audit.md` with comment-level judgments, change evidence, residual risk, and minimum corrections.",
+    "默认在当前聊天返回逐条判断、修改证据、遗留风险和最小修正；明确要求时才保存 `revision_audit.md`。",
+    "Return comment-level judgments, change evidence, residual risk, and minimum corrections in the current chat by default; save `revision_audit.md` only when requested.",
   ),
   sections: REVISION_AUDIT_SECTIONS,
   fields: REVISION_AUDIT_WORKBENCH.controls.map((control) =>
@@ -1519,6 +1527,17 @@ function normalizeWorkbenchPreferences(
     normalized[control.id] = value;
   }
 
+  return normalized;
+}
+
+function normalizePeerReviewPreferences(input: Record<string, unknown>) {
+  const normalized = normalizeWorkbenchPreferences(
+    PEER_REVIEW_WORKBENCH,
+    input,
+  );
+  if (input.scorecard === undefined && normalized.useTarget === true) {
+    normalized.scorecard = normalized.targetType === "journal";
+  }
   return normalized;
 }
 
@@ -1686,7 +1705,7 @@ export function normalizeSkillWorkflowPreferences(
     return normalizeExperimentalPlotValues(input);
   }
   if (workflowId === "peer-review") {
-    return normalizeWorkbenchPreferences(PEER_REVIEW_WORKBENCH, input);
+    return normalizePeerReviewPreferences(input);
   }
   if (workflowId === "revision-planning") {
     return normalizeWorkbenchPreferences(REVISION_PLANNING_WORKBENCH, input);
@@ -1766,9 +1785,14 @@ export function buildSkillWorkflowConfiguration(
       promptLanguage,
     );
     selection = {
+      useTarget: reviewPreferences.useTarget,
+      targetType: reviewPreferences.targetType,
+      targetVenue: reviewPreferences.targetVenue,
       mode: reviewPreferences.mode,
       materialScope: reviewPreferences.materialScope,
       dimensions: reviewPreferences.dimensions,
+      ignoreNonScientificPresentation:
+        reviewPreferences.ignoreNonScientificPresentation,
       browseLiterature: reviewPreferences.browseLiterature,
     };
   } else if (workflowId === "revision-planning") {

@@ -2,9 +2,10 @@
 
 YanShu is an extensible research-workflow plugin. It is the installable layer
 behind the [YanShu website](https://yanshu-workbench.pages.dev/): the website
-configures a workflow, while the plugin coordinates local materials, visible
-ChatGPT sessions, an MCP paper workspace, checkpoints, artifacts, compilation,
-and recovery.
+configures a workflow, while the plugin executes against local materials in the
+current Codex or CLI task by default. Visible ChatGPT sessions, an MCP paper
+workspace, checkpoints, and persistent run records remain available for
+explicit full-automation use.
 
 The Cloudflare Pages URL above is the only public website deployment. Saved
 ChatGPT Sites versions and `*.chatgpt.site` URLs are not YanShu release
@@ -27,16 +28,17 @@ compatibility. The product shown to users is **YanShu**.
 | **Revision Planning** | `$revision-planning` | Developer preview |
 | **Revision Audit** | `$revision-audit` | Developer preview |
 
-These are eight independent sub-skills in the YanShu plugin, not modes inside
+These are nine independent sub-skills in the YanShu plugin, not modes inside
 one skill. Every workflow supports direct `$skill-name` invocation and a
 loopback-only desktop configuration page. Paper Reconstruction first asks the
 user to choose Web ChatGPT or Current CLI; the CLI choice uses one compact
 inline configuration.
 Idea Discovery, Paper Drafting, Writing Diagnosis, Scientific Figure,
-Experimental Plotting, Peer Review, and Revision Planning are bundled directly
-from the website's canonical configuration and Prompt builders. Paper Reconstruction runs five resumable
-rounds, including a dedicated Method Overview figure round. The sync check
-fails when any bundled plugin runtime is stale.
+Experimental Plotting, Peer Review, Revision Planning, and Revision Audit are
+bundled directly from the website's canonical configuration and Prompt
+builders. Paper Reconstruction runs five resumable rounds, including a
+dedicated Method Overview figure round. The sync check fails when any bundled
+plugin runtime is stale.
 
 ## Language
 
@@ -96,9 +98,11 @@ Use $revision-audit to audit this revised manuscript and response.
 ```
 
 The current preview starts from Codex; an ordinary Chat conversation does not
-load this local plugin directly. Paper Reconstruction never guesses its
-executor from the environment. The user explicitly selects Web ChatGPT or the
-current CLI before configuration.
+load this local plugin directly. Configurable Skills execute in the current
+Codex or CLI task by default. Visible ChatGPT and persistent run records are
+used only when the user explicitly requests them. Paper Reconstruction never
+guesses its executor from the environment: the user explicitly selects Web
+ChatGPT or the current CLI before configuration.
 
 Chinese is equally valid:
 
@@ -111,11 +115,19 @@ Chinese is equally valid:
 使用 $experimental-plotting 根据这个实验目录绘制论文实验图。
 使用 $peer-review 审稿这个论文目录。
 使用 $revision-planning 整理这些审稿意见并制定返修计划。
-```
-
-```text
 使用 $revision-audit 审查这份返修稿和回复信。
 ```
+
+For configurable Skills, **Start full automation** authorizes uninterrupted
+execution and returns control to the current task. The default delivery is
+lightweight: analysis appears in chat, safe repairs update only approved files,
+and creation workflows keep only real artifacts such as Markdown idea reports,
+LaTeX/PDF, PNG, plotting code, and necessary derived data. YanShu does not add
+Prompt copies, configuration snapshots, generic Markdown reports, or
+`run.json` files merely for bookkeeping. A visible ChatGPT executor, saved
+report, or persistent run directory is enabled only when the user asks for it.
+Idea Discovery's bilingual Markdown and Paper Reconstruction's round artifacts
+remain required core deliverables.
 
 Paper Reconstruction first asks once which executor to use. Web ChatGPT
 usually provides stronger academic writing, but requires an active ChatGPT

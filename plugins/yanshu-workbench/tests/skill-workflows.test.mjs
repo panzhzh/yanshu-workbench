@@ -124,9 +124,39 @@ test("website-sourced runtime exposes the eight configurable YanShu skills", () 
   assert.equal(review.preferences.materialScope, "supplement");
   assert.equal(review.preferences.browseLiterature, true);
   assert.equal(review.preferences.scorecard, true);
+  assert.equal(review.preferences.useTarget, false);
+  assert.equal(review.preferences.ignoreNonScientificPresentation, true);
   assert.match(review.prompt, /对论文进行独立同行评审/);
-  assert.match(review.prompt, /不预设其属于会议或期刊/);
+  assert.match(review.prompt, /未预设投稿目标：保持 venue-neutral/);
+  assert.match(review.prompt, /本轮不评价模板格式、页边距、字体/);
   assert.match(review.prompt, /当前任务只输出审稿报告，不修改论文/);
+
+  const conferenceReview = buildSkillWorkflowConfiguration(
+    "peer-review",
+    {
+      useTarget: true,
+      targetType: "conference",
+      targetVenue: "NeurIPS 2027",
+    },
+    "zh",
+  );
+  assert.equal(conferenceReview.preferences.scorecard, false);
+  assert.match(conferenceReview.prompt, /NeurIPS 2027/);
+  assert.match(conferenceReview.prompt, /目标会议当前官方评审维度/);
+  assert.doesNotMatch(conferenceReview.prompt, /另附通用 1–5 分评分卡/);
+
+  const journalReview = buildSkillWorkflowConfiguration(
+    "peer-review",
+    {
+      useTarget: true,
+      targetType: "journal",
+      targetVenue: "IEEE TPAMI",
+    },
+    "zh",
+  );
+  assert.equal(journalReview.preferences.scorecard, true);
+  assert.match(journalReview.prompt, /期刊目标用于判断 scope/);
+  assert.match(journalReview.prompt, /通用 1–5 分评分卡/);
 
   const revision = buildSkillWorkflowConfiguration(
     "revision-planning",
@@ -153,7 +183,7 @@ test("website-sourced runtime exposes the eight configurable YanShu skills", () 
   assert.match(revisionAudit.prompt, /不得因为回复信写了“we have revised”就默认修改成立/);
 });
 
-test("all new skill definitions are complete and open the shared page", async () => {
+test("all configurable skills use the shared page and lightweight delivery by default", async () => {
   for (const skillId of CONFIGURABLE_SKILL_WORKFLOW_IDS) {
     const skill = await readFile(
       path.join(pluginRoot, "skills", skillId, "SKILL.md"),
@@ -168,10 +198,50 @@ test("all new skill definitions are complete and open the shared page", async ()
     assert.match(skill, /workflow-configure-status/);
     assert.match(skill, /workflow-configure-result/);
     assert.match(skill, /Start full automation/);
+    assert.match(skill, /Current-task mode is the default/);
+    assert.match(skill, /Persistent automation mode is explicit/);
     assert.match(skill, /Never open `plugin\.json`/);
     assert.doesNotMatch(skill, /configPath/);
     assert.match(agent, new RegExp(`\\$${skillId}`));
   }
+});
+
+test("skill delivery keeps real artifacts and avoids bookkeeping by default", async () => {
+  const readSkill = (skillId) =>
+    readFile(path.join(pluginRoot, "skills", skillId, "SKILL.md"), "utf8");
+
+  for (const skillId of [
+    "peer-review",
+    "revision-planning",
+    "revision-audit",
+  ]) {
+    const skill = await readSkill(skillId);
+    assert.match(skill, /return .* directly in chat/i);
+    assert.match(skill, /create no report or state file/i);
+  }
+
+  const diagnosis = await readSkill("writing-diagnosis");
+  assert.match(diagnosis, /present the diagnosis directly in chat/);
+  assert.match(diagnosis, /apply only supported changes/);
+
+  const idea = await readSkill("idea-discovery");
+  assert.match(idea, /core deliverables/);
+  assert.match(idea, /Chinese and English Markdown/);
+
+  const drafting = await readSkill("paper-drafting");
+  assert.match(drafting, /actual LaTeX project and compiled PDF/);
+  assert.match(drafting, /create no extra report or state file/);
+
+  const plotting = await readSkill("experimental-plotting");
+  assert.match(plotting, /reproducible code and final figure paths/);
+
+  const figure = await readSkill("scientific-figure");
+  assert.match(figure, /save the final PNG/);
+  assert.match(figure, /do not create extra report or state files/);
+
+  const reconstruction = await readSkill("paper-reconstruction");
+  assert.match(reconstruction, /intentionally persistent/);
+  assert.match(reconstruction, /core resumability artifacts/);
 });
 
 test("shared workflow configuration page confirms the exact generated prompt", async () => {
@@ -344,6 +414,9 @@ test("shared workflow models retain website defaults", () => {
   assert.equal(review.defaults.materialScope, "supplement");
   assert.equal(review.defaults.browseLiterature, true);
   assert.equal(review.defaults.scorecard, true);
+  assert.equal(review.defaults.useTarget, false);
+  assert.equal(review.defaults.targetType, "conference");
+  assert.equal(review.defaults.ignoreNonScientificPresentation, true);
 
   const revision = getSkillWorkflowConfigurationModel("revision-planning");
   assert.equal(revision.defaults.evidencePolicy, "analysis");
@@ -380,7 +453,8 @@ test("writing diagnosis keeps repair and citation search conservative", () => {
 
   assert.equal(repair.preferences.action, "repair");
   assert.equal(repair.preferences.browseCitations, true);
-  assert.match(repair.prompt, /high-risk diff/i);
+  assert.match(repair.prompt, /high-risk changes/i);
+  assert.match(repair.prompt, /Do not create a separate Markdown report or diff document/i);
   assert.match(repair.prompt, /never append patch sentences/i);
   assert.match(repair.prompt, /never insert them silently/i);
   assert.match(repair.prompt, /Do not assess idea novelty/i);

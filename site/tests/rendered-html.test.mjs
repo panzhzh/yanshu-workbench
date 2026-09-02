@@ -181,7 +181,10 @@ test("separates independent peer review from revision planning", async () => {
   assert.match(review, /评审维度/);
   assert.match(review, /联网核查相关文献/);
   assert.match(review, /通用评分卡/);
-  assert.match(review, /不预设其属于会议或期刊/);
+  assert.match(review, /预设投稿目标/);
+  assert.match(review, /忽略非科学呈现问题/);
+  assert.match(review, /未预设投稿目标：保持 venue-neutral/);
+  assert.match(review, /本轮不评价模板格式、页边距、字体、排版细节/);
   assert.match(review, /主要问题表/);
   assert.match(review, /当前任务只输出审稿报告，不修改论文/);
   assert.doesNotMatch(review, /任务类型|审稿阶段|回复语气|修改交付/);
@@ -262,7 +265,8 @@ test("server-renders the habit-focused academic-writing diagnosis workbench", as
   assert.match(html, /Caption 建议长度/);
   assert.match(html, /10–40 words/);
   assert.match(html, /不评价 Idea 创新性、实验设计、数据自洽/);
-  assert.match(html, /只交付 `writing_diagnosis\.md`，不要修改论文文件/);
+  assert.match(html, /只在当前回复中给出结构化诊断/);
+  assert.match(html, /不要另建 Markdown 报告/);
   assert.match(html, /标记并保护原稿中的好表达/);
   assert.doesNotMatch(html, /research-paper-writing|nature-figure/);
 });
@@ -359,7 +363,9 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
   assert.match(submissionWorkflow, /REVISION_PLANNING_WORKBENCH/);
   assert.match(submissionWorkflow, /REVISION_AUDIT_WORKBENCH/);
   assert.match(submissionWorkflow, /id:\s*"browseLiterature"/);
-  assert.match(submissionWorkflow, /不预设其属于会议或期刊/);
+  assert.match(submissionWorkflow, /预设投稿目标/);
+  assert.match(submissionWorkflow, /忽略非科学呈现问题/);
+  assert.match(submissionWorkflow, /目标会议当前官方评审维度/);
   assert.match(submissionWorkflow, /P0＝影响核心结论或接收判断/);
   assert.match(submissionWorkflow, /A＝无需补实验/);
   assert.match(submissionWorkflow, /当前只交付修改计划/);

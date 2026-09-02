@@ -107,7 +107,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [审稿](https://yanshu-workbench.pages.dev/submission/review/) | 投稿前独立评估 | 不区分会议与期刊，从贡献、方法、证据、结论边界、表达和可复现性生成分级审稿报告，不修改论文 |
 | [返修规划](https://yanshu-workbench.pages.dev/submission/revision/) | 收到审稿意见后 | 拆分并合并多位 reviewer 意见，完成 P0/P1/P2 与 A/B/C/D 分类，规划最小实验、风险和修改顺序；不提前写回复信 |
 | [返修稿审查](https://yanshu-workbench.pages.dev/submission/revision-audit/) | 完成回复与修改后 | 逐条核查 reviewer concern、回复主张、修改稿与 diff，区分期刊返修和会议 rebuttal |
-| YanShu 插件 | 需要全链路执行 | 九个核心子 Skill 均使用官网同源配置和 Prompt，再协调可见 ChatGPT 与本地产物；当前为开发者预览 |
+| YanShu 插件 | 需要直接执行或全链路自动化 | 九个核心子 Skill 均使用官网同源配置和 Prompt；默认在当前 Codex/CLI 任务执行，明确要求时才启用可见 ChatGPT 与持久运行记录 |
 
 ## 设计原则
 
@@ -117,12 +117,12 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 - **模板可追溯**：顶会模板必须在执行时从当届官网或官方 author kit 核验。
 - **中英文独立**：界面语言与 Prompt 语言分别建模，不依赖运行时机器翻译。
 - **克制可读**：服务长文本阅读、快速配置和复制，不采用营销页或普通 SaaS 后台视觉。
-- **写作与执行分层**：Chat 负责论文写作，Codex 只协调本地材料、状态、编译和错误回传。
+- **轻量交付优先**：普通 Skill 默认在当前任务处理，只保留真正产物并在聊天中总结；可见 ChatGPT 与完整运行记录作为显式选择保留。
 - **随时可恢复**：长任务逐轮保存，不因页面关闭、等待超时或应用重启而重复提交。
 
 ## 安装 YanShu 插件
 
-仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件的开发者预览版。当前包含六个正式命名的核心工作流：
+仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件的开发者预览版。当前包含九个正式命名的核心工作流：
 
 | Skill | 启动语示例 |
 | --- | --- |
@@ -132,8 +132,11 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | **Paper Reconstruction** | `使用 $paper-reconstruction 重构这个论文目录。` |
 | **Scientific Figure** | `使用 $scientific-figure 为这个论文目录绘制一张科研配图。` |
 | **Experimental Plotting** | `使用 $experimental-plotting 根据这个实验目录绘制论文实验图。` |
+| **Peer Review** | `使用 $peer-review 审稿这个论文目录。` |
+| **Revision Planning** | `使用 $revision-planning 整理这些审稿意见并制定返修计划。` |
+| **Revision Audit** | `使用 $revision-audit 审查这份返修稿和回复信。` |
 
-Idea Discovery、Paper Drafting、Writing Diagnosis、Scientific Figure 与 Experimental Plotting 的本地配置运行时由网站对应
+除 Paper Reconstruction 外的八个可配置 Skill，其本地配置运行时均由网站对应
 页面的 TypeScript 配置和 Prompt 构建器自动生成；Paper Reconstruction 继续由
 `site/content/prompts` 生成。`npm run plugin:check` 会逐字节检查两套运行时，
 任何网站与 Skill 不同步的提交都无法通过发布检查。
@@ -150,11 +153,11 @@ Idea Discovery、Paper Drafting、Writing Diagnosis、Scientific Figure 与 Expe
 - 为每轮生成最小充分文件白名单：Round 2/3 只接收上一轮 TeX、完整当前 BibTeX 与 PDF，Round 4 只接收最新 TeX/PDF，Round 5 再加入 Round 4 PNG，不累积历史报告与已渲染图件；
 - 附件保底模式将每轮三个文本产物打成一个可校验 ZIP，一次下载后自动导入，避免逐个处理 TeX/BibTeX 文档实体；
 - 新运行会核对官网与已安装 Prompt 工作流版本，旧插件不得启动新运行；已开始的运行继续使用初始化快照，保证可恢复与可复现；
-- 在 Chat 桥接缺失时停在可恢复状态，而不是让 Codex 代写论文。
+- 在 Paper Reconstruction 的 Web ChatGPT 模式缺少 Chat 桥接时停在可恢复状态；Current CLI 与其他 Skill 的当前任务模式不依赖浏览器桥接。
 
 Paper Drafting 与 Experimental Plotting 可选使用两个外部增强 Skill。首次发现缺失时，YanShu 只询问一次，并只允许安装两个固定子目录：`research-paper-writing` 用于论文初稿的论证组织与写作自检，`nature-figure` 用于实验数据的代码绘图与成图核验；不会安装任一完整仓库。研术台配置、证据边界与交付协议始终优先。Scientific Figure 不使用这两个外部 Skill，继续由研术台 Prompt 与可见 ChatGPT 生图链路独立完成。
 
-完整自动执行还需要可见的 ChatGPT 会话与兼容的浏览器桥接。YanShu 已内置并锁定可见 Chat 控制运行时以及本地 MCP 工作区，用户不需要再安装第二个文件插件。外部网页 ChatGPT 若要直接调用本地 MCP，仍需一次性连接经过认证的 HTTPS MCP 端点或受支持的安全隧道；单纯的 `127.0.0.1` 地址无法被网页端访问。没有该连接时，真实文件附件链路继续作为保底。
+普通 Skill 默认直接在当前 Codex/CLI 任务执行，不依赖可见 ChatGPT 或浏览器桥接。只有用户明确选择 Web ChatGPT、持久化自动运行或保存完整过程证据时，才启用可见 Chat 控制运行时和本地 MCP 工作区。外部网页 ChatGPT 若要直接调用本地 MCP，仍需一次性连接经过认证的 HTTPS MCP 端点或受支持的安全隧道；单纯的 `127.0.0.1` 地址无法被网页端访问。没有该连接时，真实文件附件链路继续作为保底。
 
 ### 当前 GitHub 预览版
 
@@ -176,7 +179,7 @@ codex plugin marketplace upgrade yanshu-workbench
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
-当前预览版从 **Codex 任务**启动；普通 Chat 对话本身不会直接加载本地插件。启动后，YanShu 再通过可见桥接把论文写作交给 ChatGPT Chat，这正是“Codex 管文件、Chat 写论文”的分层。
+当前预览版从 **Codex 任务**启动；普通 Chat 对话本身不会直接加载本地插件。普通调用默认由当前任务直接完成，只有用户明确要求时才把执行交给可见 ChatGPT。
 
 安装后必须**新建一个任务**，这样 Codex 才会载入新 Skills。然后直接说出任一工作流，例如：
 
@@ -193,12 +196,17 @@ Use $paper-drafting to draft a paper from this experiment directory.
 使用 $paper-reconstruction 重构这个论文目录。
 使用 $scientific-figure 为这个论文目录绘制一张科研配图。
 使用 $experimental-plotting 根据这个实验目录绘制论文实验图。
+使用 $peer-review 审稿这个论文目录。
+使用 $revision-planning 整理这些审稿意见并制定返修计划。
+使用 $revision-audit 审查这份返修稿和回复信。
 ```
 
 所有核心 Skill 都先确认工作区，再立即打开一个仅运行在 `127.0.0.1` 的本地配置页，
 不在聊天中逐项收集设置。Idea、初稿和绘图页实时展示各自唯一的执行 Prompt；
-全文重构页展示五轮 Prompt。点击“全自动开始”后直接执行；若只想手动使用，
+全文重构页展示五轮 Prompt。点击“全自动开始”后返回当前任务并直接执行；若只想手动使用，
 复制后点击“退出”即可，且不会创建运行目录或传输论文文件。
+
+除 Paper Reconstruction 外，当前任务模式是默认交付方式：审稿、返修规划、返修审查与仅诊断任务直接在聊天中返回结果；安全精修直接修改获准文件并给出概要；科研配图、实验绘图和论文初稿只保存 PNG、代码、派生数据、LaTeX 与 PDF 等真正产物。不会为了留痕额外创建 Prompt 副本、配置快照、`run.json` 或 Markdown 报告。用户明确要求 Web ChatGPT、可恢复运行或保存报告时，才启用持久自动化目录。Idea Discovery 的中英文 Markdown 与 Paper Reconstruction 的五轮目录属于核心交付，不在精简范围内。
 
 当前 GitHub 技术安装 ID 仍为 `yanshu-workbench`，用户看到的插件名称是 **YanShu**。未来进入 OpenAI 公共插件目录后，安装路径将简化为 **Plugins → 搜索 YanShu → 安装 → 新建任务**。插件的官方安装与使用方式可参考 [OpenAI Plugins 文档](https://learn.chatgpt.com/docs/plugins)。
 

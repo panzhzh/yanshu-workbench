@@ -5,7 +5,7 @@ description: Find and verify research ideas with YanShu from recent literature, 
 
 # Idea Discovery
 
-Use YanShu's website-sourced configuration and Prompt to run one evidence-backed idea search in the user's visible ChatGPT Chat. Codex coordinates the workspace and files; Chat performs the literature search and research reasoning.
+Use YanShu's website-sourced configuration and Prompt to run one evidence-backed idea search. Execute in the current Codex or CLI task by default; use a visible ChatGPT run only when the user explicitly requests that executor or a persistent automation record.
 
 Follow the user's conversation language. The Prompt language is selected independently on the local page.
 
@@ -15,7 +15,7 @@ Follow the user's conversation language. The Prompt language is selected indepen
 - Never invent papers, venues, links, datasets, results, or search coverage.
 - Prefer primary paper pages, official proceedings, DOI records, and author-maintained project repositories.
 - Search and deduplicate before presenting candidates. Do not turn brainstorming volume into evidence.
-- Keep all outputs under the confirmed workspace. Do not modify unrelated files.
+- Keep the two requested idea reports under the confirmed workspace. Do not modify unrelated files.
 - Never open `plugin.json`, `session.json`, `confirmed.yanshu-workflow.json`, `run.json`, or any internal JSON in a browser, editor, or user-visible tab.
 
 ## Start with one local page
@@ -45,7 +45,20 @@ workflow-configure-start \
 
 The generated runtime is bundled from the website's exact Idea Discovery source. Never substitute an older copied Prompt.
 
-## Execute in visible ChatGPT
+## Choose execution and delivery
+
+The page's `Start full automation` action authorizes uninterrupted execution; it does not by itself require a visible ChatGPT session or a YanShu run directory.
+
+- **Current-task mode is the default.** Execute the authorized Prompt in the current Codex or CLI task. Save the aligned Chinese and English Markdown reports because they are the core deliverables. Do not create a YanShu run directory, configuration snapshot, Prompt copy, or `run.json` only for bookkeeping.
+- **Persistent automation mode is explicit.** Use the visible-ChatGPT path below only when the user asks for Web ChatGPT, a persistent/resumable run, or a saved automation record.
+
+## Execute in the current task
+
+1. Browse and reason from the authorized Prompt without opening another Chat.
+2. Save semantically aligned Chinese and English Markdown files in the confirmed workspace or the user's requested output directory. Do not overwrite an existing report unless the user authorized replacement.
+3. Verify both reports with the completion gate below and return their paths plus the strongest remaining uncertainty in a concise chat summary.
+
+## Persistent automation
 
 1. Create `<workspace>/yanshu-idea-discovery/<UTC-run-id>/` from the authorized configuration returned by `workflow-configure-result`.
 2. Save the confirmed configuration and Prompt before sending anything.
@@ -64,4 +77,4 @@ Before finishing, verify that:
 - nearest-work comparisons, uncertainties, and minimum decisive tests are present;
 - no TeX, fabricated attachment, or unsupported SOTA claim was added.
 
-Write a compact `run.json` with the workflow version, configuration, Chat URL, output paths, and completion time. Return the output directory and the strongest remaining uncertainty.
+In current-task mode, return the two report paths and the strongest remaining uncertainty; create no additional report or state file. In persistent automation mode, write a compact `run.json` with the workflow version, configuration, Chat URL, output paths, and completion time, then return the run directory and the strongest remaining uncertainty.

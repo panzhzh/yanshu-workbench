@@ -515,8 +515,8 @@ ${browse ? "5. 对高置信度缺引文位置，单独列出经过官网、出�
 
 ${
   repair
-    ? "同时交付 `writing_diagnosis.md`、修订后的完整 `.tex` 和 high-risk diff。只修复报告中有充分把握的写作问题；修改最小但完整的语义单元，不在段末追加补丁句。除修复所必需的局部组织外，不改变科学 claim、数字、实验、公式内容、引用集合、图表内容或章节顺序；不确定项只报告。"
-    : "只交付 `writing_diagnosis.md`，不要修改论文文件。"
+    ? "在当前回复中先给出结构化诊断，再交付修订后的完整 `.tex`，并简要概述 high-risk changes。只修复报告中有充分把握的写作问题；修改最小但完整的语义单元，不在段末追加补丁句。除修复所必需的局部组织外，不改变科学 claim、数字、实验、公式内容、引用集合、图表内容或章节顺序；不确定项只报告。除非我明确要求，不要另建 Markdown 报告或 diff 文档。"
+    : "只在当前回复中给出结构化诊断，不要修改论文文件，也不要另建 Markdown 报告。"
 }`;
     }
 
@@ -552,8 +552,8 @@ ${browse ? "5. For high-confidence citation gaps, separately list sources verifi
 
 ${
   repair
-    ? "Also deliver `writing_diagnosis.md`, a complete revised `.tex`, and a high-risk diff. Repair only well-supported writing problems from the report. Edit the smallest coherent semantic unit and never append patch sentences. Except for local organization required by the repair, do not change scientific claims, numbers, experiments, equation content, citation sets, display content, or section order. Report uncertain items without changing them."
-    : "Deliver `writing_diagnosis.md` only and do not modify manuscript files."
+    ? "First return a structured diagnosis in the current response, then deliver a complete revised `.tex` and briefly summarize high-risk changes. Repair only well-supported writing problems from the report. Edit the smallest coherent semantic unit and never append patch sentences. Except for local organization required by the repair, do not change scientific claims, numbers, experiments, equation content, citation sets, display content, or section order. Report uncertain items without changing them. Do not create a separate Markdown report or diff document unless I explicitly request one."
+    : "Return the structured diagnosis in the current response only. Do not modify manuscript files or create a separate Markdown report."
 }`;
   },
 } satisfies WorkbenchDefinition;

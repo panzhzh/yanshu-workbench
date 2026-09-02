@@ -15,7 +15,7 @@ Follow the user's conversation language. Preserve labels and terminology from th
 - Never invent observations, samples, seeds, uncertainty, statistical tests, significance, labels, or missing values.
 - Treat `$nature-figure` only as a supplemental code-plotting and QA method. The saved YanShu configuration and data evidence always control the palette, composite policy, subpanel range, statistics, output formats, and caption.
 - Never use `$nature-figure` to alter the Scientific Figure workflow or its visible-ChatGPT image-generation Prompt.
-- Keep source data and manuscript files read-only. Save code, derived data, figures, logs, and configuration under a new YanShu run directory.
+- Keep source data and manuscript files read-only. Save only requested code, derived data, and figure artifacts in a user-authorized output location.
 - Never open `plugin.json`, `session.json`, `confirmed.yanshu-workflow.json`, `run.json`, or any internal JSON in a browser, editor, or user-visible tab.
 
 ## Start with one local page
@@ -47,10 +47,17 @@ workflow-configure-start \
 6. Poll `workflow-configure-status --session <sessionPath>`.
 7. `Exit` stops without changing files. After `Start full automation`, run `workflow-configure-result --session <sessionPath>` and use its authorized configuration; do not ask for another confirmation or open its private JSON file.
 
+## Choose execution and delivery
+
+The page's `Start full automation` action authorizes uninterrupted execution; it does not by itself require a YanShu run directory.
+
+- **Current-task mode is the default.** Execute deterministic plotting code in the current Codex or CLI task. Save reproducible code, necessary derived data, and selected figure formats in the requested or non-conflicting output location. Return the caption in chat unless the user asks for a caption file. Do not create a configuration snapshot, Prompt copy, environment report, or `run.json` merely for bookkeeping.
+- **Persistent automation mode is explicit.** Create the complete YanShu run record below only when the user asks for a persistent/resumable run or saved provenance.
+
 ## Execute
 
-1. Create `<experiment-root>/yanshu-experimental-plotting/<UTC-run-id>/` from the authorized configuration returned by `workflow-configure-result`.
-2. Save the exact configuration and Prompt. Build a compact inventory of result files, metric definitions, replicate units, statistical summaries, manuscript terminology, and target layout.
+1. In current-task mode, use the user's requested output directory or create one non-conflicting plot output directory. In persistent automation mode, create `<experiment-root>/yanshu-experimental-plotting/<UTC-run-id>/` and save the exact configuration and Prompt.
+2. Build a compact inventory of result files, metric definitions, replicate units, statistical summaries, manuscript terminology, and target layout.
 3. If `$nature-figure` is exposed in the current task, use its code-plotting and visual-QA method while enforcing every saved YanShu setting. Otherwise execute the complete saved Prompt directly with deterministic Python or R code.
 4. Run the plotting code in an isolated output directory. Fix code or data-shape errors without editing source data.
 5. Produce only the selected formats. Keep exact palette values, use the configured subpanel range only when composite figures are enabled, and choose richer chart types only when they communicate the data more faithfully than basic bars or lines.
@@ -66,4 +73,4 @@ Finish only when:
 - typography, line widths, markers, legends, and labels remain legible at final paper width;
 - code reruns deterministically from a documented command.
 
-Save the configuration, Prompt, source inventory, reproducible code, environment record, derived data, selected figures, caption, and compact `run.json`. Return the run directory and final figure files.
+In current-task mode, return the reproducible code and final figure paths plus a concise caption and validation summary; create no extra report or state file. In persistent automation mode, save the configuration, Prompt, source inventory, reproducible code, environment record, derived data, selected figures, caption, and compact `run.json`, then return the run directory and final figure files.

@@ -5,17 +5,16 @@ description: Draft a complete, compilable LaTeX research paper with YanShu from 
 
 # Paper Drafting
 
-Use YanShu's website-sourced configuration and Prompt to turn completed research evidence into one complete LaTeX draft in the user's visible ChatGPT Chat. Codex coordinates local evidence, downloads, and compilation; Chat writes the manuscript.
+Use YanShu's website-sourced configuration and Prompt to turn completed research evidence into one complete LaTeX draft. Execute in the current Codex or CLI task by default; use visible ChatGPT only when the user explicitly requests that executor or persistent automation.
 
 Follow the user's conversation language. The manuscript remains English unless the saved Prompt explicitly says otherwise.
 
 ## Boundaries
 
-- Never write manuscript prose in Codex or replace visible ChatGPT with a coding model.
 - Never recreate template choices in chat. Open the local page and use its saved Prompt exactly.
 - Never fabricate experiments, numbers, baselines, citations, hardware, hyperparameters, figures, or significance.
 - Treat `$research-paper-writing` only as a supplemental writing method. YanShu's saved evidence boundaries, template, configuration, and delivery contract always take precedence. `$nature-figure` is for Experimental Plotting and must not be used to generate this manuscript's scientific schematics.
-- Treat the source directory as read-only. Save every generated artifact under a new YanShu run directory.
+- Treat the source directory as read-only. Save the generated LaTeX project in a new output directory; never mix draft files into experiment evidence.
 - Use only files inside the confirmed root. Do not upload credentials, unrelated repositories, raw private data, or oversized caches.
 - Never open `plugin.json`, `session.json`, `confirmed.yanshu-workflow.json`, `run.json`, or any internal JSON in a browser, editor, or user-visible tab.
 
@@ -50,9 +49,16 @@ workflow-configure-start \
 
 The plugin Prompt is generated from the website's exact Paper Drafting source, including the current template policy and the configurable advisory caption range (10–40 words by default, never a hard acceptance condition).
 
+## Choose execution and delivery
+
+The page's `Start full automation` action authorizes uninterrupted execution; it does not by itself require a visible ChatGPT session or a YanShu run directory.
+
+- **Current-task mode is the default.** Draft and compile in the current Codex or CLI task. Create one dedicated, version-safe output directory for the actual LaTeX project, PDF, figures, bibliography, and required template provenance. Do not add a Prompt copy, configuration snapshot, generic Markdown report, or `run.json` merely for bookkeeping.
+- **Persistent automation mode is explicit.** Use the visible-ChatGPT and run-record path below only when the user asks for Web ChatGPT, a persistent/resumable run, or saved automation evidence.
+
 ## Prepare the evidence
 
-Create `<research-root>/yanshu-paper-drafting/<UTC-run-id>/` from the authorized configuration returned by `workflow-configure-result`, then save its configuration and Prompt. Build a compact material inventory before opening Chat:
+Build a compact material inventory from the authorized configuration before drafting:
 
 - experimental tables, result files, statistics, and relevant logs;
 - method notes, equations, algorithms, code definitions, and README files;
@@ -64,7 +70,16 @@ Exclude build caches, checkpoints, raw datasets, secrets, and unrelated files. W
 
 ## Execute and compile
 
-1. Open a fresh visible ChatGPT Chat and select the latest visible reasoning-capable model with the strongest available reasoning. Fall back automatically when necessary and record the actual visible labels.
+In current-task mode:
+
+1. Create a dedicated draft output directory chosen by the user or a non-conflicting `yanshu-paper-draft/` sibling. Do not overwrite an existing draft silently.
+2. Execute the authorized Prompt against the approved evidence in the current task.
+3. Write the complete LaTeX project, compile it in an isolated build directory, and fix only errors introduced by the draft.
+4. Return the project and PDF paths with a concise summary of evidence gaps and remaining TODOs.
+
+In persistent automation mode:
+
+1. Create `<research-root>/yanshu-paper-drafting/<UTC-run-id>/`, save the authorized configuration and Prompt, then open a fresh visible ChatGPT Chat and select the latest visible reasoning-capable model with the strongest available reasoning. Fall back automatically when necessary and record the actual visible labels.
 2. Submit the saved Prompt once with the approved evidence files. Do not resend after a wait timeout.
 3. Download the complete LaTeX project archive and PDF into the run directory.
 4. Unpack into a versioned output directory, never over the research source.
@@ -81,4 +96,4 @@ Finish only when:
 - the selected template source and retrieval status are recorded;
 - the manuscript does not omit unfavorable supplied results or invent missing evidence.
 
-Write `run.json` with input hashes, Chat URL, actual model/reasoning labels, template source, output hashes, compilation status, and remaining TODOs. Return the run directory and compiled PDF.
+In current-task mode, return the actual LaTeX project and compiled PDF with a concise chat summary; create no extra report or state file. In persistent automation mode, write `run.json` with input hashes, Chat URL, actual model/reasoning labels, template source, output hashes, compilation status, and remaining TODOs, then return the run directory and compiled PDF.

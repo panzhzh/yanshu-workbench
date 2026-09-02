@@ -3059,7 +3059,7 @@ ${dimensionInstructions}
 4. \u7ED9\u51FA\u6309\u6536\u76CA\u6392\u5E8F\u7684\u4FEE\u6539\u987A\u5E8F\u3002${preserve ? "\u53E6\u5217 3\u20135 \u4E2A\u5E94\u4FDD\u7559\u7684\u597D\u8868\u8FBE\u6216\u6709\u6548\u5199\u6CD5\u3002" : ""}
 ${browse ? "5. \u5BF9\u9AD8\u7F6E\u4FE1\u5EA6\u7F3A\u5F15\u6587\u4F4D\u7F6E\uFF0C\u5355\u72EC\u5217\u51FA\u7ECF\u8FC7\u5B98\u7F51\u3001\u51FA\u7248\u793E\u6216\u8BBA\u6587\u539F\u6587\u6838\u9A8C\u7684\u5019\u9009\u6765\u6E90\u3001\u5EFA\u8BAE\u652F\u6301\u7684 claim\u3001URL/DOI \u548C\u5B8C\u6574 BibTeX\uFF1B\u627E\u4E0D\u5230\u5C31\u660E\u786E\u4FDD\u7559\u7F3A\u53E3\u3002" : ""}
 
-${repair ? "\u540C\u65F6\u4EA4\u4ED8 `writing_diagnosis.md`\u3001\u4FEE\u8BA2\u540E\u7684\u5B8C\u6574 `.tex` \u548C high-risk diff\u3002\u53EA\u4FEE\u590D\u62A5\u544A\u4E2D\u6709\u5145\u5206\u628A\u63E1\u7684\u5199\u4F5C\u95EE\u9898\uFF1B\u4FEE\u6539\u6700\u5C0F\u4F46\u5B8C\u6574\u7684\u8BED\u4E49\u5355\u5143\uFF0C\u4E0D\u5728\u6BB5\u672B\u8FFD\u52A0\u8865\u4E01\u53E5\u3002\u9664\u4FEE\u590D\u6240\u5FC5\u9700\u7684\u5C40\u90E8\u7EC4\u7EC7\u5916\uFF0C\u4E0D\u6539\u53D8\u79D1\u5B66 claim\u3001\u6570\u5B57\u3001\u5B9E\u9A8C\u3001\u516C\u5F0F\u5185\u5BB9\u3001\u5F15\u7528\u96C6\u5408\u3001\u56FE\u8868\u5185\u5BB9\u6216\u7AE0\u8282\u987A\u5E8F\uFF1B\u4E0D\u786E\u5B9A\u9879\u53EA\u62A5\u544A\u3002" : "\u53EA\u4EA4\u4ED8 `writing_diagnosis.md`\uFF0C\u4E0D\u8981\u4FEE\u6539\u8BBA\u6587\u6587\u4EF6\u3002"}`;
+${repair ? "\u5728\u5F53\u524D\u56DE\u590D\u4E2D\u5148\u7ED9\u51FA\u7ED3\u6784\u5316\u8BCA\u65AD\uFF0C\u518D\u4EA4\u4ED8\u4FEE\u8BA2\u540E\u7684\u5B8C\u6574 `.tex`\uFF0C\u5E76\u7B80\u8981\u6982\u8FF0 high-risk changes\u3002\u53EA\u4FEE\u590D\u62A5\u544A\u4E2D\u6709\u5145\u5206\u628A\u63E1\u7684\u5199\u4F5C\u95EE\u9898\uFF1B\u4FEE\u6539\u6700\u5C0F\u4F46\u5B8C\u6574\u7684\u8BED\u4E49\u5355\u5143\uFF0C\u4E0D\u5728\u6BB5\u672B\u8FFD\u52A0\u8865\u4E01\u53E5\u3002\u9664\u4FEE\u590D\u6240\u5FC5\u9700\u7684\u5C40\u90E8\u7EC4\u7EC7\u5916\uFF0C\u4E0D\u6539\u53D8\u79D1\u5B66 claim\u3001\u6570\u5B57\u3001\u5B9E\u9A8C\u3001\u516C\u5F0F\u5185\u5BB9\u3001\u5F15\u7528\u96C6\u5408\u3001\u56FE\u8868\u5185\u5BB9\u6216\u7AE0\u8282\u987A\u5E8F\uFF1B\u4E0D\u786E\u5B9A\u9879\u53EA\u62A5\u544A\u3002\u9664\u975E\u6211\u660E\u786E\u8981\u6C42\uFF0C\u4E0D\u8981\u53E6\u5EFA Markdown \u62A5\u544A\u6216 diff \u6587\u6863\u3002" : "\u53EA\u5728\u5F53\u524D\u56DE\u590D\u4E2D\u7ED9\u51FA\u7ED3\u6784\u5316\u8BCA\u65AD\uFF0C\u4E0D\u8981\u4FEE\u6539\u8BBA\u6587\u6587\u4EF6\uFF0C\u4E5F\u4E0D\u8981\u53E6\u5EFA Markdown \u62A5\u544A\u3002"}`;
     }
     return `# Academic Writing Diagnosis
 
@@ -3091,7 +3091,7 @@ Do not declare an error from word count, sentence length, or caption length alon
 4. Rank revisions by expected benefit. ${preserve ? "Also list 3\u20135 strong passages or effective techniques that should be preserved." : ""}
 ${browse ? "5. For high-confidence citation gaps, separately list sources verified against official pages, publisher records, or the original paper, the claim each source could support, URL/DOI, and complete BibTeX. Preserve the gap when no suitable source is verified." : ""}
 
-${repair ? "Also deliver `writing_diagnosis.md`, a complete revised `.tex`, and a high-risk diff. Repair only well-supported writing problems from the report. Edit the smallest coherent semantic unit and never append patch sentences. Except for local organization required by the repair, do not change scientific claims, numbers, experiments, equation content, citation sets, display content, or section order. Report uncertain items without changing them." : "Deliver `writing_diagnosis.md` only and do not modify manuscript files."}`;
+${repair ? "First return a structured diagnosis in the current response, then deliver a complete revised `.tex` and briefly summarize high-risk changes. Repair only well-supported writing problems from the report. Edit the smallest coherent semantic unit and never append patch sentences. Except for local organization required by the repair, do not change scientific claims, numbers, experiments, equation content, citation sets, display content, or section order. Report uncertain items without changing them. Do not create a separate Markdown report or diff document unless I explicitly request one." : "Return the structured diagnosis in the current response only. Do not modify manuscript files or create a separate Markdown report."}`;
   }
 };
 function getDefaultWritingDiagnosisValues() {
@@ -3716,6 +3716,10 @@ var REVIEW_MATERIAL_SCOPES = {
     "Manuscript, supplement, code, and data"
   )
 };
+var REVIEW_TARGET_TYPES = {
+  conference: text3("\u4F1A\u8BAE", "Conference"),
+  journal: text3("\u671F\u520A", "Journal")
+};
 var EVIDENCE_POLICIES = {
   existing: text3("\u4EC5\u4F7F\u7528\u73B0\u6709\u8BC1\u636E", "Existing evidence only"),
   analysis: text3("\u5141\u8BB8\u8865\u5145\u5206\u6790", "Allow additional analyses"),
@@ -3737,7 +3741,7 @@ var PEER_REVIEW_WORKBENCH = {
         "\u4EE3\u7801\u3001\u6570\u636E\u4E0E\u590D\u73B0\u8BF4\u660E\uFF08\u6309\u914D\u7F6E\u9009\u7528\uFF09",
         "\u5E0C\u671B\u989D\u5916\u68C0\u67E5\u7684\u95EE\u9898\uFF08\u53EF\u9009\uFF09"
       ],
-      inputHint: "\u672C\u9875\u4E0D\u533A\u5206\u4F1A\u8BAE\u6216\u671F\u520A\uFF0C\u4E5F\u4E0D\u4FEE\u6539\u8BBA\u6587\uFF1B\u5982\u63D0\u4F9B\u5177\u4F53\u8BC4\u5BA1\u6807\u51C6\uFF0C\u53EF\u5199\u5165\u8865\u5145\u8981\u6C42\u3002",
+      inputHint: "\u9ED8\u8BA4\u8FDB\u884C venue-neutral \u5BA1\u7A3F\uFF1B\u4E5F\u53EF\u9884\u8BBE\u76EE\u6807\u4F1A\u8BAE\u6216\u671F\u520A\u3002\u5F53\u524D\u4EFB\u52A1\u4E0D\u4FEE\u6539\u8BBA\u6587\u3002",
       promptTitle: "\u8BBA\u6587\u5BA1\u7A3F Prompt",
       promptPurpose: "\u751F\u6210\u8BC1\u636E\u53EF\u8FFD\u6EAF\u3001\u8F7B\u91CD\u5206\u660E\u4E14\u80FD\u6307\u5BFC\u540E\u7EED\u4FEE\u6539\u7684\u72EC\u7ACB\u5BA1\u7A3F\u62A5\u544A\u3002"
     },
@@ -3753,12 +3757,54 @@ var PEER_REVIEW_WORKBENCH = {
         "Code, data, and reproducibility notes when selected",
         "Any additional questions to inspect"
       ],
-      inputHint: "This page does not distinguish conferences from journals and never edits the manuscript. Add any specific review standard under additional requirements.",
+      inputHint: "The default review is venue-neutral, but a target conference or journal may be preset. This task never edits the manuscript.",
       promptTitle: "Peer-review prompt",
       promptPurpose: "Produce an independent review whose evidence, severity, and recommendations remain traceable."
     }
   }),
   controls: [
+    {
+      id: "useTarget",
+      kind: "toggle",
+      label: text3("\u9884\u8BBE\u6295\u7A3F\u76EE\u6807", "Preset a target venue"),
+      description: text3(
+        "\u5173\u95ED\u65F6\u4FDD\u6301\u72EC\u7ACB\u901A\u7528\u5BA1\u7A3F\uFF1B\u5F00\u542F\u540E\u6309\u76EE\u6807 venue \u7684\u8BC4\u5BA1\u8BED\u5883\u5224\u65AD\u3002",
+        "Keep the review venue-neutral when off, or evaluate in the target venue's review context when on."
+      ),
+      defaultValue: false,
+      enabledLabel: text3("\u4F7F\u7528\u76EE\u6807", "Use target"),
+      disabledLabel: text3("\u4E0D\u9884\u8BBE\u76EE\u6807", "No preset target"),
+      span: "full"
+    },
+    {
+      id: "targetType",
+      kind: "segmented",
+      label: text3("\u76EE\u6807\u7C7B\u578B", "Target type"),
+      description: text3(
+        "\u4F1A\u8BAE\u4F7F\u7528\u76EE\u6807\u8BC4\u5BA1\u5C3A\u5EA6\uFF1B\u671F\u520A\u4ECD\u4F7F\u7528\u901A\u7528\u8BC4\u5206\u5361\u3002",
+        "Conferences use the target review scale; journals retain the general scorecard."
+      ),
+      defaultValue: "conference",
+      options: Object.entries(REVIEW_TARGET_TYPES).map(([value, label]) => ({
+        value,
+        label
+      })),
+      visibleWhen: (values) => enabled3(values, "useTarget"),
+      span: "full"
+    },
+    {
+      id: "targetVenue",
+      kind: "text",
+      label: text3("\u76EE\u6807\u4F1A\u8BAE\u6216\u671F\u520A", "Target conference or journal"),
+      description: text3(
+        "\u5EFA\u8BAE\u586B\u5199\u5B8C\u6574\u540D\u79F0\u548C\u5C4A\u6B21\uFF0C\u4EE5\u6838\u9A8C\u5F53\u524D\u516C\u5F00\u8BC4\u5BA1\u6807\u51C6\u3002",
+        "Use the full name and edition to verify the current public review criteria."
+      ),
+      defaultValue: "",
+      placeholder: text3("\u4F8B\u5982\uFF1ANeurIPS 2027 / IEEE TPAMI", "For example: NeurIPS 2027 / IEEE TPAMI"),
+      visibleWhen: (values) => enabled3(values, "useTarget"),
+      span: "full"
+    },
     {
       id: "mode",
       kind: "segmented",
@@ -3804,6 +3850,19 @@ var PEER_REVIEW_WORKBENCH = {
       span: "full"
     },
     {
+      id: "ignoreNonScientificPresentation",
+      kind: "toggle",
+      label: text3("\u5FFD\u7565\u975E\u79D1\u5B66\u5448\u73B0\u95EE\u9898", "Ignore non-scientific presentation issues"),
+      description: text3(
+        "\u5FFD\u7565\u6A21\u677F\u683C\u5F0F\u3001\u7248\u9762\u3001\u5B57\u4F53\u548C\u56FE\u7247\u7F8E\u89C2\uFF1B\u4ECD\u68C0\u67E5\u56FE\u8868\u53EF\u8BFB\u6027\u3001\u6570\u636E\u4E0E\u8BC1\u636E\u3002",
+        "Ignore template formatting, layout, typography, and visual aesthetics while still checking legibility, data, and evidence."
+      ),
+      defaultValue: true,
+      enabledLabel: text3("\u53EA\u5173\u5FC3\u79D1\u5B66\u4E0E\u8868\u8FBE", "Science and exposition only"),
+      disabledLabel: text3("\u540C\u65F6\u5173\u6CE8\u5448\u73B0", "Also assess presentation"),
+      span: "full"
+    },
+    {
       id: "browseLiterature",
       kind: "toggle",
       label: text3("\u8054\u7F51\u6838\u67E5\u76F8\u5173\u6587\u732E", "Verify related literature online"),
@@ -3820,8 +3879,8 @@ var PEER_REVIEW_WORKBENCH = {
       kind: "toggle",
       label: text3("\u901A\u7528\u8BC4\u5206\u5361", "General scorecard"),
       description: text3(
-        "\u4F7F\u7528\u8DE8 venue \u7684 1\u20135 \u5206\u7EF4\u5EA6\u8BC4\u5206\uFF0C\u4E0D\u5957\u7528\u67D0\u4E2A\u6295\u7A3F\u7CFB\u7EDF\u7684\u91CF\u8868\u3002",
-        "Use a venue-neutral 1\u20135 dimensional scorecard rather than a portal-specific scale."
+        "\u9ED8\u8BA4\u4F7F\u7528\u8DE8 venue \u7684 1\u20135 \u5206\u8BC4\u5206\uFF1B\u9884\u8BBE\u4F1A\u8BAE\u65F6\u9ED8\u8BA4\u5173\u95ED\u5E76\u6539\u7528\u76EE\u6807\u5C3A\u5EA6\uFF0C\u671F\u520A\u4FDD\u6301\u5F00\u542F\u3002",
+        "Use a venue-neutral 1\u20135 scorecard by default. A preset conference uses its target scale instead; journals keep this enabled."
       ),
       defaultValue: true,
       enabledLabel: text3("\u8F93\u51FA\u8BC4\u5206\u5361", "Include scorecard"),
@@ -3840,9 +3899,22 @@ var PEER_REVIEW_WORKBENCH = {
       span: "full"
     }
   ],
+  updateValues(current, id, value) {
+    const next = { ...current, [id]: value };
+    if (id === "useTarget") {
+      next.scorecard = value === true ? scalar3(current, "targetType") === "journal" : true;
+    }
+    if (id === "targetType" && enabled3(current, "useTarget")) {
+      next.scorecard = value === "journal";
+    }
+    return next;
+  },
   buildPrompt(values, language) {
     const mode = scalar3(values, "mode");
     const materialScope = scalar3(values, "materialScope");
+    const useTarget = enabled3(values, "useTarget");
+    const targetType = scalar3(values, "targetType") || "conference";
+    const targetVenue = scalar3(values, "targetVenue");
     const dimensions = labelsFor3(
       values,
       "dimensions",
@@ -3850,12 +3922,16 @@ var PEER_REVIEW_WORKBENCH = {
       language
     );
     const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const targetContext = useTarget ? language === "zh" ? `\u9884\u8BBE\u76EE\u6807\uFF1A${labelFor2(targetType, REVIEW_TARGET_TYPES, language)}${targetVenue ? `\uFF0C${targetVenue}` : "\uFF08\u672A\u586B\u5199\u5177\u4F53\u540D\u79F0\uFF09"}\u3002${targetVenue ? "\u8054\u7F51\u6838\u9A8C\u8BE5\u76EE\u6807\u5F53\u524D\u516C\u5F00\u7684 scope\u3001\u8BC4\u5BA1\u7EF4\u5EA6\u3001\u8BC4\u5206\u5B9A\u4E49\u548C\u51B3\u7B56\u8BED\u5883\uFF0C\u5E76\u8BB0\u5F55\u5B98\u65B9\u6765\u6E90\u4E0E\u6838\u9A8C\u65E5\u671F\u3002" : "\u672A\u63D0\u4F9B\u5177\u4F53 venue \u65F6\u4E0D\u5F97\u7F16\u9020\u5B98\u65B9\u8BC4\u5206\u5C3A\u5EA6\uFF0C\u53EA\u80FD\u6309\u8BE5\u7C7B\u578B\u7684\u4E00\u822C\u8BC4\u5BA1\u8BED\u5883\u5224\u65AD\u3002"}${targetType === "conference" ? "\u4F1A\u8BAE\u8BC4\u5206\u5E94\u4F7F\u7528\u6838\u9A8C\u540E\u7684\u76EE\u6807\u8BC4\u5BA1\u7EF4\u5EA6\u4E0E\u5C3A\u5EA6\uFF0C\u4E0D\u7528\u901A\u7528 1\u20135 \u5206\u5192\u5145\u8BE5\u4F1A\u8BAE\u8BC4\u5206\u3002" : "\u671F\u520A\u76EE\u6807\u7528\u4E8E\u5224\u65AD scope\u3001\u6587\u7AE0\u7C7B\u578B\u3001\u8BC1\u636E\u95E8\u69DB\u548C\u7F16\u8F91\u98CE\u9669\uFF0C\u6570\u503C\u90E8\u5206\u4ECD\u4F7F\u7528\u901A\u7528\u8BC4\u5206\u5361\u3002"}` : `Preset target: ${labelFor2(targetType, REVIEW_TARGET_TYPES, language)}${targetVenue ? `, ${targetVenue}` : " (specific venue not supplied)"}. ${targetVenue ? "Browse and verify the target's current public scope, review criteria, score definitions, and decision context, recording official sources and access dates." : "Without a named venue, do not invent an official scale; use only the general context for that venue type."} ${targetType === "conference" ? "Use the verified target conference criteria and scale rather than presenting a general 1\u20135 score as the conference score." : "Use the journal target for scope, article type, evidence threshold, and editorial risk, while retaining the general scorecard for numerical assessment."}` : language === "zh" ? "\u672A\u9884\u8BBE\u6295\u7A3F\u76EE\u6807\uFF1A\u4FDD\u6301 venue-neutral\uFF0C\u4E0D\u5957\u7528\u4EFB\u4F55\u5177\u4F53\u6295\u7A3F\u7CFB\u7EDF\u7684\u8BC4\u5206\u5C3A\u5EA6\u3002" : "No target is preset: remain venue-neutral and do not imitate a specific submission portal's scale.";
+    const presentationBoundary = enabled3(values, "ignoreNonScientificPresentation") ? language === "zh" ? "\u672C\u8F6E\u4E0D\u8BC4\u4EF7\u6A21\u677F\u683C\u5F0F\u3001\u9875\u8FB9\u8DDD\u3001\u5B57\u4F53\u3001\u6392\u7248\u7EC6\u8282\u3001\u56FE\u7247\u914D\u8272\u6216\u7F8E\u89C2\u5EA6\u3002\u4ECD\u5FC5\u987B\u68C0\u67E5\u56FE\u8868\u662F\u5426\u53EF\u8BFB\u3001\u6807\u6CE8\u662F\u5426\u660E\u786E\u3001\u6570\u636E\u662F\u5426\u6B63\u786E\uFF0C\u4EE5\u53CA\u56FE\u8868\u548C caption \u80FD\u5426\u652F\u6301\u6B63\u6587 claim\uFF0C\u56E0\u4E3A\u8FD9\u4E9B\u5C5E\u4E8E\u79D1\u5B66\u8BC1\u636E\u3002" : "Do not assess template compliance, margins, typography, layout polish, image color styling, or aesthetics. Still assess figure/table legibility, labeling, data correctness, and whether visuals and captions support manuscript claims, because these are scientific evidence issues." : language === "zh" ? "\u53EF\u6307\u51FA\u4F1A\u5B9E\u8D28\u5F71\u54CD\u5BA1\u7A3F\u7406\u89E3\u7684\u6A21\u677F\u3001\u7248\u9762\u6216\u56FE\u7247\u5448\u73B0\u95EE\u9898\uFF0C\u4F46\u4E0D\u8981\u628A\u672C\u8F6E\u53D8\u6210\u5168\u9762\u683C\u5F0F\u5408\u89C4\u68C0\u67E5\uFF1B\u5B98\u65B9\u683C\u5F0F\u7EC8\u68C0\u5C5E\u4E8E\u72EC\u7ACB\u4EFB\u52A1\u3002" : "You may report template, layout, or visual-presentation problems that materially affect review, but do not turn this into a full format-compliance audit; official submission-format checking is a separate task.";
     if (language === "zh") {
       return `# \u5BF9\u8BBA\u6587\u8FDB\u884C\u72EC\u7ACB\u540C\u884C\u8BC4\u5BA1
 
-\u4F60\u662F\u4E00\u540D\u4E25\u683C\u3001\u5EFA\u8BBE\u6027\u4E14\u719F\u6089\u5B66\u672F\u8BC4\u5BA1\u903B\u8F91\u7684\u72EC\u7ACB\u5BA1\u7A3F\u4EBA\u3002\u5148\u4ECE\u8BBA\u6587\u4E2D\u5224\u65AD\u7814\u7A76\u9886\u57DF\u3001\u8BBA\u6587\u7C7B\u578B\u3001\u6838\u5FC3\u95EE\u9898\u3001\u4E3B\u8981\u8D21\u732E\u4E0E\u8BC1\u636E\u94FE\uFF0C\u4E0D\u9884\u8BBE\u5176\u5C5E\u4E8E\u4F1A\u8BAE\u6216\u671F\u520A\uFF0C\u4E5F\u4E0D\u5957\u7528\u67D0\u4E2A\u6295\u7A3F\u7CFB\u7EDF\u7684\u8BC4\u5206\u5C3A\u5EA6\u3002
+\u4F60\u662F\u4E00\u540D\u4E25\u683C\u3001\u5EFA\u8BBE\u6027\u4E14\u719F\u6089\u5B66\u672F\u8BC4\u5BA1\u903B\u8F91\u7684\u72EC\u7ACB\u5BA1\u7A3F\u4EBA\u3002\u5148\u4ECE\u8BBA\u6587\u4E2D\u5224\u65AD\u7814\u7A76\u9886\u57DF\u3001\u8BBA\u6587\u7C7B\u578B\u3001\u6838\u5FC3\u95EE\u9898\u3001\u4E3B\u8981\u8D21\u732E\u4E0E\u8BC1\u636E\u94FE\u3002${targetContext}
 
 \u8BC4\u5BA1\u65B9\u5F0F\uFF1A${labelFor2(mode, PEER_REVIEW_MODES, language)}\uFF1B\u6750\u6599\u8303\u56F4\uFF1A${labelFor2(materialScope, REVIEW_MATERIAL_SCOPES, language)}\uFF1B\u8BC4\u5BA1\u7EF4\u5EA6\uFF1A${dimensions}\u3002\u53EA\u8BC4\u4EF7\u5B9E\u9645\u63D0\u4F9B\u4E14\u80FD\u591F\u8BFB\u53D6\u7684\u6750\u6599\uFF0C\u7F3A\u5931\u6750\u6599\u6807\u4E3A\u201C\u65E0\u6CD5\u6838\u9A8C\u201D\uFF0C\u4E0D\u5F97\u53CD\u5411\u731C\u6D4B\u3002
+
+${presentationBoundary}
 
 ${enabled3(values, "browseLiterature") ? "\u8054\u7F51\u6838\u67E5\u6587\u732E\u5B9A\u4F4D\u3001\u65B0\u9896\u6027\u548C\u5173\u952E\u5F15\u7528\u3002\u4F18\u5148\u4F7F\u7528\u539F\u59CB\u8BBA\u6587\u3001\u5B98\u65B9\u51FA\u7248\u9875\u6216\u53EF\u9760\u7D22\u5F15\uFF0C\u7ED9\u51FA\u94FE\u63A5\u4E0E\u6838\u67E5\u65E5\u671F\uFF1B\u533A\u5206\u5DF2\u6838\u9A8C\u4E8B\u5B9E\u4E0E\u5BA1\u7A3F\u5224\u65AD\u3002" : "\u4E0D\u8054\u7F51\u6269\u5C55\u6587\u732E\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u6750\u6599\u5224\u65AD\uFF1B\u6D89\u53CA\u65B0\u9896\u6027\u6216\u6587\u732E\u5B8C\u6574\u6027\u7684\u7ED3\u8BBA\u987B\u8BF4\u660E\u8BC1\u636E\u8303\u56F4\u3002"}
 
@@ -3869,15 +3945,18 @@ ${enabled3(values, "browseLiterature") ? "\u8054\u7F51\u6838\u67E5\u6587\u732E\u
 3. \u4E3B\u8981\u95EE\u9898\u8868\uFF08ID\u3001\u4E25\u91CD\u6027\u3001\u4F4D\u7F6E\u3001\u8BC1\u636E\u3001\u5F71\u54CD\u3001\u89E3\u51B3\u6807\u51C6\uFF09\uFF1B
 4. \u6B21\u8981\u95EE\u9898\u4E0E\u53EF\u76F4\u63A5\u4FEE\u6B63\u9879\uFF1B
 5. \u9700\u8981\u4F5C\u8005\u6F84\u6E05\u7684\u95EE\u9898\uFF1B
-${enabled3(values, "scorecard") ? "6. \u901A\u7528 1\u20135 \u5206\u8BC4\u5206\u5361\uFF1A\u95EE\u9898\u4EF7\u503C\u3001\u8D21\u732E\u6E05\u6670\u5EA6\u3001\u65B9\u6CD5\u6B63\u786E\u6027\u3001\u8BC1\u636E\u5145\u5206\u6027\u3001\u8868\u8FBE\u8D28\u91CF\u548C\u53EF\u590D\u73B0\u6027\uFF0C\u5E76\u7ED9\u51FA\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\uFF1B\n7. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002" : "6. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002"}
+${useTarget && targetType === "conference" ? `${targetVenue ? "6. \u6309\u76EE\u6807\u4F1A\u8BAE\u5F53\u524D\u5B98\u65B9\u8BC4\u5BA1\u7EF4\u5EA6\u3001\u8BC4\u5206\u5B9A\u4E49\u4E0E\u5C3A\u5EA6\u9010\u9879\u6253\u5206\uFF0C\u7ED9\u51FA\u603B\u4F53 recommendation \u548C\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\uFF1B\u4E0D\u5F97\u628A\u901A\u7528 1\u20135 \u5206\u66FF\u4EE3\u4E3A\u5B98\u65B9\u4F1A\u8BAE\u5206\u6570\u3002" : "6. \u672A\u63D0\u4F9B\u5177\u4F53\u4F1A\u8BAE\uFF0C\u4E0D\u80FD\u751F\u6210\u4F2A\u5B98\u65B9\u5206\u6570\uFF1B\u7ED9\u51FA\u4F1A\u8BAE\u8BED\u5883\u4E0B\u7684\u6587\u5B57 recommendation \u548C\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\u3002"}${enabled3(values, "scorecard") ? " \u53E6\u9644\u901A\u7528 1\u20135 \u5206\u8BC4\u5206\u5361\uFF0C\u5E76\u660E\u786E\u6807\u4E3A\u8F85\u52A9\u8BC4\u4F30\u800C\u975E\u76EE\u6807\u4F1A\u8BAE\u5B98\u65B9\u5206\u6570\u3002" : ""}
+7. \u9488\u5BF9\u76EE\u6807\u4F1A\u8BAE\u7684\u5C31\u7EEA\u5EA6\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002` : enabled3(values, "scorecard") ? "6. \u901A\u7528 1\u20135 \u5206\u8BC4\u5206\u5361\uFF1A\u95EE\u9898\u4EF7\u503C\u3001\u8D21\u732E\u6E05\u6670\u5EA6\u3001\u65B9\u6CD5\u6B63\u786E\u6027\u3001\u8BC1\u636E\u5145\u5206\u6027\u3001\u8868\u8FBE\u8D28\u91CF\u548C\u53EF\u590D\u73B0\u6027\uFF0C\u5E76\u7ED9\u51FA\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\uFF1B\n7. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002" : "6. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002"}
 
 \u8865\u5145\u8981\u6C42\uFF1A${custom}\u3002\u5F53\u524D\u4EFB\u52A1\u53EA\u8F93\u51FA\u5BA1\u7A3F\u62A5\u544A\uFF0C\u4E0D\u4FEE\u6539\u8BBA\u6587\uFF0C\u4E0D\u64B0\u5199\u4F5C\u8005\u56DE\u590D\uFF0C\u4E5F\u4E0D\u66FF\u4F5C\u8005\u4F5C\u51FA\u4E0D\u5B58\u5728\u8BC1\u636E\u652F\u6301\u7684\u627F\u8BFA\u3002`;
     }
     return `# Conduct an Independent Peer Review
 
-Act as a rigorous, constructive independent reviewer familiar with scholarly evaluation. Infer the paper's field, contribution type, central problem, main claims, and evidence chain from the manuscript. Do not assume a conference or journal category and do not imitate a submission portal's rating scale.
+Act as a rigorous, constructive independent reviewer familiar with scholarly evaluation. Infer the paper's field, contribution type, central problem, main claims, and evidence chain from the manuscript. ${targetContext}
 
 Review mode: ${labelFor2(mode, PEER_REVIEW_MODES, language)}; materials: ${labelFor2(materialScope, REVIEW_MATERIAL_SCOPES, language)}; dimensions: ${dimensions}. Evaluate only supplied and readable materials. Mark missing evidence as \u201Cnot verifiable\u201D rather than inferring it.
+
+${presentationBoundary}
 
 ${enabled3(values, "browseLiterature") ? "Browse to verify positioning, novelty, and important citations. Prefer original papers, official publication pages, and reliable indexes; provide links and access dates and distinguish verified facts from reviewer judgment." : "Use only supplied materials. State the evidence boundary for any judgment about novelty or literature coverage."}
 
@@ -3891,7 +3970,8 @@ Return:
 3. Major-concern table (ID, severity, location, evidence, impact, resolution threshold);
 4. Minor concerns and directly repairable issues;
 5. Questions requiring author clarification;
-${enabled3(values, "scorecard") ? "6. Venue-neutral 1\u20135 scorecard for problem value, contribution clarity, methodological soundness, evidence adequacy, presentation, and reproducibility, plus review confidence;\n7. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment." : "6. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment."}
+${useTarget && targetType === "conference" ? `${targetVenue ? "6. Score each verified official target-conference review dimension using its current definitions and scale, then give an overall recommendation and review confidence; do not substitute a general 1\u20135 score for the official conference score." : "6. No specific conference is supplied, so do not fabricate official scores; give a conference-context narrative recommendation and review confidence."}${enabled3(values, "scorecard") ? " Also append the general 1\u20135 scorecard, explicitly labeled as a supplemental assessment rather than an official target-conference score." : ""}
+7. Target-conference readiness and the three issues most likely to affect the decision.` : enabled3(values, "scorecard") ? "6. Venue-neutral 1\u20135 scorecard for problem value, contribution clarity, methodological soundness, evidence adequacy, presentation, and reproducibility, plus review confidence;\n7. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment." : "6. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment."}
 
 Additional requirements: ${custom}. Produce only the review report. Do not edit the manuscript, draft an author response, or make unsupported commitments on the author's behalf.`;
   }
@@ -4202,7 +4282,7 @@ After the table, summarize safely resolved comments, high-risk comments, omissio
 };
 
 // content/workflows/skillWorkflows.ts
-var SKILL_WORKFLOW_VERSION = "2026.08.28";
+var SKILL_WORKFLOW_VERSION = "2026.09.02";
 var YANSHU_SKILL_CATALOG = [
   {
     id: "idea-discovery",
@@ -4269,8 +4349,8 @@ var YANSHU_SKILL_CATALOG = [
       en: "Main TeX, with PDF and BibTeX recommended"
     },
     output: {
-      zh: "\u5199\u4F5C\u8BCA\u65AD\u62A5\u544A\u4E0E\u53EF\u9009\u5B89\u5168\u4FEE\u8BA2\u7A3F",
-      en: "Writing diagnosis report and optional safe revision"
+      zh: "\u804A\u5929\u5185\u8BCA\u65AD\uFF1B\u5B89\u5168\u4FEE\u590D\u65F6\u4EA4\u4ED8\u4FEE\u8BA2\u6587\u4EF6",
+      en: "In-chat diagnosis, with revised files for safe repair"
     }
   },
   {
@@ -4315,8 +4395,8 @@ var YANSHU_SKILL_CATALOG = [
       en: "Paper TeX, optional PDF, and a reference image only when configured"
     },
     output: {
-      zh: "\u4E00\u5F20\u9AD8\u6E05 PNG \u4E0E\u914D\u7F6E\u5FEB\u7167",
-      en: "One high-resolution PNG and its configuration snapshot"
+      zh: "\u4E00\u5F20\u9AD8\u6E05 PNG",
+      en: "One high-resolution PNG"
     }
   },
   {
@@ -4361,8 +4441,8 @@ var YANSHU_SKILL_CATALOG = [
       en: "Manuscript with optional supplement, code, and data"
     },
     output: {
-      zh: "\u7ED3\u6784\u5316\u540C\u884C\u8BC4\u5BA1 Markdown",
-      en: "Structured peer-review Markdown"
+      zh: "\u804A\u5929\u5185\u7ED3\u6784\u5316\u540C\u884C\u8BC4\u5BA1\uFF1B\u53EF\u9009\u4FDD\u5B58 Markdown",
+      en: "Structured peer review in chat, optionally saved as Markdown"
     }
   },
   {
@@ -4384,8 +4464,8 @@ var YANSHU_SKILL_CATALOG = [
       en: "Reviews, editor decision, manuscript, and authentic new evidence"
     },
     output: {
-      zh: "\u8FD4\u4FEE\u4F18\u5148\u7EA7\u4E0E\u5B9E\u9A8C\u51B3\u7B56 Markdown",
-      en: "Revision-priority and experiment-decision Markdown"
+      zh: "\u804A\u5929\u5185\u8FD4\u4FEE\u4F18\u5148\u7EA7\u4E0E\u5B9E\u9A8C\u51B3\u7B56\uFF1B\u53EF\u9009\u4FDD\u5B58 Markdown",
+      en: "Revision priorities and experiment decisions in chat, optionally saved as Markdown"
     }
   },
   {
@@ -4407,8 +4487,8 @@ var YANSHU_SKILL_CATALOG = [
       en: "Reviews, response, revised manuscript, original manuscript, and diff"
     },
     output: {
-      zh: "\u9010\u6761\u8FD4\u4FEE\u6838\u9A8C\u4E0E\u91CD\u65B0\u63D0\u4EA4\u98CE\u9669 Markdown",
-      en: "Comment-level revision verification and resubmission-risk Markdown"
+      zh: "\u804A\u5929\u5185\u9010\u6761\u8FD4\u4FEE\u6838\u9A8C\u4E0E\u91CD\u65B0\u63D0\u4EA4\u98CE\u9669\uFF1B\u53EF\u9009\u4FDD\u5B58 Markdown",
+      en: "Comment-level revision verification and resubmission risk in chat, optionally saved as Markdown"
     }
   }
 ];
@@ -4737,8 +4817,8 @@ var SCIENTIFIC_FIGURE_MODEL = {
     "Reference images are off by default. When enabled, ordinary images supply visual style only; structure becomes a cue only for an explicitly labeled figure draft verified against the paper."
   ),
   output: localized(
-    "\u53EA\u751F\u6210\u4E00\u5F20\u9AD8\u6E05 PNG\uFF0C\u5E76\u4FDD\u5B58\u914D\u7F6E\u4E0E\u6700\u7EC8\u82F1\u6587\u751F\u56FE Prompt\u3002",
-    "Generate one high-resolution PNG and save its configuration and final English image prompt."
+    "\u9ED8\u8BA4\u53EA\u4EA4\u4ED8\u4E00\u5F20\u9AD8\u6E05 PNG\uFF1B\u4EC5\u5728\u660E\u786E\u8981\u6C42\u6301\u4E45\u7559\u6863\u65F6\u4FDD\u5B58\u914D\u7F6E\u4E0E\u751F\u56FE Prompt\u3002",
+    "Deliver one high-resolution PNG by default; save configuration and the image prompt only when persistent provenance is explicitly requested."
   ),
   sections: [
     {
@@ -5173,8 +5253,8 @@ var WRITING_DIAGNOSIS_MODEL = {
     "Figures and raw experimental data are unnecessary; this workflow diagnoses writing rather than re-reviewing the science."
   ),
   output: localized(
-    "\u5199\u4F5C\u8BCA\u65AD Markdown\uFF0C\u4EE5\u53CA\u9009\u62E9\u5B89\u5168\u4FEE\u590D\u65F6\u7684\u5B8C\u6574\u4FEE\u8BA2 TeX \u4E0E high-risk diff\u3002",
-    "A writing-diagnosis Markdown report plus a complete revised TeX and high-risk diff when safe repair is selected."
+    "\u9ED8\u8BA4\u5728\u5F53\u524D\u804A\u5929\u8FD4\u56DE\u8BCA\u65AD\uFF1B\u9009\u62E9\u5B89\u5168\u4FEE\u590D\u65F6\u4EA4\u4ED8\u5B8C\u6574\u4FEE\u8BA2 TeX\uFF0C\u53EA\u6709\u660E\u786E\u8981\u6C42\u624D\u53E6\u5B58 Markdown \u6216 diff \u6587\u6863\u3002",
+    "Return the diagnosis in the current chat by default; safe repair delivers complete revised TeX, while Markdown or diff documents are saved only when explicitly requested."
   ),
   sections: WRITING_DIAGNOSIS_SECTIONS,
   fields: WRITING_DIAGNOSIS_WORKBENCH.controls.map(
@@ -5222,18 +5302,26 @@ var PEER_REVIEW_SECTIONS = [
   }
 ];
 var PEER_REVIEW_FIELD_SECTIONS = {
+  useTarget: "approach",
+  targetType: "approach",
+  targetVenue: "approach",
   mode: "approach",
   materialScope: "approach",
   dimensions: "dimensions",
+  ignoreNonScientificPresentation: "dimensions",
   browseLiterature: "dimensions",
   scorecard: "delivery",
   custom: "delivery"
 };
 function peerReviewWorkflowField(control) {
-  return configurableWorkbenchField(
+  const field = configurableWorkbenchField(
     control,
     PEER_REVIEW_FIELD_SECTIONS[control.id] ?? "delivery"
   );
+  if (control.id === "targetType" || control.id === "targetVenue") {
+    field.visibleWhen = { fieldId: "useTarget", equals: true };
+  }
+  return field;
 }
 var PEER_REVIEW_MODEL = {
   id: "peer-review",
@@ -5256,8 +5344,8 @@ var PEER_REVIEW_MODEL = {
     "No conference/journal split: review only supplied readable material and never edit the manuscript."
   ),
   output: localized(
-    "\u4E00\u4EFD\u7ED3\u6784\u5316 `peer_review.md`\uFF0C\u5305\u542B\u4E3B\u8981\u95EE\u9898\u3001\u6B21\u8981\u95EE\u9898\u3001\u6F84\u6E05\u95EE\u9898\u4E0E\u603B\u4F53\u98CE\u9669\u3002",
-    "A structured `peer_review.md` with major concerns, minor concerns, clarification questions, and overall risk."
+    "\u9ED8\u8BA4\u5728\u5F53\u524D\u804A\u5929\u8FD4\u56DE\u4E3B\u8981\u95EE\u9898\u3001\u6B21\u8981\u95EE\u9898\u3001\u6F84\u6E05\u95EE\u9898\u4E0E\u603B\u4F53\u98CE\u9669\uFF1B\u660E\u786E\u8981\u6C42\u65F6\u624D\u4FDD\u5B58 `peer_review.md`\u3002",
+    "Return major concerns, minor concerns, clarification questions, and overall risk in the current chat by default; save `peer_review.md` only when requested."
   ),
   sections: PEER_REVIEW_SECTIONS,
   fields: PEER_REVIEW_WORKBENCH.controls.map(peerReviewWorkflowField),
@@ -5330,8 +5418,8 @@ var REVISION_PLANNING_MODEL = {
     "Preserve reviewer IDs and source comments. This stage drafts neither a response letter nor a revised manuscript."
   ),
   output: localized(
-    "\u4E00\u4EFD `revision_plan.md`\uFF0C\u5305\u542B P0/P1/P2\u3001A/B/C/D\u3001\u6700\u5C0F\u5B9E\u9A8C\u4E0E\u63A8\u8350\u987A\u5E8F\u3002",
-    "A `revision_plan.md` containing P0/P1/P2 priorities, A/B/C/D classes, minimum experiments, and revision order."
+    "\u9ED8\u8BA4\u5728\u5F53\u524D\u804A\u5929\u8FD4\u56DE P0/P1/P2\u3001A/B/C/D\u3001\u6700\u5C0F\u5B9E\u9A8C\u4E0E\u63A8\u8350\u987A\u5E8F\uFF1B\u660E\u786E\u8981\u6C42\u65F6\u624D\u4FDD\u5B58 `revision_plan.md`\u3002",
+    "Return P0/P1/P2 priorities, A/B/C/D classes, minimum experiments, and revision order in the current chat by default; save `revision_plan.md` only when requested."
   ),
   sections: REVISION_PLANNING_SECTIONS,
   fields: REVISION_PLANNING_WORKBENCH.controls.map(
@@ -5386,8 +5474,8 @@ var REVISION_AUDIT_MODEL = {
     "Journal or conference may be omitted and inferred; missing evidence is marked not verifiable."
   ),
   output: localized(
-    "\u4E00\u4EFD `revision_audit.md`\uFF0C\u5305\u542B\u9010\u6761\u5224\u65AD\u3001\u4FEE\u6539\u8BC1\u636E\u3001\u9057\u7559\u98CE\u9669\u548C\u6700\u5C0F\u4FEE\u6B63\u3002",
-    "A `revision_audit.md` with comment-level judgments, change evidence, residual risk, and minimum corrections."
+    "\u9ED8\u8BA4\u5728\u5F53\u524D\u804A\u5929\u8FD4\u56DE\u9010\u6761\u5224\u65AD\u3001\u4FEE\u6539\u8BC1\u636E\u3001\u9057\u7559\u98CE\u9669\u548C\u6700\u5C0F\u4FEE\u6B63\uFF1B\u660E\u786E\u8981\u6C42\u65F6\u624D\u4FDD\u5B58 `revision_audit.md`\u3002",
+    "Return comment-level judgments, change evidence, residual risk, and minimum corrections in the current chat by default; save `revision_audit.md` only when requested."
   ),
   sections: REVISION_AUDIT_SECTIONS,
   fields: REVISION_AUDIT_WORKBENCH.controls.map(
@@ -5470,6 +5558,16 @@ function normalizeWorkbenchPreferences(definition, input) {
       value = textValue(raw, control.defaultValue);
     }
     normalized[control.id] = value;
+  }
+  return normalized;
+}
+function normalizePeerReviewPreferences(input) {
+  const normalized = normalizeWorkbenchPreferences(
+    PEER_REVIEW_WORKBENCH,
+    input
+  );
+  if (input.scorecard === void 0 && normalized.useTarget === true) {
+    normalized.scorecard = normalized.targetType === "journal";
   }
   return normalized;
 }
@@ -5624,7 +5722,7 @@ function normalizeSkillWorkflowPreferences(workflowId, input = {}) {
     return normalizeExperimentalPlotValues(input);
   }
   if (workflowId === "peer-review") {
-    return normalizeWorkbenchPreferences(PEER_REVIEW_WORKBENCH, input);
+    return normalizePeerReviewPreferences(input);
   }
   if (workflowId === "revision-planning") {
     return normalizeWorkbenchPreferences(REVISION_PLANNING_WORKBENCH, input);
@@ -5692,9 +5790,13 @@ function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage 
       promptLanguage
     );
     selection = {
+      useTarget: reviewPreferences.useTarget,
+      targetType: reviewPreferences.targetType,
+      targetVenue: reviewPreferences.targetVenue,
       mode: reviewPreferences.mode,
       materialScope: reviewPreferences.materialScope,
       dimensions: reviewPreferences.dimensions,
+      ignoreNonScientificPresentation: reviewPreferences.ignoreNonScientificPresentation,
       browseLiterature: reviewPreferences.browseLiterature
     };
   } else if (workflowId === "revision-planning") {

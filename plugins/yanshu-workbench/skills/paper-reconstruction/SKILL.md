@@ -5,6 +5,8 @@ description: Run YanShu's resumable five-round Paper Reconstruction workflow fro
 
 # Paper Reconstruction
 
+This five-round workflow is intentionally persistent: round workspaces, checkpoints, reports, TeX/BibTeX snapshots, the framework PNG, and compilation evidence are core resumability artifacts rather than optional bookkeeping. Do not remove them under the lightweight delivery policy used by other YanShu Skills. The final user-facing response should still be concise and link the final paper and validation result instead of generating an additional summary document.
+
 YanShu coordinates local paper evidence, an isolated manuscript executor, versioned artifacts, compilation, deterministic validation, and recovery. Ask the user to choose Web ChatGPT or Current CLI; never infer that choice from the host environment. Both choices use the same five-round artifact and validation contract.
 
 Follow the user's conversation language. Prompt language is independently configured as Chinese or English.

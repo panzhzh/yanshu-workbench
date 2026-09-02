@@ -675,6 +675,11 @@ const REVIEW_MATERIAL_SCOPES = {
   ),
 };
 
+const REVIEW_TARGET_TYPES = {
+  conference: text("会议", "Conference"),
+  journal: text("期刊", "Journal"),
+};
+
 const EVIDENCE_POLICIES = {
   existing: text("仅使用现有证据", "Existing evidence only"),
   analysis: text("允许补充分析", "Allow additional analyses"),
@@ -699,7 +704,7 @@ export const PEER_REVIEW_WORKBENCH = {
         "希望额外检查的问题（可选）",
       ],
       inputHint:
-        "本页不区分会议或期刊，也不修改论文；如提供具体评审标准，可写入补充要求。",
+        "默认进行 venue-neutral 审稿；也可预设目标会议或期刊。当前任务不修改论文。",
       promptTitle: "论文审稿 Prompt",
       promptPurpose: "生成证据可追溯、轻重分明且能指导后续修改的独立审稿报告。",
     },
@@ -717,13 +722,55 @@ export const PEER_REVIEW_WORKBENCH = {
         "Any additional questions to inspect",
       ],
       inputHint:
-        "This page does not distinguish conferences from journals and never edits the manuscript. Add any specific review standard under additional requirements.",
+        "The default review is venue-neutral, but a target conference or journal may be preset. This task never edits the manuscript.",
       promptTitle: "Peer-review prompt",
       promptPurpose:
         "Produce an independent review whose evidence, severity, and recommendations remain traceable.",
     },
   }),
   controls: [
+    {
+      id: "useTarget",
+      kind: "toggle",
+      label: text("预设投稿目标", "Preset a target venue"),
+      description: text(
+        "关闭时保持独立通用审稿；开启后按目标 venue 的评审语境判断。",
+        "Keep the review venue-neutral when off, or evaluate in the target venue's review context when on.",
+      ),
+      defaultValue: false,
+      enabledLabel: text("使用目标", "Use target"),
+      disabledLabel: text("不预设目标", "No preset target"),
+      span: "full",
+    },
+    {
+      id: "targetType",
+      kind: "segmented",
+      label: text("目标类型", "Target type"),
+      description: text(
+        "会议使用目标评审尺度；期刊仍使用通用评分卡。",
+        "Conferences use the target review scale; journals retain the general scorecard.",
+      ),
+      defaultValue: "conference",
+      options: Object.entries(REVIEW_TARGET_TYPES).map(([value, label]) => ({
+        value,
+        label,
+      })),
+      visibleWhen: (values) => enabled(values, "useTarget"),
+      span: "full",
+    },
+    {
+      id: "targetVenue",
+      kind: "text",
+      label: text("目标会议或期刊", "Target conference or journal"),
+      description: text(
+        "建议填写完整名称和届次，以核验当前公开评审标准。",
+        "Use the full name and edition to verify the current public review criteria.",
+      ),
+      defaultValue: "",
+      placeholder: text("例如：NeurIPS 2027 / IEEE TPAMI", "For example: NeurIPS 2027 / IEEE TPAMI"),
+      visibleWhen: (values) => enabled(values, "useTarget"),
+      span: "full",
+    },
     {
       id: "mode",
       kind: "segmented",
@@ -769,6 +816,19 @@ export const PEER_REVIEW_WORKBENCH = {
       span: "full",
     },
     {
+      id: "ignoreNonScientificPresentation",
+      kind: "toggle",
+      label: text("忽略非科学呈现问题", "Ignore non-scientific presentation issues"),
+      description: text(
+        "忽略模板格式、版面、字体和图片美观；仍检查图表可读性、数据与证据。",
+        "Ignore template formatting, layout, typography, and visual aesthetics while still checking legibility, data, and evidence.",
+      ),
+      defaultValue: true,
+      enabledLabel: text("只关心科学与表达", "Science and exposition only"),
+      disabledLabel: text("同时关注呈现", "Also assess presentation"),
+      span: "full",
+    },
+    {
       id: "browseLiterature",
       kind: "toggle",
       label: text("联网核查相关文献", "Verify related literature online"),
@@ -785,8 +845,8 @@ export const PEER_REVIEW_WORKBENCH = {
       kind: "toggle",
       label: text("通用评分卡", "General scorecard"),
       description: text(
-        "使用跨 venue 的 1–5 分维度评分，不套用某个投稿系统的量表。",
-        "Use a venue-neutral 1–5 dimensional scorecard rather than a portal-specific scale.",
+        "默认使用跨 venue 的 1–5 分评分；预设会议时默认关闭并改用目标尺度，期刊保持开启。",
+        "Use a venue-neutral 1–5 scorecard by default. A preset conference uses its target scale instead; journals keep this enabled.",
       ),
       defaultValue: true,
       enabledLabel: text("输出评分卡", "Include scorecard"),
@@ -805,9 +865,24 @@ export const PEER_REVIEW_WORKBENCH = {
       span: "full",
     },
   ],
+  updateValues(current, id, value) {
+    const next = { ...current, [id]: value };
+    if (id === "useTarget") {
+      next.scorecard = value === true
+        ? scalar(current, "targetType") === "journal"
+        : true;
+    }
+    if (id === "targetType" && enabled(current, "useTarget")) {
+      next.scorecard = value === "journal";
+    }
+    return next;
+  },
   buildPrompt(values, language) {
     const mode = scalar(values, "mode");
     const materialScope = scalar(values, "materialScope");
+    const useTarget = enabled(values, "useTarget");
+    const targetType = scalar(values, "targetType") || "conference";
+    const targetVenue = scalar(values, "targetVenue");
     const dimensions = labelsFor(
       values,
       "dimensions",
@@ -817,13 +892,29 @@ export const PEER_REVIEW_WORKBENCH = {
     const custom =
       scalar(values, "custom") ||
       (language === "zh" ? "无" : "None");
+    const targetContext = useTarget
+      ? language === "zh"
+        ? `预设目标：${labelFor(targetType, REVIEW_TARGET_TYPES, language)}${targetVenue ? `，${targetVenue}` : "（未填写具体名称）"}。${targetVenue ? "联网核验该目标当前公开的 scope、评审维度、评分定义和决策语境，并记录官方来源与核验日期。" : "未提供具体 venue 时不得编造官方评分尺度，只能按该类型的一般评审语境判断。"}${targetType === "conference" ? "会议评分应使用核验后的目标评审维度与尺度，不用通用 1–5 分冒充该会议评分。" : "期刊目标用于判断 scope、文章类型、证据门槛和编辑风险，数值部分仍使用通用评分卡。"}`
+        : `Preset target: ${labelFor(targetType, REVIEW_TARGET_TYPES, language)}${targetVenue ? `, ${targetVenue}` : " (specific venue not supplied)"}. ${targetVenue ? "Browse and verify the target's current public scope, review criteria, score definitions, and decision context, recording official sources and access dates." : "Without a named venue, do not invent an official scale; use only the general context for that venue type."} ${targetType === "conference" ? "Use the verified target conference criteria and scale rather than presenting a general 1–5 score as the conference score." : "Use the journal target for scope, article type, evidence threshold, and editorial risk, while retaining the general scorecard for numerical assessment."}`
+      : language === "zh"
+        ? "未预设投稿目标：保持 venue-neutral，不套用任何具体投稿系统的评分尺度。"
+        : "No target is preset: remain venue-neutral and do not imitate a specific submission portal's scale.";
+    const presentationBoundary = enabled(values, "ignoreNonScientificPresentation")
+      ? language === "zh"
+        ? "本轮不评价模板格式、页边距、字体、排版细节、图片配色或美观度。仍必须检查图表是否可读、标注是否明确、数据是否正确，以及图表和 caption 能否支持正文 claim，因为这些属于科学证据。"
+        : "Do not assess template compliance, margins, typography, layout polish, image color styling, or aesthetics. Still assess figure/table legibility, labeling, data correctness, and whether visuals and captions support manuscript claims, because these are scientific evidence issues."
+      : language === "zh"
+        ? "可指出会实质影响审稿理解的模板、版面或图片呈现问题，但不要把本轮变成全面格式合规检查；官方格式终检属于独立任务。"
+        : "You may report template, layout, or visual-presentation problems that materially affect review, but do not turn this into a full format-compliance audit; official submission-format checking is a separate task.";
 
     if (language === "zh") {
       return `# 对论文进行独立同行评审
 
-你是一名严格、建设性且熟悉学术评审逻辑的独立审稿人。先从论文中判断研究领域、论文类型、核心问题、主要贡献与证据链，不预设其属于会议或期刊，也不套用某个投稿系统的评分尺度。
+你是一名严格、建设性且熟悉学术评审逻辑的独立审稿人。先从论文中判断研究领域、论文类型、核心问题、主要贡献与证据链。${targetContext}
 
 评审方式：${labelFor(mode, PEER_REVIEW_MODES, language)}；材料范围：${labelFor(materialScope, REVIEW_MATERIAL_SCOPES, language)}；评审维度：${dimensions}。只评价实际提供且能够读取的材料，缺失材料标为“无法核验”，不得反向猜测。
+
+${presentationBoundary}
 
 ${enabled(values, "browseLiterature") ? "联网核查文献定位、新颖性和关键引用。优先使用原始论文、官方出版页或可靠索引，给出链接与核查日期；区分已核验事实与审稿判断。" : "不联网扩展文献，只依据提供材料判断；涉及新颖性或文献完整性的结论须说明证据范围。"}
 
@@ -837,16 +928,18 @@ ${enabled(values, "browseLiterature") ? "联网核查文献定位、新颖性和
 3. 主要问题表（ID、严重性、位置、证据、影响、解决标准）；
 4. 次要问题与可直接修正项；
 5. 需要作者澄清的问题；
-${enabled(values, "scorecard") ? "6. 通用 1–5 分评分卡：问题价值、贡献清晰度、方法正确性、证据充分性、表达质量和可复现性，并给出评审置信度；\n7. 就绪度：可继续投稿 / 小幅修改 / 重大修改 / 存在基础性风险，以及最可能影响判断的 3 个问题。" : "6. 就绪度：可继续投稿 / 小幅修改 / 重大修改 / 存在基础性风险，以及最可能影响判断的 3 个问题。"}
+${useTarget && targetType === "conference" ? `${targetVenue ? "6. 按目标会议当前官方评审维度、评分定义与尺度逐项打分，给出总体 recommendation 和评审置信度；不得把通用 1–5 分替代为官方会议分数。" : "6. 未提供具体会议，不能生成伪官方分数；给出会议语境下的文字 recommendation 和评审置信度。"}${enabled(values, "scorecard") ? " 另附通用 1–5 分评分卡，并明确标为辅助评估而非目标会议官方分数。" : ""}\n7. 针对目标会议的就绪度，以及最可能影响判断的 3 个问题。` : enabled(values, "scorecard") ? "6. 通用 1–5 分评分卡：问题价值、贡献清晰度、方法正确性、证据充分性、表达质量和可复现性，并给出评审置信度；\n7. 就绪度：可继续投稿 / 小幅修改 / 重大修改 / 存在基础性风险，以及最可能影响判断的 3 个问题。" : "6. 就绪度：可继续投稿 / 小幅修改 / 重大修改 / 存在基础性风险，以及最可能影响判断的 3 个问题。"}
 
 补充要求：${custom}。当前任务只输出审稿报告，不修改论文，不撰写作者回复，也不替作者作出不存在证据支持的承诺。`;
     }
 
     return `# Conduct an Independent Peer Review
 
-Act as a rigorous, constructive independent reviewer familiar with scholarly evaluation. Infer the paper's field, contribution type, central problem, main claims, and evidence chain from the manuscript. Do not assume a conference or journal category and do not imitate a submission portal's rating scale.
+Act as a rigorous, constructive independent reviewer familiar with scholarly evaluation. Infer the paper's field, contribution type, central problem, main claims, and evidence chain from the manuscript. ${targetContext}
 
 Review mode: ${labelFor(mode, PEER_REVIEW_MODES, language)}; materials: ${labelFor(materialScope, REVIEW_MATERIAL_SCOPES, language)}; dimensions: ${dimensions}. Evaluate only supplied and readable materials. Mark missing evidence as “not verifiable” rather than inferring it.
+
+${presentationBoundary}
 
 ${enabled(values, "browseLiterature") ? "Browse to verify positioning, novelty, and important citations. Prefer original papers, official publication pages, and reliable indexes; provide links and access dates and distinguish verified facts from reviewer judgment." : "Use only supplied materials. State the evidence boundary for any judgment about novelty or literature coverage."}
 
@@ -860,7 +953,7 @@ Return:
 3. Major-concern table (ID, severity, location, evidence, impact, resolution threshold);
 4. Minor concerns and directly repairable issues;
 5. Questions requiring author clarification;
-${enabled(values, "scorecard") ? "6. Venue-neutral 1–5 scorecard for problem value, contribution clarity, methodological soundness, evidence adequacy, presentation, and reproducibility, plus review confidence;\n7. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment." : "6. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment."}
+${useTarget && targetType === "conference" ? `${targetVenue ? "6. Score each verified official target-conference review dimension using its current definitions and scale, then give an overall recommendation and review confidence; do not substitute a general 1–5 score for the official conference score." : "6. No specific conference is supplied, so do not fabricate official scores; give a conference-context narrative recommendation and review confidence."}${enabled(values, "scorecard") ? " Also append the general 1–5 scorecard, explicitly labeled as a supplemental assessment rather than an official target-conference score." : ""}\n7. Target-conference readiness and the three issues most likely to affect the decision.` : enabled(values, "scorecard") ? "6. Venue-neutral 1–5 scorecard for problem value, contribution clarity, methodological soundness, evidence adequacy, presentation, and reproducibility, plus review confidence;\n7. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment." : "6. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment."}
 
 Additional requirements: ${custom}. Produce only the review report. Do not edit the manuscript, draft an author response, or make unsupported commitments on the author's behalf.`;
   },
