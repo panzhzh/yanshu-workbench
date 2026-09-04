@@ -38,6 +38,9 @@ from the same configuration source used by the website.
 
 - `/` — overview
 - `/draft` — paper draft generation
+- `/writing/sections` — section-specific writing
+- `/writing/citations` — citation review and support
+- `/writing/polishing` — academic writing polishing
 - `/reconstruction` — paper reconstruction
 - `/reconstruction/refinement` — section-specific refinement
 - `/reconstruction/audit` — selectable specialized audits

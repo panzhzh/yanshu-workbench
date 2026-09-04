@@ -38,18 +38,18 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /第一次使用，只需三步/);
   assert.match(html, /安装 YanShu/);
   assert.match(html, /新建 Codex 任务/);
-  assert.match(html, /选择执行方式并开始/);
-  assert.match(html, /网页模式需已登录并授权/);
-  assert.match(html, /CLI 模式更便捷，但论文写作能力通常不如网页端/);
+  assert.match(html, /当前任务全链路完成/);
+  assert.match(html, /只确认真正的输入/);
+  assert.match(html, /不再打开配置页或额外聊天/);
   assert.match(html, /codex plugin marketplace add panzhzh\/yanshu-workbench/);
   assert.match(html, /codex plugin add yanshu-workbench@yanshu-workbench/);
   assert.match(html, /一句话启动/);
-  assert.match(html, /先选择由谁执行/);
-  assert.match(html, /一次配置后直接执行/);
+  assert.match(html, /在当前任务直接开始/);
+  assert.match(html, /Skill 在当前 Codex\/CLI 任务直接执行/);
   assert.match(html, /九个重要的全链路入口/);
   assert.match(html, /Idea Discovery/);
   assert.match(html, /Paper Drafting/);
-  assert.match(html, /Writing Diagnosis/);
+  assert.match(html, /Citation Audit/);
   assert.match(html, /Paper Reconstruction/);
   assert.match(html, /Scientific Figure/);
   assert.match(html, /Experimental Plotting/);
@@ -65,7 +65,7 @@ test("server-renders the concise YanShu home page", async () => {
     /使用 \$paper-reconstruction 重构这个论文目录/,
   );
   assert.match(html, /\$idea-discovery/);
-  assert.match(html, /\$writing-diagnosis/);
+  assert.match(html, /\$citation-audit/);
   assert.match(html, /\$scientific-figure/);
   assert.match(html, /\$experimental-plotting/);
   assert.match(html, /\$peer-review/);
@@ -82,7 +82,8 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /Idea 评估与优化/);
   assert.match(html, /全文初稿/);
   assert.match(html, /分章节写作/);
-  assert.match(html, /学术写作诊断/);
+  assert.match(html, /引文核查与补充/);
+  assert.match(html, /写作精修/);
   assert.match(html, /全文重构/);
   assert.match(html, /章节精修/);
   assert.match(html, /专项审计/);
@@ -98,7 +99,6 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /论文表格/);
   assert.match(html, /图表审计/);
   assert.match(html, /投稿定位/);
-  assert.match(html, /投稿前全文精修/);
   assert.match(html, /投稿前终检/);
   assert.match(html, /投稿材料/);
   assert.match(html, /审稿/);
@@ -112,7 +112,8 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/reconstruction"/);
   assert.match(html, /href="\/reconstruction\/refinement"/);
   assert.match(html, /href="\/writing\/sections"/);
-  assert.match(html, /href="\/writing\/diagnosis"/);
+  assert.match(html, /href="\/writing\/citations"/);
+  assert.match(html, /href="\/writing\/polishing"/);
   assert.match(html, /href="\/reconstruction\/conversion"/);
   assert.match(html, /href="\/experiments\/design"/);
   assert.match(html, /href="\/experiments\/baselines"/);
@@ -123,7 +124,6 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/figures\/tables"/);
   assert.match(html, /href="\/figures\/audit"/);
   assert.match(html, /href="\/submission\/check"/);
-  assert.match(html, /href="\/submission\/polishing"/);
   assert.match(html, /href="\/submission\/materials"/);
   assert.match(html, /href="\/submission\/review"/);
   assert.match(html, /href="\/submission\/revision"/);
@@ -135,12 +135,14 @@ test("server-renders the concise YanShu home page", async () => {
   assert.doesNotMatch(html, /class="home-directory-grid"/);
   assert.doesNotMatch(html, /class="prompt-resize-handle"/);
   assert.doesNotMatch(html, /写作风格|Writing style/);
+  assert.doesNotMatch(html, /\/writing\/diagnosis|\/submission\/polishing/);
 });
 
 test("server-renders every configured research workbench", async (context) => {
   const pages = [
     ["/writing/sections", "分章节写作"],
-    ["/writing/diagnosis", "学术写作诊断"],
+    ["/writing/citations", "引文核查与补充"],
+    ["/writing/polishing", "写作精修"],
     ["/reconstruction/conversion", "TeX 模板迁移"],
     ["/experiments/design", "实验方案设计"],
     ["/experiments/baselines", "Baseline 与复现"],
@@ -151,7 +153,6 @@ test("server-renders every configured research workbench", async (context) => {
     ["/figures/tables", "论文表格"],
     ["/figures/audit", "图表审计"],
     ["/submission/check", "投稿前终检"],
-    ["/submission/polishing", "投稿前全文精修"],
     ["/submission/materials", "投稿材料"],
     ["/submission/review", "审稿"],
     ["/submission/revision", "返修规划"],
@@ -221,10 +222,11 @@ test("audits journal revisions and conference rebuttals without re-reviewing", a
   assert.match(html, /而不是重新独立审稿/);
 });
 
-test("server-renders conservative final pre-submission polishing", async () => {
-  const response = await render("/submission/polishing");
+test("server-renders conservative writing polishing", async () => {
+  const response = await render("/writing/polishing");
   assert.equal(response.status, 200);
   const html = await response.text();
+  assert.match(html, /写作精修/);
   assert.match(html, /冗余与重复/);
   assert.match(html, /明显的 AI 写作痕迹/);
   assert.match(html, /过于防御性的写作/);
@@ -248,26 +250,22 @@ test("migrates TeX templates without changing manuscript content", async () => {
   assert.doesNotMatch(html, /会议论文 → 期刊扩展版|格式 \+ 叙事适配/);
 });
 
-test("server-renders the habit-focused academic-writing diagnosis workbench", async () => {
-  const response = await render("/writing/diagnosis");
+test("server-renders the evidence-grounded citation review workbench", async () => {
+  const response = await render("/writing/citations");
   assert.equal(response.status, 200);
   const html = await response.text();
 
   assert.doesNotMatch(html, removedPromptMetaDirective);
-  assert.match(html, /发现作者自己最难察觉的写作手法与长期习惯问题/);
-  assert.match(html, /主线与章节功能/);
-  assert.match(html, /引用覆盖与放置/);
-  assert.match(html, /图表 Caption 与 Note/);
-  assert.match(html, /结果段落与 Finding/);
-  assert.match(html, /公式与数学叙述/);
-  assert.match(html, /逐格复述图表、堆砌数字/);
-  assert.match(html, /不要用字数、句长或 caption 长度单独判错/);
-  assert.match(html, /Caption 建议长度/);
-  assert.match(html, /10–40 words/);
-  assert.match(html, /不评价 Idea 创新性、实验设计、数据自洽/);
-  assert.match(html, /只在当前回复中给出结构化诊断/);
-  assert.match(html, /不要另建 Markdown 报告/);
-  assert.match(html, /标记并保护原稿中的好表达/);
+  assert.match(html, /引文核查与补充/);
+  assert.match(html, /Introduction \+ Related Work/);
+  assert.match(html, /建议参考文献总量：35–40 篇/);
+  assert.match(html, /近 3 年文献占比目标高于 65%/);
+  assert.match(html, /默认不引用预印本/);
+  assert.match(html, /目标 venue（可选）/);
+  assert.match(html, /论文自己的方法、贡献、实验发现/);
+  assert.match(html, /外部事实、已有能力、历史发展/);
+  assert.match(html, /核对 \.bib 的标题、作者、年份、venue/);
+  assert.match(html, /完整、可合并且不冲突的 BibTeX/);
   assert.doesNotMatch(html, /research-paper-writing|nature-figure/);
 });
 
@@ -276,7 +274,8 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
     workbench,
     workbenchTypes,
     sectionWriting,
-    writingDiagnosis,
+    citationAudit,
+    writingPolishing,
     conversion,
     experiments,
     figureTools,
@@ -292,7 +291,11 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
       "utf8",
     ),
     readFile(
-      new URL("../app/writing/diagnosis/config.ts", import.meta.url),
+      new URL("../app/writing/citations/config.ts", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL("../app/writing/polishing/config.ts", import.meta.url),
       "utf8",
     ),
     readFile(
@@ -319,12 +322,17 @@ test("keeps the new workbenches adaptive, evidence-bound, and safe by default", 
   assert.match(sectionWriting, /不是从零改写/);
   assert.match(sectionWriting, /profile === "journal"/);
 
-  assert.match(writingDiagnosis, /DIAGNOSIS_DIMENSIONS/);
-  assert.match(writingDiagnosis, /old-to-new 信息流/);
-  assert.match(writingDiagnosis, /逐格复述图表/);
-  assert.match(writingDiagnosis, /Most equations|公式是否融入句子/);
-  assert.match(writingDiagnosis, /不在段末追加补丁句/);
-  assert.match(writingDiagnosis, /不评价 Idea 创新性/);
+  assert.match(citationAudit, /CITATION_AUDIT_WORKBENCH/);
+  assert.match(citationAudit, /referenceRange/);
+  assert.match(citationAudit, /recentShare/);
+  assert.match(citationAudit, /allowPreprints/);
+  assert.match(citationAudit, /targetVenueMinimum/);
+  assert.match(citationAudit, /外部事实、已有能力、历史发展/);
+  assert.match(citationAudit, /完整、可合并且不冲突的 BibTeX/);
+
+  assert.match(writingPolishing, /WRITING_POLISHING_WORKBENCH/);
+  assert.match(writingPolishing, /minimum necessary intervention/);
+  assert.match(writingPolishing, /不是初稿修改、大范围重构或科学内容复审/);
 
   assert.match(conversion, /title: "TeX 模板迁移"/);
   assert.match(conversion, /联网获取最新官方模板/);
@@ -417,7 +425,7 @@ test("server-renders the evidence-grounded idea-evaluation workbench", async () 
   assert.match(html, /优化自由度/);
   assert.match(html, /保留核心/);
   assert.match(html, /允许重构/);
-  assert.match(html, /允许转向/);
+  assert.doesNotMatch(html, /允许转向|Allow Pivot/);
   assert.match(html, /# 评估并优化一个计算机科学研究 Idea/);
   assert.match(html, /重点检索近 5 年/);
   assert.match(
@@ -426,7 +434,7 @@ test("server-renders the evidence-grounded idea-evaluation workbench", async () 
   );
   assert.match(html, /最近邻比较表/);
   assert.match(html, /禁止补丁式优化/);
-  assert.match(html, /Pursue、Refine、Pivot、Park 或 Stop/);
+  assert.match(html, /Pursue、Refine、Park 或 Stop/);
   assert.match(html, /&lt;topic_slug&gt;_idea_evaluation_zh\.md/);
   assert.match(html, /&lt;topic_slug&gt;_idea_evaluation_en\.md/);
   assert.match(html, /不得生成 `\.tex`、PDF、DOCX、BibTeX/);
@@ -451,13 +459,7 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /建议正文参考值/);
   assert.match(html, /默认不设篇幅建议/);
   assert.match(html, /默认状态。关闭后不显示章节建议/);
-  assert.match(html, /总体框架图/);
-  assert.match(html, /画布比例/);
-  assert.match(html, /Tol 鲜明色系/);
-  assert.match(html, /从 2–4 种强调色中选择最少够用数量/);
-  assert.match(html, /Calibri/);
-  assert.match(html, /可按需使用与论文对象直接对应的简化科学图形/);
-  assert.doesNotMatch(html, /论文占栏/);
+  assert.doesNotMatch(html, /总体框架图|画布比例|Tol 鲜明色系/);
   assert.match(html, /ChatGPT 执行/);
   assert.match(html, /最新可用推理模型/);
   assert.match(html, /结果检查间隔/);
@@ -478,17 +480,20 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /panzhzh\/yanshu-workbench/);
   assert.match(html, /yanshu-workbench@yanshu-workbench/);
   assert.match(html, /新建一个 Codex 任务/);
-  assert.match(html, /选择网页 ChatGPT 或当前 CLI/);
-  assert.match(html, /不要根据 SSH、WSL、DISPLAY/);
-  assert.match(html, /必须已登录 ChatGPT/);
-  assert.match(html, /论文写作能力通常不如网页端/);
-  assert.match(html, /从断点继续/);
+  assert.match(html, /默认在当前 Codex\/CLI 任务直接执行/);
+  assert.match(html, /不打开网页、本地配置页、JSON 文件或新的聊天/);
+  assert.match(html, /四个内部 Step/);
+  assert.match(html, /不生成中间轮次文件/);
   assert.match(html, /重新配置/);
-  assert.match(html, /复制全部/);
-  assert.equal((html.match(/>English<\/button>/g) ?? []).length, 5);
-  assert.match(html, /科学定位与结构重构/);
-  assert.match(html, /重构方法总览框架图/);
-  assert.doesNotMatch(html, /RECONSTRUCTION WORKFLOW|五步重构工作流/);
+  assert.match(html, /复制 Prompt/);
+  assert.equal((html.match(/>English<\/button>/g) ?? []).length, 1);
+  assert.match(html, /论文全文重构/);
+  assert.match(html, /Step 1 · 科学定位与宏观结构/);
+  assert.match(html, /Step 2 · 方法与实验深度重构/);
+  assert.match(html, /Step 3 · 前后叙事深度精修/);
+  assert.match(html, /Step 4 · 原稿质量回归门/);
+  assert.doesNotMatch(html, /重构方法总览框架图|模拟审稿人攻击测试/);
+  assert.doesNotMatch(html, /RECONSTRUCTION WORKFLOW|五步重构工作流|五轮/);
   assert.doesNotMatch(html, /class="workflow-context"|class="prompt-number"/);
   assert.doesNotMatch(html, /投稿目标检索与官网核验/);
   assert.match(html, /Scientific Positioning Contract/);
@@ -519,13 +524,14 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /## 融合式精修规则/);
   assert.match(html, /不做“原文 \+ 修补句”/);
   assert.match(html, /允许附录，但不能只为命中建议字数而转移内容/);
-  assert.match(html, /_round_1_artifacts\.zip/);
-  assert.match(html, /完整当前 BibTeX 文献库/);
-  assert.match(html, /_round_1_references\.bib/);
-  assert.doesNotMatch(html, /_round_1_bib_suggestions\.bib/);
+  assert.match(html, /与其一致的完整 BibTeX/);
+  assert.match(html, /&lt;base_name&gt;_restructured\.tex/);
+  assert.match(html, /&lt;base_name&gt;_restructured\.bib/);
+  assert.match(html, /&lt;base_name&gt;_restructuring_report_zh\.md/);
+  assert.doesNotMatch(html, /_round_[1-5]|artifacts\.zip|framework_reconstruction\.png/);
   assert.match(
     html,
-    /data-reconstruction-workflow-version="2026\.07\.30"/,
+    /data-reconstruction-workflow-version="2026\.09\.05"/,
   );
   assert.doesNotMatch(html, /## 可选正文与章节篇幅建议/);
   assert.doesNotMatch(html, /证据基线与初稿审计|Evidence Baseline/);
@@ -998,7 +1004,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(chatExecutionConfig, /forceProForAllTurns:\s*false/);
   assert.doesNotMatch(builder, /withPromptJudgmentDirective|promptAgency/);
-  assert.match(config, /每轮首次使用 Pro，后续使用 Extra High/);
+  assert.match(config, /首次有效对话使用 Pro，后续使用 Extra High/);
   assert.match(config, /强制所有对话使用 Pro/);
   assert.match(
     config,
@@ -1014,12 +1020,13 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(templates, /export const PROMPT_TEMPLATES/);
   assert.match(templates, /export const RECONSTRUCTION_PROMPTS/);
   assert.match(templates, /export const SUBMISSION_PROMPT_TEMPLATE/);
-  assert.equal((templates.match(/number:\s*[1-5],/g) ?? []).length, 6);
+  assert.equal((templates.match(/number:\s*[1-5],/g) ?? []).length, 5);
   assert.equal(
-    (templates.match(/sourceFile:\s*"Round_[1-5][^"]+\.md"/g) ?? [])
+    (templates.match(/sourceFile:\s*"Round_[1-3][^"]+\.md"/g) ?? [])
       .length,
-    5,
+    3,
   );
+  assert.match(templates, /sourceFile:\s*"Paper_Reconstruction\.md"/);
   assert.match(
     templates,
     /sourceFile:\s*"Submission_Strategy_and_Verification\.md"/,
@@ -1028,10 +1035,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.doesNotMatch(templates, /可选：其他附件/);
   assert.doesNotMatch(templates, /Optional: other attachments/);
   assert.doesNotMatch(templates, /<base_name>_round_2_framework\.png/);
-  assert.match(
-    templates,
-    /<base_name>_round_4_framework_reconstruction\.png/,
-  );
+  assert.doesNotMatch(templates, /framework_reconstruction|framework-figure/);
   assert.match(templates, /cohesiveRevision/);
   assert.match(templates, /不做“原文 \+ 修补句”/);
   assert.match(templates, /最小的完整论证单元/);
@@ -1041,18 +1045,20 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(builder, /labels\.cohesiveRevision/);
   assert.match(builder, /common\.cohesiveRevision\[language\]/);
-  assert.match(templates, /contentKind:\s*"framework-figure"/);
-  assert.match(templates, /showStyleDirective:\s*false/);
-  assert.match(templates, /showAppendixConfiguration:\s*false/);
-  assert.match(templates, /showLengthBudget:\s*false/);
+  assert.match(templates, /showDeliveryBundle:\s*false/);
   const originalPromptFiles = sourceFiles.filter(
     (file) =>
-      /^Round_[1-5].*\.md$/.test(file) ||
+      /^Round_[1-3].*\.md$/.test(file) ||
+      file === "Paper_Reconstruction.md" ||
       file === "Submission_Strategy_and_Verification.md",
   );
-  assert.equal(originalPromptFiles.length, 6);
+  assert.equal(originalPromptFiles.length, 5);
   assert.equal(
     sourceFiles.includes("Round_1_Manuscript_Evidence_Audit.md"),
+    false,
+  );
+  assert.equal(
+    sourceFiles.some((file) => /^Round_[45].*\.md$/.test(file)),
     false,
   );
   const originalPrompts = (
@@ -1109,7 +1115,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(originalPrompts, /四项必须依次覆盖，但不是四个强制标题/);
   assert.match(originalPrompts, /避免标准文档式层级/);
   assert.match(originalPrompts, /原稿高价值表达保留清单/);
-  assert.match(originalPrompts, /Quality Regression Table/);
+  assert.match(originalPrompts, /four internal steps|四个内部步骤/);
   assert.match(
     originalPrompts,
     /Question、Observation、Interpretation 等叙述功能/,
@@ -1122,31 +1128,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     originalPrompts,
     /<base_name>_round_2_framework\.png/,
   );
-  assert.match(
-    originalPrompts,
-    /COMMON_BASE[\s\S]*?FIGURE_TYPE_ADAPTERS\["method-overview"\][\s\S]*?COMPILED_VISUAL_CONFIGURATION[\s\S]*?OUTPUT_PROTOCOL/,
-  );
-  assert.match(originalPrompts, /ultra-wide `2:1`/);
-  assert.doesNotMatch(originalPrompts, /double-column|paper placement/);
-  assert.match(originalPrompts, /`2–4`[\s\S]*?accent range/);
-  assert.doesNotMatch(originalPrompts, /RGB\(/);
-  assert.match(originalPrompts, /Calibri prose labels/);
-  assert.match(originalPrompts, /pure-white canvas/);
-  assert.match(originalPrompts, /paper-specific scientific forms/);
-  assert.match(originalPrompts, /no large[\s\S]*?in-figure title/);
-  assert.match(
-    originalPrompts,
-    /<base_name>_round_4_framework_reconstruction\.png/,
-  );
-  assert.match(originalPrompts, /closely related[\s\S]*?top-venue figures/);
-  assert.match(
-    originalPrompts,
-    /defaults to direct ultra-high-resolution generation after sufficient/,
-  );
-  assert.doesNotMatch(
-    originalPrompts,
-    /two-step confirmation protocol/,
-  );
+  assert.doesNotMatch(originalPrompts, /framework_reconstruction|FIGURE_TYPE_ADAPTERS|COMPILED_VISUAL_CONFIGURATION/);
   assert.match(originalPrompts, /选择 3–5 个 discussion/);
   assert.match(originalPrompts, /不得引用 Experiments 中的表格或图片/);
   assert.doesNotMatch(originalPrompts, /第四个必须为 `Ablation Studies`/);
@@ -1163,17 +1145,15 @@ test("keeps presets and production prompts configuration-driven", async () => {
     originalPrompts,
     /直接在当前对话中输出完整中文检索结果/,
   );
-  const finalRefinementSource = await readFile(
+  const reconstructionSource = await readFile(
     new URL(
-      "../content/prompts/source/Round_5_Full_Manuscript_Refinement_and_Audit.md",
+      "../content/prompts/source/Paper_Reconstruction.md",
       import.meta.url,
     ),
     "utf8",
   );
-  assert.doesNotMatch(finalRefinementSource, /全文长度与章节预算/);
-  assert.doesNotMatch(finalRefinementSource, /附录|Appendix/);
-  assert.doesNotMatch(finalRefinementSource, /总词数|章节词数|句长统计/);
-  assert.doesNotMatch(finalRefinementSource, /4,850|5,000|5,150/);
+  assert.match(reconstructionSource, /four internal steps/);
+  assert.match(reconstructionSource, /no intermediate manuscripts or reconstructed figure/);
 
   assert.match(component, /allocateWords/);
   assert.match(component, /RECONSTRUCTION_PROMPTS/);
@@ -1224,7 +1204,9 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(navigationConfig, /href:\s*"\/ideas\/discovery"/);
   assert.match(navigationConfig, /href:\s*"\/ideas\/evaluation"/);
   assert.match(navigationConfig, /href:\s*"\/draft"/);
-  assert.match(navigationConfig, /href:\s*"\/writing\/diagnosis"/);
+  assert.match(navigationConfig, /href:\s*"\/writing\/citations"/);
+  assert.match(navigationConfig, /href:\s*"\/writing\/polishing"/);
+  assert.doesNotMatch(navigationConfig, /writing\/diagnosis|submission\/polishing/);
   assert.match(navigationConfig, /href:\s*"\/reconstruction"/);
   assert.match(
     navigationConfig,
@@ -1271,9 +1253,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(builder, /if \(!context\.hasWordLimit\) return ""/);
   assert.match(builder, /sectionBudgets/);
   assert.match(builder, /appendixDirective/);
-  assert.match(builder, /template\.showStyleDirective === false/);
-  assert.match(builder, /template\.showAppendixConfiguration === false/);
-  assert.match(builder, /template\.showLengthBudget !== false/);
+  assert.doesNotMatch(builder, /framework-figure|showStyleDirective|showAppendixConfiguration|showLengthBudget/);
   assert.match(builder, /submissionPreferences/);
   assert.match(builder, /context\.unlimitedCoreSections/);
   assert.match(builder, /activeWordLimitConstraints/);
@@ -1316,7 +1296,8 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.doesNotMatch(constraints, /marker:\s*"final_length_limits"/);
   assert.doesNotMatch(constraints, /启用字数限制时的完整定量约束/);
   assert.match(constraints, /Method 的固定结构约束/);
-  assert.match(constraints, /Claim–Evidence 终审/);
+  assert.match(constraints, /Step 4 专用规则 · 原稿质量回归门/);
+  assert.doesNotMatch(constraints, /"final-refinement"|模拟审稿人攻击测试/);
   assert.match(constraints, /100 分匹配评分/);
   assert.match(constraints, /恰好一句“论文类别判断”/);
   assert.match(constraints, /研究设计和证据成熟度与 venue 期望匹配/);
@@ -1392,15 +1373,9 @@ test("keeps presets and production prompts configuration-driven", async () => {
     submissionConfig,
     /excludedPublishers:\s*\[\.\.\.EXCLUDED_PUBLISHERS\]/,
   );
-  assert.match(
-    promptReadme,
-    /source\/.*five active rounds.*Round 4.*pointer/s,
-  );
-  assert.match(
-    promptReadme,
-    /four reconstruction cards and the separate submission-strategy/,
-  );
-  assert.match(promptReadme, /unlimitedCoreSections/);
+  assert.match(promptReadme, /four steps run inside one task/);
+  assert.match(promptReadme, /never create intermediate\s+manuscripts or a reconstructed figure/);
+  assert.match(promptReadme, /<base_name>_restructured\.tex/);
   assert.match(promptReadme, /estimated as 200 words/);
   assert.match(page, /<HomePage \/>/);
   assert.match(layout, /研术台 · YanShu/);
@@ -2002,11 +1977,12 @@ test("keeps section-writing caption guidance configurable and advisory", async (
     "utf8",
   );
 
-  assert.match(html, /Caption 建议长度/);
-  assert.match(html, /10–40 words/);
+  assert.doesNotMatch(html, /Caption 建议长度|10–40 words/);
   assert.match(config, /id:\s*"captionWordRange"/);
   assert.match(config, /buildCaptionLengthGuidance/);
   assert.match(config, /必要时允许超出/);
+  assert.match(config, /\["method", "experiments-results"\]\.includes\(section\)/);
+  assert.match(config, /visibleWhen:\s*\(values\)[\s\S]*?method[\s\S]*?experiments-results/);
 });
 
 test("keeps idea discovery and evaluation evidence-grounded and configuration-driven", async () => {
@@ -2070,7 +2046,8 @@ test("keeps idea discovery and evaluation evidence-grounded and configuration-dr
   assert.match(ideaConfig, /最快否证测试/);
   assert.match(ideaConfig, /最近邻比较表/);
   assert.match(ideaConfig, /禁止补丁式优化/);
-  assert.match(ideaConfig, /Pursue、Refine、Pivot、Park 或 Stop/);
+  assert.match(ideaConfig, /Pursue、Refine、Park 或 Stop/);
+  assert.doesNotMatch(ideaConfig, /允许转向|Allow Pivot|id:\s*"pivot"/);
   assert.match(ideaConfig, /<topic_slug>_idea_discovery_zh\.md/);
   assert.match(ideaConfig, /<topic_slug>_idea_discovery_en\.md/);
   assert.match(ideaConfig, /<topic_slug>_idea_evaluation_zh\.md/);

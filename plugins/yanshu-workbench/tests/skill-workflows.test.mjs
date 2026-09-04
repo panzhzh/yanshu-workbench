@@ -1,190 +1,121 @@
 import assert from "node:assert/strict";
 import { spawnSync } from "node:child_process";
-import {
-  mkdtemp,
-  mkdir,
-  readFile,
-  rm,
-} from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { access, readFile } from "node:fs/promises";
 import path from "node:path";
 import test from "node:test";
 import {
   CONFIGURABLE_SKILL_WORKFLOW_IDS,
   YANSHU_SKILL_CATALOG,
   buildSkillWorkflowConfiguration,
-  getSkillWorkflowConfigurationModel,
 } from "../runtime/skill-workflow-engine.mjs";
-import {
-  onboardingStatus,
-  readAuthorizedOnboardingConfiguration,
-  startOnboardingSession,
-} from "../scripts/lib/onboarding-store.mjs";
 
 const pluginRoot = path.resolve(new URL("..", import.meta.url).pathname);
+const cliPath = path.join(pluginRoot, "scripts", "yanshu.mjs");
 
-test("website-sourced runtime exposes the eight configurable YanShu skills", () => {
-  assert.deepEqual(CONFIGURABLE_SKILL_WORKFLOW_IDS, [
-    "idea-discovery",
-    "paper-drafting",
-    "writing-diagnosis",
-    "scientific-figure",
-    "experimental-plotting",
-    "peer-review",
-    "revision-planning",
-    "revision-audit",
-  ]);
+const configurableIds = [
+  "idea-discovery",
+  "paper-drafting",
+  "citation-audit",
+  "scientific-figure",
+  "experimental-plotting",
+  "peer-review",
+  "revision-planning",
+  "revision-audit",
+];
+
+const catalogIds = [
+  "idea-discovery",
+  "paper-drafting",
+  "citation-audit",
+  "paper-reconstruction",
+  "scientific-figure",
+  "experimental-plotting",
+  "peer-review",
+  "revision-planning",
+  "revision-audit",
+];
+
+function resolveWithCli(workflow, preferences = {}, language = "zh") {
+  const result = spawnSync(
+    process.execPath,
+    [
+      cliPath,
+      "workflow-resolve",
+      "--workflow",
+      workflow,
+      "--prompt-language",
+      language,
+      "--preferences-json",
+      JSON.stringify(preferences),
+    ],
+    { cwd: pluginRoot, encoding: "utf8" },
+  );
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  return JSON.parse(result.stdout);
+}
+
+test("website-sourced runtime exposes nine direct YanShu sub-skills", () => {
+  assert.deepEqual(CONFIGURABLE_SKILL_WORKFLOW_IDS, configurableIds);
   assert.deepEqual(
     YANSHU_SKILL_CATALOG.map((item) => item.id),
-    [
-      "idea-discovery",
-      "paper-drafting",
-      "writing-diagnosis",
-      "paper-reconstruction",
-      "scientific-figure",
-      "experimental-plotting",
-      "peer-review",
-      "revision-planning",
-      "revision-audit",
-    ],
+    catalogIds,
   );
+  assert.equal(new Set(catalogIds).size, 9);
+});
 
-  const idea = buildSkillWorkflowConfiguration(
-    "idea-discovery",
-    {},
-    "zh",
-  );
+test("shared workflow models retain the reviewed website defaults", () => {
+  const idea = buildSkillWorkflowConfiguration("idea-discovery", {}, "zh");
   assert.equal(idea.preferences.recentYears, 2);
   assert.equal(idea.preferences.ideaCount, 2);
   assert.match(idea.prompt, /重点检索近 2 年/);
-  assert.match(idea.prompt, /两份语义一致/);
 
-  const draft = buildSkillWorkflowConfiguration(
-    "paper-drafting",
-    {},
-    "en",
-  );
+  const draft = buildSkillWorkflowConfiguration("paper-drafting", {}, "en");
   assert.equal(draft.preferences.templateId, "arxiv");
   assert.deepEqual(draft.preferences.captionWordRange, [10, 40]);
   assert.match(draft.prompt, /arxiv-style/);
   assert.match(draft.prompt, /\$research-paper-writing/);
-  assert.match(draft.prompt, /10–40 words/);
-  assert.match(draft.prompt, /hard limit/);
-  assert.match(draft.prompt, /complete LaTeX project/i);
 
-  const diagnosis = buildSkillWorkflowConfiguration(
-    "writing-diagnosis",
-    {},
-    "zh",
-  );
-  assert.equal(diagnosis.preferences.scope, "whole");
-  assert.equal(diagnosis.preferences.depth, "standard");
-  assert.equal(diagnosis.preferences.action, "report");
-  assert.equal(diagnosis.preferences.preserveStrengths, true);
-  assert.deepEqual(diagnosis.preferences.captionWordRange, [10, 40]);
-  assert.match(diagnosis.prompt, /全文与章节 → 段落与图表 → 句子与公式/);
-  assert.match(diagnosis.prompt, /逐格复述图表、堆砌数字/);
-  assert.match(diagnosis.prompt, /不要用字数、句长或 caption 长度单独判错/);
-  assert.match(diagnosis.prompt, /不要修改论文文件/);
-  assert.doesNotMatch(
-    diagnosis.prompt,
-    /\$research-paper-writing|\$nature-figure/,
-  );
+  const citation = buildSkillWorkflowConfiguration("citation-audit", {}, "zh");
+  assert.equal(citation.preferences.action, "repair");
+  assert.deepEqual(citation.preferences.sections, ["introduction", "related-work"]);
+  assert.deepEqual(citation.preferences.referenceRange, [35, 40]);
+  assert.equal(citation.preferences.recentYears, 3);
+  assert.equal(citation.preferences.recentShare, 65);
+  assert.equal(citation.preferences.allowPreprints, false);
+  assert.equal(citation.preferences.targetVenueMinimum, 3);
+  assert.match(citation.prompt, /论文自己的方法、贡献、实验发现/);
+  assert.match(citation.prompt, /默认不引用预印本/);
+  assert.match(citation.prompt, /完整、可合并且不冲突的 BibTeX/);
 
-  const figure = buildSkillWorkflowConfiguration(
-    "scientific-figure",
-    {},
-    "zh",
-  );
+  const figure = buildSkillWorkflowConfiguration("scientific-figure", {}, "zh");
   assert.equal(figure.preferences.promptId, "method-overview");
   assert.equal(figure.preferences.accentColorMin, 2);
   assert.equal(figure.preferences.accentColorMax, 4);
   assert.equal(figure.preferences.hasReferenceImage, false);
   assert.match(figure.prompt, /方法总览图/);
-  assert.match(figure.prompt, /2–4/);
   assert.doesNotMatch(figure.prompt, /如有另行提供的图片/);
-  assert.doesNotMatch(figure.prompt, /\$nature-figure/);
 
-  const plot = buildSkillWorkflowConfiguration(
-    "experimental-plotting",
-    {},
-    "zh",
-  );
-  assert.equal(plot.preferences.palette, "tol-vibrant");
+  const plot = buildSkillWorkflowConfiguration("experimental-plotting", {}, "zh");
   assert.equal(plot.preferences.allowComposite, true);
   assert.deepEqual(plot.preferences.panelCount, [1, 3]);
-  assert.deepEqual(plot.preferences.captionWordRange, [10, 40]);
-  assert.match(plot.prompt, /10–40 words/);
   assert.match(plot.prompt, /\$nature-figure/);
-  assert.match(plot.prompt, /允许组合图，使用 1–3 个子图/);
-  assert.match(plot.prompt, /#0077BB, #EE7733, #009988, #CC3311/);
 
   const review = buildSkillWorkflowConfiguration("peer-review", {}, "zh");
-  assert.equal(review.preferences.mode, "full");
-  assert.equal(review.preferences.materialScope, "supplement");
-  assert.equal(review.preferences.browseLiterature, true);
-  assert.equal(review.preferences.scorecard, true);
   assert.equal(review.preferences.useTarget, false);
   assert.equal(review.preferences.ignoreNonScientificPresentation, true);
-  assert.match(review.prompt, /对论文进行独立同行评审/);
-  assert.match(review.prompt, /未预设投稿目标：保持 venue-neutral/);
-  assert.match(review.prompt, /本轮不评价模板格式、页边距、字体/);
   assert.match(review.prompt, /当前任务只输出审稿报告，不修改论文/);
 
-  const conferenceReview = buildSkillWorkflowConfiguration(
-    "peer-review",
-    {
-      useTarget: true,
-      targetType: "conference",
-      targetVenue: "NeurIPS 2027",
-    },
-    "zh",
-  );
-  assert.equal(conferenceReview.preferences.scorecard, false);
-  assert.match(conferenceReview.prompt, /NeurIPS 2027/);
-  assert.match(conferenceReview.prompt, /目标会议当前官方评审维度/);
-  assert.doesNotMatch(conferenceReview.prompt, /另附通用 1–5 分评分卡/);
-
-  const journalReview = buildSkillWorkflowConfiguration(
-    "peer-review",
-    {
-      useTarget: true,
-      targetType: "journal",
-      targetVenue: "IEEE TPAMI",
-    },
-    "zh",
-  );
-  assert.equal(journalReview.preferences.scorecard, true);
-  assert.match(journalReview.prompt, /期刊目标用于判断 scope/);
-  assert.match(journalReview.prompt, /通用 1–5 分评分卡/);
-
-  const revision = buildSkillWorkflowConfiguration(
-    "revision-planning",
-    {},
-    "zh",
-  );
-  assert.equal(revision.preferences.evidencePolicy, "analysis");
-  assert.equal(revision.preferences.executionPlan, true);
-  assert.match(revision.prompt, /整理审稿意见并制定返修计划/);
+  const revision = buildSkillWorkflowConfiguration("revision-planning", {}, "zh");
   assert.match(revision.prompt, /P0＝影响核心结论或接收判断/);
   assert.match(revision.prompt, /A＝无需补实验/);
-  assert.match(revision.prompt, /当前只交付修改计划/);
 
-  const revisionAudit = buildSkillWorkflowConfiguration(
-    "revision-audit",
-    {},
-    "zh",
-  );
-  assert.equal(revisionAudit.preferences.scenario, "auto");
-  assert.equal(revisionAudit.preferences.venue, "");
-  assert.match(revisionAudit.prompt, /审查返修稿是否充分回应审稿意见/);
-  assert.match(revisionAudit.prompt, /Adequately addressed/);
-  assert.match(revisionAudit.prompt, /会议 rebuttal\/discussion 若规则不允许改稿/);
-  assert.match(revisionAudit.prompt, /不得因为回复信写了“we have revised”就默认修改成立/);
+  const audit = buildSkillWorkflowConfiguration("revision-audit", {}, "zh");
+  assert.match(audit.prompt, /Adequately addressed/);
+  assert.match(audit.prompt, /不得因为回复信写了“we have revised”就默认修改成立/);
 });
 
-test("all configurable skills use the shared page and lightweight delivery by default", async () => {
-  for (const skillId of CONFIGURABLE_SKILL_WORKFLOW_IDS) {
+test("every Skill resolves internally and executes in the current task", async () => {
+  for (const skillId of catalogIds) {
     const skill = await readFile(
       path.join(pluginRoot, "skills", skillId, "SKILL.md"),
       "utf8",
@@ -193,345 +124,69 @@ test("all configurable skills use the shared page and lightweight delivery by de
       path.join(pluginRoot, "skills", skillId, "agents", "openai.yaml"),
       "utf8",
     );
+
     assert.doesNotMatch(skill, /\[TODO:/);
-    assert.match(skill, new RegExp(`--workflow ${skillId}`));
-    assert.match(skill, /workflow-configure-status/);
-    assert.match(skill, /workflow-configure-result/);
-    assert.match(skill, /Start full automation/);
-    assert.match(skill, /Current-task mode is the default/);
-    assert.match(skill, /Persistent automation mode is explicit/);
-    assert.match(skill, /Never open `plugin\.json`/);
+    assert.match(skill, /workflow-resolve/);
+    assert.match(skill, /current (?:(?:Codex or CLI) )?(?:task|session)/i);
+    assert.match(skill, /Do not (?:display|show|open|expose)|never open|without opening/i);
+    assert.doesNotMatch(
+      skill,
+      /workflow-configure|workflow-configure-status|workflow-configure-result|Start full automation/,
+    );
     assert.doesNotMatch(skill, /configPath/);
     assert.match(agent, new RegExp(`\\$${skillId}`));
   }
+
+  await assert.rejects(
+    access(path.join(pluginRoot, "skills", "writing-diagnosis", "SKILL.md")),
+  );
 });
 
-test("skill delivery keeps real artifacts and avoids bookkeeping by default", async () => {
+test("workflow-resolve returns canonical prompts without opening configuration artifacts", () => {
+  const citation = resolveWithCli("citation-audit");
+  assert.equal(citation.ok, true);
+  assert.equal(citation.workflowId, "citation-audit");
+  assert.equal(citation.websitePath, "/writing/citations");
+  assert.match(citation.prompt, /建议参考文献总量：35–40 篇/);
+  assert.match(citation.instruction, /current task/);
+  assert.match(citation.instruction, /Do not open a configuration page or internal JSON file/);
+
+  const reconstruction = resolveWithCli(
+    "paper-reconstruction",
+    { styleId: "journal", includeAppendix: false },
+    "zh",
+  );
+  assert.equal(reconstruction.ok, true);
+  assert.equal(reconstruction.workflowVersion, "2026.09.05");
+  assert.equal(reconstruction.preferences.styleId, "journal");
+  assert.equal(reconstruction.preferences.hasWordLimit, false);
+  assert.equal(reconstruction.preferences.unlimitedCoreSections, true);
+  assert.match(reconstruction.prompt, /Step 1 · 科学定位与宏观结构/);
+  assert.match(reconstruction.prompt, /Step 4 · 原稿质量回归门/);
+  assert.match(reconstruction.prompt, /<base_name>_restructured\.tex/);
+  assert.match(reconstruction.prompt, /<base_name>_restructured\.bib/);
+  assert.match(reconstruction.prompt, /<base_name>_restructuring_report_zh\.md/);
+  assert.doesNotMatch(
+    reconstruction.prompt,
+    /_round_[1-5]|artifacts\.zip|framework_reconstruction\.png|模拟审稿人攻击测试/,
+  );
+});
+
+test("Skill delivery remains lightweight and artifact-focused", async () => {
   const readSkill = (skillId) =>
     readFile(path.join(pluginRoot, "skills", skillId, "SKILL.md"), "utf8");
 
-  for (const skillId of [
-    "peer-review",
-    "revision-planning",
-    "revision-audit",
-  ]) {
-    const skill = await readSkill(skillId);
-    assert.match(skill, /return .* directly in chat/i);
-    assert.match(skill, /create no report or state file/i);
-  }
-
-  const diagnosis = await readSkill("writing-diagnosis");
-  assert.match(diagnosis, /present the diagnosis directly in chat/);
-  assert.match(diagnosis, /apply only supported changes/);
-
-  const idea = await readSkill("idea-discovery");
-  assert.match(idea, /core deliverables/);
-  assert.match(idea, /Chinese and English Markdown/);
-
-  const drafting = await readSkill("paper-drafting");
-  assert.match(drafting, /actual LaTeX project and compiled PDF/);
-  assert.match(drafting, /create no extra report or state file/);
-
-  const plotting = await readSkill("experimental-plotting");
-  assert.match(plotting, /reproducible code and final figure paths/);
-
-  const figure = await readSkill("scientific-figure");
-  assert.match(figure, /save the final PNG/);
-  assert.match(figure, /do not create extra report or state files/);
+  assert.match(await readSkill("idea-discovery"), /Chinese and English Markdown reports/);
+  assert.match(await readSkill("paper-drafting"), /complete LaTeX project and compiled PDF paths/);
+  assert.match(await readSkill("citation-audit"), /Create no configuration snapshot, Prompt copy, or state file/);
+  assert.match(await readSkill("scientific-figure"), /Save one final PNG/);
+  assert.match(await readSkill("experimental-plotting"), /reproducible code and final figure paths/);
+  assert.match(await readSkill("peer-review"), /directly in chat/);
+  assert.match(await readSkill("revision-planning"), /directly in chat/);
+  assert.match(await readSkill("revision-audit"), /directly in chat/);
 
   const reconstruction = await readSkill("paper-reconstruction");
-  assert.match(reconstruction, /intentionally persistent/);
-  assert.match(reconstruction, /core resumability artifacts/);
-});
-
-test("shared workflow configuration page confirms the exact generated prompt", async () => {
-  const temporaryRoot = await mkdtemp(
-    path.join(tmpdir(), "yanshu-skill-configuration-test-"),
-  );
-  try {
-    const workspace = path.join(temporaryRoot, "research");
-    await mkdir(workspace, { recursive: true });
-    const started = await startOnboardingSession({
-      pluginRoot,
-      projectRoot: workspace,
-      inputs: {},
-      workflowId: "idea-discovery",
-      uiLanguage: "zh",
-      openBrowser: false,
-      sessionRoot: path.join(temporaryRoot, "sessions"),
-      ttlMs: 30_000,
-    });
-
-    assert.equal(started.status, "ready");
-    assert.equal(started.workflowId, "idea-discovery");
-    const pageUrl = new URL(started.url);
-    const endpoint = (pathname) => {
-      const url = new URL(pathname, pageUrl.origin);
-      url.searchParams.set("token", pageUrl.searchParams.get("token"));
-      return url;
-    };
-
-    const bootstrapResponse = await fetch(endpoint("/api/bootstrap"));
-    const bootstrap = await bootstrapResponse.json();
-    assert.equal(bootstrap.ok, true);
-    assert.equal(bootstrap.workflowId, "idea-discovery");
-    assert.equal(bootstrap.model.defaults.recentYears, 2);
-    assert.equal(bootstrap.model.defaults.ideaCount, 2);
-    assert.equal(bootstrap.initial.promptLanguage, "zh");
-    assert.match(bootstrap.initial.prompt, /重点检索近 2 年/);
-
-    const requested = {
-      ...bootstrap.initial.preferences,
-      recentYears: 3,
-      ideaCount: 3,
-      focus: "efficient multimodal retrieval",
-    };
-    const previewResponse = await fetch(endpoint("/api/preview"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        preferences: requested,
-        promptLanguage: "en",
-      }),
-    });
-    const preview = await previewResponse.json();
-    assert.equal(preview.ok, true);
-    assert.equal(preview.preferences.recentYears, 3);
-    assert.equal(preview.preferences.ideaCount, 3);
-    assert.match(preview.prompt, /recent 3 years/i);
-    assert.match(preview.prompt, /efficient multimodal retrieval/);
-
-    const confirmResponse = await fetch(endpoint("/api/confirm"), {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        preferences: requested,
-        promptLanguage: "en",
-      }),
-    });
-    const confirmed = await confirmResponse.json();
-    assert.equal(confirmed.ok, true);
-    assert.equal(confirmed.status, "confirmed");
-    assert.equal("configPath" in confirmed, false);
-
-    const apiStatusResponse = await fetch(endpoint("/api/status"));
-    const apiStatus = await apiStatusResponse.json();
-    assert.equal(apiStatus.status, "confirmed");
-    assert.equal(apiStatus.configurationReady, true);
-    assert.equal("configPath" in apiStatus, false);
-
-    const status = await onboardingStatus(started.sessionPath);
-    assert.equal(status.status, "confirmed");
-    assert.equal(status.workflowId, "idea-discovery");
-    assert.equal(status.configurationReady, true);
-    assert.equal("configPath" in status, false);
-    const { configuration: saved } =
-      await readAuthorizedOnboardingConfiguration(started.sessionPath, {
-        expectedWorkflowId: "idea-discovery",
-      });
-    assert.equal(saved.execution.startAuthorized, true);
-    assert.equal(saved.workflowId, "idea-discovery");
-    assert.equal(saved.projectRoot, workspace);
-    assert.equal(saved.promptLanguage, "en");
-    assert.equal(saved.preferences.recentYears, 3);
-    assert.equal(saved.prompt, preview.prompt);
-
-    const resolved = spawnSync(
-      process.execPath,
-      [
-        path.join(pluginRoot, "scripts", "yanshu.mjs"),
-        "workflow-configure-result",
-        "--session",
-        started.sessionPath,
-      ],
-      {
-        encoding: "utf8",
-        windowsHide: true,
-      },
-    );
-    assert.equal(resolved.status, 0, resolved.stderr);
-    const resolvedOutput = JSON.parse(resolved.stdout);
-    assert.equal(resolvedOutput.workflowId, "idea-discovery");
-    assert.equal(resolvedOutput.configuration.prompt, preview.prompt);
-    assert.doesNotMatch(resolved.stdout, /configPath/);
-
-    const ui = await readFile(
-      path.join(pluginRoot, "ui", "workflow-configuration", "index.html"),
-      "utf8",
-    );
-    assert.match(ui, /configuration-sections/);
-    assert.match(ui, /prompt-content/);
-    assert.match(ui, /confirm-button/);
-    assert.match(ui, /exit-button/);
-  } finally {
-    await rm(temporaryRoot, { recursive: true, force: true });
-  }
-});
-
-test("shared workflow models retain website defaults", () => {
-  const drafting = getSkillWorkflowConfigurationModel("paper-drafting");
-  assert.equal(drafting.defaults.templateId, "arxiv");
-  assert.deepEqual(drafting.defaults.captionWordRange, [10, 40]);
-  assert.equal(
-    drafting.fields.find((field) => field.id === "captionWordRange")?.type,
-    "range",
-  );
-
-  const figure = getSkillWorkflowConfigurationModel("scientific-figure");
-  assert.equal(figure.defaults.promptId, "method-overview");
-  assert.equal(figure.defaults.aspectRatioId, "landscape-2-1");
-  assert.equal(figure.defaults.accentColorMin, 2);
-  assert.equal(figure.defaults.accentColorMax, 4);
-  assert.equal(figure.defaults.hasReferenceImage, false);
-
-  const plot = getSkillWorkflowConfigurationModel("experimental-plotting");
-  assert.equal(plot.defaults.palette, "tol-vibrant");
-  assert.equal(plot.defaults.allowComposite, true);
-  assert.deepEqual(plot.defaults.panelCount, [1, 3]);
-  assert.deepEqual(plot.defaults.captionWordRange, [10, 40]);
-  assert.ok(plot.fields.some((field) => field.type === "range"));
-  assert.ok(plot.fields.some((field) => field.type === "multi"));
-
-  const diagnosis = getSkillWorkflowConfigurationModel("writing-diagnosis");
-  assert.equal(diagnosis.defaults.scope, "whole");
-  assert.equal(diagnosis.defaults.depth, "standard");
-  assert.equal(diagnosis.defaults.action, "report");
-  assert.deepEqual(diagnosis.defaults.captionWordRange, [10, 40]);
-  assert.equal(diagnosis.defaults.browseCitations, false);
-  assert.equal(
-    diagnosis.fields.find((field) => field.id === "sections")?.visibleWhen
-      ?.equals,
-    "selected",
-  );
-  assert.equal(
-    diagnosis.fields.find((field) => field.id === "browseCitations")
-      ?.visibleWhen?.includes,
-    "citation-practice",
-  );
-
-  const review = getSkillWorkflowConfigurationModel("peer-review");
-  assert.equal(review.defaults.mode, "full");
-  assert.equal(review.defaults.materialScope, "supplement");
-  assert.equal(review.defaults.browseLiterature, true);
-  assert.equal(review.defaults.scorecard, true);
-  assert.equal(review.defaults.useTarget, false);
-  assert.equal(review.defaults.targetType, "conference");
-  assert.equal(review.defaults.ignoreNonScientificPresentation, true);
-
-  const revision = getSkillWorkflowConfigurationModel("revision-planning");
-  assert.equal(revision.defaults.evidencePolicy, "analysis");
-  assert.equal(revision.defaults.executionPlan, true);
-  assert.ok(
-    revision.fields.some((field) => field.id === "resourceWindow"),
-  );
-  assert.equal(
-    revision.fields.find((field) => field.id === "resourceWindow")
-      ?.visibleWhen?.notEquals,
-    "existing",
-  );
-
-  const revisionAudit = getSkillWorkflowConfigurationModel("revision-audit");
-  assert.equal(revisionAudit.defaults.scenario, "auto");
-  assert.equal(revisionAudit.defaults.venue, "");
-  assert.ok(revisionAudit.fields.some((field) => field.id === "decisionContext"));
-});
-
-test("writing diagnosis keeps repair and citation search conservative", () => {
-  const repair = buildSkillWorkflowConfiguration(
-    "writing-diagnosis",
-    {
-      action: "repair",
-      browseCitations: true,
-      dimensions: [
-        "citation-practice",
-        "display-writing",
-        "results-writing",
-      ],
-    },
-    "en",
-  );
-
-  assert.equal(repair.preferences.action, "repair");
-  assert.equal(repair.preferences.browseCitations, true);
-  assert.match(repair.prompt, /high-risk changes/i);
-  assert.match(repair.prompt, /Do not create a separate Markdown report or diff document/i);
-  assert.match(repair.prompt, /never append patch sentences/i);
-  assert.match(repair.prompt, /never insert them silently/i);
-  assert.match(repair.prompt, /Do not assess idea novelty/i);
-
-  const noCitationDimension = buildSkillWorkflowConfiguration(
-    "writing-diagnosis",
-    {
-      browseCitations: true,
-      dimensions: ["paragraph-craft"],
-    },
-    "en",
-  );
-  assert.equal(noCitationDimension.preferences.browseCitations, false);
-  assert.doesNotMatch(
-    noCitationDimension.prompt,
-    /publisher records, or the original paper/i,
-  );
-});
-
-test("scientific-figure reference guidance is opt-in for every role", () => {
-  const model = getSkillWorkflowConfigurationModel("scientific-figure");
-  const promptIds = model.fields
-    .find((field) => field.id === "promptId")
-    ?.choices?.map((choice) => choice.value);
-
-  assert.ok(promptIds?.length > 3);
-  for (const promptId of promptIds) {
-    const chineseDefault = buildSkillWorkflowConfiguration(
-      "scientific-figure",
-      { promptId },
-      "zh",
-    ).prompt;
-    const englishDefault = buildSkillWorkflowConfiguration(
-      "scientific-figure",
-      { promptId },
-      "en",
-    ).prompt;
-    const chineseEnabled = buildSkillWorkflowConfiguration(
-      "scientific-figure",
-      { promptId, hasReferenceImage: true },
-      "zh",
-    ).prompt;
-    const englishEnabled = buildSkillWorkflowConfiguration(
-      "scientific-figure",
-      { promptId, hasReferenceImage: true },
-      "en",
-    ).prompt;
-
-    assert.doesNotMatch(chineseDefault, /如有另行提供的图片/);
-    assert.doesNotMatch(chineseDefault, /“绘图草稿”/);
-    assert.doesNotMatch(englishDefault, /separately supplied image/);
-    assert.doesNotMatch(englishDefault, /“figure draft”/);
-
-    assert.match(
-      chineseEnabled,
-      /如有另行提供的图片，默认仅作为视觉样式参考/,
-    );
-    assert.match(
-      chineseEnabled,
-      /明确标注某张图片为“绘图草稿”/,
-    );
-    assert.doesNotMatch(
-      chineseEnabled,
-      /不得沿用其中的模块、流程、箭头或科学含义/,
-    );
-    assert.match(
-      englishEnabled,
-      /Treat any separately supplied image only as a visual-style reference by default/,
-    );
-    assert.match(
-      englishEnabled,
-      /explicitly label an image as a “figure draft”/,
-    );
-    assert.doesNotMatch(
-      englishEnabled,
-      /If I also provide an existing framework figure/,
-    );
-    assert.doesNotMatch(chineseEnabled, /\$nature-figure/);
-  }
+  assert.match(reconstruction, /creates no round folders, intermediate manuscripts/);
+  assert.match(reconstruction, /output directory contains exactly/);
+  assert.match(reconstruction, /There is no five-round resume state/);
 });

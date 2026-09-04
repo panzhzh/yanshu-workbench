@@ -9,13 +9,6 @@ import {
 } from "./config";
 import SiteNavigation from "./SiteNavigation";
 import PromptResizeHandle from "./PromptResizeHandle";
-import {
-  FIGURE_ASPECT_RATIO_IDS,
-  FIGURE_ASPECT_RATIOS,
-  RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
-  getFigureAspectRatio,
-  type FrameworkFigureLayoutPreferences,
-} from "./figures/config";
 import { buildPrompt } from "../content/prompts/buildPrompt";
 import type { CaptionWordRange } from "../content/prompts/captionLength";
 import { RECONSTRUCTION_WORKFLOW_VERSION } from "../content/prompts/version";
@@ -144,15 +137,6 @@ export default function YanshuWorkbench() {
     useState<CaptionWordRange>(
       PRODUCT_CONFIG.captionLength.defaultRange,
     );
-  const [frameworkFigure, setFrameworkFigure] =
-    useState<FrameworkFigureLayoutPreferences>(() => ({
-      aspectRatioId:
-        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
-      customAspectWidth:
-        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
-      customAspectHeight:
-        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
-    }));
   const [chatExecution, setChatExecution] =
     useState<ChatExecutionPreferences>(() => ({
       ...PRODUCT_CONFIG.chatExecution.default,
@@ -193,10 +177,6 @@ export default function YanshuWorkbench() {
     unlimitedCoreSections ? 1 : targetWords,
     1,
   );
-  const frameworkAspectRatio = getFigureAspectRatio({
-    ...RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
-    ...frameworkFigure,
-  });
   const chatReasoningPreference =
     PRODUCT_CONFIG.chatExecution.reasoningPreferences[
       chatExecution.reasoningPreference
@@ -249,7 +229,6 @@ export default function YanshuWorkbench() {
               ? style.appendixRule.enabled[language]
               : style.appendixRule.disabled[language],
             captionWordRange,
-            frameworkFigure,
           }),
         };
       }),
@@ -264,7 +243,6 @@ export default function YanshuWorkbench() {
       captionWordRange,
       sectionWords,
       style,
-      frameworkFigure,
     ],
   );
 
@@ -419,14 +397,6 @@ export default function YanshuWorkbench() {
     );
     setIncludeAppendix(nextStyle.defaultAppendix);
     setCaptionWordRange(PRODUCT_CONFIG.captionLength.defaultRange);
-    setFrameworkFigure({
-      aspectRatioId:
-        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
-      customAspectWidth:
-        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
-      customAspectHeight:
-        RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
-    });
     setChatExecution({ ...PRODUCT_CONFIG.chatExecution.default });
     setSectionWords(
       allocateWords(nextStyle.defaultTargetWords, nextStyle.sections),
@@ -456,7 +426,6 @@ export default function YanshuWorkbench() {
           sectionBudgets: sectionWords,
           includeAppendix,
           captionWordRange,
-          frameworkFigure,
           chatExecution,
         },
       };
@@ -747,85 +716,9 @@ export default function YanshuWorkbench() {
               <small>{copy.captionLengthHint}</small>
             </fieldset>
 
-            <fieldset className="config-control framework-figure-control">
-              <legend className="control-label-row">
-                <span className="control-index">06</span>
-                <span>{copy.frameworkFigure}</span>
-              </legend>
-              <div className="framework-figure-row">
-                <label className="framework-figure-field">
-                  <span>{copy.frameworkRatio}</span>
-                  <select
-                    value={frameworkFigure.aspectRatioId}
-                    onChange={(event) => {
-                      setFrameworkFigure((current) => ({
-                        ...current,
-                        aspectRatioId:
-                          event.target
-                            .value as FrameworkFigureLayoutPreferences["aspectRatioId"],
-                      }));
-                      setCopied(null);
-                    }}
-                  >
-                    {FIGURE_ASPECT_RATIO_IDS.map((aspectRatioId) => (
-                      <option value={aspectRatioId} key={aspectRatioId}>
-                        {FIGURE_ASPECT_RATIOS[aspectRatioId].label[uiLanguage]}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                {frameworkFigure.aspectRatioId === "custom" && (
-                  <div className="framework-custom-ratio">
-                    <label>
-                      <span>{copy.frameworkCustomWidth}</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={frameworkFigure.customAspectWidth}
-                        onChange={(event) => {
-                          setFrameworkFigure((current) => ({
-                            ...current,
-                            customAspectWidth: Math.max(
-                              1,
-                              Math.min(100, event.target.valueAsNumber || 1),
-                            ),
-                          }));
-                          setCopied(null);
-                        }}
-                      />
-                    </label>
-                    <span aria-hidden="true">:</span>
-                    <label>
-                      <span>{copy.frameworkCustomHeight}</span>
-                      <input
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={frameworkFigure.customAspectHeight}
-                        onChange={(event) => {
-                          setFrameworkFigure((current) => ({
-                            ...current,
-                            customAspectHeight: Math.max(
-                              1,
-                              Math.min(100, event.target.valueAsNumber || 1),
-                            ),
-                          }));
-                          setCopied(null);
-                        }}
-                      />
-                    </label>
-                    <strong>{frameworkAspectRatio}</strong>
-                  </div>
-                )}
-              </div>
-              <small>{copy.frameworkFixedRules}</small>
-            </fieldset>
-
             <fieldset className="config-control chat-execution-control">
               <legend className="control-label-row">
-                <span className="control-index">07</span>
+                <span className="control-index">06</span>
                 <span>{copy.chatExecution}</span>
               </legend>
               <div className="chat-execution-row">
@@ -937,7 +830,7 @@ export default function YanshuWorkbench() {
             >
             <div className="allocation-control-header">
               <div className="allocation-title">
-                <span className="control-index">08</span>
+                <span className="control-index">07</span>
                 <div>
                   <strong>{copy.plannerTitle}</strong>
                   <span>{copy.plannerBody}</span>

@@ -6,7 +6,8 @@ export type ActivePage =
   | "idea-evaluation"
   | "draft"
   | "section-writing"
-  | "writing-diagnosis"
+  | "citation-audit"
+  | "writing-polishing"
   | "reconstruction"
   | "refinement"
   | "audit"
@@ -21,7 +22,6 @@ export type ActivePage =
   | "paper-tables"
   | "figure-table-audit"
   | "submission"
-  | "final-polishing"
   | "pre-submission-check"
   | "submission-materials"
   | "peer-review"
@@ -150,30 +150,39 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         },
       },
       {
-        id: "writing-diagnosis",
-        label: { zh: "学术写作诊断", en: "Academic Writing Diagnosis" },
+        id: "citation-audit",
+        label: { zh: "引文核查与补充", en: "Citation Review & Support" },
         status: "available",
-        href: "/writing/diagnosis",
-        activePage: "writing-diagnosis",
+        href: "/writing/citations",
+        activePage: "citation-audit",
         keywords: {
           zh: [
-            "写作手法",
-            "写作习惯",
-            "缺少引用",
-            "caption",
-            "结果复述",
-            "公式说明",
-            "段落结构",
+            "引文",
+            "引用",
+            "BibTeX",
+            "缺失文献",
+            "近期文献",
+            "目标期刊",
           ],
           en: [
-            "writing technique",
-            "writing habits",
-            "missing citation",
-            "caption",
-            "results narration",
-            "equation exposition",
-            "paragraph structure",
+            "citation",
+            "references",
+            "bibtex",
+            "missing literature",
+            "recent papers",
+            "target journal",
           ],
+        },
+      },
+      {
+        id: "writing-polishing",
+        label: { zh: "写作精修", en: "Writing Polishing" },
+        status: "available",
+        href: "/writing/polishing",
+        activePage: "writing-polishing",
+        keywords: {
+          zh: ["写作精修", "冗余", "AI 写作痕迹", "防御性写作", "语言润色"],
+          en: ["writing polishing", "redundancy", "AI writing patterns", "defensive writing", "copyediting"],
         },
       },
     ],
@@ -192,8 +201,8 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         href: "/reconstruction",
         activePage: "reconstruction",
         keywords: {
-          zh: ["论文重构", "结构", "叙事", "五轮工作流"],
-          en: ["paper reconstruction", "structure", "narrative", "workflow"],
+          zh: ["论文重构", "结构", "叙事", "一体化工作流"],
+          en: ["paper reconstruction", "structure", "narrative", "integrated workflow"],
         },
       },
       {
@@ -388,17 +397,6 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         keywords: {
           zh: ["期刊推荐", "投稿策略", "分区", "影响因子", "OA"],
           en: ["journal recommendation", "venue strategy", "quartile", "impact factor", "oa"],
-        },
-      },
-      {
-        id: "final-polishing",
-        label: { zh: "投稿前全文精修", en: "Final Manuscript Polishing" },
-        status: "available",
-        href: "/submission/polishing",
-        activePage: "final-polishing",
-        keywords: {
-          zh: ["全文精修", "冗余", "AI 写作痕迹", "防御性写作", "语言润色"],
-          en: ["final polishing", "redundancy", "AI writing patterns", "defensive writing", "copyediting"],
         },
       },
       {

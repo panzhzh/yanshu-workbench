@@ -17,11 +17,11 @@ export const COMMON_PROMPT_BLOCKS = {
   manuscriptProtection: {
     zh: `1. 沿用当前文档类、宏包、作者块、参考文献样式、自定义命令、单双栏、图像路径和编译体系；只对已确认的编译、语法、重复 label 或失效引用做最小修复并记录。
 2. 尽量保留 label、ref、cite、公式编号和算法标识；移动内容时同步维护交叉引用。
-3. 保留所有承担证据作用的现有图表。除独立框架图步骤要求的、完全基于论文事实生成的 PNG 外，不生成或替换图片。
+3. 保留所有承担证据作用的现有图表。本流程不生成或替换图片；若图中内容与正文冲突，在报告中列出而不擅自重绘。
 4. 交付完整、连续、可编辑的英文 .tex；中文分析与修改说明只进入中文报告。`,
     en: `1. Preserve the document class, packages, author block, bibliography style, custom commands, column layout, image paths, and build system. Make and report only confirmed minimal repairs to compilation, syntax, duplicate labels, or broken references.
 2. Preserve labels, refs, cites, equation numbers, and algorithm identifiers where possible; maintain cross-references when content moves.
-3. Retain every existing visual that carries evidence. Generate or replace no image except the manuscript-grounded PNG required by the separate framework-figure step.
+3. Retain every existing visual that carries evidence. This workflow generates or replaces no image; report any figure–prose conflict instead of silently redrawing it.
 4. Deliver a complete, continuous, editable English .tex; keep Chinese analysis and revision notes in the Chinese report.`,
   },
   identityGovernance: {
@@ -242,8 +242,8 @@ Follow the current paper type's Overview rule before moving through core mechani
           en: "B. Audit Equations, Algorithms, and Existing Visual Interfaces",
         },
         body: {
-          zh: "确保符号在使用前定义，公式有前置动机和后续解释，下标、维度、归一化、mask 和损失权重一致，关键公式被正文引用。同步核对现有框架图与机制图的输入、输出、组件、箭头、训练/推理路径和术语，但本步不生成或替换图片；方法逻辑和前后叙事稳定后，由独立的框架图步骤统一重构。",
-          en: "Define notation before use; motivate equations before they appear and explain their role afterward; verify indices, dimensions, normalization, masks, and loss weights; and cite every key equation in prose. Audit the inputs, outputs, components, arrows, training/inference paths, and terminology of existing framework and mechanism figures, but do not generate or replace an image in this step. The separate framework-figure step handles reconstruction after the Method logic and surrounding narrative are stable.",
+          zh: "确保符号在使用前定义，公式有前置动机和后续解释，下标、维度、归一化、mask 和损失权重一致，关键公式被正文引用。同步核对现有框架图与机制图的输入、输出、组件、箭头、训练/推理路径和术语，但本流程不生成或替换图片；发现冲突时在报告中精确记录。",
+          en: "Define notation before use; motivate equations before they appear and explain their role afterward; verify indices, dimensions, normalization, masks, and loss weights; and cite every key equation in prose. Audit the inputs, outputs, components, arrows, training/inference paths, and terminology of existing framework and mechanism figures, but do not generate or replace images in this workflow; record every conflict precisely in the report.",
         },
       },
       {
@@ -297,7 +297,7 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
 - 核心方法内容、实验协议与重要发现未被压缩或删除。
 - 标题层级只对应实质科学单元，未把论文写成标准文档式清单。
 - 现有图、表和公式已视觉核对并与正文对齐。
-- 本步未提前生成或替换总体框架图。
+- 本流程未生成或替换图片。
 - Results 不逐项朗读表格，也不提前承担 Discussion 功能。
 - 其他章节只做必要同步。`,
       en: `- Method and Experiments were substantively reconstructed, not synonym-swapped.
@@ -305,7 +305,7 @@ Preserve every protocol, core result, unfavorable result, and necessary interpre
 - Core Method content, experimental protocols, and important findings were neither compressed nor deleted.
 - Headings correspond only to substantive scientific units rather than document-style inventory items.
 - Existing figures, tables, and equations were visually checked and aligned with prose.
-- This step did not prematurely generate or replace the overall framework figure.
+- This workflow generated or replaced no image.
 - Results neither narrates tables cell by cell nor absorbs the role of Discussion.
 - Other sections received only necessary synchronization.`,
     },
@@ -431,180 +431,6 @@ Related Work has exactly three subsections and follows the current paper type's 
     },
   },
   {
-    id: "framework-figure",
-    sourceFile: "Round_4_Framework_Figure_Reconstruction.md",
-    number: 4,
-    contentKind: "framework-figure",
-    profile: "manuscript",
-    showStyleDirective: false,
-    showAppendixConfiguration: false,
-    showLengthBudget: false,
-    title: {
-      zh: "重构方法总览框架图",
-      en: "Reconstruct the Method Overview Figure",
-    },
-    purpose: {
-      zh: "在方法与前后叙事稳定后，只重构一张论文 Overview 总体框架图。",
-      en: "Reconstruct only the paper’s overall Method Overview figure after the Method and surrounding narrative are stable.",
-    },
-    role: {
-      zh: "你是一名熟悉 CS 论文方法总览图的信息设计者。",
-      en: "You are an information designer specializing in Method Overview figures for CS papers.",
-    },
-    inputs: {
-      zh: "最新完整 .tex 与其编译 PDF。",
-      en: "The latest complete .tex and its compiled PDF.",
-    },
-    scope: {
-      zh: "只重构论文的总体方法框架图，不生成引言图或局部技术细节图。",
-      en: "Reconstruct only the paper’s overall method framework figure, not an Introduction figure or a local technical-detail figure.",
-    },
-    tasks: [],
-    deliverables: {
-      zh: "生成一张可直接下载的总体框架图 PNG。",
-      en: "Generate one downloadable overall-framework PNG.",
-    },
-    fileNames: {
-      zh: "<base_name>_round_4_framework_reconstruction.png",
-      en: "<base_name>_round_4_framework_reconstruction.png",
-    },
-    finalChecks: {
-      zh: "术语、结构、箭头语义、所选画布比例与缩小后可读性均已核对。",
-      en: "Terminology, structure, arrow semantics, the selected canvas ratio, and reduced-size legibility have all been checked.",
-    },
-  },
-  {
-    id: "final-refinement",
-    sourceFile: "Round_5_Full_Manuscript_Refinement_and_Audit.md",
-    number: 5,
-    profile: "manuscript",
-    showStyleDirective: false,
-    showAppendixConfiguration: false,
-    showLengthBudget: false,
-    title: {
-      zh: "全文精修与投稿级终审",
-      en: "Full-manuscript Refinement & Final Audit",
-    },
-    purpose: {
-      zh: "统一语言、术语、数字与 Claim 强度，并以原稿为基线完成质量回归终审。",
-      en: "Align language, terminology, numbers, and claim strength, then complete a source-aware quality-regression audit.",
-    },
-    role: {
-      zh: "你是一名严格的 CS 终稿编辑、方法审稿人、实验审计者和 LaTeX 质量检查者。本步以最新稿为主要对象、以重构前原稿为质量基线，进行精修、微调和投稿级终审。",
-      en: "You are a strict CS final editor, method reviewer, experiment auditor, and LaTeX quality checker. Treat the latest manuscript as the working draft and the pre-reconstruction manuscript as the quality baseline for refinement, local adjustment, and final audit.",
-    },
-    inputs: {
-      zh: `- 最新完整 .tex，优先为第三步输出
-- 与其一致的 PDF
-- 当前完整 .bib
-- 第四步重构的总体框架图 PNG
-- 重构前的原始 .tex 与原始 PDF，用于质量回归对照`,
-      en: `- The newest complete .tex, preferably the Step 3 output
-- Its matching PDF
-- The current complete .bib
-- The overall-framework PNG reconstructed in Step 4
-- The original pre-reconstruction .tex and PDF for quality-regression comparison`,
-    },
-    scope: {
-      zh: "允许句子级与局部段落级精修、去除真实重复、改善过渡并校准 claim。默认不再大幅重构；每项修改都应融合进完整段落，而不是叠加补丁。严重事实或数字错误必须修正并标为重大修正。",
-      en: "Refine sentences and local paragraphs, remove genuine redundancy, improve transitions, and calibrate claims. Avoid another broad reconstruction by default, and integrate every change into coherent prose rather than layering patches. Correct serious factual or numeric errors and mark them as major revisions.",
-    },
-    tasks: [
-      {
-        heading: {
-          zh: "A. 全文语言与段落精修",
-          en: "A. Refine Language and Paragraphs",
-        },
-        body: {
-          zh: "逐句检查语法、冠词、单复数、主谓一致、时态、语态、句长、从句、主题句、逻辑连接、重复句首、模糊指代、口语、名词堆叠和宣传性表达。每段只承担一个主要功能，优先使用清晰主动语态与无生命主语。",
-          en: "Check grammar, articles, number agreement, subject–verb agreement, tense, voice, sentence length, clause depth, topic sentences, logical links, repetitive openings, vague references, colloquialisms, noun stacking, and promotional wording. Give each paragraph one primary function and prefer clear active constructions and inanimate subjects.",
-        },
-      },
-      {
-        heading: {
-          zh: "B. 术语、缩写与符号治理",
-          en: "B. Govern Terminology, Acronyms, and Notation",
-        },
-        body: {
-          zh: "建立最终 Terminology Consistency Table，落实 canonical term、本流程确定的论文品牌缩写、首次定义、禁用变体、冗余缩写和必须区分的概念。检查标题、摘要、正文、图、表、caption、公式和算法是否完全一致。",
-          en: "Create the final Terminology Consistency Table covering canonical terms, the paper-brand acronym selected by this workflow, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct. Verify consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms.",
-        },
-      },
-      {
-        heading: {
-          zh: "C. 跨章节冗余与功能审计",
-          en: "C. Audit Cross-section Redundancy and Function",
-        },
-        body: {
-          zh: "检查 Abstract/Introduction、Introduction/Related Work、Method Overview/核心机制、Results/Discussion、Abstract/Conclusion 的复制与功能越界。输出 Cross-Section Redundancy Matrix，并说明删除、合并或保留原因。",
-          en: "Audit duplication and functional leakage across Abstract/Introduction, Introduction/Related Work, Method Overview/core mechanisms, Results/Discussion, and Abstract/Conclusion. Return a Cross-Section Redundancy Matrix with reasons for deletion, merging, or retention.",
-        },
-      },
-      {
-        heading: {
-          zh: "D. Claim–Evidence、数字与统计终审",
-          en: "D. Finalize Claim–Evidence, Numeric, and Statistical Audits",
-        },
-        body: {
-          zh: `审计标题、摘要、贡献、Results、Discussion 和 Conclusion 的每个主要 claim：类型、证据位置、充分性、所需限定和泛化/因果风险。
-逐项核对正文、图表和摘要中的数字、绝对/相对提升、指标方向、均值/标准差、运行次数、best/second-best、数据规模、效率单位和显著性。不得自行补算无法确认的值。`,
-          en: `Audit every major claim in the title, abstract, contributions, Results, Discussion, and Conclusion: type, evidence location, sufficiency, required qualification, and generalization/causality risk.
-Cross-check numbers, absolute/relative gains, metric direction, means/standard deviations, run counts, best/second-best marks, dataset sizes, efficiency units, and significance language across prose, visuals, and abstract. Do not recompute values that cannot be verified.`,
-        },
-      },
-      {
-        heading: {
-          zh: "E. 引用、LaTeX 与模拟审稿人攻击测试",
-          en: "E. Audit Citations and LaTeX, Then Run a Reviewer Attack Test",
-        },
-        body: {
-          zh: `逐一核对 citation key 与语义支持，删除 citation dumping；检查所有图表、公式和算法引用、label/ref、caption、自定义命令、路径、占位符和编译警告。环境支持时实际编译，否则不得声称成功。
-以严格审稿人视角攻击新意、差异、机制必要性、实验覆盖、公平比较、参数选择、结论边界和局限诚实度。无法通过文字解决的实验缺口必须保留为风险。`,
-          en: `Validate every citation key and its semantic support, and remove citation dumping. Check all visual, equation, and algorithm references, labels/refs, captions, custom commands, paths, placeholders, and compilation warnings. Compile when the environment supports it; otherwise do not claim success.
-Attack novelty, differentiation, mechanism necessity, experiment coverage, fair comparison, parameter selection, conclusion scope, and honest limitations from a strict reviewer's perspective. Keep experimental gaps that prose cannot solve as explicit risks.`,
-        },
-      },
-      {
-        heading: {
-          zh: "F. 原稿质量回归门",
-          en: "F. Source-aware Quality Regression Gate",
-        },
-        body: {
-          zh: "逐节对照重构前原稿与当前稿，检查是否丢失高价值表达或实验发现、结果解释是否被过度压缩、标题是否更准确且有辨识度、第四轮新框架图是否比旧图更清楚地表达科学主线。只对确认退化的位置做局部融合式修复；保持术语、语气与写作手法一致，并在报告中记录保留、恢复和不恢复的理由。",
-          en: "Compare the current manuscript with the pre-reconstruction source section by section. Check for lost high-value expression or experimental findings, overcompressed result interpretation, whether the title remains accurate and distinctive, and whether the new framework figure communicates the scientific throughline more clearly than the old one. Repair only confirmed regressions through localized cohesive edits, preserve terminology and authorial style, and report what was retained, restored, or intentionally not restored.",
-        },
-      },
-    ],
-    deliverables: {
-      zh: "生成完整英文 .tex、中文终审报告和完整最终 BibTeX 文献库。报告包含重大修正、术语与缩写、跨章节冗余、Claim–Evidence、数字与统计、引用与 LaTeX、审稿人攻击测试、原稿质量回归表、不可通过文字解决的风险、修改清单和投稿目标检索交接摘要。",
-      en: "Create a complete English .tex, a Chinese final-audit report, and a complete final BibTeX library. The report includes major revisions; terminology and acronyms; cross-section redundancy; Claim–Evidence, numeric/statistical, citation, and LaTeX audits; reviewer attack test; source-aware quality-regression table; risks prose cannot solve; revision log; and submission-targeting handoff.",
-    },
-    fileNames: {
-      zh: `<base_name>_round_5_final_refinement.tex
-<base_name>_round_5_report_zh.md
-<base_name>_round_5_references.bib`,
-      en: `<base_name>_round_5_final_refinement.tex
-<base_name>_round_5_report_zh.md
-<base_name>_round_5_references.bib`,
-    },
-    finalChecks: {
-      zh: `- 全文完成实质精修而非拼写检查。
-- 术语、缩写、符号、数字、引用和 Claim 强度逐项核验。
-- Results 与 Discussion、Abstract 与 Conclusion 不再重复。
-- 已与原稿逐节对照，高价值表达、实验发现和必要结果解释未发生无声退化。
-- 新框架图相对旧图的科学表达增益已核验；若未改善，已明确记录。
-- 未改变模板，所有修复均为局部融合式精修。
-- 无法用文字解决的风险已诚实保留。`,
-      en: `- The manuscript received substantive refinement, not a spelling-only pass.
-- Terminology, acronyms, notation, numbers, citations, and claim strength were individually verified.
-- Results/Discussion and Abstract/Conclusion no longer duplicate one another.
-- Section-by-section comparison found no silent loss of high-value expression, experimental findings, or necessary result interpretation.
-- The new framework figure's scientific communication was compared with the old one and any lack of improvement is recorded.
-- The template was preserved and every repair remained localized and cohesive.
-- Risks that prose cannot solve remain explicitly documented.`,
-    },
-  },
-  {
     id: "venue-targeting",
     sourceFile: "Submission_Strategy_and_Verification.md",
     number: 1,
@@ -726,9 +552,150 @@ Never present CiteScore, SJR, or Scopus quartiles as the JCR Journal Impact Fact
   },
 ];
 
-export const RECONSTRUCTION_PROMPTS = PROMPT_TEMPLATES.filter(
-  (template) => template.profile === "manuscript",
+export const RECONSTRUCTION_SOURCE_STEPS = PROMPT_TEMPLATES.filter(
+  (template) =>
+    [
+      "scientific-positioning",
+      "method-experiments",
+      "narrative-reconstruction",
+    ].includes(template.id),
 );
+
+function legacyStep(id: string) {
+  const template = RECONSTRUCTION_SOURCE_STEPS.find(
+    (candidate) => candidate.id === id,
+  );
+  if (!template) throw new Error(`Missing reconstruction source step: ${id}`);
+  return template;
+}
+
+function mergeLegacyTasks(id: string, language: "zh" | "en") {
+  const template = legacyStep(id);
+  return template.tasks
+    .map(
+      (task) =>
+        `#### ${task.heading[language]}\n${task.body[language]}`,
+    )
+    .join("\n\n");
+}
+
+const positioningStep = legacyStep("scientific-positioning");
+const methodExperimentsStep = legacyStep("method-experiments");
+const narrativeStep = legacyStep("narrative-reconstruction");
+
+export const RECONSTRUCTION_PROMPTS: PromptTemplate[] = [
+  {
+    id: "full-reconstruction",
+    sourceFile: "Paper_Reconstruction.md",
+    number: 1,
+    profile: "manuscript",
+    showDeliveryBundle: false,
+    title: {
+      zh: "论文全文重构",
+      en: "Full-paper Reconstruction",
+    },
+    purpose: {
+      zh: "在一次执行中完成科学定位、方法实验、前后叙事与原稿质量回归。",
+      en: "Complete scientific positioning, method and experiment reconstruction, narrative refinement, and source-aware regression checking in one execution.",
+    },
+    role: {
+      zh: "你是一名熟悉当前论文具体研究方向、会议与期刊评审的资深研究者和 LaTeX 编辑。请把以下四个 Step 作为同一次完整重构的内部工作阶段连续完成，不输出中间稿。",
+      en: "You are a senior researcher and LaTeX editor familiar with this paper's specific field and with conference and journal review. Complete the following four Steps as internal stages of one continuous reconstruction task and produce no intermediate manuscript.",
+    },
+    inputs: {
+      zh: `- 原始完整 .tex 及其 include/input 文件
+- 与原稿一致的最新 PDF
+- 原始完整 .bib
+- 仅在 PDF 无法完整呈现时：核验论文证据所必需的 figures 文件`,
+      en: `- The complete original .tex and every included/input file
+- The latest PDF matching the source manuscript
+- The complete original .bib
+- Only when the PDF does not expose the required evidence: necessary figure files`,
+    },
+    scope: {
+      zh: "在保留原稿有效论证、高价值表达、全部核心方法与实验发现的前提下，可重排章节和段落、合并真实重复、重构贡献与论证顺序，并同步修复必要的术语、引用和交叉引用。不得改变模板，不得生成图片，不得添加材料不支持的机制、实验或结果。四个 Step 只用于内部执行顺序，不得分别交付中间文件。",
+      en: "Preserve sound arguments, high-value original expression, every core method detail, and all experimental findings while allowing section and paragraph reordering, genuine deduplication, contribution and evidence-order reconstruction, and necessary terminology, citation, and cross-reference repairs. Do not change the template, generate images, or add unsupported mechanisms, experiments, or results. The four Steps define internal execution order only and must not produce separate intermediate files.",
+    },
+    styleBranches: {
+      conference: {
+        zh: `${positioningStep.styleBranches!.conference.zh}\n${methodExperimentsStep.styleBranches!.conference.zh}\n${narrativeStep.styleBranches!.conference.zh}`,
+        en: `${positioningStep.styleBranches!.conference.en}\n${methodExperimentsStep.styleBranches!.conference.en}\n${narrativeStep.styleBranches!.conference.en}`,
+      },
+      journal: {
+        zh: `${positioningStep.styleBranches!.journal.zh}\n${methodExperimentsStep.styleBranches!.journal.zh}\n${narrativeStep.styleBranches!.journal.zh}`,
+        en: `${positioningStep.styleBranches!.journal.en}\n${methodExperimentsStep.styleBranches!.journal.en}\n${narrativeStep.styleBranches!.journal.en}`,
+      },
+    },
+    tasks: [
+      {
+        heading: {
+          zh: "Step 1 · 科学定位与宏观结构",
+          en: "Step 1 · Scientific Positioning and Macro Structure",
+        },
+        body: {
+          zh: `${positioningStep.purpose.zh}\n\n${mergeLegacyTasks("scientific-positioning", "zh")}`,
+          en: `${positioningStep.purpose.en}\n\n${mergeLegacyTasks("scientific-positioning", "en")}`,
+        },
+      },
+      {
+        heading: {
+          zh: "Step 2 · 方法与实验深度重构",
+          en: "Step 2 · Method and Experiments Reconstruction",
+        },
+        body: {
+          zh: `${methodExperimentsStep.purpose.zh}\n\n${mergeLegacyTasks("method-experiments", "zh")}`,
+          en: `${methodExperimentsStep.purpose.en}\n\n${mergeLegacyTasks("method-experiments", "en")}`,
+        },
+      },
+      {
+        heading: {
+          zh: "Step 3 · 前后叙事深度精修",
+          en: "Step 3 · Deep Narrative Refinement",
+        },
+        body: {
+          zh: `${narrativeStep.purpose.zh}\n\n${mergeLegacyTasks("narrative-reconstruction", "zh")}`,
+          en: `${narrativeStep.purpose.en}\n\n${mergeLegacyTasks("narrative-reconstruction", "en")}`,
+        },
+      },
+      {
+        heading: {
+          zh: "Step 4 · 原稿质量回归门",
+          en: "Step 4 · Source-aware Quality Regression Gate",
+        },
+        body: {
+          zh: "逐节对照重构前原稿与当前稿，检查是否丢失高价值表达或实验发现、结果解释是否被过度压缩、标题是否更准确且有辨识度，保持术语、语气与写作手法一致，并在报告中记录保留、恢复和不恢复的理由。只对确认退化的位置做融合式修复，不开展模拟审稿或额外一轮全文精修。",
+          en: "Compare the reconstructed manuscript with the original section by section. Check for lost high-value expression or experimental findings, overcompressed result interpretation, and whether the title is more accurate and distinctive. Preserve consistent terminology, voice, and writing technique, and report why material was retained, restored, or intentionally not restored. Repair only confirmed regressions cohesively; do not run a simulated review or another general polishing pass.",
+        },
+      },
+    ],
+    deliverables: {
+      zh: "只交付一套最终结果：完整可编辑英文 TeX、与其一致的完整 BibTeX，以及一份中文重构说明。说明整合 Scientific Positioning Contract、标题/品牌 high-risk diff、术语体系、Claim–Evidence Map、章节与图表功能、Method 逻辑、公式符号审计、Experiment Question–Evidence Matrix、叙事重构、联网与文献变更、未核验风险和 Step 4 质量回归记录。不得输出或保存四个 Step 的中间稿。",
+      en: "Deliver one final result only: a complete editable English TeX file, its complete matching BibTeX library, and one Chinese reconstruction report. The report consolidates the Scientific Positioning Contract; title/brand high-risk diffs; terminology; Claim–Evidence Map; section and visual roles; Method logic; equation/notation audit; Experiment Question–Evidence Matrix; narrative reconstruction; web and bibliography changes; unresolved verification risks; and the Step 4 quality-regression record. Do not output or save intermediate manuscripts for the four Steps.",
+    },
+    fileNames: {
+      zh: `<base_name>_restructured.tex
+<base_name>_restructured.bib
+<base_name>_restructuring_report_zh.md`,
+      en: `<base_name>_restructured.tex
+<base_name>_restructured.bib
+<base_name>_restructuring_report_zh.md`,
+    },
+    finalChecks: {
+      zh: `- 四个内部 Step 已按顺序完成，但没有产生中间文件。
+- 全文围绕一个科学问题、核心思想和可追溯证据链组织。
+- 核心 Method、实验协议、重要结果和原稿高价值表达未发生无声丢失或过度压缩。
+- 标题、方法全称、缩写、术语、数字、引用与交叉引用一致；所有高风险变化均已记录。
+- 现有图表与正文接口已核对，但没有生成或替换图片。
+- 模板与编译体系保持不变，最终 TeX、BibTeX 与中文报告文件名严格符合要求。`,
+      en: `- The four internal Steps were completed in order without intermediate files.
+- The paper is organized around one scientific problem, core idea, and traceable evidence chain.
+- Core Method content, protocols, important findings, and high-value source expression were not silently lost or overcompressed.
+- Title, full method name, acronym, terminology, values, citations, and cross-references agree, and every high-risk change is recorded.
+- Existing visual–prose interfaces were checked without generating or replacing images.
+- The template and build system are preserved, and the final TeX, BibTeX, and Chinese report use the exact required names.`,
+    },
+  },
+];
 
 export const SUBMISSION_PROMPT_TEMPLATE = PROMPT_TEMPLATES.find(
   (template) => template.profile === "targeting",

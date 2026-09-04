@@ -150,17 +150,6 @@ var REFINEMENT_FREEDOMS = {
       zh: "\u4FDD\u7559\u6700\u6709\u4EF7\u503C\u4E14\u6709\u8BC1\u636E\u652F\u6491\u7684\u6D1E\u5BDF\uFF1B\u5141\u8BB8\u6574\u4F53\u91CD\u6784\u7814\u7A76\u95EE\u9898\u3001\u673A\u5236\u3001\u6570\u636E\u6216\u5B9E\u9A8C\u4E3B\u7EBF",
       en: "retain the most valuable evidence-supported insight while allowing an integrated reframing of the question, mechanism, data, or experimental throughline"
     }
-  },
-  pivot: {
-    label: { zh: "\u5141\u8BB8\u8F6C\u5411", en: "Allow Pivot" },
-    description: {
-      zh: "\u5F53\u539F Idea \u4E0D\u6210\u7ACB\u65F6\uFF0C\u53EF\u63D0\u51FA\u66F4\u503C\u5F97\u6267\u884C\u7684\u76F8\u90BB\u65B9\u5411\u3002",
-      en: "When the original idea fails, propose a more defensible adjacent direction."
-    },
-    prompt: {
-      zh: "\u5F53\u539F Idea \u7684\u6838\u5FC3\u547D\u9898\u4E0D\u6210\u7ACB\u6216\u4E0D\u503C\u5F97\u6295\u5165\u65F6\uFF0C\u5141\u8BB8\u8F6C\u5411\u76F8\u90BB\u4F46\u66F4\u53EF\u8FA9\u62A4\u7684\u7814\u7A76\u65B9\u5411\uFF1B\u5FC5\u987B\u6E05\u695A\u8BF4\u660E\u8F6C\u5411\u539F\u56E0\u548C\u4FDD\u7559\u4E86\u4EC0\u4E48",
-      en: "when the core proposition is unsound or not worth pursuing, allow a pivot to a more defensible adjacent direction and state exactly why the pivot is needed and what is retained"
-    }
   }
 };
 var BASE_IDEA_PREFERENCES = {
@@ -442,7 +431,7 @@ function evaluationPrompt(preferences, language) {
 - \u82E5\u5B58\u5728\u4E24\u6761\u90FD\u5408\u7406\u4F46\u4E92\u65A5\u7684\u8DEF\u7EBF\uFF0C\u53EA\u4FDD\u7559\u63A8\u8350\u8DEF\u7EBF\uFF0C\u628A\u53E6\u4E00\u6761\u5217\u4E3A\u5907\u9009\uFF0C\u4E0D\u5F97\u62FC\u6210\u81C3\u80BF\u65B9\u6848\u3002
 
 ## \u6700\u7EC8\u51B3\u7B56
-\u53EA\u7ED9\u4E00\u4E2A\u4E3B\u51B3\u7B56\uFF1APursue\u3001Refine\u3001Pivot\u3001Park \u6216 Stop\u3002\u8BF4\u660E\u6700\u5173\u952E\u4F9D\u636E\u3001\u5269\u4F59\u6700\u5927\u4E0D\u786E\u5B9A\u6027\u548C\u4E0B\u4E00\u9879\u884C\u52A8\u3002Park \u5FC5\u987B\u5199\u660E\u91CD\u65B0\u8003\u8651\u7684\u89E6\u53D1\u6761\u4EF6\uFF1BPivot \u6216 Stop \u5FC5\u987B\u8BF4\u660E\u539F Idea \u4E3A\u4EC0\u4E48\u4E0D\u503C\u5F97\u7EE7\u7EED\u6295\u5165\u3002
+\u53EA\u7ED9\u4E00\u4E2A\u4E3B\u51B3\u7B56\uFF1APursue\u3001Refine\u3001Park \u6216 Stop\u3002\u8BF4\u660E\u6700\u5173\u952E\u4F9D\u636E\u3001\u5269\u4F59\u6700\u5927\u4E0D\u786E\u5B9A\u6027\u548C\u4E0B\u4E00\u9879\u884C\u52A8\u3002Park \u5FC5\u987B\u5199\u660E\u91CD\u65B0\u8003\u8651\u7684\u89E6\u53D1\u6761\u4EF6\uFF1BStop \u5FC5\u987B\u8BF4\u660E\u539F Idea \u4E3A\u4EC0\u4E48\u4E0D\u503C\u5F97\u7EE7\u7EED\u6295\u5165\u3002
 
 ## \u8F93\u51FA\u6587\u4EF6
 \u521B\u5EFA\u4E24\u4EFD\u8BED\u4E49\u4E00\u81F4\u3001\u53EF\u76F4\u63A5\u4E0B\u8F7D\u7684 Markdown \u6587\u4EF6\uFF1A
@@ -511,7 +500,7 @@ Return:
 - If two routes are valid but mutually exclusive, recommend one and list the other as an alternative rather than merging them into a bloated design.
 
 ## Final decision
-Give exactly one primary decision: Pursue, Refine, Pivot, Park, or Stop. State the decisive reason, largest remaining uncertainty, and next action. Park requires explicit revisit triggers; Pivot or Stop requires a clear account of why the original idea is no longer worth the investment.
+Give exactly one primary decision: Pursue, Refine, Park, or Stop. State the decisive reason, largest remaining uncertainty, and next action. Park requires explicit revisit triggers; Stop requires a clear account of why the original idea is no longer worth the investment.
 
 ## Output files
 Create two semantically aligned, directly downloadable Markdown files:
@@ -1117,9 +1106,6 @@ var FIGURE_DEFAULT_LAYOUT = Object.fromEntries(
   ])
 );
 var DEFAULT_FIGURE_PREFERENCES = {
-  ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"]
-};
-var RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES = {
   ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"]
 };
 var FIGURE_ASPECT_RATIOS = {
@@ -2631,7 +2617,7 @@ Keep unknowns unknown; never infer missing data or fabricate recomputed results.
   }
 };
 
-// app/writing/diagnosis/config.ts
+// app/writing/citations/config.ts
 var text2 = (zh, en) => ({ zh, en });
 function scalar2(values, id) {
   return String(values[id] ?? "").trim();
@@ -2639,19 +2625,31 @@ function scalar2(values, id) {
 function enabled2(values, id) {
   return values[id] === true;
 }
-function selected2(values, id) {
-  return Array.isArray(values[id]) ? values[id] : [];
+function numberValue(values, id, fallback) {
+  const value = Number(values[id]);
+  return Number.isFinite(value) ? value : fallback;
 }
 function rangeValue2(values, id, fallback) {
   const value = values[id];
   return Array.isArray(value) && value.length === 2 ? [Number(value[0]), Number(value[1])] : fallback;
 }
-function sharedCopy2(seed) {
+function selected2(values, id) {
+  return Array.isArray(values[id]) ? values[id] : [];
+}
+var SECTION_NAMES = {
+  introduction: text2("Introduction", "Introduction"),
+  "related-work": text2("Related Work", "Related Work"),
+  method: text2("Method", "Method"),
+  "experiments-results": text2("Experiments & Results", "Experiments & Results"),
+  discussion: text2("Discussion", "Discussion"),
+  conclusion: text2("Conclusion", "Conclusion")
+};
+function workbenchCopy(seed) {
   return {
     zh: {
       ...seed.zh,
       reset: "\u6062\u590D\u9ED8\u8BA4\u914D\u7F6E",
-      resetHint: "\u6062\u590D\u5168\u6587\u3001\u6807\u51C6\u8BCA\u65AD\u548C\u4EC5\u8F93\u51FA\u62A5\u544A\u3002",
+      resetHint: "\u6062\u590D\u5F15\u6587\u6838\u67E5\u9ED8\u8BA4\u503C\u3002",
       switchPromptLanguage: "\u5207\u6362 Prompt \u8BED\u8A00",
       copy: "\u590D\u5236",
       copied: "\u5DF2\u590D\u5236",
@@ -2664,503 +2662,260 @@ function sharedCopy2(seed) {
     en: {
       ...seed.en,
       reset: "Restore defaults",
-      resetHint: "Restore whole-manuscript scope, standard depth, and report-only mode.",
+      resetHint: "Restore citation-review defaults.",
       switchPromptLanguage: "Switch prompt language",
       copy: "Copy",
       copied: "Copied",
       expand: "Expand",
       collapse: "Collapse",
-      clipboardError: "Copy failed. Expand the prompt and select the text manually.",
+      clipboardError: "Copy failed. Expand the prompt and select it manually.",
       on: "On",
       off: "Off"
     }
   };
 }
-var DIAGNOSIS_SCOPES = {
-  whole: text2("\u5168\u6587", "Whole manuscript"),
-  selected: text2("\u9009\u5B9A\u5185\u5BB9", "Selected sections")
-};
-var MANUSCRIPT_SECTIONS = {
-  abstract: text2("Abstract", "Abstract"),
-  introduction: text2("Introduction", "Introduction"),
-  "related-work": text2("Related Work", "Related Work"),
-  method: text2("Method", "Method"),
-  "experiments-results": text2(
-    "Experiments & Results",
-    "Experiments & Results"
-  ),
-  discussion: text2("Discussion & Limitations", "Discussion & Limitations"),
-  conclusion: text2("Conclusion", "Conclusion"),
-  "captions-notes": text2("Captions\u3001Notes \u4E0E\u811A\u6CE8", "Captions, notes, and footnotes"),
-  equations: text2("\u516C\u5F0F\u53CA\u5176\u8BF4\u660E\u6587\u5B57", "Equations and surrounding prose")
-};
-var DIAGNOSIS_DEPTHS = {
-  focused: {
-    label: text2("\u805A\u7126", "Focused"),
-    prompt: text2(
-      "\u53EA\u62A5\u544A\u53CD\u590D\u51FA\u73B0\u6216\u660E\u663E\u5F71\u54CD\u7406\u89E3\u7684\u4E3B\u8981\u4E60\u60EF",
-      "report only recurring or clearly consequential habits"
-    )
-  },
-  standard: {
-    label: text2("\u6807\u51C6", "Standard"),
-    prompt: text2(
-      "\u8986\u76D6\u4E3B\u8981\u4E0E\u4E2D\u7B49\u95EE\u9898\uFF0C\u5FFD\u7565\u65E0\u5173\u7D27\u8981\u7684\u4E2A\u4EBA\u504F\u597D",
-      "cover major and moderate issues while ignoring inconsequential preferences"
-    )
-  },
-  deep: {
-    label: text2("\u6DF1\u5165", "Deep"),
-    prompt: text2(
-      "\u540C\u65F6\u68C0\u67E5\u5C40\u90E8\u9605\u8BFB\u963B\u529B\uFF0C\u4F46\u4E0D\u9000\u5316\u4E3A\u9010\u8BCD\u8BED\u6CD5\u6311\u9519",
-      "include local reading friction without degenerating into word-by-word copyediting"
-    )
+function buildCitationPrompt(values, language) {
+  const action = scalar2(values, "action") || "repair";
+  const scope = selected2(values, "sections");
+  const scopeLabel = scope.map((id) => SECTION_NAMES[id]?.[language] ?? id).join(language === "zh" ? "\u3001" : ", ");
+  const targetType = scalar2(values, "targetType") || "none";
+  const targetVenue = scalar2(values, "targetVenue");
+  const targetMinimum = numberValue(values, "targetVenueMinimum", 3);
+  const referenceRange = rangeValue2(values, "referenceRange", [35, 40]);
+  const recentYears = numberValue(values, "recentYears", 3);
+  const recentShare = numberValue(values, "recentShare", 65);
+  const citationsPerSentence = numberValue(values, "citationsPerSentence", 4);
+  const custom = scalar2(values, "custom");
+  const targetRuleZh = targetType === "journal" ? targetVenue ? `\u76EE\u6807\u671F\u520A\u4E3A\u201C${targetVenue}\u201D\u3002\u5728\u4E0E\u8BBA\u8BC1\u771F\u5B9E\u76F8\u5173\u4E14\u7ECF\u6838\u9A8C\u7684\u524D\u63D0\u4E0B\uFF0C\u5EFA\u8BAE\u81F3\u5C11\u5F15\u7528 ${targetMinimum} \u7BC7\u8BE5\u671F\u520A\u8BBA\u6587\uFF1B\u4E0D\u5F97\u4E3A\u4E86\u547D\u4E2D\u6570\u91CF\u52A0\u5165\u65E0\u5173\u5F15\u7528\u3002` : "\u76EE\u6807\u7C7B\u578B\u4E3A\u671F\u520A\u4F46\u672A\u6307\u5B9A\u540D\u79F0\uFF1B\u5148\u5224\u65AD\u53EF\u80FD\u76EE\u6807\uFF0C\u4E0D\u8BBE\u7F6E\u76EE\u6807\u671F\u520A\u5F15\u7528\u914D\u989D\u3002" : targetType === "conference" ? targetVenue ? `\u76EE\u6807\u4F1A\u8BAE\u4E3A\u201C${targetVenue}\u201D\u3002\u4F18\u5148\u8BC6\u522B\u771F\u6B63\u76F8\u5173\u7684\u8BE5\u4F1A\u8BAE\u8BBA\u6587\uFF0C\u4F46\u4E0D\u8BBE\u7F6E\u6700\u4F4E\u5F15\u7528\u6570\u91CF\u3002` : "\u76EE\u6807\u7C7B\u578B\u4E3A\u4F1A\u8BAE\u4F46\u672A\u6307\u5B9A\u540D\u79F0\uFF1B\u4E0D\u8BBE\u7F6E\u76EE\u6807\u4F1A\u8BAE\u5F15\u7528\u914D\u989D\u3002" : "\u672A\u9884\u8BBE\u76EE\u6807 venue\uFF0C\u4E0D\u8BBE\u7F6E\u5B9A\u5411\u5F15\u7528\u6570\u91CF\u3002";
+  const targetRuleEn = targetType === "journal" ? targetVenue ? `The target journal is \u201C${targetVenue}.\u201D When genuinely relevant and verified, aim to cite at least ${targetMinimum} papers from that journal; never pad the bibliography to meet the number.` : "The target type is journal but no journal is named; infer plausible targets without imposing a target-journal citation quota." : targetType === "conference" ? targetVenue ? `The target conference is \u201C${targetVenue}.\u201D Prioritize genuinely relevant papers from it, with no minimum target-venue citation count.` : "The target type is conference but no conference is named; impose no target-conference citation quota." : "No target venue is preset; impose no venue-specific citation count.";
+  const sourcePolicyZh = [
+    enabled2(values, "preferTopConferences") ? "\u76F8\u5173\u9886\u57DF\u516C\u8BA4\u9876\u4F1A" : "\u76F8\u5173\u4F1A\u8BAE",
+    enabled2(values, "preferTopJournals") ? "\u76F8\u5173\u9886\u57DF\u516C\u8BA4\u9876\u520A" : "\u76F8\u5173\u671F\u520A"
+  ].join("\u4E0E");
+  const sourcePolicyEn = [
+    enabled2(values, "preferTopConferences") ? "established leading conferences" : "relevant conferences",
+    enabled2(values, "preferTopJournals") ? "established leading journals" : "relevant journals"
+  ].join(" and ");
+  if (language === "zh") {
+    return `# \u8BBA\u6587\u5F15\u6587\u6838\u67E5\u4E0E\u8865\u5145
+
+\u4F60\u662F\u4E00\u540D\u719F\u6089\u8BE5\u8BBA\u6587\u7814\u7A76\u65B9\u5411\u7684\u5B66\u672F\u5F15\u6587\u7F16\u8F91\u3002\u5B8C\u6574\u7406\u89E3\u8BBA\u6587\u548C .bib \u540E\uFF0C\u5224\u65AD\u73B0\u6709\u5F15\u7528\u662F\u5426\u771F\u6B63\u652F\u6301\u5BF9\u5E94\u9648\u8FF0\u3001\u54EA\u4E9B\u4F4D\u7F6E\u7F3A\u5C11\u5FC5\u8981\u5F15\u6587\uFF0C\u5E76\u5728\u4E0D\u6539\u53D8\u79D1\u5B66\u4E3B\u5F20\u7684\u524D\u63D0\u4E0B${action === "repair" ? "\u5B89\u5168\u4FEE\u590D\u6B63\u6587\u5F15\u7528\u4E0E BibTeX" : "\u7ED9\u51FA\u53EF\u6267\u884C\u5BA1\u8BA1\u7ED3\u679C"}\u3002
+
+## \u6750\u6599\u4E0E\u8303\u56F4
+\u8BFB\u53D6\u4E3B .tex\u3001\u88AB include/input \u7684\u7AE0\u8282\u3001\u5B8C\u6574 .bib \u548C\u6700\u65B0 PDF\uFF08\u5982\u6709\uFF09\u3002\u91CD\u70B9\u68C0\u67E5\uFF1A${scopeLabel || "Introduction\u3001Related Work"}\uFF1B\u540C\u65F6\u5FEB\u901F\u68C0\u67E5 Abstract \u662F\u5426\u8BEF\u542B\u5F15\u6587\u3001\u9996\u6B21\u5B9A\u4E49\u548C\u8DE8\u7AE0\u8282 cite key \u662F\u5426\u5931\u6548\u3002\u4E3B\u8981\u4FEE\u6539 Introduction \u4E0E Related Work\uFF0C\u5176\u4ED6\u7AE0\u8282\u53EA\u5904\u7406\u660E\u786E\u7684\u5F15\u6587\u9519\u8BEF\u6216\u7F3A\u53E3\u3002
+
+## \u5F53\u524D\u914D\u7F6E
+- \u5EFA\u8BAE\u53C2\u8003\u6587\u732E\u603B\u91CF\uFF1A${referenceRange[0]}\u2013${referenceRange[1]} \u7BC7\u3002\u8FD9\u662F\u8986\u76D6\u5EA6\u53C2\u8003\uFF0C\u4E0D\u662F\u51D1\u6570\u6307\u6807\uFF1B\u8BBA\u6587\u5185\u5BB9\u4E0D\u9700\u8981\u65F6\u53EF\u4EE5\u504F\u79BB\u3002
+- \u8FD1\u671F\u6587\u732E\uFF1A\u4EE5\u6267\u884C\u65E5\u671F\u4E3A\u51C6\uFF0C\u8FD1 ${recentYears} \u5E74\u6587\u732E\u5360\u6BD4\u76EE\u6807\u9AD8\u4E8E ${recentShare}%\uFF1B\u4E0D\u53EF\u66FF\u4EE3\u7684\u5960\u57FA\u5DE5\u4F5C\u4E0D\u56E0\u5E74\u4EFD\u5220\u9664\u3002
+- \u6765\u6E90\u504F\u597D\uFF1A${sourcePolicyZh}\uFF1B${enabled2(values, "allowPreprints") ? "\u5141\u8BB8\u5F15\u7528\u5C1A\u65E0\u6B63\u5F0F\u7248\u672C\u7684\u91CD\u8981\u9884\u5370\u672C\uFF0C\u4F46\u5FC5\u987B\u6807\u660E\u7248\u672C\u72B6\u6001" : "\u9ED8\u8BA4\u4E0D\u5F15\u7528\u9884\u5370\u672C\uFF1B\u5B58\u5728\u6B63\u5F0F\u53D1\u8868\u7248\u672C\u65F6\u5FC5\u987B\u5F15\u7528\u6B63\u5F0F\u7248\u672C"}\u3002
+- \u5355\u53E5\u5F15\u7528\uFF1A\u901A\u5E38\u4E0D\u8D85\u8FC7 ${citationsPerSentence} \u7BC7\u771F\u6B63\u5171\u540C\u652F\u6491\u8BE5\u53E5\u7684\u8BBA\u6587\uFF0C\u907F\u514D citation dump\u3002
+- \u5B9A\u5411\u5F15\u7528\uFF1A${targetRuleZh}${custom ? `
+- \u8865\u5145\u8981\u6C42\uFF1A${custom}` : ""}
+
+## \u6838\u67E5\u65B9\u6CD5
+1. \u5148\u63D0\u53D6\u8BBA\u6587\u81EA\u5DF1\u7684\u65B9\u6CD5\u3001\u8D21\u732E\u3001\u5B9E\u9A8C\u53D1\u73B0\u548C\u6709\u8BC1\u636E\u652F\u6491\u7684\u4F5C\u8005\u7EFC\u5408\u5224\u65AD\uFF1B\u8FD9\u4E9B\u5185\u5BB9\u4E0D\u5E94\u88AB\u673A\u68B0\u8865\u5F15\u6587\u3002\u5BF9\u5916\u90E8\u4E8B\u5B9E\u3001\u5DF2\u6709\u80FD\u529B\u3001\u5386\u53F2\u53D1\u5C55\u3001\u666E\u904D\u6BD4\u8F83\u3001\u9886\u57DF\u73B0\u72B6\u548C\u4ED6\u4EBA\u7ED3\u8BBA\uFF0C\u9010\u53E5\u5224\u65AD\u662F\u5426\u9700\u8981\u6765\u6E90\u3002
+2. \u5BF9\u6BCF\u4E2A\u73B0\u6709\u5F15\u7528\u6838\u5BF9\u201C\u53E5\u5B50\u4E3B\u5F20\u2014\u539F\u8BBA\u6587\u8BC1\u636E\u201D\u7684\u8BED\u4E49\u5173\u7CFB\uFF0C\u8BC6\u522B\u9519\u5F15\u3001\u8FC7\u5EA6\u5916\u63A8\u3001\u5E76\u5217\u5F15\u7528\u4E2D\u53EA\u6709\u90E8\u5206\u652F\u6301\u3001\u91CD\u590D\u5806\u53E0\u53CA\u5F15\u7528\u4F4D\u7F6E\u542B\u6DF7\u3002\u4E0D\u5F97\u53EA\u51ED\u6807\u9898\u3001\u6458\u8981\u7247\u6BB5\u6216\u4E8C\u624B\u8F6C\u8FF0\u5224\u65AD\u3002
+3. \u6838\u5BF9 .bib \u7684\u6807\u9898\u3001\u4F5C\u8005\u3001\u5E74\u4EFD\u3001venue\u3001\u5377\u671F\u9875\u7801\u3001DOI/\u7A33\u5B9A URL \u4E0E\u53D1\u8868\u72B6\u6001\uFF1B\u5408\u5E76\u91CD\u590D\u6761\u76EE\uFF0C\u4FDD\u7559\u73B0\u6709 key\uFF0C\u9664\u975E key \u672C\u8EAB\u51B2\u7A81\u6216\u9519\u8BEF\u3002
+4. ${enabled2(values, "browse") ? `\u5141\u8BB8\u8054\u7F51\u68C0\u7D22\u548C\u6838\u9A8C\u3002\u4F18\u5148\u539F\u8BBA\u6587\u3001\u5B98\u65B9 proceedings\u3001\u51FA\u7248\u793E\u6216 DOI \u9875\u9762\uFF1B\u56F4\u7ED5\u8FD1 ${recentYears} \u5E74\u7684\u76F4\u63A5\u76F8\u5173\u5DE5\u4F5C\u8865\u8DB3\u7F3A\u53E3\u3002` : "\u4E0D\u8054\u7F51\u65B0\u589E\u6587\u732E\uFF1B\u53EA\u6838\u67E5\u5DF2\u63D0\u4F9B\u8BBA\u6587\u4E0E BibTeX\uFF0C\u5E76\u628A\u65E0\u6CD5\u786E\u8BA4\u7684\u7F3A\u53E3\u660E\u786E\u5217\u51FA\u3002"}
+5. \u65B0\u589E\u6587\u732E\u5FC5\u987B\u89E3\u51B3\u660E\u786E\u7684\u8BBA\u8BC1\u7F3A\u53E3\uFF0C\u4E0E\u53E5\u5B50\u8BED\u4E49\u76F4\u63A5\u76F8\u5173\uFF0C\u5E76\u7ED9\u51FA\u5B8C\u6574\u3001\u53EF\u5408\u5E76\u4E14\u4E0D\u51B2\u7A81\u7684 BibTeX\u3002\u4E0D\u5F97\u4E3A\u4E86\u63D0\u9AD8\u6570\u91CF\u3001\u8FD1\u671F\u5360\u6BD4\u6216\u76EE\u6807 venue \u6570\u91CF\u52A0\u5165\u88C5\u9970\u6027\u5F15\u7528\u3002
+
+## \u4EA4\u4ED8
+${action === "repair" ? "\u76F4\u63A5\u8FD4\u56DE\u5B8C\u6574\u7684\u4FEE\u8BA2\u7248 .tex\uFF1B\u53EA\u6709 BibTeX \u786E\u6709\u53D8\u5316\u65F6\u8FD4\u56DE\u5B8C\u6574\u4FEE\u8BA2\u7248 .bib\u3002\u4FEE\u6539\u4EC5\u9650\u5F15\u6587\u53CA\u5176\u5FC5\u8981\u7684\u6700\u5C0F\u53E5\u5B50\u8C03\u6574\uFF0C\u4E0D\u91CD\u5199\u8BBA\u6587\u903B\u8F91\u3002\u53E6\u7ED9\u4E00\u4EFD\u7CBE\u7B80\u6458\u8981\uFF0C\u5217\u51FA\u65B0\u589E\u3001\u5220\u9664\u3001\u66FF\u6362\u3001\u79FB\u52A8\u548C\u4ECD\u5F85\u786E\u8BA4\u7684\u5F15\u7528\u3002" : "\u5728\u5F53\u524D\u804A\u5929\u8FD4\u56DE\u7ED3\u6784\u5316\u5F15\u6587\u5BA1\u8BA1\uFF1A\u4F4D\u7F6E\u3001\u539F\u9648\u8FF0\u4E0E cite key\u3001\u5224\u65AD\u3001\u8BC1\u636E\u3001\u5EFA\u8BAE\u52A8\u4F5C\u3001\u5019\u9009\u6765\u6E90\u548C\u7F6E\u4FE1\u5EA6\u3002\u4E0D\u8981\u4FEE\u6539\u6587\u4EF6\u3002"}
+
+\u6700\u540E\u590D\u6838\u6240\u6709 cite key \u5747\u5B58\u5728\u3001\u540C\u4E00\u6765\u6E90\u6CA1\u6709\u91CD\u590D\u6761\u76EE\u3001\u5F15\u7528\u987A\u5E8F\u4E0E LaTeX \u53EF\u7F16\u8BD1\uFF0C\u5E76\u62A5\u544A\u5B9E\u9645\u53C2\u8003\u6587\u732E\u603B\u91CF\u3001\u8FD1 ${recentYears} \u5E74\u5360\u6BD4\u3001\u9884\u5370\u672C\u6570\u91CF\u548C\u76EE\u6807 venue \u5F15\u7528\u6570\u91CF\u3002\u6570\u5B57\u672A\u8FBE\u5230\u5EFA\u8BAE\u503C\u65F6\u89E3\u91CA\u5185\u5BB9\u539F\u56E0\uFF0C\u4E0D\u8981\u8865\u9F50\u3002`;
   }
-};
-var READER_PROFILES = {
-  infer: {
-    label: text2("\u6839\u636E\u8BBA\u6587\u5224\u65AD", "Infer from the manuscript"),
-    prompt: text2(
-      "\u6839\u636E\u8BBA\u6587\u4E3B\u9898\u3001\u76EE\u6807\u8BFB\u8005\u548C\u73B0\u6709\u5199\u6CD5\u5224\u65AD",
-      "infer from the topic, intended readership, and current manuscript"
-    )
-  },
-  specialist: {
-    label: text2("\u9886\u57DF\u4E13\u5BB6", "Specialists"),
-    prompt: text2(
-      "\u9762\u5411\u719F\u6089\u8BE5\u5B50\u9886\u57DF\u672F\u8BED\u4E0E\u5E38\u89C1\u65B9\u6CD5\u7684\u4E13\u5BB6",
-      "specialists familiar with the subfield's terminology and standard methods"
-    )
-  },
-  mixed: {
-    label: text2("\u6DF7\u5408\u8BFB\u8005", "Mixed technical audience"),
-    prompt: text2(
-      "\u540C\u65F6\u670D\u52A1\u5B50\u9886\u57DF\u4E13\u5BB6\u548C\u76F8\u90BB\u65B9\u5411\u7814\u7A76\u8005",
-      "both subfield specialists and researchers from adjacent areas"
-    )
-  },
-  broad: {
-    label: text2("\u5E7F\u6CDB\u79D1\u7814\u8BFB\u8005", "Broad research audience"),
-    prompt: text2(
-      "\u51CF\u5C11\u4E0D\u5FC5\u8981\u7684\u4E13\u4E1A\u8D1F\u62C5\uFF0C\u4F46\u4FDD\u7559\u79D1\u5B66\u7CBE\u5EA6",
-      "reduce avoidable specialist burden while preserving scientific precision"
-    )
-  }
-};
-var DIAGNOSIS_DIMENSIONS = {
-  "argument-flow": {
-    label: text2("\u4E3B\u7EBF\u4E0E\u7AE0\u8282\u529F\u80FD", "Argument flow and section function"),
-    prompt: text2(
-      "\u68C0\u67E5\u6838\u5FC3\u4E3B\u7EBF\u80FD\u5426\u8D2F\u7A7F\u6807\u9898\u3001\u6458\u8981\u3001\u5F15\u8A00\u3001\u6B63\u6587\u548C\u7ED3\u8BBA\uFF1B\u68C0\u67E5\u7AE0\u8282\u804C\u8D23\u3001\u6BB5\u843D\u843D\u70B9\u3001old-to-new \u4FE1\u606F\u6D41\u4EE5\u53CA\u5931\u7126\u3001\u5012\u5E8F\u6216\u7EAF\u5BFC\u822A\u5185\u5BB9",
-      "check whether one central line survives across title, abstract, introduction, body, and conclusion; inspect section roles, paragraph landing points, old-to-new flow, drift, inversion, and empty navigation"
-    )
-  },
-  "citation-practice": {
-    label: text2("\u5F15\u7528\u8986\u76D6\u4E0E\u653E\u7F6E", "Citation coverage and placement"),
-    prompt: text2(
-      "\u6807\u51FA\u5BF9\u9886\u57DF\u4E8B\u5B9E\u3001\u73B0\u72B6\u3001\u6BD4\u8F83\u3001\u7F3A\u53E3\u6216\u4ED6\u4EBA\u5DE5\u4F5C\u7684\u9AD8\u7F6E\u4FE1\u5EA6\u7F3A\u5F15\u6587\u4F4D\u7F6E\uFF1B\u68C0\u67E5\u5F15\u7528\u662F\u5426\u7D27\u8D34\u6240\u652F\u6301\u7684 claim\uFF0C\u5E76\u533A\u5206\u6587\u732E\u4E8B\u5B9E\u3001\u4F5C\u8005\u63A8\u65AD\u548C\u672C\u6587\u53D1\u73B0",
-      "flag high-confidence missing citations for field facts, current practice, comparisons, gaps, or prior work; check that citations attach to the exact claim and distinguish source facts, author inference, and this paper's findings"
-    )
-  },
-  "paragraph-craft": {
-    label: text2("\u6BB5\u843D\u4E0E\u53E5\u95F4\u63A8\u8FDB", "Paragraph and sentence progression"),
-    prompt: text2(
-      "\u68C0\u67E5\u6BCF\u6BB5\u662F\u5426\u53EA\u627F\u62C5\u4E00\u4E2A\u4E3B\u8981\u529F\u80FD\uFF0C\u5E76\u5F62\u6210\u8BED\u5883\u6216\u95EE\u9898\u3001\u5C55\u5F00\u3001\u843D\u70B9\u6216\u8FC7\u6E21\uFF1B\u68C0\u67E5 topic position\u3001stress position\u3001\u6307\u4EE3\u3001\u4E3B\u8C13\u8DDD\u79BB\u4E0E\u53E5\u95F4\u8854\u63A5",
-      "check that each paragraph performs one main job and moves from context or question through development to a takeaway or transition; inspect topic and stress positions, references, subject-verb distance, and sentence linkage"
-    )
-  },
-  "display-writing": {
-    label: text2("\u56FE\u8868 Caption \u4E0E Note", "Figure, table, caption, and note writing"),
-    prompt: text2(
-      "\u68C0\u67E5 caption \u662F\u5426\u81EA\u8DB3\u4F46\u7B80\u6D01\u3001\u662F\u5426\u4EA4\u4EE3\u9762\u677F\u548C\u5FC5\u8981\u7EDF\u8BA1\u8BED\u4E49\uFF1B\u8BC6\u522B\u628A\u65B9\u6CD5\u3001\u7ED3\u679C\u89E3\u91CA\u3001\u516C\u5F0F\u63A8\u5BFC\u6216\u6B63\u6587\u8BBA\u8BC1\u585E\u8FDB caption\u3001note \u6216\u811A\u6CE8\uFF0C\u4EE5\u53CA\u6B63\u6587\u4E0E\u56FE\u8868\u7684\u91CD\u590D",
-      "check whether captions are concise yet self-contained and explain panels plus essential statistical semantics; identify methods, interpretation, derivations, or main-text arguments displaced into captions, notes, or footnotes, and duplication between prose and displays"
-    )
-  },
-  "results-writing": {
-    label: text2("\u7ED3\u679C\u6BB5\u843D\u4E0E Finding", "Results prose and findings"),
-    prompt: text2(
-      "\u68C0\u67E5\u7ED3\u679C\u6BB5\u843D\u662F\u5426\u8BF4\u660E\u95EE\u9898\u6216\u6BD4\u8F83\u76EE\u7684\u3001\u5173\u952E finding\u3001\u5FC5\u8981\u8BC1\u636E\u548C take-away\uFF1B\u8BC6\u522B\u9010\u683C\u590D\u8FF0\u56FE\u8868\u3001\u5806\u780C\u6570\u5B57\u6216\u6CA1\u6709\u6309\u4E3B\u7ED3\u679C\u4E0E\u6B21\u8981\u7ED3\u679C\u5206\u914D\u7BC7\u5E45",
-      "check whether results paragraphs state the question or comparison purpose, key finding, necessary evidence, and take-away; identify cell-by-cell display narration, number dumping, and failure to allocate prose by result importance"
-    )
-  },
-  "mathematical-writing": {
-    label: text2("\u516C\u5F0F\u4E0E\u6570\u5B66\u53D9\u8FF0", "Equations and mathematical exposition"),
-    prompt: text2(
-      "\u68C0\u67E5\u516C\u5F0F\u662F\u5426\u878D\u5165\u53E5\u5B50\u3001\u7528\u9014\u662F\u5426\u5148\u88AB\u5EFA\u7ACB\u3001\u7B26\u53F7\u662F\u5426\u53CA\u65F6\u5B9A\u4E49\u3001\u516C\u5F0F\u524D\u540E\u662F\u5426\u89E3\u91CA\u5176\u79D1\u5B66\u542B\u4E49\uFF1B\u8BC6\u522B\u5B64\u7ACB\u516C\u5F0F\u3001\u7B26\u53F7\u5806\u53E0\u3001\u6B63\u6587\u673A\u68B0\u590D\u8FF0\u548C note \u4E2D\u7684\u5197\u957F\u63A8\u5BFC",
-      "check whether equations participate in sentences, have a stated purpose, define symbols when needed, and receive scientific interpretation; identify orphan equations, notation piles, mechanical prose restatement, and long derivations hidden in notes"
-    )
-  },
-  "language-precision": {
-    label: text2("\u7CBE\u786E\u3001\u514B\u5236\u4E0E\u8BFB\u8005\u8D1F\u62C5", "Precision, restraint, and reader burden"),
-    prompt: text2(
-      "\u68C0\u67E5\u672F\u8BED\u4E0E\u7F29\u5199\u8D1F\u62C5\u3001\u540D\u8BCD\u4E32\u3001\u6A21\u7CCA\u4E3B\u8BED\u6216\u6307\u4EE3\u3001\u8FC7\u5EA6\u65AD\u8A00\u6216\u8FC7\u5EA6\u5F31\u5316\u3001\u7A7A\u6CDB\u5F62\u5BB9\u8BCD\u548C\u4E0D\u5FC5\u8981\u7684\u590D\u6742\u53E5\uFF1B\u4E3B\u52A8\u8BED\u6001\u3001\u88AB\u52A8\u8BED\u6001\u3001we/our \u4E0E\u5192\u53F7\u53EA\u6309\u8BED\u5883\u5224\u65AD\uFF0C\u4E0D\u8BBE\u673A\u68B0\u7981\u4EE4",
-      "check jargon and acronym burden, noun stacks, vague subjects or antecedents, overclaiming or over-hedging, empty modifiers, and needless sentence complexity; judge active or passive voice, we/our, and colons contextually rather than by blanket rules"
-    )
-  },
-  "redundancy-navigation": {
-    label: text2("\u91CD\u590D\u3001\u6807\u9898\u4E0E\u673A\u68B0\u5316\u8868\u8FBE", "Redundancy, headings, and mechanical prose"),
-    prompt: text2(
-      "\u68C0\u67E5\u8DE8\u7AE0\u8282\u91CD\u590D claim \u6216\u5B9A\u4E49\u3001\u6A21\u677F\u5316\u94FA\u57AB\u4E0E\u603B\u7ED3\u3001\u6CDB\u5316\u6807\u9898\u3001\u8FC7\u5BC6\u5C42\u7EA7\u548C\u5197\u957F\u5BFC\u822A\u53E5\uFF1B\u533A\u5206\u5FC5\u8981\u56DE\u6263\u4E0E\u65E0\u65B0\u589E\u4EF7\u503C\u7684\u91CD\u590D",
-      "check repeated claims or definitions across sections, formulaic setup and recap, generic headings, over-dense hierarchy, and verbose navigation; distinguish useful callbacks from repetition that adds no value"
-    )
-  }
-};
-var DIAGNOSIS_ACTIONS = {
-  report: text2("\u53EA\u8BCA\u65AD\u5E76\u7ED9\u51FA\u6307\u6B63", "Diagnosis and guidance only"),
-  repair: text2("\u8BCA\u65AD\u5E76\u5B89\u5168\u4FEE\u590D", "Diagnose and safely repair")
-};
-function optionEntries(values) {
-  return Object.entries(values).map(([value, label]) => ({ value, label }));
+  return `# Citation Review and Support
+
+Act as an academic citation editor familiar with this paper's research area. After understanding the manuscript and bibliography, determine whether each citation genuinely supports its statement, locate claims that need sources, and ${action === "repair" ? "safely repair citations and BibTeX without changing the scientific claims" : "produce an actionable audit"}.
+
+## Materials and scope
+Read the main .tex, every included section, the complete .bib, and the latest PDF when available. Focus on ${scopeLabel || "Introduction and Related Work"}, while quickly checking whether the Abstract improperly contains citations and whether first definitions or cross-section cite keys are broken. Make substantive citation changes mainly in Introduction and Related Work; elsewhere, address only clear citation errors or omissions.
+
+## Configuration
+- Suggested bibliography size: ${referenceRange[0]}\u2013${referenceRange[1]} works. This is a coverage reference, never a quota; depart when the paper's content warrants it.
+- Recency: as of the execution date, aim for more than ${recentShare}% of references from the latest ${recentYears} years, while retaining indispensable foundational work.
+- Source policy: prefer ${sourcePolicyEn}; ${enabled2(values, "allowPreprints") ? "important preprints without a formal version are allowed when their status is explicit" : "exclude preprints by default and cite the formal version whenever one exists"}.
+- Citation density: normally use no more than ${citationsPerSentence} papers that genuinely co-support one sentence; avoid citation dumping.
+- Targeting: ${targetRuleEn}${custom ? `
+- Additional requirement: ${custom}` : ""}
+
+## Review method
+1. Separate this paper's own method, contributions, experimental findings, and evidence-grounded synthesis from external factual, historical, comparative, field-state, and prior-work claims. Do not mechanically attach citations to the paper's own claims; assess external claims sentence by sentence.
+2. Verify the semantic relation between every cited claim and the original source. Detect miscitation, overextension, partially supporting citation clusters, redundant stacks, and ambiguous citation placement. Do not rely on titles, search snippets, or secondary summaries alone.
+3. Verify each BibTeX entry's title, authors, year, venue, volume/issue/pages, DOI or stable URL, and publication status. Merge duplicates while preserving existing keys unless a key is itself conflicting or wrong.
+4. ${enabled2(values, "browse") ? `Browse to verify and fill explicit gaps, prioritizing original papers, official proceedings, publishers, and DOI records, with special attention to directly relevant work from the latest ${recentYears} years.` : "Do not add literature from the web; audit only the supplied papers and BibTeX and list unverifiable gaps explicitly."}
+5. Add a source only when it closes an identified argumentative gap and directly supports the sentence. Supply complete, merge-ready, non-conflicting BibTeX for every addition. Never pad the bibliography, recency ratio, or target-venue count.
+
+## Delivery
+${action === "repair" ? "Return the complete revised .tex and the complete revised .bib only when the bibliography actually changes. Limit edits to citations and the minimum sentence adjustment needed to make citation scope precise; do not rewrite the paper's logic. Add a concise summary of added, removed, replaced, moved, and unresolved citations." : "Return a structured citation audit in the current chat with location, original statement and cite keys, judgment, evidence, recommended action, candidate sources, and confidence. Do not modify files."}
+
+Finally verify that every cite key exists, no source is duplicated, citation order and LaTeX compile, and report the actual bibliography count, latest-${recentYears}-year share, preprint count, and target-venue citation count. Explain content-driven departures from recommendations rather than filling them mechanically.`;
 }
-function labelsFor2(values, id, labels, language) {
-  return selected2(values, id).map((value) => {
-    const item = labels[value];
-    if (!item) return value;
-    return "label" in item ? item.label[language] : item[language];
-  }).join(language === "zh" ? "\u3001" : ", ");
-}
-function selectedDimensionInstructions(values, language) {
-  return selected2(values, "dimensions").map((id) => DIAGNOSIS_DIMENSIONS[id]?.prompt[language]).filter(Boolean).map((instruction) => `- ${instruction}`).join("\n");
-}
-var WRITING_DIAGNOSIS_WORKBENCH = {
-  id: "writing-diagnosis",
-  activePage: "writing-diagnosis",
-  copy: sharedCopy2({
+var CITATION_AUDIT_WORKBENCH = {
+  id: "citation-audit-workbench",
+  activePage: "citation-audit",
+  copy: workbenchCopy({
     zh: {
-      eyebrow: "ACADEMIC WRITING DIAGNOSIS",
-      title: "\u5B66\u672F\u5199\u4F5C\u8BCA\u65AD",
-      subtitle: "\u53D1\u73B0\u4F5C\u8005\u81EA\u5DF1\u6700\u96BE\u5BDF\u89C9\u7684\u5199\u4F5C\u624B\u6CD5\u4E0E\u957F\u671F\u4E60\u60EF\u95EE\u9898\uFF0C\u800C\u4E0D\u662F\u91CD\u65B0\u8BC4\u5BA1\u8BBA\u6587\u7684\u521B\u65B0\u6027\u548C\u5B9E\u9A8C\u3002",
-      preset: "\u5168\u6587\u7406\u89E3 \xB7 \u5177\u4F53\u5B9A\u4F4D \xB7 \u53EF\u6267\u884C\u6307\u6B63",
-      inputTitle: "\u8BCA\u65AD\u6750\u6599",
-      inputItems: [
-        "\u4E3B\u7A3F .tex\uFF08\u5FC5\u9700\uFF09",
-        "\u6700\u65B0\u7F16\u8BD1 PDF\uFF08\u5EFA\u8BAE\uFF09",
-        ".bib\uFF08\u5EFA\u8BAE\uFF09",
-        "\u76EE\u6807 venue \u6307\u5357\uFF08\u53EF\u9009\uFF09"
-      ],
-      inputHint: "\u65E0\u9700\u4E0A\u4F20 figures \u6216\u5B9E\u9A8C\u6E90\u6570\u636E\u3002\u672C\u9875\u8BCA\u65AD\u5199\u4F5C\u8868\u73B0\uFF1B\u79D1\u5B66\u6B63\u786E\u6027\u3001\u6570\u636E\u4E00\u81F4\u6027\u548C BibTeX \u771F\u4F2A\u5C5E\u4E8E\u5176\u4ED6\u4E13\u9879\u5BA1\u8BA1\u3002",
-      promptTitle: "\u5B66\u672F\u5199\u4F5C\u8BCA\u65AD Prompt",
-      promptPurpose: "\u4ECE\u5168\u6587\u3001\u6BB5\u843D\u548C\u53E5\u5B50\u4E09\u4E2A\u5C3A\u5EA6\u5B9A\u4F4D\u53CD\u590D\u51FA\u73B0\u7684\u5199\u4F5C\u5F31\u70B9\uFF0C\u5E76\u89E3\u91CA\u5982\u4F55\u6539\u8FDB\u3002"
+      eyebrow: "CITATION REVIEW",
+      title: "\u5F15\u6587\u6838\u67E5\u4E0E\u8865\u5145",
+      subtitle: "\u6838\u5BF9\u5F15\u7528\u662F\u5426\u652F\u6491\u9648\u8FF0\uFF0C\u8865\u8DB3\u771F\u6B63\u7F3A\u5931\u7684\u5F15\u6587\uFF0C\u5E76\u540C\u6B65\u6821\u9A8C BibTeX\u3002",
+      preset: "Introduction + Related Work \xB7 \u8FD1\u4E09\u5E74 >65% \xB7 \u4E0D\u5F15\u7528\u9884\u5370\u672C",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: ["\u4E3B\u7A3F TeX \u4E0E\u5B8C\u6574 BibTeX", "\u6700\u65B0 PDF\uFF08\u5EFA\u8BAE\uFF09", "\u76EE\u6807 venue\uFF08\u53EF\u9009\uFF09"],
+      inputHint: "\u91CD\u70B9\u5904\u7406\u5F15\u8A00\u4E0E\u76F8\u5173\u5DE5\u4F5C\uFF1B\u5EFA\u8BAE\u6570\u91CF\u7528\u4E8E\u68C0\u67E5\u8986\u76D6\u5EA6\uFF0C\u4E0D\u7528\u4E8E\u51D1\u5F15\u7528\u3002",
+      promptTitle: "\u5F15\u6587\u6838\u67E5 Prompt",
+      promptPurpose: "\u9010\u53E5\u6838\u9A8C\u652F\u6491\u5173\u7CFB\uFF0C\u5E76\u5BF9\u65B0\u589E\u6765\u6E90\u7ED9\u51FA\u53EF\u8FFD\u6EAF BibTeX\u3002"
     },
     en: {
-      eyebrow: "ACADEMIC WRITING DIAGNOSIS",
-      title: "Academic writing diagnosis",
-      subtitle: "Expose recurring writing techniques and habits that authors rarely notice themselves\u2014without re-reviewing novelty or experiments.",
-      preset: "Whole-text reading \xB7 precise locations \xB7 actionable guidance",
-      inputTitle: "Diagnostic materials",
-      inputItems: [
-        "Main .tex (required)",
-        "Latest compiled PDF (recommended)",
-        ".bib (recommended)",
-        "Target-venue guidance (optional)"
-      ],
-      inputHint: "Figures and raw experimental data are unnecessary. This page diagnoses writing; scientific correctness, data consistency, and BibTeX authenticity belong to separate audits.",
-      promptTitle: "Academic writing diagnosis prompt",
-      promptPurpose: "Locate recurring writing weaknesses at manuscript, paragraph, and sentence scale, then explain how to improve them."
+      eyebrow: "CITATION REVIEW",
+      title: "Citation Review & Support",
+      subtitle: "Verify claim\u2013citation support, fill genuine gaps, and validate BibTeX metadata.",
+      preset: "Introduction + Related Work \xB7 >65% recent \xB7 no preprints",
+      inputTitle: "Prepare materials",
+      inputItems: ["Main TeX and complete BibTeX", "Latest PDF (recommended)", "Target venue (optional)"],
+      inputHint: "Prioritize Introduction and Related Work; use counts to assess coverage, never to pad references.",
+      promptTitle: "Citation-review prompt",
+      promptPurpose: "Verify sentence-level support and provide traceable BibTeX for every addition."
     }
   }),
   controls: [
     {
-      id: "scope",
+      id: "action",
       kind: "segmented",
-      label: text2("\u8BCA\u65AD\u8303\u56F4", "Diagnostic scope"),
-      description: text2(
-        "\u5168\u6587\u6700\u6709\u5229\u4E8E\u53D1\u73B0\u8DE8\u7AE0\u8282\u91CD\u590D\u548C\u53D9\u4E8B\u65AD\u88C2\u3002",
-        "Whole-manuscript reading best exposes repetition and narrative breaks."
-      ),
-      defaultValue: "whole",
-      options: optionEntries(DIAGNOSIS_SCOPES),
+      label: text2("\u6267\u884C\u65B9\u5F0F", "Action"),
+      description: text2("\u4EC5\u62A5\u544A\uFF0C\u6216\u5728\u6838\u9A8C\u540E\u5B89\u5168\u4FEE\u6539\u3002", "Report only, or safely revise after verification."),
+      defaultValue: "repair",
+      options: [
+        { value: "repair", label: text2("\u6838\u67E5\u5E76\u5B89\u5168\u4FEE\u590D", "Review & safely repair") },
+        { value: "audit", label: text2("\u4EC5\u6838\u67E5", "Audit only") }
+      ],
       span: "full"
     },
     {
       id: "sections",
       kind: "multi",
-      label: text2("\u9009\u62E9\u5185\u5BB9", "Select sections"),
-      description: text2(
-        "\u81F3\u5C11\u9009\u62E9\u4E00\u9879\uFF1Bcaption\u3001note \u548C\u516C\u5F0F\u53EF\u72EC\u7ACB\u8BCA\u65AD\u3002",
-        "Select at least one item; captions, notes, and equations can be diagnosed independently."
-      ),
-      defaultValue: ["introduction"],
+      label: text2("\u91CD\u70B9\u7AE0\u8282", "Priority sections"),
+      description: text2("\u9ED8\u8BA4\u96C6\u4E2D\u5904\u7406 Introduction \u4E0E Related Work\u3002", "Introduction and Related Work are the default focus."),
+      defaultValue: ["introduction", "related-work"],
       minSelected: 1,
-      options: optionEntries(MANUSCRIPT_SECTIONS),
-      visibleWhen: (values) => scalar2(values, "scope") === "selected",
+      options: Object.entries(SECTION_NAMES).map(([value, label]) => ({ value, label })),
       span: "full"
     },
     {
-      id: "depth",
+      id: "targetType",
       kind: "segmented",
-      label: text2("\u8BCA\u65AD\u6DF1\u5EA6", "Diagnostic depth"),
-      description: text2(
-        "\u9ED8\u8BA4\u5173\u6CE8\u4F1A\u5F71\u54CD\u9605\u8BFB\u3001\u8BBA\u8BC1\u6216\u5BA1\u7A3F\u5224\u65AD\u7684\u95EE\u9898\u3002",
-        "The default focuses on issues that affect reading, argument, or reviewer judgment."
-      ),
-      defaultValue: "standard",
-      options: Object.entries(DIAGNOSIS_DEPTHS).map(([value, item]) => ({
-        value,
-        label: item.label
-      })),
+      label: text2("\u76EE\u6807 venue", "Target venue"),
+      description: text2("\u671F\u520A\u53EF\u8BBE\u7F6E\u5B9A\u5411\u5F15\u6587\u5EFA\u8BAE\uFF1B\u4F1A\u8BAE\u9ED8\u8BA4\u4E0D\u8BBE\u6570\u91CF\u3002", "Journals may use a target-citation recommendation; conferences have no default count."),
+      defaultValue: "none",
+      options: [
+        { value: "none", label: text2("\u4E0D\u9884\u8BBE", "Not preset") },
+        { value: "conference", label: text2("\u4F1A\u8BAE", "Conference") },
+        { value: "journal", label: text2("\u671F\u520A", "Journal") }
+      ],
       span: "full"
     },
     {
-      id: "audience",
-      kind: "select",
-      label: text2("\u76EE\u6807\u8BFB\u8005", "Intended readers"),
-      description: text2(
-        "\u8BFB\u8005\u80CC\u666F\u51B3\u5B9A\u672F\u8BED\u89E3\u91CA\u548C\u6280\u672F\u7EC6\u8282\u7684\u5408\u7406\u5BC6\u5EA6\u3002",
-        "Reader background determines the appropriate density of terminology and detail."
-      ),
-      defaultValue: "infer",
-      options: Object.entries(READER_PROFILES).map(([value, item]) => ({
-        value,
-        label: item.label
-      }))
+      id: "targetVenue",
+      kind: "text",
+      label: text2("\u76EE\u6807\u540D\u79F0", "Target name"),
+      description: text2("\u586B\u5199\u4F1A\u8BAE\u6216\u671F\u520A\u5168\u79F0/\u7B80\u79F0\u3002", "Enter the conference or journal name."),
+      defaultValue: "",
+      placeholder: text2("\u4F8B\u5982\uFF1ATNNLS", "e.g. TNNLS"),
+      visibleWhen: (values) => scalar2(values, "targetType") !== "none"
     },
     {
-      id: "dimensions",
-      kind: "multi",
-      label: text2("\u8BCA\u65AD\u7EF4\u5EA6", "Diagnostic dimensions"),
-      description: text2(
-        "\u5141\u8BB8\u7EC4\u5408\u68C0\u67E5\uFF1B\u6700\u7EC8\u6309\u53CD\u590D\u51FA\u73B0\u7684\u4E60\u60EF\u5F52\u5E76\uFF0C\u4E0D\u6309\u6E05\u5355\u673A\u68B0\u62A5\u9519\u3002",
-        "Combine dimensions freely; findings are grouped by recurring habit rather than emitted as checklist noise."
-      ),
-      defaultValue: Object.keys(DIAGNOSIS_DIMENSIONS),
-      minSelected: 1,
-      options: Object.entries(DIAGNOSIS_DIMENSIONS).map(
-        ([value, item]) => ({
-          value,
-          label: item.label
-        })
-      ),
-      span: "full"
+      id: "targetVenueMinimum",
+      kind: "number",
+      label: text2("\u76EE\u6807\u671F\u520A\u5EFA\u8BAE\u5F15\u7528", "Suggested target-journal citations"),
+      description: text2("\u4EC5\u5728\u5185\u5BB9\u76F8\u5173\u65F6\u53C2\u8003\uFF0C\u9ED8\u8BA4\u81F3\u5C11 3 \u7BC7\u3002", "Use only when relevant; three is the default minimum."),
+      defaultValue: 3,
+      min: 0,
+      max: 20,
+      suffix: text2("\u7BC7", "papers"),
+      visibleWhen: (values) => scalar2(values, "targetType") === "journal"
     },
     {
-      id: "browseCitations",
-      kind: "toggle",
-      label: text2("\u4E3A\u7F3A\u5F15\u6587\u4F4D\u7F6E\u68C0\u7D22\u5019\u9009\u6587\u732E", "Search candidate sources for citation gaps"),
-      description: text2(
-        "\u53EA\u5904\u7406\u9AD8\u7F6E\u4FE1\u5EA6\u7F3A\u53E3\uFF1B\u65B0\u589E\u6765\u6E90\u5FC5\u987B\u6838\u9A8C\u5E76\u5355\u72EC\u7ED9\u51FA BibTeX\uFF0C\u4E0D\u81EA\u52A8\u63D2\u5165\u6B63\u6587\u3002",
-        "Only address high-confidence gaps. Verify new sources, return BibTeX separately, and never insert them silently."
-      ),
-      defaultValue: false,
-      enabledLabel: text2("\u8054\u7F51\u68C0\u7D22\u5019\u9009", "Search verified candidates"),
-      disabledLabel: text2("\u53EA\u5B9A\u4F4D\u7F3A\u53E3", "Locate gaps only"),
-      visibleWhen: (values) => selected2(values, "dimensions").includes("citation-practice")
-    },
-    {
-      id: "action",
-      kind: "segmented",
-      label: text2("\u5904\u7406\u65B9\u5F0F", "Action"),
-      description: text2(
-        "\u9ED8\u8BA4\u53EA\u7ED9\u51FA\u8BCA\u65AD\uFF0C\u5148\u8BA9\u4F5C\u8005\u770B\u6E05\u81EA\u5DF1\u7684\u5199\u4F5C\u4E60\u60EF\u3002",
-        "The default reports the diagnosis so the author can see recurring habits before revision."
-      ),
-      defaultValue: "report",
-      options: optionEntries(DIAGNOSIS_ACTIONS),
-      span: "full"
-    },
-    {
-      id: "preserveStrengths",
-      kind: "toggle",
-      label: text2("\u6807\u8BB0\u5E76\u4FDD\u62A4\u539F\u7A3F\u4E2D\u7684\u597D\u8868\u8FBE", "Identify and preserve strong writing"),
-      description: text2(
-        "\u907F\u514D\u4E3A\u4E86\u7EDF\u4E00\u98CE\u683C\u800C\u6539\u574F\u5DF2\u7ECF\u6E05\u695A\u3001\u51C6\u786E\u4E14\u6709\u8FA8\u8BC6\u5EA6\u7684\u6587\u5B57\u3002",
-        "Prevent clear, accurate, distinctive prose from being flattened for stylistic uniformity."
-      ),
-      defaultValue: true,
-      enabledLabel: text2("\u4FDD\u62A4\u597D\u8868\u8FBE", "Preserve strengths"),
-      disabledLabel: text2("\u4E0D\u5355\u72EC\u6807\u8BB0", "Do not mark separately")
-    },
-    {
-      id: "captionWordRange",
+      id: "referenceRange",
       kind: "range",
-      label: text2("Caption \u5EFA\u8BAE\u957F\u5EA6", "Suggested caption length"),
-      description: text2(
-        "\u4EC5\u5728\u5B89\u5168\u4FEE\u590D\u786E\u9700\u6539\u5199 Caption \u65F6\u4F7F\u7528\uFF1B\u9ED8\u8BA4 10\u201340 words\uFF0C\u5FC5\u8981\u65F6\u5141\u8BB8\u8D85\u51FA\uFF0C\u957F\u5EA6\u672C\u8EAB\u4E0D\u6784\u6210\u9519\u8BEF\u3002",
-        "Use only when a safe repair genuinely rewrites a caption. The default 10\u201340-word range is flexible, and length alone is never an error."
-      ),
-      defaultValue: CAPTION_LENGTH_POLICY.defaultRange,
-      min: CAPTION_LENGTH_POLICY.min,
-      max: CAPTION_LENGTH_POLICY.max,
-      step: CAPTION_LENGTH_POLICY.step,
-      suffix: text2("words", "words")
+      label: text2("\u5EFA\u8BAE\u5F15\u6587\u603B\u91CF", "Suggested reference count"),
+      description: text2("\u9ED8\u8BA4 35\u201340\uFF0C\u4EC5\u4F5C\u8986\u76D6\u5EA6\u53C2\u8003\u3002", "Defaults to 35\u201340 as a coverage reference only."),
+      defaultValue: [35, 40],
+      min: 5,
+      max: 150,
+      suffix: text2("\u7BC7", "works")
+    },
+    {
+      id: "recentYears",
+      kind: "number",
+      label: text2("\u8FD1\u671F\u65F6\u95F4\u7A97", "Recent window"),
+      description: text2("\u4EE5\u6267\u884C\u65E5\u671F\u5411\u524D\u8BA1\u7B97\u3002", "Count backward from the execution date."),
+      defaultValue: 3,
+      min: 1,
+      max: 10,
+      suffix: text2("\u5E74", "years")
+    },
+    {
+      id: "recentShare",
+      kind: "number",
+      label: text2("\u8FD1\u671F\u6587\u732E\u5360\u6BD4", "Recent-reference share"),
+      description: text2("\u9ED8\u8BA4\u76EE\u6807\u9AD8\u4E8E 65%\uFF0C\u7ECF\u5178\u5DE5\u4F5C\u4E0D\u53D7\u5F71\u54CD\u3002", "Default target is above 65%; foundational work remains allowed."),
+      defaultValue: 65,
+      min: 0,
+      max: 100,
+      suffix: text2("%", "%")
+    },
+    {
+      id: "allowPreprints",
+      kind: "toggle",
+      label: text2("\u5141\u8BB8\u9884\u5370\u672C", "Allow preprints"),
+      description: text2("\u9ED8\u8BA4\u5173\u95ED\uFF1B\u4F18\u5148\u5F15\u7528\u6B63\u5F0F\u53D1\u8868\u7248\u672C\u3002", "Off by default; prefer formally published versions."),
+      defaultValue: false,
+      enabledLabel: text2("\u5141\u8BB8\u5FC5\u8981\u9884\u5370\u672C", "Allow when necessary"),
+      disabledLabel: text2("\u4E0D\u5F15\u7528\u9884\u5370\u672C", "Exclude preprints")
+    },
+    {
+      id: "preferTopConferences",
+      kind: "toggle",
+      label: text2("\u4F18\u5148\u9876\u4F1A", "Prefer leading conferences"),
+      description: text2("\u6309\u8BBA\u6587\u6240\u5C5E\u5B50\u9886\u57DF\u5224\u65AD\u3002", "Determine leadership within the paper's subfield."),
+      defaultValue: true
+    },
+    {
+      id: "preferTopJournals",
+      kind: "toggle",
+      label: text2("\u4F18\u5148\u9876\u520A", "Prefer leading journals"),
+      description: text2("\u53EA\u5F15\u7528\u4E0E\u5F53\u524D\u9648\u8FF0\u771F\u6B63\u76F8\u5173\u7684\u8BBA\u6587\u3002", "Cite only work genuinely relevant to the statement."),
+      defaultValue: true
+    },
+    {
+      id: "browse",
+      kind: "toggle",
+      label: text2("\u8054\u7F51\u6838\u9A8C\u4E0E\u8865\u5145", "Browse to verify and extend"),
+      description: text2("\u6838\u67E5\u539F\u6587\u548C\u5B98\u65B9\u5143\u6570\u636E\uFF0C\u4E0D\u4F9D\u8D56\u641C\u7D22\u6458\u8981\u3002", "Check original papers and official metadata, not search snippets."),
+      defaultValue: true
+    },
+    {
+      id: "citationsPerSentence",
+      kind: "number",
+      label: text2("\u5355\u53E5\u6700\u591A\u5F15\u7528", "Maximum citations per sentence"),
+      description: text2("\u9ED8\u8BA4 4 \u7BC7\uFF0C\u907F\u514D\u5806\u53E0\u4F46\u5141\u8BB8\u5FC5\u8981\u7684\u7EFC\u5408\u5F15\u7528\u3002", "Defaults to four to avoid stacks while permitting real synthesis."),
+      defaultValue: 4,
+      min: 1,
+      max: 10,
+      suffix: text2("\u7BC7", "papers")
     },
     {
       id: "custom",
       kind: "textarea",
-      label: text2("\u8865\u5145\u5173\u6CE8\u70B9", "Additional focus"),
-      description: text2(
-        "\u4F8B\u5982\u7279\u522B\u68C0\u67E5 caption\u3001\u516C\u5F0F\u8BF4\u660E\u6216\u67D0\u4F4D\u4F5C\u8005\u53CD\u590D\u51FA\u73B0\u7684\u4E60\u60EF\u3002",
-        "For example, focus on captions, equation exposition, or a recurring author habit."
-      ),
+      label: text2("\u8865\u5145\u8981\u6C42", "Additional requirements"),
+      description: text2("\u53EF\u6307\u5B9A\u5FC5\u987B\u4FDD\u7559\u7684\u6765\u6E90\u3001\u4E3B\u9898\u6216\u6392\u9664\u8303\u56F4\u3002", "Optionally name sources, topics, or exclusions to preserve."),
       defaultValue: "",
-      placeholder: text2(
-        "\u53EF\u7559\u7A7A\uFF1B\u4E0D\u8981\u5728\u8FD9\u91CC\u7C98\u8D34\u8BBA\u6587\u5168\u6587\u3002",
-        "Optional; do not paste the manuscript here."
-      ),
+      placeholder: text2("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     }
   ],
-  buildPrompt(values, language) {
-    const scope = scalar2(values, "scope") === "whole" ? DIAGNOSIS_SCOPES.whole[language] : labelsFor2(values, "sections", MANUSCRIPT_SECTIONS, language);
-    const depthId = scalar2(values, "depth");
-    const audienceId = scalar2(values, "audience");
-    const depth = DIAGNOSIS_DEPTHS[depthId]?.prompt[language] ?? depthId;
-    const audience = READER_PROFILES[audienceId]?.prompt[language] ?? audienceId;
-    const dimensions = labelsFor2(
-      values,
-      "dimensions",
-      DIAGNOSIS_DIMENSIONS,
-      language
-    );
-    const dimensionInstructions = selectedDimensionInstructions(
-      values,
-      language
-    );
-    const repair = scalar2(values, "action") === "repair";
-    const browse = enabled2(values, "browseCitations") && selected2(values, "dimensions").includes("citation-practice");
-    const preserve = enabled2(values, "preserveStrengths");
-    const captionGuidance = buildCaptionLengthGuidance(
-      rangeValue2(
-        values,
-        "captionWordRange",
-        CAPTION_LENGTH_POLICY.defaultRange
-      ),
-      language
-    );
-    const custom = scalar2(values, "custom") || (language === "zh" ? "\u65E0" : "None");
-    if (language === "zh") {
-      return `# \u5B66\u672F\u5199\u4F5C\u8BCA\u65AD
-
-\u5B8C\u6574\u9605\u8BFB\u4E3B\u7A3F \`.tex\`\uFF0C\u5E76\u7ED3\u5408\u6700\u65B0 \`.pdf\` \u5224\u65AD\u771F\u5B9E\u9605\u8BFB\u6548\u679C\uFF1B\`.bib\` \u53EA\u7528\u4E8E\u7406\u89E3\u73B0\u6709\u5F15\u7528\u8FB9\u754C\u3002\u672C\u4EFB\u52A1\u8BCA\u65AD\u5199\u4F5C\u624B\u6CD5\u548C\u53CD\u590D\u51FA\u73B0\u7684\u5199\u4F5C\u4E60\u60EF\uFF0C\u4E0D\u8BC4\u4EF7 Idea \u521B\u65B0\u6027\u3001\u5B9E\u9A8C\u8BBE\u8BA1\u3001\u6570\u636E\u81EA\u6D3D\u3001BibTeX \u771F\u4F2A\u3001\u6295\u7A3F\u683C\u5F0F\u3001\u6284\u88AD\u6216 AI \u751F\u6210\u6982\u7387\u3002
-
-\u8BF7\u7406\u89E3\u8FD9\u4E9B\u89C4\u5219\u5E0C\u671B\u4FDD\u62A4\u7684\u5199\u4F5C\u76EE\u6807\uFF0C\u5E76\u8FD0\u7528\u4F60\u7684\u4E13\u4E1A\u5224\u65AD\u5B8C\u6210\u6BD4\u673A\u68B0\u5957\u7528\u6E05\u5355\u66F4\u51C6\u786E\u7684\u8BCA\u65AD\uFF1B\u4EFB\u4F55\u7075\u6D3B\u5904\u7406\u4ECD\u987B\u9075\u5B88\u8BC1\u636E\u8FB9\u754C\u3002
-
-## \u672C\u6B21\u914D\u7F6E
-- \u8303\u56F4\uFF1A${scope}
-- \u76EE\u6807\u8BFB\u8005\uFF1A${audience}
-- \u6DF1\u5EA6\uFF1A${depth}
-- \u7EF4\u5EA6\uFF1A${dimensions}
-- \u5904\u7406\uFF1A${DIAGNOSIS_ACTIONS[repair ? "repair" : "report"].zh}
-- \u5F15\u6587\u5019\u9009\uFF1A${browse ? "\u8054\u7F51\u6838\u67E5\u9AD8\u7F6E\u4FE1\u5EA6\u7F3A\u53E3\uFF0C\u7ED9\u51FA\u771F\u5B9E\u6765\u6E90\u4E0E\u53EF\u7528 BibTeX\uFF1B\u4E0D\u81EA\u52A8\u63D2\u5165" : "\u53EA\u5B9A\u4F4D\u5199\u4F5C\u5C42\u9762\u7684\u7F3A\u5F15\u6587\u4F4D\u7F6E"}
-- \u4FDD\u62A4\u597D\u8868\u8FBE\uFF1A${preserve ? "\u662F" : "\u4E0D\u5355\u72EC\u6807\u8BB0"}
-- Caption \u5EFA\u8BAE\uFF1A${captionGuidance} \u4EC5\u5728\u5B89\u5168\u4FEE\u590D\u786E\u9700\u6539\u5199 Caption \u65F6\u91C7\u7528\uFF0C\u4E0D\u80FD\u636E\u6B64\u5355\u72EC\u5224\u9519\u3002
-- \u8865\u5145\u5173\u6CE8\uFF1A${custom}
-
-\u5148\u5728\u5185\u90E8\u5EFA\u7ACB\u5168\u6587\u4E3B\u7EBF\u548C section-function map\uFF0C\u518D\u6309\u201C\u5168\u6587\u4E0E\u7AE0\u8282 \u2192 \u6BB5\u843D\u4E0E\u56FE\u8868 \u2192 \u53E5\u5B50\u4E0E\u516C\u5F0F\u201D\u4E09\u4E2A\u5C3A\u5EA6\u8BCA\u65AD\u3002\u5C0A\u91CD\u4E0D\u540C\u7AE0\u8282\u7684\u771F\u5B9E\u529F\u80FD\uFF1AAbstract \u8BB2\u5B8C\u6574\u6545\u4E8B\uFF1BIntroduction \u5EFA\u7ACB\u95EE\u9898\u3001\u52A8\u673A\u3001\u7F3A\u53E3\u3001\u65B9\u6848\u4E0E\u8D21\u732E\uFF1BRelated Work \u505A\u7EFC\u5408\u4E0E\u5B9A\u4F4D\uFF1BMethod \u89E3\u91CA\u8BBE\u8BA1\u903B\u8F91\uFF1BExperiments & Results \u7528\u8BC1\u636E\u5F62\u6210 finding\uFF1BDiscussion \u89E3\u91CA\u610F\u4E49\u800C\u4E0D\u662F\u91CD\u64AD\u7ED3\u679C\uFF1BConclusion \u4E0D\u5F15\u5165\u65B0\u8BC1\u636E\u3002
-
-${dimensionInstructions}
-
-\u4E0D\u8981\u7528\u5B57\u6570\u3001\u53E5\u957F\u6216 caption \u957F\u5EA6\u5355\u72EC\u5224\u9519\u3002\u5224\u65AD\u67D0\u6BB5\u6587\u5B57\u662F\u5426\u5360\u9519\u4F4D\u7F6E\u3001\u91CD\u590D\u5DF2\u6709\u8F7D\u4F53\u3001\u589E\u52A0\u8BFB\u8005\u8D1F\u62C5\u6216\u6CA1\u6709\u63A8\u8FDB\u8BBA\u8BC1\uFF1B\u533A\u5206\u5FC5\u8981\u56DE\u6263\u4E0E\u673A\u68B0\u91CD\u590D\u3002\u7F3A\u5F15\u6587\u53EA\u62A5\u544A\u9AD8\u7F6E\u4FE1\u5EA6\u4F4D\u7F6E\uFF0C\u672C\u6587\u81EA\u5DF1\u7684\u7ED3\u679C\u3001\u8D21\u732E\u6216\u57FA\u4E8E\u5DF2\u5448\u73B0\u8BC1\u636E\u7684\u603B\u7ED3\u4E0D\u5E94\u88AB\u8BEF\u5224\u4E3A\u5FC5\u987B\u5F15\u7528\u3002\u4E0D\u8981\u4E3A\u4E86\u663E\u5F97\u201C\u66F4\u5B66\u672F\u201D\u800C\u589E\u52A0\u672F\u8BED\u3001\u88AB\u52A8\u8BED\u6001\u3001we/our\u3001\u5192\u53F7\u6216\u6A21\u677F\u5316\u8FDE\u63A5\u8BCD\u3002
-
-## \u8F93\u51FA
-1. \u7528\u4E00\u6BB5\u8BDD\u7ED9\u51FA\u5168\u6587\u5199\u4F5C\u753B\u50CF\uFF0C\u5E76\u5217\u51FA\u6700\u5F71\u54CD\u9605\u8BFB\u7684 3\u20135 \u4E2A\u53CD\u590D\u4E60\u60EF\u3002
-2. \u6309\u4E60\u60EF\u5F52\u5E76\u95EE\u9898\uFF0C\u800C\u4E0D\u662F\u9010\u53E5\u5806\u6E05\u5355\u3002\u6BCF\u9879\u7ED9\u51FA\u4E25\u91CD\u5EA6\u3001\u51FA\u73B0\u9891\u7387\u3001\u7CBE\u786E\u6587\u4EF6\u4E0E\u884C\u53F7\u3001\u6700\u77ED\u5FC5\u8981\u539F\u6587\u3001\u8BFB\u8005\u4E3A\u4F55\u53D7\u963B\u3001\u4FEE\u590D\u539F\u5219\u548C\u4E00\u4E2A\u4E0D\u8865\u9020\u4E8B\u5B9E\u7684\u5C40\u90E8\u793A\u4F8B\u3002\u6CA1\u6709\u95EE\u9898\u7684\u7EF4\u5EA6\u4E0D\u51D1\u6570\u3002
-3. \u7ED9\u51FA section-function map\uFF0C\u8BF4\u660E\u5404\u7AE0\u8282\u5DF2\u7ECF\u5B8C\u6210\u7684\u529F\u80FD\u3001\u7F3A\u5931\u7684\u529F\u80FD\u548C\u4E0D\u5C5E\u4E8E\u8BE5\u7AE0\u8282\u7684\u5185\u5BB9\u3002
-4. \u7ED9\u51FA\u6309\u6536\u76CA\u6392\u5E8F\u7684\u4FEE\u6539\u987A\u5E8F\u3002${preserve ? "\u53E6\u5217 3\u20135 \u4E2A\u5E94\u4FDD\u7559\u7684\u597D\u8868\u8FBE\u6216\u6709\u6548\u5199\u6CD5\u3002" : ""}
-${browse ? "5. \u5BF9\u9AD8\u7F6E\u4FE1\u5EA6\u7F3A\u5F15\u6587\u4F4D\u7F6E\uFF0C\u5355\u72EC\u5217\u51FA\u7ECF\u8FC7\u5B98\u7F51\u3001\u51FA\u7248\u793E\u6216\u8BBA\u6587\u539F\u6587\u6838\u9A8C\u7684\u5019\u9009\u6765\u6E90\u3001\u5EFA\u8BAE\u652F\u6301\u7684 claim\u3001URL/DOI \u548C\u5B8C\u6574 BibTeX\uFF1B\u627E\u4E0D\u5230\u5C31\u660E\u786E\u4FDD\u7559\u7F3A\u53E3\u3002" : ""}
-
-${repair ? "\u5728\u5F53\u524D\u56DE\u590D\u4E2D\u5148\u7ED9\u51FA\u7ED3\u6784\u5316\u8BCA\u65AD\uFF0C\u518D\u4EA4\u4ED8\u4FEE\u8BA2\u540E\u7684\u5B8C\u6574 `.tex`\uFF0C\u5E76\u7B80\u8981\u6982\u8FF0 high-risk changes\u3002\u53EA\u4FEE\u590D\u62A5\u544A\u4E2D\u6709\u5145\u5206\u628A\u63E1\u7684\u5199\u4F5C\u95EE\u9898\uFF1B\u4FEE\u6539\u6700\u5C0F\u4F46\u5B8C\u6574\u7684\u8BED\u4E49\u5355\u5143\uFF0C\u4E0D\u5728\u6BB5\u672B\u8FFD\u52A0\u8865\u4E01\u53E5\u3002\u9664\u4FEE\u590D\u6240\u5FC5\u9700\u7684\u5C40\u90E8\u7EC4\u7EC7\u5916\uFF0C\u4E0D\u6539\u53D8\u79D1\u5B66 claim\u3001\u6570\u5B57\u3001\u5B9E\u9A8C\u3001\u516C\u5F0F\u5185\u5BB9\u3001\u5F15\u7528\u96C6\u5408\u3001\u56FE\u8868\u5185\u5BB9\u6216\u7AE0\u8282\u987A\u5E8F\uFF1B\u4E0D\u786E\u5B9A\u9879\u53EA\u62A5\u544A\u3002\u9664\u975E\u6211\u660E\u786E\u8981\u6C42\uFF0C\u4E0D\u8981\u53E6\u5EFA Markdown \u62A5\u544A\u6216 diff \u6587\u6863\u3002" : "\u53EA\u5728\u5F53\u524D\u56DE\u590D\u4E2D\u7ED9\u51FA\u7ED3\u6784\u5316\u8BCA\u65AD\uFF0C\u4E0D\u8981\u4FEE\u6539\u8BBA\u6587\u6587\u4EF6\uFF0C\u4E5F\u4E0D\u8981\u53E6\u5EFA Markdown \u62A5\u544A\u3002"}`;
-    }
-    return `# Academic Writing Diagnosis
-
-Read the main \`.tex\` in full and use the latest \`.pdf\` to assess the actual reading experience; use the \`.bib\` only to understand the existing citation boundary. Diagnose writing technique and recurring author habits. Do not assess idea novelty, experimental design, data consistency, BibTeX authenticity, venue formatting, plagiarism, or AI-generation probability.
-
-Understand the writing goals behind these rules and use expert judgment to produce a more accurate diagnosis than mechanical checklist application, while remaining within the evidence boundary.
-
-## Configuration
-- Scope: ${scope}
-- Intended readers: ${audience}
-- Depth: ${depth}
-- Dimensions: ${dimensions}
-- Action: ${DIAGNOSIS_ACTIONS[repair ? "repair" : "report"].en}
-- Citation candidates: ${browse ? "browse high-confidence gaps, verify authentic sources, return usable BibTeX, and never insert them silently" : "locate writing-level citation gaps only"}
-- Preserve strong prose: ${preserve ? "yes" : "do not mark separately"}
-- Caption guidance: ${captionGuidance} Apply it only when a safe repair genuinely rewrites a caption; never diagnose an error from this range alone.
-- Additional focus: ${custom}
-
-First build an internal central-argument and section-function map. Diagnose at three scales: manuscript and section, paragraph and display item, then sentence and equation. Respect section functions: the Abstract tells a complete story; the Introduction establishes problem, motivation, gap, solution, and contributions; Related Work synthesizes and positions; Method explains design logic; Experiments & Results turns evidence into findings; Discussion interprets rather than replays results; Conclusion introduces no new evidence.
-
-${dimensionInstructions}
-
-Do not declare an error from word count, sentence length, or caption length alone. Judge whether prose is misplaced, duplicates another information carrier, burdens the reader, or fails to advance the argument. Distinguish purposeful callbacks from mechanical repetition. Report only high-confidence citation gaps; this paper's own results, contributions, and evidence-grounded summaries do not automatically need citations. Never add terminology, passive voice, we/our, colons, or formulaic transitions merely to sound academic.
-
-## Output
-1. Give a one-paragraph writing profile and the 3\u20135 recurring habits with the greatest reader cost.
-2. Group findings by habit rather than dumping sentence-level flags. For each, report severity, frequency, exact file and line, the shortest necessary excerpt, reader cost, repair principle, and one local example that invents no fact. Do not manufacture findings for clean dimensions.
-3. Provide a section-function map showing fulfilled functions, missing functions, and content that belongs elsewhere.
-4. Rank revisions by expected benefit. ${preserve ? "Also list 3\u20135 strong passages or effective techniques that should be preserved." : ""}
-${browse ? "5. For high-confidence citation gaps, separately list sources verified against official pages, publisher records, or the original paper, the claim each source could support, URL/DOI, and complete BibTeX. Preserve the gap when no suitable source is verified." : ""}
-
-${repair ? "First return a structured diagnosis in the current response, then deliver a complete revised `.tex` and briefly summarize high-risk changes. Repair only well-supported writing problems from the report. Edit the smallest coherent semantic unit and never append patch sentences. Except for local organization required by the repair, do not change scientific claims, numbers, experiments, equation content, citation sets, display content, or section order. Report uncertain items without changing them. Do not create a separate Markdown report or diff document unless I explicitly request one." : "Return the structured diagnosis in the current response only. Do not modify manuscript files or create a separate Markdown report."}`;
-  }
+  buildPrompt: buildCitationPrompt
 };
-function getDefaultWritingDiagnosisValues() {
-  return Object.fromEntries(
-    WRITING_DIAGNOSIS_WORKBENCH.controls.map((control) => [
-      control.id,
-      Array.isArray(control.defaultValue) ? [...control.defaultValue] : control.defaultValue
-    ])
-  );
-}
-function normalizeWritingDiagnosisValues(input = {}) {
-  const values = getDefaultWritingDiagnosisValues();
-  const controls = WRITING_DIAGNOSIS_WORKBENCH.controls;
-  for (const control of controls) {
-    const value = input[control.id];
-    if (value === void 0) continue;
-    if (control.kind === "toggle") {
-      if (typeof value === "boolean") values[control.id] = value;
-      continue;
-    }
-    if (control.kind === "range") {
-      if (!Array.isArray(value) || value.length !== 2) continue;
-      const left = Math.min(
-        control.max,
-        Math.max(control.min, Number(value[0]))
-      );
-      const right = Math.min(
-        control.max,
-        Math.max(control.min, Number(value[1]))
-      );
-      if (Number.isFinite(left) && Number.isFinite(right)) {
-        values[control.id] = [
-          Math.min(left, right),
-          Math.max(left, right)
-        ];
-      }
-      continue;
-    }
-    if (control.kind === "multi") {
-      if (!Array.isArray(value)) continue;
-      const allowed = new Set(
-        control.options.map((option) => option.value)
-      );
-      const next = value.map(String).filter((item) => allowed.has(item));
-      if (next.length >= (control.minSelected ?? 0)) {
-        values[control.id] = next;
-      }
-      continue;
-    }
-    if (control.kind === "select" || control.kind === "segmented") {
-      const next = String(value);
-      if (control.options.some((option) => option.value === next)) {
-        values[control.id] = next;
-      }
-      continue;
-    }
-    if (control.kind === "text" || control.kind === "textarea") {
-      values[control.id] = String(value);
-    }
-  }
-  if (!selected2(values, "dimensions").includes("citation-practice")) {
-    values.browseCitations = false;
-  }
-  return values;
-}
-function buildWritingDiagnosisPrompt(input, language) {
-  const values = normalizeWritingDiagnosisValues(input);
-  return WRITING_DIAGNOSIS_WORKBENCH.buildPrompt(values, language);
-}
 
 // app/submission/workflowConfig.ts
 var text3 = (zh, en) => ({ zh, en });
@@ -3176,10 +2931,10 @@ function selected3(values, id) {
 function labelFor2(value, labels, language) {
   return labels[value]?.[language] ?? value;
 }
-function labelsFor3(values, id, labels, language) {
+function labelsFor2(values, id, labels, language) {
   return selected3(values, id).map((value) => labelFor2(value, labels, language)).join(language === "zh" ? "\u3001" : ", ");
 }
-function sharedCopy3(seed) {
+function sharedCopy2(seed) {
   return {
     zh: {
       ...seed.zh,
@@ -3241,7 +2996,7 @@ var SOURCE_LEVELS = {
 var PRE_SUBMISSION_CHECK_WORKBENCH = {
   id: "pre-submission-check-workbench",
   activePage: "pre-submission-check",
-  copy: sharedCopy3({
+  copy: sharedCopy2({
     zh: {
       eyebrow: "PRE-SUBMISSION CHECK",
       title: "\u6295\u7A3F\u524D\u7EC8\u68C0",
@@ -3440,7 +3195,7 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
 
 ${venue ? "\u5F00\u59CB\u524D\u8054\u7F51\u6838\u9A8C\u672C\u6B21\u6295\u7A3F\u9002\u7528\u7684\u5B98\u65B9\u4F5C\u8005\u6307\u5357\u3001\u5F53\u524D\u6A21\u677F/author kit\u3001FAQ\u3001\u63D0\u4EA4\u7CFB\u7EDF\u8BF4\u660E\u4E0E\u8865\u5145\u6750\u6599\u653F\u7B56\u3002" : "\u76EE\u6807 venue \u7F3A\u5931\uFF0C\u4E0D\u80FD\u5B8C\u6210\u5177\u4F53\u89C4\u5219\u6838\u9A8C\uFF1B\u5148\u5217\u51FA\u5FC5\u987B\u8865\u5145\u7684 venue\u3001\u5C4A\u6B21/track \u548C\u9636\u6BB5\u4FE1\u606F\uFF0C\u5E76\u5C06\u6700\u7EC8\u72B6\u6001\u5224\u4E3A NOT READY\u3002"}\u516C\u5F00\u901A\u7528\u89C4\u5219\u4EE5 venue \u5B98\u7F51\u3001\u51FA\u7248\u793E\u6216\u5B98\u65B9\u7EC4\u7EC7\u65B9\u7EF4\u62A4\u9875\u9762\u4E3A\u51C6\uFF1B\u7528\u6237\u63D0\u4F9B\u7684\u7F16\u8F91\u51B3\u5B9A\u3001\u6295\u7A3F\u7CFB\u7EDF\u6D88\u606F\u6216\u4E66\u9762\u8C41\u514D\u662F\u672C\u7A3F\u4EF6\u4E13\u5C5E\u89C4\u5219\uFF0C\u82E5\u6765\u6E90\u53EF\u6838\u9A8C\u5219\u4F18\u5148\u4E8E\u901A\u7528\u9875\u9762\u3002\u8BB0\u5F55\u7248\u672C\u3001\u8BBF\u95EE\u65E5\u671F\u548C URL/\u6D88\u606F\u6765\u6E90\uFF1B\u51B2\u7A81\u4ECD\u65E0\u6CD5\u6D88\u89E3\u65F6\u6807\u4E3A\u201C\u9700\u4EBA\u5DE5\u786E\u8BA4\u201D\uFF0C\u4E0D\u5F97\u5957\u7528\u5F80\u5E74\u8BB0\u5FC6\u3002
 
-\u68C0\u67E5\uFF1A${labelsFor3(values, "scopes", CHECK_SCOPES, language)}${enabled3(values, "portalSnapshot") ? "\uFF0C\u4EE5\u53CA\u6295\u7A3F\u7CFB\u7EDF\u5B57\u6BB5\u4E0E\u6700\u7EC8\u7A3F\u7684\u4E00\u81F4\u6027" : ""}\u3002\u672C\u8F6E\u53EA\u6267\u884C\uFF1A${scopeInstructions.zh || "\u672A\u9009\u62E9\u6709\u6548\u8303\u56F4"}\u3002\u7279\u6B8A\u60C5\u51B5\uFF1A${custom}\u3002
+\u68C0\u67E5\uFF1A${labelsFor2(values, "scopes", CHECK_SCOPES, language)}${enabled3(values, "portalSnapshot") ? "\uFF0C\u4EE5\u53CA\u6295\u7A3F\u7CFB\u7EDF\u5B57\u6BB5\u4E0E\u6700\u7EC8\u7A3F\u7684\u4E00\u81F4\u6027" : ""}\u3002\u672C\u8F6E\u53EA\u6267\u884C\uFF1A${scopeInstructions.zh || "\u672A\u9009\u62E9\u6709\u6548\u8303\u56F4"}\u3002\u7279\u6B8A\u60C5\u51B5\uFF1A${custom}\u3002
 
 \u5C06\u7ED3\u679C\u5206\u4E3A\uFF1A\u963B\u585E\u6295\u7A3F\u3001\u63D0\u4EA4\u524D\u5FC5\u987B\u4FEE\u590D\u3001\u5EFA\u8BAE\u4F18\u5316\u3001\u5DF2\u901A\u8FC7\u3001\u6750\u6599\u4E0D\u8DB3\u65E0\u6CD5\u6838\u9A8C\u3002\u6BCF\u9879\u7ED9\u51FA\u89C4\u5219\u6216\u4E13\u5C5E\u901A\u77E5\u4F9D\u636E\u3001\u7A3F\u4EF6\u4F4D\u7F6E\u3001\u5F71\u54CD\u548C\u6700\u5C0F\u4FEE\u590D\uFF1B\u53EA\u5728\u6750\u6599\u548C\u6240\u9009\u8303\u56F4\u5141\u8BB8\u65F6\u505A\u6587\u4EF6\u9A8C\u8BC1\uFF0C\u4E0D\u4EE5\u81EA\u7136\u8BED\u8A00\u58F0\u660E\u4EE3\u66FF\u8BC1\u636E\u3002
 
@@ -3454,7 +3209,7 @@ Target: ${venue || "not supplied; do not infer it from a blind manuscript"} (${l
 
 ${venue ? "Before checking the paper, browse and verify the official author instructions, current template or author kit, FAQ, submission-system guidance, and supplementary-material policy for this exact submission." : "The target venue is missing, so exact rule verification is impossible. List the required venue, edition/track, and stage inputs and assign NOT READY as the final state."} Use venue-, publisher-, or organizer-maintained pages for public general rules. A supplied editor decision, portal message, or written waiver is a manuscript-specific rule and takes priority over a general page when its provenance is verifiable. Record versions, access dates, URLs, or message provenance; mark conflicts that remain unresolved for human confirmation and never rely on remembered prior-year rules.
 
-Check: ${labelsFor3(values, "scopes", CHECK_SCOPES, language)}${enabled3(values, "portalSnapshot") ? ", including consistency between submission-system fields and the final manuscript" : ""}. Perform only: ${scopeInstructions.en || "no valid scope selected"}. Special circumstances: ${custom}.
+Check: ${labelsFor2(values, "scopes", CHECK_SCOPES, language)}${enabled3(values, "portalSnapshot") ? ", including consistency between submission-system fields and the final manuscript" : ""}. Perform only: ${scopeInstructions.en || "no valid scope selected"}. Special circumstances: ${custom}.
 
 Classify results as submission blocker, mandatory fix, recommendation, passed, or unverifiable due to missing material. For each item, give the governing rule or case-specific notice, manuscript location, impact, and smallest remedy. Perform file-level verification only when the supplied sources and selected scope support it; do not trust prose claims in place of evidence.
 
@@ -3490,7 +3245,7 @@ var COVER_TONES = {
 var SUBMISSION_MATERIALS_WORKBENCH = {
   id: "submission-materials-workbench",
   activePage: "submission-materials",
-  copy: sharedCopy3({
+  copy: sharedCopy2({
     zh: {
       eyebrow: "SUBMISSION MATERIALS",
       title: "\u6295\u7A3F\u6750\u6599",
@@ -3652,7 +3407,7 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
   ],
   buildPrompt(values, language) {
     const venue = scalar3(values, "venue");
-    const materials = labelsFor3(
+    const materials = labelsFor2(
       values,
       "materials",
       MATERIAL_TYPES,
@@ -3728,7 +3483,7 @@ var EVIDENCE_POLICIES = {
 var PEER_REVIEW_WORKBENCH = {
   id: "peer-review-workbench",
   activePage: "peer-review",
-  copy: sharedCopy3({
+  copy: sharedCopy2({
     zh: {
       eyebrow: "PEER REVIEW",
       title: "\u5BA1\u7A3F",
@@ -3915,7 +3670,7 @@ var PEER_REVIEW_WORKBENCH = {
     const useTarget = enabled3(values, "useTarget");
     const targetType = scalar3(values, "targetType") || "conference";
     const targetVenue = scalar3(values, "targetVenue");
-    const dimensions = labelsFor3(
+    const dimensions = labelsFor2(
       values,
       "dimensions",
       PEER_REVIEW_DIMENSIONS,
@@ -3979,7 +3734,7 @@ Additional requirements: ${custom}. Produce only the review report. Do not edit 
 var REVISION_PLANNING_WORKBENCH = {
   id: "revision-planning-workbench",
   activePage: "revision-planning",
-  copy: sharedCopy3({
+  copy: sharedCopy2({
     zh: {
       eyebrow: "REVISION PLANNING",
       title: "\u8FD4\u4FEE\u89C4\u5212",
@@ -4154,7 +3909,7 @@ var REVISION_AUDIT_SCENARIOS = {
 var REVISION_AUDIT_WORKBENCH = {
   id: "revision-audit-workbench",
   activePage: "revision-audit",
-  copy: sharedCopy3({
+  copy: sharedCopy2({
     zh: {
       eyebrow: "REVISION AUDIT",
       title: "\u8FD4\u4FEE\u7A3F\u5BA1\u67E5",
@@ -4282,7 +4037,7 @@ After the table, summarize safely resolved comments, high-risk comments, omissio
 };
 
 // content/workflows/skillWorkflows.ts
-var SKILL_WORKFLOW_VERSION = "2026.09.02";
+var SKILL_WORKFLOW_VERSION = "2026.09.05";
 var YANSHU_SKILL_CATALOG = [
   {
     id: "idea-discovery",
@@ -4331,26 +4086,26 @@ var YANSHU_SKILL_CATALOG = [
     }
   },
   {
-    id: "writing-diagnosis",
+    id: "citation-audit",
     index: "03",
-    skillName: "Writing Diagnosis",
-    websitePath: "/writing/diagnosis",
-    title: { zh: "\u8BCA\u65AD\u5B66\u672F\u5199\u4F5C", en: "Diagnose academic writing" },
+    skillName: "Citation Audit",
+    websitePath: "/writing/citations",
+    title: { zh: "\u6838\u67E5\u4E0E\u8865\u5145\u5F15\u6587", en: "Review and strengthen citations" },
     description: {
-      zh: "\u4ECE\u5168\u6587\u3001\u6BB5\u843D\u548C\u53E5\u5B50\u4E09\u4E2A\u5C3A\u5EA6\u53D1\u73B0\u53CD\u590D\u51FA\u73B0\u7684\u5199\u4F5C\u624B\u6CD5\u4E0E\u4E60\u60EF\u95EE\u9898\uFF0C\u5E76\u7ED9\u51FA\u5177\u4F53\u6307\u6B63\u3002",
-      en: "Identify recurring writing-technique and habit problems at manuscript, paragraph, and sentence scale, then provide actionable guidance."
+      zh: "\u6838\u5BF9\u6B63\u6587\u5F15\u7528\u4E0E\u539F\u8BBA\u6587\u662F\u5426\u5339\u914D\uFF0C\u8865\u8DB3\u771F\u5B9E\u7F3A\u53E3\uFF0C\u5E76\u540C\u6B65\u6821\u9A8C BibTeX \u4E0E\u8FD1\u671F\u6587\u732E\u8986\u76D6\u3002",
+      en: "Verify claim\u2013source alignment, fill genuine gaps, and validate BibTeX and recent-literature coverage."
     },
     command: {
-      zh: "\u4F7F\u7528 $writing-diagnosis \u8BCA\u65AD\u8FD9\u4E2A\u8BBA\u6587\u76EE\u5F55\u4E2D\u7684\u5B66\u672F\u5199\u4F5C\u95EE\u9898\u3002",
-      en: "Use $writing-diagnosis to diagnose academic writing problems in this manuscript directory."
+      zh: "\u4F7F\u7528 $citation-audit \u6838\u67E5\u5E76\u8865\u5145\u8FD9\u4E2A\u8BBA\u6587\u76EE\u5F55\u4E2D\u7684\u5F15\u6587\u3002",
+      en: "Use $citation-audit to review and strengthen citations in this manuscript directory."
     },
     input: {
-      zh: "\u4E3B\u7A3F TeX\u3001\u5EFA\u8BAE\u63D0\u4F9B PDF \u4E0E BibTeX",
-      en: "Main TeX, with PDF and BibTeX recommended"
+      zh: "\u4E3B\u7A3F TeX\u3001\u5B8C\u6574 BibTeX \u4E0E\u5EFA\u8BAE\u63D0\u4F9B\u7684 PDF",
+      en: "Main TeX, complete BibTeX, and recommended PDF"
     },
     output: {
-      zh: "\u804A\u5929\u5185\u8BCA\u65AD\uFF1B\u5B89\u5168\u4FEE\u590D\u65F6\u4EA4\u4ED8\u4FEE\u8BA2\u6587\u4EF6",
-      en: "In-chat diagnosis, with revised files for safe repair"
+      zh: "\u804A\u5929\u5185\u5BA1\u8BA1\uFF1B\u5B89\u5168\u4FEE\u590D\u65F6\u4EA4\u4ED8\u5B8C\u6574\u4FEE\u8BA2 TeX/BibTeX",
+      en: "In-chat audit, with complete revised TeX/BibTeX for safe repair"
     }
   },
   {
@@ -4360,8 +4115,8 @@ var YANSHU_SKILL_CATALOG = [
     websitePath: "/reconstruction",
     title: { zh: "\u91CD\u6784\u73B0\u6709\u8BBA\u6587", en: "Reconstruct an existing paper" },
     description: {
-      zh: "\u901A\u8FC7\u53EF\u6062\u590D\u7684\u4E94\u8F6E\u5DE5\u4F5C\u6D41\u91CD\u6784\u79D1\u5B66\u5B9A\u4F4D\u3001\u7ED3\u6784\u3001\u65B9\u6CD5\u5B9E\u9A8C\u53D9\u4E8B\u548C\u65B9\u6CD5\u603B\u89C8\u56FE\u3002",
-      en: "Use a resumable five-round workflow to rebuild positioning, structure, method and experiment narrative, and the method overview figure."
+      zh: "\u7528\u4E00\u4E2A\u5B8C\u6574 Prompt \u8FDE\u7EED\u5B8C\u6210\u79D1\u5B66\u5B9A\u4F4D\u3001\u7ED3\u6784\u3001\u65B9\u6CD5\u5B9E\u9A8C\u3001\u524D\u540E\u53D9\u4E8B\u548C\u539F\u7A3F\u8D28\u91CF\u56DE\u5F52\u3002",
+      en: "Use one complete prompt for positioning, structure, method and experiments, narrative, and source-aware quality regression."
     },
     command: {
       zh: "\u4F7F\u7528 $paper-reconstruction \u91CD\u6784\u8FD9\u4E2A\u8BBA\u6587\u76EE\u5F55\u3002",
@@ -4372,8 +4127,8 @@ var YANSHU_SKILL_CATALOG = [
       en: "TeX, BibTeX, PDF, and optional figures"
     },
     output: {
-      zh: "\u4E94\u8F6E\u7248\u672C\u3001\u6846\u67B6\u56FE\u4E0E\u6700\u7EC8\u53EF\u7F16\u8BD1\u8BBA\u6587",
-      en: "Five versioned rounds, a framework figure, and the final compilable paper"
+      zh: "\u91CD\u6784\u540E TeX\u3001BibTeX \u4E0E\u4E2D\u6587\u8BF4\u660E",
+      en: "Restructured TeX, BibTeX, and Chinese report"
     }
   },
   {
@@ -4591,15 +4346,6 @@ var IDEA_DISCOVERY_MODEL = {
       description: localized(
         "\u63A7\u5236\u5019\u9009\u6570\u91CF\u3001\u63A2\u7D22\u5E45\u5EA6\u548C\u73B0\u5B9E\u8D44\u6E90\u8FB9\u754C\u3002",
         "Control candidate count, exploration posture, and practical resource limits."
-      )
-    },
-    {
-      id: "writing",
-      index: "02",
-      title: localized("\u5199\u4F5C\u5EFA\u8BAE", "Writing guidance"),
-      description: localized(
-        "\u63A7\u5236 Caption \u7684\u5EFA\u8BAE\u957F\u5EA6\uFF1B\u8BE5\u8303\u56F4\u4E0D\u662F\u786C\u6027\u9A8C\u6536\u6761\u4EF6\u3002",
-        "Configure advisory caption length; the range is never a hard acceptance condition."
       )
     }
   ],
@@ -5167,102 +4913,100 @@ var EXPERIMENTAL_PLOTTING_MODEL = {
     ...getDefaultExperimentalPlotValues()
   }
 };
-var WRITING_DIAGNOSIS_SECTIONS = [
+var CITATION_AUDIT_SECTIONS = [
   {
     id: "scope",
     index: "01",
-    title: localized("\u6750\u6599\u4E0E\u8303\u56F4", "Materials and scope"),
+    title: localized("\u8303\u56F4\u4E0E\u52A8\u4F5C", "Scope and action"),
     description: localized(
-      "\u9009\u62E9\u5168\u6587\u6216\u9700\u8981\u8BCA\u65AD\u7684\u5177\u4F53\u7AE0\u8282\u4E0E\u6587\u5B57\u8F7D\u4F53\u3002",
-      "Choose the whole manuscript or specific sections and text carriers."
+      "\u9009\u62E9\u91CD\u70B9\u7AE0\u8282\uFF0C\u4EE5\u53CA\u4EC5\u6838\u67E5\u6216\u6838\u67E5\u5E76\u5B89\u5168\u4FEE\u590D\u3002",
+      "Choose priority sections and report-only or safe-repair behavior."
     )
   },
   {
-    id: "reader",
+    id: "target",
     index: "02",
-    title: localized("\u8BFB\u8005\u4E0E\u6DF1\u5EA6", "Readers and depth"),
+    title: localized("\u76EE\u6807\u4E0E\u8986\u76D6", "Target and coverage"),
     description: localized(
-      "\u6839\u636E\u76EE\u6807\u8BFB\u8005\u63A7\u5236\u672F\u8BED\u8D1F\u62C5\u548C\u8BCA\u65AD\u9897\u7C92\u5EA6\u3002",
-      "Set terminology burden and diagnostic granularity for the intended readers."
+      "\u8BBE\u7F6E\u76EE\u6807 venue\u3001\u5EFA\u8BAE\u5F15\u6587\u603B\u91CF\u548C\u8FD1\u671F\u6587\u732E\u6BD4\u4F8B\u3002",
+      "Set the target venue, suggested bibliography size, and recent-work share."
     )
   },
   {
-    id: "dimensions",
+    id: "sources",
     index: "03",
-    title: localized("\u8BCA\u65AD\u7EF4\u5EA6", "Diagnostic dimensions"),
+    title: localized("\u6765\u6E90\u7B56\u7565", "Source policy"),
     description: localized(
-      "\u7EC4\u5408\u68C0\u67E5\u53D9\u4E8B\u3001\u5F15\u7528\u3001\u6BB5\u843D\u3001\u56FE\u8868\u3001\u7ED3\u679C\u3001\u516C\u5F0F\u4E0E\u8BED\u8A00\u4E60\u60EF\u3002",
-      "Combine narrative, citation, paragraph, display, results, equation, and language checks."
+      "\u63A7\u5236\u9884\u5370\u672C\u3001\u9876\u4F1A\u9876\u520A\u3001\u8054\u7F51\u6838\u9A8C\u548C\u5355\u53E5\u5F15\u7528\u5BC6\u5EA6\u3002",
+      "Control preprints, leading venues, web verification, and sentence-level citation density."
     )
   },
   {
     id: "delivery",
     index: "04",
-    title: localized("\u6307\u6B63\u4E0E\u4EA4\u4ED8", "Guidance and delivery"),
+    title: localized("\u8865\u5145\u8981\u6C42", "Additional requirements"),
     description: localized(
-      "\u9009\u62E9\u4EC5\u62A5\u544A\u6216\u5B89\u5168\u4FEE\u590D\uFF0C\u5E76\u4FDD\u62A4\u539F\u7A3F\u4E2D\u7684\u597D\u8868\u8FBE\u3002",
-      "Choose report-only or safe repair while preserving strong existing prose."
+      "\u8BB0\u5F55\u5FC5\u987B\u4FDD\u7559\u7684\u6765\u6E90\u3001\u4E3B\u9898\u6216\u6392\u9664\u8303\u56F4\u3002",
+      "Record sources, topics, or exclusions that must be preserved."
     )
   }
 ];
-var WRITING_DIAGNOSIS_FIELD_SECTIONS = {
-  scope: "scope",
+var CITATION_AUDIT_FIELD_SECTIONS = {
+  action: "scope",
   sections: "scope",
-  depth: "reader",
-  audience: "reader",
-  dimensions: "dimensions",
-  browseCitations: "dimensions",
-  action: "delivery",
-  preserveStrengths: "delivery",
+  targetType: "target",
+  targetVenue: "target",
+  targetVenueMinimum: "target",
+  referenceRange: "target",
+  recentYears: "target",
+  recentShare: "target",
+  allowPreprints: "sources",
+  preferTopConferences: "sources",
+  preferTopJournals: "sources",
+  browse: "sources",
+  citationsPerSentence: "sources",
   custom: "delivery"
 };
-function writingDiagnosisWorkflowField(control) {
+function citationAuditWorkflowField(control) {
   const field = configurableWorkbenchField(
     control,
-    WRITING_DIAGNOSIS_FIELD_SECTIONS[control.id] ?? "delivery"
+    CITATION_AUDIT_FIELD_SECTIONS[control.id] ?? "delivery"
   );
-  if (control.id === "sections") {
-    field.visibleWhen = { fieldId: "scope", equals: "selected" };
+  if (control.id === "targetVenue") {
+    field.visibleWhen = { fieldId: "targetType", notEquals: "none" };
   }
-  if (control.id === "browseCitations") {
-    field.visibleWhen = {
-      fieldId: "dimensions",
-      includes: "citation-practice"
-    };
+  if (control.id === "targetVenueMinimum") {
+    field.visibleWhen = { fieldId: "targetType", equals: "journal" };
   }
   return field;
 }
-var WRITING_DIAGNOSIS_MODEL = {
-  id: "writing-diagnosis",
+var CITATION_AUDIT_MODEL = {
+  id: "citation-audit",
   version: SKILL_WORKFLOW_VERSION,
-  skillId: "writing-diagnosis",
-  websitePath: "/writing/diagnosis",
-  title: localized("\u5B66\u672F\u5199\u4F5C\u8BCA\u65AD", "Academic Writing Diagnosis"),
-  eyebrow: "YANSHU \xB7 ACADEMIC WRITING DIAGNOSIS",
+  skillId: "citation-audit",
+  websitePath: "/writing/citations",
+  title: localized("\u5F15\u6587\u6838\u67E5\u4E0E\u8865\u5145", "Citation Review & Support"),
+  eyebrow: "YANSHU \xB7 CITATION REVIEW",
   description: localized(
-    "\u4ECE\u5168\u6587\u3001\u6BB5\u843D\u548C\u53E5\u5B50\u4E09\u4E2A\u5C3A\u5EA6\u53D1\u73B0\u4F5C\u8005\u96BE\u4EE5\u81EA\u5BDF\u7684\u5199\u4F5C\u624B\u6CD5\u4E0E\u4E60\u60EF\u95EE\u9898\u3002",
-    "Expose hard-to-notice writing-technique and habit problems at manuscript, paragraph, and sentence scale."
+    "\u6838\u5BF9\u5F15\u7528\u662F\u5426\u652F\u6491\u9648\u8FF0\uFF0C\u8865\u8DB3\u771F\u5B9E\u7F3A\u53E3\uFF0C\u5E76\u6821\u9A8C BibTeX \u4E0E\u6587\u732E\u8986\u76D6\u3002",
+    "Verify claim\u2013source support, fill genuine gaps, and validate BibTeX and literature coverage."
   ),
   materialTitle: localized("\u9700\u8981\u6750\u6599", "Required materials"),
   materialItems: {
-    zh: ["\u4E3B\u7A3F .tex", "\u6700\u65B0\u7F16\u8BD1 PDF\uFF08\u5EFA\u8BAE\uFF09", ".bib\uFF08\u5EFA\u8BAE\uFF09", "\u76EE\u6807 venue \u6307\u5357\uFF08\u53EF\u9009\uFF09"],
-    en: ["Main .tex", "Latest compiled PDF (recommended)", ".bib (recommended)", "Target-venue guidance (optional)"]
+    zh: ["\u4E3B\u7A3F .tex", "\u5B8C\u6574 .bib", "\u6700\u65B0\u7F16\u8BD1 PDF\uFF08\u5EFA\u8BAE\uFF09", "\u76EE\u6807 venue\uFF08\u53EF\u9009\uFF09"],
+    en: ["Main .tex", "Complete .bib", "Latest compiled PDF (recommended)", "Target venue (optional)"]
   },
   materialHint: localized(
-    "\u65E0\u9700 figures \u6216\u5B9E\u9A8C\u6E90\u6570\u636E\uFF1B\u672C\u5DE5\u4F5C\u6D41\u53EA\u8BCA\u65AD\u5199\u4F5C\uFF0C\u4E0D\u91CD\u65B0\u8BC4\u5BA1\u79D1\u5B66\u8D21\u732E\u3002",
-    "Figures and raw experimental data are unnecessary; this workflow diagnoses writing rather than re-reviewing the science."
+    "\u9ED8\u8BA4\u91CD\u70B9\u68C0\u67E5 Introduction \u4E0E Related Work\uFF1B\u5EFA\u8BAE\u6570\u91CF\u7528\u4E8E\u5224\u65AD\u8986\u76D6\u5EA6\uFF0C\u4E0D\u7528\u4E8E\u51D1\u5F15\u7528\u3002",
+    "Introduction and Related Work are the default focus; suggested counts assess coverage and never justify padding."
   ),
   output: localized(
-    "\u9ED8\u8BA4\u5728\u5F53\u524D\u804A\u5929\u8FD4\u56DE\u8BCA\u65AD\uFF1B\u9009\u62E9\u5B89\u5168\u4FEE\u590D\u65F6\u4EA4\u4ED8\u5B8C\u6574\u4FEE\u8BA2 TeX\uFF0C\u53EA\u6709\u660E\u786E\u8981\u6C42\u624D\u53E6\u5B58 Markdown \u6216 diff \u6587\u6863\u3002",
-    "Return the diagnosis in the current chat by default; safe repair delivers complete revised TeX, while Markdown or diff documents are saved only when explicitly requested."
+    "\u4EC5\u6838\u67E5\u65F6\u5728\u5F53\u524D\u804A\u5929\u8FD4\u56DE\u7ED3\u679C\uFF1B\u5B89\u5168\u4FEE\u590D\u65F6\u4EA4\u4ED8\u5B8C\u6574\u4FEE\u8BA2 TeX\uFF0C\u5E76\u4EC5\u5728 BibTeX \u53D8\u5316\u65F6\u4EA4\u4ED8\u5B8C\u6574 .bib\u3002",
+    "Return audit results in chat; safe repair delivers complete revised TeX and a complete .bib only when it changes."
   ),
-  sections: WRITING_DIAGNOSIS_SECTIONS,
-  fields: WRITING_DIAGNOSIS_WORKBENCH.controls.map(
-    writingDiagnosisWorkflowField
-  ),
-  defaults: {
-    ...getDefaultWritingDiagnosisValues()
-  }
+  sections: CITATION_AUDIT_SECTIONS,
+  fields: CITATION_AUDIT_WORKBENCH.controls.map(citationAuditWorkflowField),
+  defaults: workbenchDefaults(CITATION_AUDIT_WORKBENCH)
 };
 function workbenchDefaults(definition) {
   return Object.fromEntries(
@@ -5489,7 +5233,7 @@ var REVISION_AUDIT_MODEL = {
 var CONFIGURABLE_MODELS = {
   "idea-discovery": IDEA_DISCOVERY_MODEL,
   "paper-drafting": PAPER_DRAFTING_MODEL,
-  "writing-diagnosis": WRITING_DIAGNOSIS_MODEL,
+  "citation-audit": CITATION_AUDIT_MODEL,
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
   "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
   "peer-review": PEER_REVIEW_MODEL,
@@ -5505,7 +5249,7 @@ function textValue(value, fallback = "") {
 function booleanValue(value, fallback) {
   return typeof value === "boolean" ? value : fallback;
 }
-function numberValue(value, fallback, min, max) {
+function numberValue2(value, fallback, min, max) {
   const parsed = typeof value === "number" ? value : Number(value);
   if (!Number.isFinite(parsed)) return fallback;
   return Math.min(max, Math.max(min, Math.round(parsed)));
@@ -5521,7 +5265,7 @@ function normalizeWorkbenchPreferences(definition, input) {
     if (control.kind === "toggle") {
       value = booleanValue(raw, control.defaultValue);
     } else if (control.kind === "number") {
-      value = numberValue(
+      value = numberValue2(
         raw,
         control.defaultValue,
         control.min,
@@ -5529,13 +5273,13 @@ function normalizeWorkbenchPreferences(definition, input) {
       );
     } else if (control.kind === "range") {
       const candidate = Array.isArray(raw) ? raw : control.defaultValue;
-      const low = numberValue(
+      const low = numberValue2(
         candidate[0],
         control.defaultValue[0],
         control.min,
         control.max
       );
-      const high = numberValue(
+      const high = numberValue2(
         candidate[1],
         control.defaultValue[1],
         control.min,
@@ -5583,7 +5327,7 @@ function normalizeIdeaPreferences(input) {
     focus: textValue(input.focus),
     seed: textValue(input.seed),
     dataset: textValue(input.dataset),
-    recentYears: numberValue(input.recentYears, defaults.recentYears, 1, 20),
+    recentYears: numberValue2(input.recentYears, defaults.recentYears, 1, 20),
     topConferences: booleanValue(
       input.topConferences,
       defaults.topConferences
@@ -5620,13 +5364,13 @@ function normalizeDraftPreferences(input) {
 }
 function normalizeFigurePreferences(input) {
   const defaults = DEFAULT_FIGURE_PREFERENCES;
-  const rawAccentMin = numberValue(
+  const rawAccentMin = numberValue2(
     input.accentColorMin,
     defaults.accentColorMin,
     1,
     4
   );
-  const rawAccentMax = numberValue(
+  const rawAccentMax = numberValue2(
     input.accentColorMax,
     defaults.accentColorMax,
     1,
@@ -5652,13 +5396,13 @@ function normalizeFigurePreferences(input) {
       FIGURE_ASPECT_RATIO_IDS,
       defaults.aspectRatioId
     ),
-    customAspectWidth: numberValue(
+    customAspectWidth: numberValue2(
       input.customAspectWidth,
       defaults.customAspectWidth,
       1,
       100
     ),
-    customAspectHeight: numberValue(
+    customAspectHeight: numberValue2(
       input.customAspectHeight,
       defaults.customAspectHeight,
       1,
@@ -5715,8 +5459,8 @@ function normalizeSkillWorkflowPreferences(workflowId, input = {}) {
   if (workflowId === "paper-drafting") {
     return normalizeDraftPreferences(input);
   }
-  if (workflowId === "writing-diagnosis") {
-    return normalizeWritingDiagnosisValues(input);
+  if (workflowId === "citation-audit") {
+    return normalizeWorkbenchPreferences(CITATION_AUDIT_WORKBENCH, input);
   }
   if (workflowId === "experimental-plotting") {
     return normalizeExperimentalPlotValues(input);
@@ -5759,17 +5503,18 @@ function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage 
       customVenue: draftPreferences.customVenue,
       captionWordRange: draftPreferences.captionWordRange
     };
-  } else if (workflowId === "writing-diagnosis") {
-    const diagnosisPreferences = preferences;
-    prompt = buildWritingDiagnosisPrompt(
-      diagnosisPreferences,
+  } else if (workflowId === "citation-audit") {
+    const citationPreferences = preferences;
+    prompt = CITATION_AUDIT_WORKBENCH.buildPrompt(
+      citationPreferences,
       promptLanguage
     );
     selection = {
-      scope: diagnosisPreferences.scope,
-      depth: diagnosisPreferences.depth,
-      dimensions: diagnosisPreferences.dimensions,
-      action: diagnosisPreferences.action
+      action: citationPreferences.action,
+      sections: citationPreferences.sections,
+      targetType: citationPreferences.targetType,
+      referenceRange: citationPreferences.referenceRange,
+      recentShare: citationPreferences.recentShare
     };
   } else if (workflowId === "experimental-plotting") {
     const plotPreferences = preferences;

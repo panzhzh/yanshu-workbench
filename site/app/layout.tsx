@@ -35,7 +35,7 @@ export const metadata: Metadata = {
         url: "/og-reconstruction-2026-07-7.png",
         width: 1731,
         height: 909,
-        alt: "研术台 · YanShu：五轮重构，支持断点继续。",
+        alt: "研术台 · YanShu：可配置、可执行的科研工作流。",
       },
     ],
   },

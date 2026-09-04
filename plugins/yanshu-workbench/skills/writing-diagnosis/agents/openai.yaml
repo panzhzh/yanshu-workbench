@@ -1,4 +1,0 @@
-interface:
-  display_name: "YanShu Writing Diagnosis"
-  short_description: "Diagnose recurring academic writing habits"
-  default_prompt: "Use $writing-diagnosis to diagnose the writing techniques and recurring habits in this manuscript."

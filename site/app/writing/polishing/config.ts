@@ -146,31 +146,31 @@ function englishFocusSections(focus: readonly string[]) {
   return sections.join("\n\n");
 }
 
-export const FINAL_POLISHING_WORKBENCH = {
-  id: "final-polishing-workbench",
-  activePage: "final-polishing",
+export const WRITING_POLISHING_WORKBENCH = {
+  id: "writing-polishing-workbench",
+  activePage: "writing-polishing",
   copy: sharedCopy({
     zh: {
-      eyebrow: "FINAL PRE-SUBMISSION POLISHING",
-      title: "投稿前全文精修",
-      subtitle: "对已完成论文进行最后一轮全文精修，不改变研究内容、整体结构与技术路线。",
+      eyebrow: "ACADEMIC WRITING POLISHING",
+      title: "写作精修",
+      subtitle: "精修已完成论文的写作手法与专业度，不改变研究逻辑、整体结构与技术路线。",
       preset: "保留原稿 · 全文检查 · 完整文件交付",
       inputTitle: "准备材料",
       inputItems: ["完整论文源文件与最新 PDF", "BibTeX、图片和补充材料（如有）", "原有 LaTeX 工程结构"],
       inputHint: "这不是初稿修改或大范围重构。",
-      promptTitle: "投稿前全文精修 Prompt",
-      promptPurpose: "发现并解决语言、重复、一致性和排版表达问题。",
+      promptTitle: "写作精修 Prompt",
+      promptPurpose: "减少冗余与机械表达，提升语言一致性、可读性和专业度。",
     },
     en: {
-      eyebrow: "FINAL PRE-SUBMISSION POLISHING",
-      title: "Final Manuscript Polishing",
-      subtitle: "Polish a completed manuscript without changing its research content, overall structure, or technical route.",
+      eyebrow: "ACADEMIC WRITING POLISHING",
+      title: "Writing Polishing",
+      subtitle: "Polish the technique and professionalism of a completed manuscript without changing its scientific logic, structure, or technical route.",
       preset: "Preserve the manuscript · full check · complete files",
       inputTitle: "Prepare materials",
       inputItems: ["Complete manuscript source and latest PDF", "BibTeX, figures, and supplement when applicable", "Original LaTeX project structure"],
       inputHint: "This is not first-draft revision or broad reconstruction.",
-      promptTitle: "Final-polishing prompt",
-      promptPurpose: "Resolve language, repetition, consistency, and presentation issues.",
+      promptTitle: "Writing-polishing prompt",
+      promptPurpose: "Reduce repetition and mechanical prose while improving consistency, readability, and professionalism.",
     },
   }),
   controls: [
@@ -199,11 +199,11 @@ export const FINAL_POLISHING_WORKBENCH = {
     const custom = scalar(values, "custom");
 
     if (language === "zh") {
-      return `# 投稿前最后一轮全文精修
+      return `# 论文写作精修
 
 你现在需要对我的论文进行投稿前最后一轮全文精修（final pre-submission polishing）。
 
-请特别注意：这不是初稿修改，也不是大范围重构。论文的研究内容、整体结构、技术路线和主要论证已经基本确定。你的任务是在尽可能保留原文结构、含义、技术细节和作者表达习惯的前提下，发现并解决投稿前仍然存在的语言、逻辑、重复、一致性和排版表达问题。
+请特别注意：这不是初稿修改、大范围重构或科学内容复审。论文的研究内容、逻辑、整体结构、技术路线和主要论证已经基本确定。你的任务是在尽可能保留原文结构、含义、技术细节和作者表达习惯的前提下，发现并解决语言、重复、一致性和排版表达问题。若发现潜在科学逻辑问题，只单独标记，不在本轮擅自改写。
 
 ## 一、先完整理解全文
 
@@ -247,7 +247,7 @@ ${chineseFocusSections(focus)}
 
 ### A. Final polishing report
 
-简洁总结论文是否接近投稿状态、主要问题、删除或合并的重复内容、如何降低明显的 AI writing 痕迹、统一的术语或表达、潜在技术或逻辑问题，以及仍需人工处理的问题。不需要列出每个 grammar correction，只记录重要和具有代表性的修改。
+简洁总结写作层面的完成度、主要问题、删除或合并的重复内容、如何降低明显的 AI writing 痕迹、统一的术语或表达、仅作提示的潜在技术或逻辑问题，以及仍需人工处理的问题。不需要列出每个 grammar correction，只记录重要和具有代表性的修改。
 
 ### B. 修改后的完整文件
 
@@ -258,9 +258,9 @@ ${chineseFocusSections(focus)}
 最后再确认：这是一篇已经完成的论文的投稿前最后精修，而不是一次重新写作。所有修改都应服务于减少冗余、消除明显 AI 痕迹、提高一致性、增强可读性和专业度，同时最大程度保留原论文的结构、技术内容和作者声音。`;
     }
 
-    return `# Final Pre-submission Polishing
+    return `# Academic Writing Polishing
 
-Perform the final pre-submission polish of my completed manuscript. This is not first-draft revision or broad reconstruction. Preserve the original structure, meaning, technical details, and author voice while resolving remaining language, logic, repetition, consistency, and presentation problems.
+Polish the writing technique and professionalism of my completed manuscript. This is not first-draft revision, broad reconstruction, or a new scientific review. Preserve the paper's scientific logic, original structure, meaning, technical details, and author voice while resolving language, repetition, consistency, and presentation problems. Flag a possible scientific-logic issue separately rather than silently rewriting it.
 
 Read the entire manuscript first, including every section, appendix or supplement, equation, figure, table, caption, section/subsection, label, ref, cite, term, abbreviation, and symbol. Judge issues from the manuscript-wide logic and consistency rather than rewriting isolated sentences immediately.
 

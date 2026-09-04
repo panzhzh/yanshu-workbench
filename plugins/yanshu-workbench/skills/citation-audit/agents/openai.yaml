@@ -1,0 +1,4 @@
+interface:
+  display_name: "YanShu Citation Audit"
+  short_description: "Verify citations, coverage, and BibTeX"
+  default_prompt: "Use $citation-audit to review and strengthen citations in this manuscript."

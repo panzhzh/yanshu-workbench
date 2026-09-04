@@ -57,6 +57,20 @@ export const PROMPT_STEP_POLICIES = {
       },
     },
   },
+  "full-reconstruction": {
+    temporaryMainTextCeilingMultiplier: 1.2,
+    protectedSectionIds: ["method", "experiments-results"],
+    appendixTriage: {
+      enabled: {
+        zh: "当前配置只允许、并不要求使用附录。不得只为命中建议字数而移动内容；正文已经清楚、完整且结构紧凑时不使用附录。只有材料本身确属补充内容、放在正文会削弱主线时才可考虑移入。除 {{protected_sections}} 外，任何移动都不得削弱定义完整性和论证闭环，且正文必须保持自洽。",
+        en: "The configuration permits but does not require an appendix. Never move content merely to hit a suggested length, and omit the appendix when the main text is clear, complete, and focused. Move material only when it is genuinely supplementary and would weaken the main throughline. Outside {{protected_sections}}, no move may weaken complete definitions or argumentative closure, and the main text must remain self-contained.",
+      },
+      disabled: {
+        zh: "当前配置未启用附录：不得把任何内容转移到附录。可以删除真实重复并合并非核心叙述，但篇幅建议不构成删减核心内容的理由；必要时直接偏离建议并在报告中说明。",
+        en: "The current configuration disables the appendix. Do not move material outside the main text. Remove genuine repetition and consolidate non-core exposition when useful, but never treat length guidance as a reason to delete core content; deviate from the suggestion when necessary and record why.",
+      },
+    },
+  },
 } satisfies Record<string, PromptStepPolicy>;
 
 export const SOURCE_BUDGET_REFERENCE = {
@@ -126,7 +140,7 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 ### 中文报告固定清单
 
-报告必须包含：Scientific Positioning Contract、标题与论文品牌审计及 high-risk diff（如有）、一句话论文主旨、一句话核心痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能表、图表角色表、结构操作、联网核验、自动决策与未核验风险、下一步交接摘要。`,
+报告必须包含：Scientific Positioning Contract、标题与论文品牌审计及 high-risk diff（如有）、一句话论文主旨、一句话核心痛点、旧/新主线对照、贡献分层、Claim–Evidence Map、术语表、章节功能表、图表角色表、结构操作、联网核验、自动决策与未核验风险，并统一写入最终重构说明。`,
       en: `### The Scientific Positioning Contract Must Answer Every Item
 
 1. Task: the concrete task, inputs, outputs, and applicable boundary;
@@ -174,7 +188,7 @@ export const PROMPT_DETAILED_CONSTRAINTS: Record<
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Scientific Positioning Contract; title and paper-brand audit with any high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology and section-function tables; visual roles; structural operations; web verification; automatic decisions and unresolved risks; and next-step handoff.`,
+The report must contain the Scientific Positioning Contract; title and paper-brand audit with any high-risk diff; one-sentence thesis and pain point; old/new throughline comparison; contribution hierarchy; Claim–Evidence Map; terminology and section-function tables; visual roles; structural operations; web verification; automatic decisions; and unresolved risks, all consolidated in the final reconstruction report.`,
     },
     inlineStyleConstraints: [
       {
@@ -333,7 +347,7 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
 5. 每个核心机制都应让读者理解其必要性、计算构造、组件接口、设计直觉、训练或推理作用及适用边界，但顺序、篇幅和组合方式由该机制的科学逻辑决定。用连续段落把这些功能融合起来，标题只命名机制或科学内容，不把上述功能拆成重复的固定槽位；不得只复述执行流程，也不得把常规 backbone、标准注意力、常见损失或简单拼接包装成独立贡献。
 6. 公式必须先解释后出现，出现后说明作用及与整体目标的关系；关键公式至少被正文引用一次；检查上下标、维度、求和范围、归一化、mask、损失权重和优化目标；只有材料支持时才保留算法或复杂度，训练与推理有差异时必须明确区分。
 7. 语言优先一般现在时、主动语态和无生命主语；全章 we 最多出现三次。
-8. 核对现有框架图与机制图的输入、输出、模块、箭头、训练/推理路径和术语是否与重构后的 Method 一致；本步不生成或替换总体框架图，统一交由后续独立步骤处理。
+8. 核对现有框架图与机制图的输入、输出、模块、箭头、训练/推理路径和术语是否与重构后的 Method 一致；本流程不生成或替换图片，发现冲突时在报告中精确记录。
 {{method_word_limits}}
 
 ### Experiments 的固定结构约束
@@ -350,7 +364,7 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
 
 ### 中文报告固定清单
 
-报告必须包含：Method 逻辑图谱、方法小节重构对照、公式与符号审计、现有图表与正文接口审计、Experiment Question–Evidence 表、实验顺序设计、数字与统计风险、删除或弱化的机制主张、联网基线与协议核验、修改清单、未核验风险和下一轮交接摘要。Question–Evidence 表是报告中的规划与审计工具，其列名不得变成 TeX 中重复的小标题或句首标签。`,
+报告必须包含：Method 逻辑图谱、方法小节重构对照、公式与符号审计、现有图表与正文接口审计、Experiment Question–Evidence 表、实验顺序设计、数字与统计风险、删除或弱化的机制主张、联网基线与协议核验、修改清单和未核验风险，并统一写入最终重构说明。Question–Evidence 表是报告中的规划与审计工具，其列名不得变成 TeX 中重复的小标题或句首标签。`,
       en: `### Fixed Constraints for Method
 
 1. {{method_document_hierarchy}}
@@ -360,7 +374,7 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
 5. Make each core mechanism intelligible in terms of its necessity, computational construction, interfaces, design intuition, training or inference role, and applicable boundary, but let the mechanism's scientific logic determine their order, emphasis, and grouping. Integrate these functions into continuous prose, and let headings name mechanisms or scientific content rather than repeated template slots. Do not merely describe execution steps or package a standard backbone, ordinary attention, common loss, or simple concatenation as an independent contribution.
 6. Motivate equations before they appear and explain their role and relation to the overall objective afterward. Cite each key equation at least once. Check indices, dimensions, summation ranges, normalization, masks, loss weights, and optimization objectives. Retain algorithms or complexity only when supported, and distinguish training from inference whenever they differ.
 7. Prefer present tense, active voice, and inanimate subjects. Use "we" no more than three times in the entire section.
-8. Audit whether the inputs, outputs, components, arrows, training/inference paths, and terminology of existing framework and mechanism figures still match the reconstructed Method. Do not generate or replace the overall framework figure in this step; the separate later step handles it.
+8. Audit whether the inputs, outputs, components, arrows, training/inference paths, and terminology of existing framework and mechanism figures still match the reconstructed Method. Do not generate or replace images in this workflow; record every conflict precisely in the report.
 {{method_word_limits}}
 
 ### Fixed Constraints for Experiments
@@ -377,7 +391,7 @@ The report must contain the Scientific Positioning Contract; title and paper-bra
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, unresolved verification risks, and next-step handoff. Treat the Question–Evidence table as a report-only planning and audit device; never turn its column labels into repeated TeX headings or sentence prefixes.`,
+The report must contain the Method logic map, old/new Method subsection comparison, equation and notation audit, existing-visual-to-prose interface audit, Experiment Question–Evidence table, experiment-order rationale, numeric/statistical risks, removed or qualified mechanism claims, web verification of baselines and protocols, revision log, and unresolved verification risks, all consolidated in the final reconstruction report. Treat the Question–Evidence table as a report-only planning and audit device; never turn its column labels into repeated TeX headings or sentence prefixes.`,
     },
     inlineStyleConstraints: [
       {
@@ -507,7 +521,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### 中文报告固定清单
 
-报告必须包含：事实底稿、原稿高价值表达保留清单、Abstract 句子功能表、Introduction 叙事段落与贡献块功能表、三点贡献旧/新对照、Related Work 主题与文献簇、Discussion 的证据/推断/边界表、Conclusion 两段功能表、术语对齐、联网核验、实际精修清单和下一步交接摘要。`,
+报告必须包含：事实底稿、原稿高价值表达保留清单、Abstract 句子功能表、Introduction 叙事段落与贡献块功能表、三点贡献旧/新对照、Related Work 主题与文献簇、Discussion 的证据/推断/边界表、Conclusion 两段功能表、术语对齐、联网核验和实际精修清单，并统一写入最终重构说明。`,
       en: `### Deep-refinement Principle
 
 - Build both a fact base and a preservation list for high-value original expression. Retain or lightly edit original sentences that are accurate, clear, distinctive, and evidence-aligned;
@@ -561,7 +575,7 @@ The report must contain the Method logic map, old/new Method subsection comparis
 
 ### Fixed Chinese-report Checklist
 
-The report must contain the fact base, preservation list for high-value original expression, Abstract sentence-function table, Introduction narrative-paragraph and contribution-block map, old/new three-contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion two-paragraph map, terminology alignment, web verification, actual refinement log, and next-step handoff.`,
+The report must contain the fact base, preservation list for high-value original expression, Abstract sentence-function table, Introduction narrative-paragraph and contribution-block map, old/new three-contribution comparison, Related Work themes and citation clusters, Discussion evidence/inference/boundary table, Conclusion two-paragraph map, terminology alignment, web verification, and the actual refinement log, all consolidated in the final reconstruction report.`,
     },
     inlineStyleConstraints: [
       {
@@ -651,114 +665,6 @@ The report must contain the fact base, preservation list for high-value original
         },
       },
     ],
-  },
-  "final-refinement": {
-    core: {
-      zh: `### 全文语言精修逐句检查
-
-- 语法、冠词、单复数、主谓一致、时态和语态；
-- 句子是否过长、过碎或包含多层从句；
-- 主题句是否明确，段落是否只有一个主要功能；
-- 句间和段间是否存在自然逻辑连接；
-- 是否频繁使用相同句首或机械平行结构；
-- 是否滥用 we、it、this、which 或模糊指代；
-- 是否存在口语、宣传、空洞评价或无法核验的泛化；
-- 是否把名词堆叠成难以阅读的短语；
-- 优先使用一般现在时、主动语态和无生命主语；只有明确历史研究行为才用一般过去时。
-
-### 术语、缩写和跨章节功能治理
-
-- 建立最终 Terminology Consistency Table：canonical term、方法全称和既定论文品牌缩写、模块/表示/查询/分支/损失/数据/指标术语、首次定义、禁用变体、冗余缩写和必须区分的概念；
-- 检查标题、摘要、正文、图、表、caption、公式和算法是否完全一致；
-- 检查 Abstract 是否复制 Introduction，Introduction 是否提前展开过多方法或数字，Related Work 是否重复 Introduction 或逐篇罗列，Method Overview 是否重复核心机制，Experiments 是否逐项朗读表格，Discussion 是否复述 Results，Conclusion 是否复制 Abstract，三点贡献是否与 Method/Experiments/Conclusion 一致，同一局限是否多处重复；
-- 输出 Cross-Section Redundancy Matrix，说明删除、合并或保留原因。
-
-### Claim–Evidence 终审
-
-对标题、摘要、Introduction、贡献、Results、Discussion 和 Conclusion 的每个主要 claim 标记：
-
-- claim 类型：事实、实验观察、机制解释、推断或普遍性主张；
-- 证据位置：表、图、公式、案例或引用；
-- 证据是否充分；
-- 是否需要降级为 suggests、indicates、is consistent with 等克制表达；
-- 是否存在单一设置泛化、因果化、选择性报告或公平比较风险。
-
-证据不足的 claim 必须删除、缩小或明确限定。
-
-### 数字、引用与 LaTeX 终审
-
-- 核对正文、表格、图和摘要中的所有数字，百分数、小数，绝对/相对提升，均值/标准差，随机种子和运行次数，指标方向，best/second-best，数据规模与划分，参数量、FLOPs、延迟、吞吐量、显存单位和显著性术语；
-- 逐一解析 cite key 并与 .bib 校验，检查语义支持，删除 citation dumping、重复和无关引用，检查近三年覆盖及最近邻工作；
-- 检查所有图表、公式和算法是否被正文引用，label 是否唯一、ref 是否有效、caption 是否自包含且克制、图例与符号是否解释、公式维度与编号是否一致、表格是否有未解释列、是否遗留占位符或编译警告；
-- 环境支持时实际编译并报告；无法编译时不得声称成功。
-
-### 模拟审稿人攻击测试
-
-逐项攻击并处理：科学新意是否只是模块拼接、核心思想是否区别于现有工作、机制是否有必要性解释、实验是否支持全部贡献、是否缺少关键消融或公平比较、参数是否在测试集上选择、结论是否超出证据、Discussion/Limitations 是否诚实、标题和摘要是否过度包装。无法通过文字修复的实验缺口必须保留在报告中。
-
-### 原稿质量回归门
-
-- 以重构前原始 .tex、PDF 和旧框架图为基线，逐节比较当前稿；
-- 检查高价值句子或实验发现是否消失、结果解释是否被过度压缩、当前标题是否仍准确且有辨识度、新框架图是否更清楚地表达科学主线；
-- 只修复确认发生退化的位置，并把修复融合进原段落；其他内容保持不变；
-- 输出 Quality Regression Table，记录检查项、原稿价值、当前状态、处理和依据，同时核验全文术语与写作手法一致。
-
-### 中文报告固定清单
-
-报告必须包含：终审摘要与重大修正、Terminology Consistency Table、Cross-Section Redundancy Matrix、Claim–Evidence 表、数字与引用审计、图表/公式/算法/LaTeX 审计、审稿人攻击测试、Quality Regression Table、无法通过文字解决的风险、逐章节修改清单和投稿目标检索交接摘要。`,
-      en: `### Sentence-by-sentence Language Checks
-
-- Grammar, articles, singular/plural form, subject–verb agreement, tense, and voice;
-- Sentences that are too long, too fragmented, or contain excessive clause depth;
-- Clear topic sentences and one primary function per paragraph;
-- Natural logical links between sentences and paragraphs;
-- Repetitive sentence openings or mechanical parallelism;
-- Overuse of we, it, this, which, or vague references;
-- Colloquial, promotional, empty evaluative, or unverifiable generalizing language;
-- Unreadable noun stacks;
-- Prefer present tense, active voice, and inanimate subjects. Use past tense only for explicit historical research actions.
-
-### Terminology, Acronym, and Cross-section Function Governance
-
-- Build the final Terminology Consistency Table covering canonical terms, the full method name and paper-brand acronym selected by this workflow, component/representation/query/branch/loss/data/metric terminology, first definitions, prohibited variants, redundant acronyms, and concepts that must remain distinct;
-- Check complete consistency across title, abstract, prose, figures, tables, captions, equations, and algorithms;
-- Check whether Abstract copies Introduction; Introduction reveals excessive method detail or numbers; Related Work repeats Introduction or narrates papers; Method Overview repeats mechanism subsections; Experiments reads tables cell by cell; Discussion repeats Results; Conclusion copies Abstract; the three contributions align with Method/Experiments/Conclusion; and the same limitation appears repeatedly;
-- Return a Cross-Section Redundancy Matrix explaining every deletion, merge, or retention.
-
-### Final Claim–Evidence Audit
-
-For every major claim in title, abstract, Introduction, contributions, Results, Discussion, and Conclusion, label:
-
-- Claim type: fact, experimental observation, mechanistic explanation, inference, or generality claim;
-- Evidence location: table, figure, equation, case, or citation;
-- Evidence sufficiency;
-- Whether it must be downgraded to suggests, indicates, is consistent with, or another restrained form;
-- Risks of single-setting generalization, causality, selective reporting, or unfair comparison.
-
-Delete, narrow, or explicitly qualify any under-supported claim.
-
-### Final Numeric, Citation, and LaTeX Audit
-
-- Cross-check every number in prose, tables, figures, and abstract; percentages and decimals; absolute/relative gains; means/standard deviations; seeds and run counts; metric directions; best/second-best marks; dataset sizes and splits; parameter counts, FLOPs, latency, throughput, memory units; and significance terminology;
-- Resolve every cite key against the .bib, check semantic support, remove citation dumping, duplication, and irrelevance, and inspect recent-work and nearest-neighbor coverage;
-- Check that every figure, table, equation, and algorithm is cited; labels are unique; refs work; captions are self-contained and restrained; legends and symbols are explained; equation dimensions and numbering agree; table columns are explained; and no placeholder or compilation warning remains;
-- Compile and report the result when supported. Never claim successful compilation when compilation was unavailable.
-
-### Simulated Reviewer Attack Test
-
-Attack and address whether the novelty is only module assembly, the core idea is distinguished from prior work, mechanisms have necessity arguments, experiments support every contribution, decisive ablations or fair comparisons are missing, parameters were chosen on test data, conclusions exceed evidence, Discussion/Limitations are honest, and title/abstract overpackage the work. Keep experimental gaps that prose cannot repair in the report.
-
-### Source-aware Quality Regression Gate
-
-- Use the original pre-reconstruction .tex, PDF, and old framework figure as the baseline for section-by-section comparison;
-- Check for lost high-value sentences or experimental findings, overcompressed result interpretation, whether the current title remains accurate and distinctive, and whether the new framework figure communicates the scientific throughline more clearly;
-- Repair only confirmed regressions and integrate each repair into its paragraph. Keep all unrelated content unchanged;
-- Return a Quality Regression Table recording the check, source value, current state, action, and rationale, while verifying consistent terminology and writing style throughout.
-
-### Fixed Chinese-report Checklist
-
-The report must contain the final-audit summary and major revisions, Terminology Consistency Table, Cross-Section Redundancy Matrix, Claim–Evidence table, numeric and citation audits, visual/equation/algorithm/LaTeX audit, reviewer attack test, Quality Regression Table, risks prose cannot solve, section-by-section revision log, and submission-targeting handoff.`,
-    },
   },
   "venue-targeting": {
     core: {
@@ -884,4 +790,62 @@ These are default weights. If a dimension does not fit the field or article type
 - The result must contain the one-sentence manuscript category, verification date, user constraints/default assumptions, Manuscript–Venue Profile, candidate pool, sources, exclusion process, scores, tiers, top recommendation, risks, policy summary, transfer path, unverified facts, and a statement that the template and prose were unchanged and no file was generated.`,
     },
   },
+};
+
+const reconstructionConstraintSteps = [
+  PROMPT_DETAILED_CONSTRAINTS["scientific-positioning"],
+  PROMPT_DETAILED_CONSTRAINTS["method-experiments"],
+  PROMPT_DETAILED_CONSTRAINTS["narrative-reconstruction"],
+] as const;
+
+PROMPT_DETAILED_CONSTRAINTS["full-reconstruction"] = {
+  core: {
+    zh: `### Step 1 专用规则 · 科学定位与宏观结构
+
+${reconstructionConstraintSteps[0].core.zh}
+
+### Step 2 专用规则 · 方法与实验深度重构
+
+${reconstructionConstraintSteps[1].core.zh}
+
+### Step 3 专用规则 · 前后叙事深度精修
+
+${reconstructionConstraintSteps[2].core.zh}
+
+### Step 4 专用规则 · 原稿质量回归门
+
+- 逐节对照重构前原稿与当前稿，检查是否丢失高价值表达或实验发现、结果解释是否被过度压缩、标题是否更准确且有辨识度；
+- 保持术语、语气与写作手法一致，并在报告中记录保留、恢复和不恢复的理由；
+- 只对确认退化的位置做融合式修复，不执行模拟审稿、通用语言终审或新的结构重构。`,
+    en: `### Step 1 Rules · Scientific Positioning and Macro Structure
+
+${reconstructionConstraintSteps[0].core.en}
+
+### Step 2 Rules · Method and Experiments Reconstruction
+
+${reconstructionConstraintSteps[1].core.en}
+
+### Step 3 Rules · Deep Narrative Refinement
+
+${reconstructionConstraintSteps[2].core.en}
+
+### Step 4 Rules · Source-aware Quality Regression Gate
+
+- Compare the reconstructed manuscript with the original section by section for lost high-value expression or experimental findings, overcompressed result interpretation, and whether the title is more accurate and distinctive;
+- Keep terminology, voice, and writing technique consistent, and record why material was retained, restored, or intentionally not restored;
+- Repair only confirmed regressions cohesively. Do not conduct a simulated review, a general language audit, or another structural reconstruction.`,
+  },
+  inlineStyleConstraints: reconstructionConstraintSteps.flatMap(
+    (step) => step.inlineStyleConstraints ?? [],
+  ),
+  inlinePreferenceConstraints: reconstructionConstraintSteps.flatMap(
+    (step) => step.inlinePreferenceConstraints ?? [],
+  ),
+  inlineWordLimits: reconstructionConstraintSteps.flatMap(
+    (step) => step.inlineWordLimits ?? [],
+  ),
+  wordLimit: reconstructionConstraintSteps[0].wordLimit,
+  flexibleCoreWordLimit:
+    reconstructionConstraintSteps[0].flexibleCoreWordLimit,
+  wordLimitPlacement: reconstructionConstraintSteps[0].wordLimitPlacement,
 };

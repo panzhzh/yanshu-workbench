@@ -1,4 +1,4 @@
 interface:
   display_name: "YanShu Paper Drafting"
   short_description: "Draft a paper from completed experiments"
-  default_prompt: "Use $paper-drafting to configure and draft a paper from my completed experiments."
+  default_prompt: "Use $paper-drafting to draft a paper from my completed experiments in this workspace."

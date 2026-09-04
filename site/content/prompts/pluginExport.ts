@@ -9,12 +9,6 @@ import {
   DEFAULT_CHAT_EXECUTION_PREFERENCES,
   type ChatExecutionPreferences,
 } from "./chatExecution";
-import {
-  FIGURE_ASPECT_RATIO_IDS,
-  FIGURE_ASPECT_RATIOS,
-  RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
-  type FrameworkFigureLayoutPreferences,
-} from "../../app/figures/config";
 import { buildPrompt } from "./buildPrompt";
 import {
   normalizeCaptionWordRange,
@@ -39,7 +33,6 @@ export interface ReconstructionWorkflowInput {
   sectionBudgets?: Record<string, number>;
   includeAppendix?: boolean;
   captionWordRange?: CaptionWordRange;
-  frameworkFigure?: FrameworkFigureLayoutPreferences;
   chatExecution?: Partial<ChatExecutionPreferences>;
 }
 
@@ -73,15 +66,6 @@ export function getReconstructionConfigurationModel() {
         },
       ]),
     ),
-    frameworkFigure: {
-      default: RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
-      aspectRatios: FIGURE_ASPECT_RATIO_IDS.map((id) => ({
-        id,
-        label: FIGURE_ASPECT_RATIOS[id].label,
-        ratio: FIGURE_ASPECT_RATIOS[id].ratio,
-        description: FIGURE_ASPECT_RATIOS[id].shortDescription,
-      })),
-    },
     chatExecution: {
       default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
       reasoningPreferences: CHAT_REASONING_PREFERENCE_IDS.map(
@@ -176,36 +160,9 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     }
   }
 
-  const frameworkFigure = {
-    aspectRatioId:
-      input.frameworkFigure?.aspectRatioId ??
-      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
-    customAspectWidth:
-      input.frameworkFigure?.customAspectWidth ??
-      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
-    customAspectHeight:
-      input.frameworkFigure?.customAspectHeight ??
-      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
-  };
   const captionWordRange = normalizeCaptionWordRange(
     input.captionWordRange,
   );
-
-  if (!(frameworkFigure.aspectRatioId in FIGURE_ASPECT_RATIOS)) {
-    throw new Error(
-      `Unsupported framework figure ratio: ${String(frameworkFigure.aspectRatioId)}.`,
-    );
-  }
-  if (
-    !Number.isFinite(frameworkFigure.customAspectWidth) ||
-    frameworkFigure.customAspectWidth <= 0 ||
-    !Number.isFinite(frameworkFigure.customAspectHeight) ||
-    frameworkFigure.customAspectHeight <= 0
-  ) {
-    throw new Error(
-      "Framework figure custom ratio values must be positive finite numbers.",
-    );
-  }
 
   const modelPolicy =
     input.chatExecution?.modelPolicy ??
@@ -271,7 +228,6 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     sectionBudgets,
     includeAppendix: input.includeAppendix ?? style.defaultAppendix,
     captionWordRange,
-    frameworkFigure,
     chatExecution,
   };
 }
@@ -292,7 +248,6 @@ export function buildReconstructionWorkflow(
     sectionBudgets,
     includeAppendix,
     captionWordRange,
-    frameworkFigure,
     chatExecution,
   } = normalized;
   const contextForLanguage = (
@@ -324,7 +279,6 @@ export function buildReconstructionWorkflow(
       ? style.appendixRule.enabled[promptLanguage]
       : style.appendixRule.disabled[promptLanguage],
     captionWordRange,
-    frameworkFigure,
   });
 
   return {
@@ -342,7 +296,6 @@ export function buildReconstructionWorkflow(
       sectionBudgets,
       includeAppendix,
       captionWordRange,
-      frameworkFigure,
       chatExecution,
     },
     rounds: RECONSTRUCTION_PROMPTS.map((round) => {

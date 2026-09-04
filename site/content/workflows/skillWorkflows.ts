@@ -60,12 +60,7 @@ import {
   getDefaultExperimentalPlotValues,
   normalizeExperimentalPlotValues,
 } from "../../app/figures/toolsConfig";
-import {
-  WRITING_DIAGNOSIS_WORKBENCH,
-  buildWritingDiagnosisPrompt,
-  getDefaultWritingDiagnosisValues,
-  normalizeWritingDiagnosisValues,
-} from "../../app/writing/diagnosis/config";
+import { CITATION_AUDIT_WORKBENCH } from "../../app/writing/citations/config";
 import {
   PEER_REVIEW_WORKBENCH,
   REVISION_AUDIT_WORKBENCH,
@@ -77,7 +72,7 @@ export type LocalizedWorkflowText = Record<Language, string>;
 export type YanShuSkillId =
   | "idea-discovery"
   | "paper-drafting"
-  | "writing-diagnosis"
+  | "citation-audit"
   | "paper-reconstruction"
   | "scientific-figure"
   | "experimental-plotting"
@@ -169,7 +164,7 @@ export interface YanShuSkillCatalogItem {
   output: LocalizedWorkflowText;
 }
 
-export const SKILL_WORKFLOW_VERSION = "2026.09.02";
+export const SKILL_WORKFLOW_VERSION = "2026.09.05";
 
 export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   {
@@ -219,26 +214,26 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
     },
   },
   {
-    id: "writing-diagnosis",
+    id: "citation-audit",
     index: "03",
-    skillName: "Writing Diagnosis",
-    websitePath: "/writing/diagnosis",
-    title: { zh: "诊断学术写作", en: "Diagnose academic writing" },
+    skillName: "Citation Audit",
+    websitePath: "/writing/citations",
+    title: { zh: "核查与补充引文", en: "Review and strengthen citations" },
     description: {
-      zh: "从全文、段落和句子三个尺度发现反复出现的写作手法与习惯问题，并给出具体指正。",
-      en: "Identify recurring writing-technique and habit problems at manuscript, paragraph, and sentence scale, then provide actionable guidance.",
+      zh: "核对正文引用与原论文是否匹配，补足真实缺口，并同步校验 BibTeX 与近期文献覆盖。",
+      en: "Verify claim–source alignment, fill genuine gaps, and validate BibTeX and recent-literature coverage.",
     },
     command: {
-      zh: "使用 $writing-diagnosis 诊断这个论文目录中的学术写作问题。",
-      en: "Use $writing-diagnosis to diagnose academic writing problems in this manuscript directory.",
+      zh: "使用 $citation-audit 核查并补充这个论文目录中的引文。",
+      en: "Use $citation-audit to review and strengthen citations in this manuscript directory.",
     },
     input: {
-      zh: "主稿 TeX、建议提供 PDF 与 BibTeX",
-      en: "Main TeX, with PDF and BibTeX recommended",
+      zh: "主稿 TeX、完整 BibTeX 与建议提供的 PDF",
+      en: "Main TeX, complete BibTeX, and recommended PDF",
     },
     output: {
-      zh: "聊天内诊断；安全修复时交付修订文件",
-      en: "In-chat diagnosis, with revised files for safe repair",
+      zh: "聊天内审计；安全修复时交付完整修订 TeX/BibTeX",
+      en: "In-chat audit, with complete revised TeX/BibTeX for safe repair",
     },
   },
   {
@@ -248,8 +243,8 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
     websitePath: "/reconstruction",
     title: { zh: "重构现有论文", en: "Reconstruct an existing paper" },
     description: {
-      zh: "通过可恢复的五轮工作流重构科学定位、结构、方法实验叙事和方法总览图。",
-      en: "Use a resumable five-round workflow to rebuild positioning, structure, method and experiment narrative, and the method overview figure.",
+      zh: "用一个完整 Prompt 连续完成科学定位、结构、方法实验、前后叙事和原稿质量回归。",
+      en: "Use one complete prompt for positioning, structure, method and experiments, narrative, and source-aware quality regression.",
     },
     command: {
       zh: "使用 $paper-reconstruction 重构这个论文目录。",
@@ -260,8 +255,8 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
       en: "TeX, BibTeX, PDF, and optional figures",
     },
     output: {
-      zh: "五轮版本、框架图与最终可编译论文",
-      en: "Five versioned rounds, a framework figure, and the final compilable paper",
+      zh: "重构后 TeX、BibTeX 与中文说明",
+      en: "Restructured TeX, BibTeX, and Chinese report",
     },
   },
   {
@@ -493,15 +488,6 @@ const IDEA_DISCOVERY_MODEL: SkillWorkflowModel = {
       description: localized(
         "控制候选数量、探索幅度和现实资源边界。",
         "Control candidate count, exploration posture, and practical resource limits.",
-      ),
-    },
-    {
-      id: "writing",
-      index: "02",
-      title: localized("写作建议", "Writing guidance"),
-      description: localized(
-        "控制 Caption 的建议长度；该范围不是硬性验收条件。",
-        "Configure advisory caption length; the range is never a hard acceptance condition.",
       ),
     },
   ],
@@ -1083,107 +1069,105 @@ const EXPERIMENTAL_PLOTTING_MODEL: SkillWorkflowModel = {
   },
 };
 
-const WRITING_DIAGNOSIS_SECTIONS = [
+const CITATION_AUDIT_SECTIONS = [
   {
     id: "scope",
     index: "01",
-    title: localized("材料与范围", "Materials and scope"),
+    title: localized("范围与动作", "Scope and action"),
     description: localized(
-      "选择全文或需要诊断的具体章节与文字载体。",
-      "Choose the whole manuscript or specific sections and text carriers.",
+      "选择重点章节，以及仅核查或核查并安全修复。",
+      "Choose priority sections and report-only or safe-repair behavior.",
     ),
   },
   {
-    id: "reader",
+    id: "target",
     index: "02",
-    title: localized("读者与深度", "Readers and depth"),
+    title: localized("目标与覆盖", "Target and coverage"),
     description: localized(
-      "根据目标读者控制术语负担和诊断颗粒度。",
-      "Set terminology burden and diagnostic granularity for the intended readers.",
+      "设置目标 venue、建议引文总量和近期文献比例。",
+      "Set the target venue, suggested bibliography size, and recent-work share.",
     ),
   },
   {
-    id: "dimensions",
+    id: "sources",
     index: "03",
-    title: localized("诊断维度", "Diagnostic dimensions"),
+    title: localized("来源策略", "Source policy"),
     description: localized(
-      "组合检查叙事、引用、段落、图表、结果、公式与语言习惯。",
-      "Combine narrative, citation, paragraph, display, results, equation, and language checks.",
+      "控制预印本、顶会顶刊、联网核验和单句引用密度。",
+      "Control preprints, leading venues, web verification, and sentence-level citation density.",
     ),
   },
   {
     id: "delivery",
     index: "04",
-    title: localized("指正与交付", "Guidance and delivery"),
+    title: localized("补充要求", "Additional requirements"),
     description: localized(
-      "选择仅报告或安全修复，并保护原稿中的好表达。",
-      "Choose report-only or safe repair while preserving strong existing prose.",
+      "记录必须保留的来源、主题或排除范围。",
+      "Record sources, topics, or exclusions that must be preserved.",
     ),
   },
 ] as const;
 
-const WRITING_DIAGNOSIS_FIELD_SECTIONS: Record<string, string> = {
-  scope: "scope",
+const CITATION_AUDIT_FIELD_SECTIONS: Record<string, string> = {
+  action: "scope",
   sections: "scope",
-  depth: "reader",
-  audience: "reader",
-  dimensions: "dimensions",
-  browseCitations: "dimensions",
-  action: "delivery",
-  preserveStrengths: "delivery",
+  targetType: "target",
+  targetVenue: "target",
+  targetVenueMinimum: "target",
+  referenceRange: "target",
+  recentYears: "target",
+  recentShare: "target",
+  allowPreprints: "sources",
+  preferTopConferences: "sources",
+  preferTopJournals: "sources",
+  browse: "sources",
+  citationsPerSentence: "sources",
   custom: "delivery",
 };
 
-function writingDiagnosisWorkflowField(
+function citationAuditWorkflowField(
   control: WorkbenchControl,
 ): SkillWorkflowField {
   const field = configurableWorkbenchField(
     control,
-    WRITING_DIAGNOSIS_FIELD_SECTIONS[control.id] ?? "delivery",
+    CITATION_AUDIT_FIELD_SECTIONS[control.id] ?? "delivery",
   );
-  if (control.id === "sections") {
-    field.visibleWhen = { fieldId: "scope", equals: "selected" };
+  if (control.id === "targetVenue") {
+    field.visibleWhen = { fieldId: "targetType", notEquals: "none" };
   }
-  if (control.id === "browseCitations") {
-    field.visibleWhen = {
-      fieldId: "dimensions",
-      includes: "citation-practice",
-    };
+  if (control.id === "targetVenueMinimum") {
+    field.visibleWhen = { fieldId: "targetType", equals: "journal" };
   }
   return field;
 }
 
-const WRITING_DIAGNOSIS_MODEL: SkillWorkflowModel = {
-  id: "writing-diagnosis",
+const CITATION_AUDIT_MODEL: SkillWorkflowModel = {
+  id: "citation-audit",
   version: SKILL_WORKFLOW_VERSION,
-  skillId: "writing-diagnosis",
-  websitePath: "/writing/diagnosis",
-  title: localized("学术写作诊断", "Academic Writing Diagnosis"),
-  eyebrow: "YANSHU · ACADEMIC WRITING DIAGNOSIS",
+  skillId: "citation-audit",
+  websitePath: "/writing/citations",
+  title: localized("引文核查与补充", "Citation Review & Support"),
+  eyebrow: "YANSHU · CITATION REVIEW",
   description: localized(
-    "从全文、段落和句子三个尺度发现作者难以自察的写作手法与习惯问题。",
-    "Expose hard-to-notice writing-technique and habit problems at manuscript, paragraph, and sentence scale.",
+    "核对引用是否支撑陈述，补足真实缺口，并校验 BibTeX 与文献覆盖。",
+    "Verify claim–source support, fill genuine gaps, and validate BibTeX and literature coverage.",
   ),
   materialTitle: localized("需要材料", "Required materials"),
   materialItems: {
-    zh: ["主稿 .tex", "最新编译 PDF（建议）", ".bib（建议）", "目标 venue 指南（可选）"],
-    en: ["Main .tex", "Latest compiled PDF (recommended)", ".bib (recommended)", "Target-venue guidance (optional)"],
+    zh: ["主稿 .tex", "完整 .bib", "最新编译 PDF（建议）", "目标 venue（可选）"],
+    en: ["Main .tex", "Complete .bib", "Latest compiled PDF (recommended)", "Target venue (optional)"],
   },
   materialHint: localized(
-    "无需 figures 或实验源数据；本工作流只诊断写作，不重新评审科学贡献。",
-    "Figures and raw experimental data are unnecessary; this workflow diagnoses writing rather than re-reviewing the science.",
+    "默认重点检查 Introduction 与 Related Work；建议数量用于判断覆盖度，不用于凑引用。",
+    "Introduction and Related Work are the default focus; suggested counts assess coverage and never justify padding.",
   ),
   output: localized(
-    "默认在当前聊天返回诊断；选择安全修复时交付完整修订 TeX，只有明确要求才另存 Markdown 或 diff 文档。",
-    "Return the diagnosis in the current chat by default; safe repair delivers complete revised TeX, while Markdown or diff documents are saved only when explicitly requested.",
+    "仅核查时在当前聊天返回结果；安全修复时交付完整修订 TeX，并仅在 BibTeX 变化时交付完整 .bib。",
+    "Return audit results in chat; safe repair delivers complete revised TeX and a complete .bib only when it changes.",
   ),
-  sections: WRITING_DIAGNOSIS_SECTIONS,
-  fields: WRITING_DIAGNOSIS_WORKBENCH.controls.map(
-    writingDiagnosisWorkflowField,
-  ),
-  defaults: {
-    ...getDefaultWritingDiagnosisValues(),
-  },
+  sections: CITATION_AUDIT_SECTIONS,
+  fields: CITATION_AUDIT_WORKBENCH.controls.map(citationAuditWorkflowField),
+  defaults: workbenchDefaults(CITATION_AUDIT_WORKBENCH),
 };
 
 function workbenchDefaults(definition: WorkbenchDefinition) {
@@ -1430,7 +1414,7 @@ const CONFIGURABLE_MODELS: Record<
 > = {
   "idea-discovery": IDEA_DISCOVERY_MODEL,
   "paper-drafting": PAPER_DRAFTING_MODEL,
-  "writing-diagnosis": WRITING_DIAGNOSIS_MODEL,
+  "citation-audit": CITATION_AUDIT_MODEL,
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
   "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
   "peer-review": PEER_REVIEW_MODEL,
@@ -1698,8 +1682,8 @@ export function normalizeSkillWorkflowPreferences(
   if (workflowId === "paper-drafting") {
     return normalizeDraftPreferences(input);
   }
-  if (workflowId === "writing-diagnosis") {
-    return normalizeWritingDiagnosisValues(input);
+  if (workflowId === "citation-audit") {
+    return normalizeWorkbenchPreferences(CITATION_AUDIT_WORKBENCH, input);
   }
   if (workflowId === "experimental-plotting") {
     return normalizeExperimentalPlotValues(input);
@@ -1750,19 +1734,18 @@ export function buildSkillWorkflowConfiguration(
       customVenue: draftPreferences.customVenue,
       captionWordRange: draftPreferences.captionWordRange,
     };
-  } else if (workflowId === "writing-diagnosis") {
-    const diagnosisPreferences = preferences as ReturnType<
-      typeof normalizeWritingDiagnosisValues
-    >;
-    prompt = buildWritingDiagnosisPrompt(
-      diagnosisPreferences,
+  } else if (workflowId === "citation-audit") {
+    const citationPreferences = preferences as WorkbenchValues;
+    prompt = CITATION_AUDIT_WORKBENCH.buildPrompt(
+      citationPreferences,
       promptLanguage,
     );
     selection = {
-      scope: diagnosisPreferences.scope,
-      depth: diagnosisPreferences.depth,
-      dimensions: diagnosisPreferences.dimensions,
-      action: diagnosisPreferences.action,
+      action: citationPreferences.action,
+      sections: citationPreferences.sections,
+      targetType: citationPreferences.targetType,
+      referenceRange: citationPreferences.referenceRange,
+      recentShare: citationPreferences.recentShare,
     };
   } else if (workflowId === "experimental-plotting") {
     const plotPreferences = preferences as ReturnType<

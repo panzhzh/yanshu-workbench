@@ -36,7 +36,7 @@ GitHub `main` 是网站源码的唯一事实来源。ChatGPT Sites 中保存的�
 
 网站本身不读取、不上传，也不保存论文文件。
 
-YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正文，让 Codex 负责本地文件、轮次状态、编译和错误回传。它使用用户可见且已登录的 ChatGPT 会话，不以 Codex 的写作结果替代 Chat。
+YanShu 同时提供插件执行层：每个 `$子技能` 都从网站同一份数据中解析 Prompt，并在当前 Codex 或 CLI 任务直接读取材料、生成真实产物、编译和核验。插件不会自动打开配置网页、内部 JSON 或额外聊天。
 
 ## 三步开始
 
@@ -53,9 +53,7 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
    使用 $paper-drafting 根据这个实验目录撰写论文初稿。
    ```
 
-3. YanShu 会确认工作区并自动打开仅在本机运行的配置页。所有选项与完整 Prompt
-   都在这一页完成；点击“全自动开始”后直接执行，不再在聊天中逐项确认。若只想
-   手动使用，复制右侧 Prompt 后退出即可。
+3. YanShu 只确认真正有歧义的材料。已在请求中说明的偏好会直接采用，未说明项使用官网默认值；只有会实质改变结果且无法推断时，才合并成一次简短询问。随后在当前任务直接执行。
 
 首页也提供相同的动态三步演示和九个核心工作流的可复制启动语。
 
@@ -68,8 +66,8 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | 总入口 | **YanShu** | — | 安装、发现和协调科研工作流 |
 | 选题 | **Idea Discovery** | `$idea-discovery` | 近期文献检索、候选去重、风险判断与最小验证实验 |
 | 写作 | **Paper Drafting** | `$paper-drafting` | 从完成的实验材料生成可编译 LaTeX 初稿 |
-| 写作 | **Writing Diagnosis** | `$writing-diagnosis` | 诊断全文反复出现的写作手法与习惯问题 |
-| 重构 | **Paper Reconstruction** | `$paper-reconstruction` | 五轮论文重构、框架图重构、产物恢复与编译检查 |
+| 写作 | **Citation Audit** | `$citation-audit` | 核验 Claim–引用关系、补足真实缺口并检查 BibTeX |
+| 重构 | **Paper Reconstruction** | `$paper-reconstruction` | 单次全文重构、四个内部步骤与原稿质量回归 |
 | 绘图 | **Scientific Figure** | `$scientific-figure` | 从论文证据生成一张高清科研示意图 |
 | 图表 | **Experimental Plotting** | `$experimental-plotting` | 从真实实验数据生成可复现的出版级代码图 |
 | 审校 | **Peer Review** | `$peer-review` | 独立检查贡献、方法、证据、结论边界和可复现性 |
@@ -85,8 +83,9 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [Idea 查找](https://yanshu-workbench.pages.dev/ideas/discovery/) | 尚未确定选题 | 默认优先检索近 2 年顶会论文并生成 2 个候选；支持自定义时间窗、venue、数据集、SOTA 目标和资源边界，最终输出中英文 Markdown |
 | [Idea 评估与优化](https://yanshu-workbench.pages.dev/ideas/evaluation/) | 已有初步 Idea | 从新颖性、意义、有效性、可行性、竞争时机与复现条件进行压力测试；默认保留核心问题与机制并融合优化 |
 | [全文初稿](https://yanshu-workbench.pages.dev/draft/) | 实验已经完成 | 从证据材料生成完整、可编译的英文 LaTeX 初稿；arXiv 默认样式或当届顶会官方模板 |
-| [学术写作诊断](https://yanshu-workbench.pages.dev/writing/diagnosis/) | 已有论文但难以发现写作习惯问题 | 从全文、段落和句子三个尺度组合检查主线、引用覆盖、段落推进、caption/note、结果复述、公式叙述、读者负担与重复；默认只输出诊断报告 |
-| [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 会议/期刊结构、正文与章节预算、附录规则、方法与实验保护、五步双语 Prompt |
+| [引文核查与补充](https://yanshu-workbench.pages.dev/writing/citations/) | 引言或相关工作引用需要核验 | 默认重点检查 Introduction 与 Related Work，区分作者自身 Claim 与外部 Claim；支持目标 venue、35–40 篇参考量、近三年占比、预印本与来源质量配置 |
+| [写作精修](https://yanshu-workbench.pages.dev/writing/polishing/) | 完成稿需要投稿前语言精修 | 聚焦冗余、机械化表达、防御性写作、术语与语言专业度，保持研究逻辑、整体结构和作者声音 |
+| [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 一个 Prompt 连续完成科学定位、方法实验、前后叙事与原稿质量回归；只交付最终 TeX、BibTeX 和中文说明，不生成中间轮次或框架图 |
 | [章节精修](https://yanshu-workbench.pages.dev/reconstruction/refinement/) | 需要精修单章或合并实验叙事 | 按 Abstract、Introduction、Related Work、Method、Experiments & Results、Discussion、Conclusion 分别生成章节专用 Prompt |
 | [专项审计](https://yanshu-workbench.pages.dev/reconstruction/audit/) | 论文接近终稿 | 可组合审计术语、引用与 BibTeX、数据、图表、Claim–证据、符号、可复现性和跨章节重复 |
 | [分章节写作](https://yanshu-workbench.pages.dev/writing/sections/) | 从提纲或局部证据撰写章节 | 根据章节功能显示专用配置，覆盖贡献列表、引用核验、Method Overview、伪代码、图表对应段落和 Discussion 主题 |
@@ -101,13 +100,12 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | [论文表格](https://yanshu-workbench.pages.dev/figures/tables/) | 需要整理结果或对比表 | 逐格核对数值与单位，配置表格职责、排序、高亮、显著性和单栏/双栏可读性 |
 | [图表审计](https://yanshu-workbench.pages.dev/figures/audit/) | 图表接近交付 | 联合检查数据、caption、正文引用、标签、可读性和一致性；安全修复只触及已确认错误及其直接依赖 |
 | [投稿定位](https://yanshu-workbench.pages.dev/submission/) | 论文接近终稿 | 先判断论文类别，再按 OA、APC、IF、综述文章、分区和收录等条件动态筛选；默认排除 MDPI、Hindawi 与 Frontiers，也可关闭该排除条件 |
-| [投稿前全文精修](https://yanshu-workbench.pages.dev/submission/polishing/) | 完成稿投稿前 | 以最小必要干预消除冗余、机械化表达、防御性写作与全文不一致，并返回完整修改文件 |
 | [投稿前终检](https://yanshu-workbench.pages.dev/submission/check/) | 即将提交 | 以目标 venue 最新官方规则为准，检查格式、匿名、材料、伦理、可复现性和阻塞项 |
 | [投稿材料](https://yanshu-workbench.pages.dev/submission/materials/) | 需要准备附加材料 | 仅生成所选 cover letter、highlights、声明等材料；作者元数据缺失时保留明确占位，不得补造 |
 | [审稿](https://yanshu-workbench.pages.dev/submission/review/) | 投稿前独立评估 | 不区分会议与期刊，从贡献、方法、证据、结论边界、表达和可复现性生成分级审稿报告，不修改论文 |
 | [返修规划](https://yanshu-workbench.pages.dev/submission/revision/) | 收到审稿意见后 | 拆分并合并多位 reviewer 意见，完成 P0/P1/P2 与 A/B/C/D 分类，规划最小实验、风险和修改顺序；不提前写回复信 |
 | [返修稿审查](https://yanshu-workbench.pages.dev/submission/revision-audit/) | 完成回复与修改后 | 逐条核查 reviewer concern、回复主张、修改稿与 diff，区分期刊返修和会议 rebuttal |
-| YanShu 插件 | 需要直接执行或全链路自动化 | 九个核心子 Skill 均使用官网同源配置和 Prompt；默认在当前 Codex/CLI 任务执行，明确要求时才启用可见 ChatGPT 与持久运行记录 |
+| YanShu 插件 | 需要直接执行 | 九个核心子 Skill 均使用官网同源配置和 Prompt，并在当前 Codex/CLI 任务执行；不自动打开网页、JSON 或额外 Chat |
 
 ## 设计原则
 
@@ -117,18 +115,18 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 - **模板可追溯**：顶会模板必须在执行时从当届官网或官方 author kit 核验。
 - **中英文独立**：界面语言与 Prompt 语言分别建模，不依赖运行时机器翻译。
 - **克制可读**：服务长文本阅读、快速配置和复制，不采用营销页或普通 SaaS 后台视觉。
-- **轻量交付优先**：普通 Skill 默认在当前任务处理，只保留真正产物并在聊天中总结；可见 ChatGPT 与完整运行记录作为显式选择保留。
-- **随时可恢复**：长任务逐轮保存，不因页面关闭、等待超时或应用重启而重复提交。
+- **轻量交付优先**：Skill 默认在当前任务处理，只保留真正产物并在聊天中给出概要，不为留痕生成无用文件。
+- **源稿保护**：需要写文件的流程使用新目录或新文件名；原始论文、实验数据和已有运行保持只读。
 
 ## 安装 YanShu 插件
 
-仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件的开发者预览版。当前包含九个正式命名的核心工作流：
+仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件。当前提供九个独立子 Skill：
 
 | Skill | 启动语示例 |
 | --- | --- |
 | **Idea Discovery** | `使用 $idea-discovery 在当前工作区查找研究 Idea。` |
 | **Paper Drafting** | `使用 $paper-drafting 根据这个实验目录撰写论文初稿。` |
-| **Writing Diagnosis** | `使用 $writing-diagnosis 诊断这个论文目录中的学术写作问题。` |
+| **Citation Audit** | `使用 $citation-audit 核查并补充这个论文目录中的引文。` |
 | **Paper Reconstruction** | `使用 $paper-reconstruction 重构这个论文目录。` |
 | **Scientific Figure** | `使用 $scientific-figure 为这个论文目录绘制一张科研配图。` |
 | **Experimental Plotting** | `使用 $experimental-plotting 根据这个实验目录绘制论文实验图。` |
@@ -136,98 +134,36 @@ YanShu 同时提供可选的插件执行层：让 ChatGPT Chat 负责论文正�
 | **Revision Planning** | `使用 $revision-planning 整理这些审稿意见并制定返修计划。` |
 | **Revision Audit** | `使用 $revision-audit 审查这份返修稿和回复信。` |
 
-除 Paper Reconstruction 外的八个可配置 Skill，其本地配置运行时均由网站对应
-页面的 TypeScript 配置和 Prompt 构建器自动生成；Paper Reconstruction 继续由
-`site/content/prompts` 生成。`npm run plugin:check` 会逐字节检查两套运行时，
-任何网站与 Skill 不同步的提交都无法通过发布检查。
-
-- 从网站同一份配置源生成五轮 Paper Reconstruction Prompt，其中第四轮复用科研绘图的 Method Overview 规则；
-- 自动识别或显式接收 TeX、BibTeX、PDF 与 figures 路径；
-- 新建 `yanshu-reconstruction/<run-id>/`，保存每轮 Prompt、产物、日志与状态；
-- 记录并恢复每轮 Chat 会话地址、实际模型标签和推理档位；
-- 默认使用 ChatGPT 当前可见的最新推理模型与最强档位，也可选择 Medium、High、Extra High 或 Pro；选择 Pro 时默认每轮首次有效对话使用 Pro，后续继续、纠正和补交自动切换为 Extra High，也可显式强制全部 Pro；
-- 所选档位不可用时，先提示用户，再回退到最接近的较低档位；名称无法判断时选择最强可用档位；
-- 内置受控的 YanShu Paper Workspace MCP：ChatGPT 可以按需读取 Prompt、TeX、BibTeX、图表证据和 PDF 页面，而不是每轮重新上传整套文件；
-- 从 TeX 建立图表证据索引，并将 PNG/JPEG/WebP/SVG 原图、PDF 页面、PDF/EPS 图件作为真实图像返回给模型；实验数字不得只凭文件名或 caption 推断；
-- 将 ChatGPT 产出的 TeX、BibTeX 与报告版本化写入当前轮次，隔离编译 LaTeX，并把 PDF 和错误日志直接交给同一对话修正；
-- 为每轮生成最小充分文件白名单：Round 2/3 只接收上一轮 TeX、完整当前 BibTeX 与 PDF，Round 4 只接收最新 TeX/PDF，Round 5 再加入 Round 4 PNG，不累积历史报告与已渲染图件；
-- 附件保底模式将每轮三个文本产物打成一个可校验 ZIP，一次下载后自动导入，避免逐个处理 TeX/BibTeX 文档实体；
-- 新运行会核对官网与已安装 Prompt 工作流版本，旧插件不得启动新运行；已开始的运行继续使用初始化快照，保证可恢复与可复现；
-- 在 Paper Reconstruction 的 Web ChatGPT 模式缺少 Chat 桥接时停在可恢复状态；Current CLI 与其他 Skill 的当前任务模式不依赖浏览器桥接。
-
-Paper Drafting 与 Experimental Plotting 可选使用两个外部增强 Skill。首次发现缺失时，YanShu 只询问一次，并只允许安装两个固定子目录：`research-paper-writing` 用于论文初稿的论证组织与写作自检，`nature-figure` 用于实验数据的代码绘图与成图核验；不会安装任一完整仓库。研术台配置、证据边界与交付协议始终优先。Scientific Figure 不使用这两个外部 Skill，继续由研术台 Prompt 与可见 ChatGPT 生图链路独立完成。
-
-普通 Skill 默认直接在当前 Codex/CLI 任务执行，不依赖可见 ChatGPT 或浏览器桥接。只有用户明确选择 Web ChatGPT、持久化自动运行或保存完整过程证据时，才启用可见 Chat 控制运行时和本地 MCP 工作区。外部网页 ChatGPT 若要直接调用本地 MCP，仍需一次性连接经过认证的 HTTPS MCP 端点或受支持的安全隧道；单纯的 `127.0.0.1` 地址无法被网页端访问。没有该连接时，真实文件附件链路继续作为保底。
-
-### 当前 GitHub 预览版
-
-在 ChatGPT 桌面应用的 Codex 环境或 Codex CLI 中执行一次：
+安装：
 
 ```bash
 codex plugin marketplace add panzhzh/yanshu-workbench --ref main
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
-安装页会把可选的 GitHub 连接与 YanShu 的其他依赖授权集中展示。用户只需在这里决定一次；授权后，所有 YanShu 工作流复用同一连接。首次使用时，YanShu 通过 GitHub 专用的幂等写入接口确保公开仓库 `panzhzh/yanshu-workbench` 已被 Star，并在本机记录回执：已 Star 的仓库不会被取消，YanShu 永远不会调用 Unstar，也不会为此读取无关仓库。跳过或拒绝 GitHub 连接不会阻塞科研流程，YanShu 也不会在后续运行中反复询问。
-
-连接登录与 Codex 的操作审批是两个层次。YanShu 可以合并安装时的连接授权并避免自身重复请求，但不会擅自修改用户的全局审批策略；若宿主仍要求确认一次外部写入，以用户在 Codex 中选择的权限模式为准。
-
-已经安装预览版时，更新并重新载入最新版本：
+更新：
 
 ```bash
 codex plugin marketplace upgrade yanshu-workbench
 codex plugin add yanshu-workbench@yanshu-workbench
 ```
 
-当前预览版从 **Codex 任务**启动；普通 Chat 对话本身不会直接加载本地插件。普通调用默认由当前任务直接完成，只有用户明确要求时才把执行交给可见 ChatGPT。
+安装或更新后新建一个 Codex 任务以载入最新 Skill。每次调用会先静默完成版本握手，再通过 `workflow-resolve` 从网站同源运行时解析完整 Prompt。解析结果只在内部读取，不会打开配置页、JSON 文件、浏览器或额外 Chat；当前任务就是执行器。
 
-安装后必须**新建一个任务**，这样 Codex 才会载入新 Skills。然后直接说出任一工作流，例如：
-
-```text
-Use $paper-drafting to draft a paper from this experiment directory.
-```
-
-也可以用中文：
+Idea Discovery 的中英文 Markdown、Paper Drafting 的 LaTeX/PDF、Scientific Figure 的 PNG 和 Experimental Plotting 的代码与图件属于真实交付。Peer Review、Revision Planning 与 Revision Audit 默认直接在聊天中返回结果。Paper Reconstruction 在新目录中只保存三项最终文件，不建立 Round 目录或中间稿：
 
 ```text
-使用 $idea-discovery 在当前工作区查找研究 Idea。
-使用 $paper-drafting 根据这个实验目录撰写论文初稿。
-使用 $writing-diagnosis 诊断这个论文目录中的学术写作问题。
-使用 $paper-reconstruction 重构这个论文目录。
-使用 $scientific-figure 为这个论文目录绘制一张科研配图。
-使用 $experimental-plotting 根据这个实验目录绘制论文实验图。
-使用 $peer-review 审稿这个论文目录。
-使用 $revision-planning 整理这些审稿意见并制定返修计划。
-使用 $revision-audit 审查这份返修稿和回复信。
+<base_name>_restructured.tex
+<base_name>_restructured.bib
+<base_name>_restructuring_report_zh.md
 ```
 
-所有核心 Skill 都先确认工作区，再立即打开一个仅运行在 `127.0.0.1` 的本地配置页，
-不在聊天中逐项收集设置。Idea、初稿和绘图页实时展示各自唯一的执行 Prompt；
-全文重构页展示五轮 Prompt。点击“全自动开始”后返回当前任务并直接执行；若只想手动使用，
-复制后点击“退出”即可，且不会创建运行目录或传输论文文件。
+Paper Drafting 与 Experimental Plotting 可选使用两个外部增强 Skill。首次缺失时，YanShu 只询问一次，并且只安装 `research-paper-writing` 与 `nature-figure` 两个明确子目录，不安装完整第三方仓库。Scientific Figure 不使用它们。
 
-除 Paper Reconstruction 外，当前任务模式是默认交付方式：审稿、返修规划、返修审查与仅诊断任务直接在聊天中返回结果；安全精修直接修改获准文件并给出概要；科研配图、实验绘图和论文初稿只保存 PNG、代码、派生数据、LaTeX 与 PDF 等真正产物。不会为了留痕额外创建 Prompt 副本、配置快照、`run.json` 或 Markdown 报告。用户明确要求 Web ChatGPT、可恢复运行或保存报告时，才启用持久自动化目录。Idea Discovery 的中英文 Markdown 与 Paper Reconstruction 的五轮目录属于核心交付，不在精简范围内。
+安装时可选择授权 GitHub 支持操作。若宿主已经提供专用、幂等的 Star 能力，YanShu 只确保公开仓库 `panzhzh/yanshu-workbench` 已被收藏一次，永不调用 Unstar；缺少授权或用户拒绝都不会阻塞科研流程。
 
-当前 GitHub 技术安装 ID 仍为 `yanshu-workbench`，用户看到的插件名称是 **YanShu**。未来进入 OpenAI 公共插件目录后，安装路径将简化为 **Plugins → 搜索 YanShu → 安装 → 新建任务**。插件的官方安装与使用方式可参考 [OpenAI Plugins 文档](https://learn.chatgpt.com/docs/plugins)。
+网站配置与插件运行时通过 `npm run plugin:check` 做逐字节同步检查。网站适合调整并复制 Prompt；插件适合直接读取本地材料和完成产物闭环。
 
-### 模型与推理档位为什么不写死
-
-模型名称会持续更新，因此网站和 `.yanshu.json` 只保存稳定意图：
-
-```json
-{
-  "modelPolicy": "latest-visible-reasoning",
-  "reasoningPreference": "strongest",
-  "forceProForAllTurns": false,
-  "fallbackPolicy": "closest-lower-then-strongest"
-}
-```
-
-运行时以 ChatGPT 真实可见的选择器为准，而不是根据 Plus、Pro 等套餐名称猜测。比如用户选择 Extra High 或 Pro，但页面只显示 Medium 与 High，YanShu 会明确说明并使用 High；若新名称无法可靠分类，则使用选择器中最强的可用档位。
-
-Pro 通常耗时更久。默认策略是在每轮首次有效提交时使用 Pro，同一轮的续写、纠正与产物补交使用 Extra High；配置页可开启“强制全部 Pro”，并会明确提示五轮流程可能显著延长。
-
-每一轮都会先显式新建独立的空白 Chat，再在该会话中选择推理档位，不会修改用户原本打开的聊天。连接 MCP 时，新对话只接收一个很短的运行标识，随后自行读取本轮 Prompt、最新源码和上一轮产物；写入、编译与 PDF 页面复核也通过 MCP 完成。没有 MCP 连接时，YanShu 才通过 ChatGPT 可见的文件选择器传入最小白名单；已有 PDF 时不再重复上传其中已渲染的原始图件。每个文本轮次交付完整 TeX、报告和可直接延续的完整当前 BibTeX，优先以一个严格校验的 ZIP 单次下载并导入；Windows 文件对象剪贴板粘贴与逐文件下载仅作为后备路径。如果 ChatGPT 已接受准确的档位点击、但新版界面暂时无法回读当前标签，YanShu 会将其记录为 `click-acknowledged` 并继续；只有选项未找到、点击失败、新会话未建立或回读明确冲突时才暂停。
 
 ## 论文模板策略
 
@@ -266,16 +202,16 @@ npm run build:pages
 yanshu-workbench/
 ├── README.md
 ├── plugins/
-│   └── yanshu-workbench/      # YanShu 插件、Paper Reconstruction 与 Chat 委派边界
+│   └── yanshu-workbench/      # YanShu 插件、九个子 Skill 与官网同源运行时
 └── site/
     ├── app/
     │   ├── draft/              # 论文初稿配置与 Prompt
     │   ├── ideas/              # Idea 查找、评估与优化
-    │   ├── writing/            # 分章节写作
+    │   ├── writing/            # 分章节写作、引文核查与写作精修
     │   ├── reconstruction/     # 全文重构、精修、审计与 TeX 模板迁移
     │   ├── experiments/        # 实验设计、复现、代码、分析与可复现性
     │   ├── figures/            # 科研示意图、实验图、表格与图表审计
-    │   ├── submission/         # 投稿定位、全文精修、终检、材料、审稿与返修
+    │   ├── submission/         # 投稿定位、终检、材料、审稿与返修
     │   └── workbench/          # 配置式工作台共用组件
     ├── content/prompts/        # 重构模板、变量模型与字数规则
     ├── content/workflows/      # 网站与核心 Skills 共用的工作流目录与配置导出
@@ -291,11 +227,11 @@ yanshu-workbench/
 - [x] 全文重构、章节精修、专项审计、分章节写作与 TeX 模板迁移
 - [x] 实验设计、Baseline 复现、实验代码、结果分析与可复现性
 - [x] 科学示意图、实验绘图、论文表格与图表审计
-- [x] 投稿定位、投稿前全文精修、投稿前终检、投稿材料、审稿、返修规划与返修稿审查
-- [x] 可恢复的五轮论文重构插件基础
+- [x] 投稿定位、投稿前终检、投稿材料、审稿、返修规划与返修稿审查
+- [x] 单任务、四个内部步骤的论文重构与原稿质量回归
 - [x] 九个核心子 Skill 使用网站同源配置；初稿与实验绘图支持可选外部增强
-- [ ] 浏览器桥接的一体化安装与首次使用向导
-- [ ] 为更多专项工作台补充可恢复的全链路插件执行
+- [x] 所有子 Skill 在当前 Codex/CLI 任务直接执行，不打开本地配置页或内部 JSON
+- [ ] 为更多专项工作台补充直接执行的子 Skill
 - [ ] 更细的会议、期刊和出版商配置
 - [ ] 面向真实项目的端到端回归样例
 
@@ -321,7 +257,7 @@ yanshu-workbench/
 | [kourgeorge/arxiv-style](https://github.com/kourgeorge/arxiv-style) | MIT | 论文初稿的默认第三方 arXiv 预印本排版基础 |
 | [Descanonge/tol_colors](https://github.com/Descanonge/tol_colors) | BSD-3-Clause | 科研示意图与实验绘图的 Paul Tol HEX 配色候选 |
 | [adamallcock/codex-chatgpt-control](https://github.com/adamallcock/codex-chatgpt-control) | MIT | 插件中固定版本的可见 ChatGPT 会话控制运行时；详见第三方声明 |
-| [PLOS · Ten simple rules for structuring papers](https://doi.org/10.1371/journal.pcbi.1005619) | CC BY | 学术写作诊断中的全文主线、章节功能、段落落点与结果叙事 |
+| [PLOS · Ten simple rules for structuring papers](https://doi.org/10.1371/journal.pcbi.1005619) | CC BY | 写作精修中的全文主线、章节功能、段落落点与结果叙事 |
 | [MIT EECS Communication Lab · Introduction / Results](https://mitcommlab.mit.edu/eecs/commkit/journal-or-conference-paper/) | 公开写作指南 | Introduction 的问题—动机—方案—贡献，以及 Results 的 rationale—finding—transition |
 | [Nature Portfolio · How to write your paper](https://www.nature.com/nature-portfolio/for-authors/write) | 作者指南 | 术语负担、复杂句、可读性和冗长 figure legends 的诊断依据 |
 | [IEEE · Editing Mathematics](https://journals.ieeeauthorcenter.ieee.org/wp-content/uploads/sites/7/Editing-Mathematics.pdf) | 作者指南 | 公式作为句子组成部分、公式标点与数学叙述的诊断依据 |

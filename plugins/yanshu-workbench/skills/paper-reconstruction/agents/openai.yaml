@@ -1,4 +1,4 @@
 interface:
   display_name: "YanShu Paper Reconstruction"
-  short_description: "Run a resumable five-round paper reconstruction"
-  default_prompt: "Use $paper-reconstruction to configure and reconstruct this paper directory."
+  short_description: "Reconstruct a paper in one evidence-preserving task"
+  default_prompt: "Use $paper-reconstruction to reconstruct this paper directory in the current task."

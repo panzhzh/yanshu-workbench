@@ -379,6 +379,12 @@ function buildSectionWritingPrompt(
     captionWordRange,
     language,
   );
+  const usesCaptions = ["method", "experiments-results"].includes(section);
+  const captionLine = usesCaptions
+    ? language === "zh"
+      ? `\n- Caption 建议：${captionGuidance}`
+      : `\n- Caption guidance: ${captionGuidance}`
+    : "";
   const customInstructions = stringValue(values, "customInstructions").trim();
   const sectionName =
     section === "custom" && stringValue(values, "customSectionName").trim()
@@ -459,8 +465,7 @@ function buildSectionWritingPrompt(
 - 写作深度：${REVISION_DEPTH_NAMES[revisionDepth].zh}
 - 写作风格：${VENUE_PROFILE_NAMES[venueProfile].zh}
 - ${lengthLine}
-- Caption 建议：${captionGuidance}
-- ${venueVerification}${customLine}
+- ${venueVerification}${captionLine}${customLine}
 
 ## 执行重点
 ${venueStyle}
@@ -493,8 +498,7 @@ Read the currently available main .tex and included files, .bib, latest PDF, and
 - Writing depth: ${REVISION_DEPTH_NAMES[revisionDepth].en}
 - Style profile: ${VENUE_PROFILE_NAMES[venueProfile].en}
 - ${lengthLine}
-- Caption guidance: ${captionGuidance}
-- ${venueVerification}${customLine}
+- ${venueVerification}${captionLine}${customLine}
 
 ## Execution Priorities
 ${venueStyle}
@@ -772,6 +776,10 @@ export const SECTION_WRITING_WORKBENCH = {
       max: CAPTION_LENGTH_POLICY.max,
       step: CAPTION_LENGTH_POLICY.step,
       suffix: { zh: "words", en: "words" },
+      visibleWhen: (values) =>
+        ["method", "experiments-results"].includes(
+          stringValue(values, "section"),
+        ),
     },
     {
       id: "keywordCount",

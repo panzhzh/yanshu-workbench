@@ -83,12 +83,6 @@ export interface FigurePromptBuildOptions {
   outputFileName?: string;
 }
 
-export interface FrameworkFigureLayoutPreferences {
-  aspectRatioId: FigureAspectRatioId;
-  customAspectWidth: number;
-  customAspectHeight: number;
-}
-
 export const FIGURE_TYPE_RECOMMENDATIONS = {
   introduction: {
     promptId: "introduction",
@@ -297,10 +291,6 @@ export const FIGURE_DEFAULT_LAYOUT = Object.fromEntries(
 export const DEFAULT_FIGURE_PREFERENCES: FigurePreferences = {
   ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"],
 };
-
-export const RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES = {
-  ...FIGURE_TYPE_RECOMMENDATIONS["method-overview"],
-} as const satisfies FigurePreferences;
 
 export const FIGURE_ASPECT_RATIOS = {
   "landscape-4-3": {
@@ -1063,29 +1053,4 @@ export function buildFigurePrompt(
       outputFileName: options.outputFileName,
     }),
   ].join("\n\n");
-}
-
-export function buildFrameworkFigureReconstructionPrompt(
-  language: Language,
-  layout: FrameworkFigureLayoutPreferences = {
-    aspectRatioId:
-      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.aspectRatioId,
-    customAspectWidth:
-      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectWidth,
-    customAspectHeight:
-      RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES.customAspectHeight,
-  },
-) {
-  return buildFigurePrompt(
-    "method-overview",
-    {
-      ...RECONSTRUCTION_OVERVIEW_FIGURE_PREFERENCES,
-      ...layout,
-    },
-    language,
-    {
-      outputFileName:
-        "<base_name>_round_4_framework_reconstruction.png",
-    },
-  );
 }

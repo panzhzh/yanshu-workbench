@@ -123,7 +123,9 @@ function help() {
         "Read whether a shared workflow configuration page is waiting, confirmed, cancelled, or expired.",
       "workflow-configure-result":
         "Return an authorized shared-workflow configuration through the CLI without opening its private JSON file.",
-      init: "Create a resumable five-round reconstruction run.",
+      "workflow-resolve":
+        "Resolve a website-sourced workflow Prompt internally without opening a page or private file.",
+      init: "Create a legacy persistent reconstruction run.",
       status: "Read compact progress for an existing run.",
       next: "Return the next round, prompt, and approved attachments.",
       "mcp-start":
@@ -546,6 +548,91 @@ async function workflowConfigureResult(flags) {
     configuration,
     instruction:
       "Use this authorized configuration directly. Do not open session.json or any confirmed.yanshu*.json file.",
+  };
+}
+
+function jsonObjectFlag(flags, name) {
+  const raw = stringFlag(flags, name, "{}");
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (error) {
+    throw new CliError(
+      `Option --${name} must be a valid JSON object.`,
+      "invalid_json_option",
+      { error: error instanceof Error ? error.message : String(error) },
+    );
+  }
+  if (!parsed || Array.isArray(parsed) || typeof parsed !== "object") {
+    throw new CliError(
+      `Option --${name} must be a JSON object.`,
+      "invalid_json_option",
+    );
+  }
+  return parsed;
+}
+
+async function workflowResolve(flags) {
+  const workflowId = requiredFlag(flags, "workflow");
+  const promptLanguage = enumFlag(
+    flags,
+    "prompt-language",
+    ["zh", "en"],
+    "zh",
+  );
+  const preferences = jsonObjectFlag(flags, "preferences-json");
+
+  if (workflowId === "paper-reconstruction") {
+    const engine = await loadPromptEngine();
+    const workflow = engine.buildReconstructionWorkflow({
+      ...preferences,
+      language: promptLanguage,
+    });
+    const task = workflow.rounds[0];
+    if (!task || workflow.rounds.length !== 1) {
+      throw new CliError(
+        "Paper Reconstruction runtime must resolve exactly one task.",
+        "invalid_reconstruction_runtime",
+      );
+    }
+    return {
+      ok: true,
+      workflowId,
+      workflowVersion: workflow.workflowVersion,
+      promptLanguage,
+      preferences: workflow.config,
+      selection: {
+        styleId: workflow.config.styleId,
+        includeAppendix: workflow.config.includeAppendix,
+        hasWordLimit: workflow.config.hasWordLimit,
+        targetWords: workflow.config.hasWordLimit
+          ? workflow.config.targetWords
+          : null,
+      },
+      prompt: task.prompt,
+      instruction:
+        "Execute this exact Prompt in the current task. Do not open a configuration page or internal JSON file.",
+    };
+  }
+
+  const engine = await loadSkillWorkflowEngine();
+  if (!engine.CONFIGURABLE_SKILL_WORKFLOW_IDS.includes(workflowId)) {
+    throw new CliError(
+      `Unsupported YanShu workflow: ${workflowId}.`,
+      "invalid_workflow",
+      { supported: ["paper-reconstruction", ...engine.CONFIGURABLE_SKILL_WORKFLOW_IDS] },
+    );
+  }
+  const resolved = engine.buildSkillWorkflowConfiguration(
+    workflowId,
+    preferences,
+    promptLanguage,
+  );
+  return {
+    ok: true,
+    ...resolved,
+    instruction:
+      "Execute this exact Prompt in the current task. Do not open a configuration page or internal JSON file.",
   };
 }
 
@@ -1230,6 +1317,9 @@ async function main() {
       break;
     case "workflow-configure-result":
       result = await workflowConfigureResult(flags);
+      break;
+    case "workflow-resolve":
+      result = await workflowResolve(flags);
       break;
     case "init":
       result = await init(flags);

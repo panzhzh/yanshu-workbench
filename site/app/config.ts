@@ -309,7 +309,7 @@ export const UI_COPY = {
     comingSoon: "即将推出",
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "论文重构",
-    subtitle: "选择论文类型、可选篇幅建议与附录规则，再使用五步 Prompt 完成深度精修。",
+    subtitle: "选择论文类型、可选篇幅建议与附录规则，再用一个 Prompt 连续完成四个内部重构步骤。",
     generalPreset: "通用产品预设 · 非 venue 官方要求",
     language: "网站语言",
     chinese: "中文",
@@ -321,7 +321,7 @@ export const UI_COPY = {
     wordLimitOn: "启用篇幅建议",
     wordLimitOff: "默认不设篇幅建议",
     noWordLimitHint:
-      "默认状态。关闭后不显示章节建议，五步 Prompt 也不包含正文总数或章节篇幅数字。",
+      "默认状态。关闭后不显示章节建议，重构 Prompt 也不包含正文总数或章节篇幅数字。",
     introNavigation: "Introduction 章节导航段",
     introNavigationOn: "保留约 65 词导航段",
     introNavigationOff: "不写章节导航段",
@@ -336,35 +336,29 @@ export const UI_COPY = {
     captionLengthMaximum: "最多",
     captionLengthHint:
       "默认 10–40 words，仅用于平衡简洁与自包含性；必要时允许超出，不会作为验收或报错条件。",
-    frameworkFigure: "总体框架图",
-    frameworkRatio: "画布比例",
-    frameworkCustomWidth: "宽",
-    frameworkCustomHeight: "高",
-    frameworkFixedRules:
-      "其余规则采用方法总览推荐配置：纯白画布；Tol 鲜明色系，按语义从 2–4 种强调色中选择最少够用数量；Calibri；关键区域极浅底色；三级字号；无大标题；深色中性线；可按需使用与论文对象直接对应的简化科学图形，不使用人物漫画、吉祥物或营销插画。",
     chatExecution: "ChatGPT 执行",
     chatModelPolicy: "模型策略",
     chatLatestVisibleModel: "最新可用推理模型",
     chatReasoningPreference: "推理等级",
     chatProStrategy: "Pro 对话策略",
-    chatProFirstTurnOnly: "每轮首次使用 Pro，后续使用 Extra High",
+    chatProFirstTurnOnly: "首次有效对话使用 Pro，后续使用 Extra High",
     chatProForceAll: "强制所有对话使用 Pro",
     chatProFirstTurnHint:
-      "推荐。Pro 通常耗时较长；每轮首次有效提交使用 Pro，同轮继续、纠正和补交自动切换为 Extra High。",
+      "推荐。Pro 通常耗时较长；本次重构首次有效提交使用 Pro，后续继续、纠正和补交自动切换为 Extra High。",
     chatProForceAllHint:
-      "强制全部 Pro 会显著延长五轮流程，尤其是续写、纠正与产物补交。",
+      "强制全部 Pro 会显著延长重构时间，尤其是续写、纠正与产物补交。",
     chatPollingInterval: "结果检查间隔",
     chatPollingAuto:
       "按实际档位自动采用：Medium / High 1 分钟，Extra High 3 分钟，Pro 5 分钟；无法识别时按 1 分钟。",
     chatRuntimePolicy:
-      "不锁定 GPT 型号名称；插件每轮读取 ChatGPT 当前可见选项。发生回退时先明确提示，名称无法判断时选择最强可用档位。",
+      "不锁定 GPT 型号名称；执行器读取当前可用选项。发生回退时先明确提示，名称无法判断时选择最强可用档位。",
     exportAutomation: "导出桌面配置",
     exportedAutomation: "配置已下载",
     exportAutomationHint:
-      "下载当前论文类型、篇幅建议、章节、附录、Caption 建议、框架图、ChatGPT 推理偏好和 Prompt 语言设置，供 YanShu 插件直接读取。",
+      "下载当前论文类型、篇幅建议、章节、附录、Caption 建议、推理偏好和 Prompt 语言设置。",
     resetDefaults: "恢复默认配置",
     resetHint:
-      "重置论文类型、篇幅建议、附录、Caption 建议、框架图、ChatGPT 推理偏好和章节建议；保留当前语言。",
+      "重置论文类型、篇幅建议、附录、Caption 建议、推理偏好和章节建议；保留当前语言。",
     plannerTitle: "正文与章节篇幅建议",
     plannerBody:
       "所有数值仅供参考，可按论文内容接受、调整或忽略；方法和实验默认不设置建议范围。",
@@ -387,15 +381,15 @@ export const UI_COPY = {
     copy: "复制",
     copied: "已复制",
     switchPromptLanguage: "切换 Prompt 语言",
-    copyAll: "复制全部",
-    copiedAll: "已复制全部",
+    copyAll: "复制 Prompt",
+    copiedAll: "已复制 Prompt",
     reconfigure: "重新配置",
     promptConfig: "当前配置",
     promptStyle: "写作模式",
     promptTarget: "正文篇幅建议",
     promptAppendix: "附录",
     promptSections: "章节建议",
-    promptTask: "本轮任务",
+    promptTask: "内部步骤",
     promptOutput: "输出要求",
     promptBoundary:
       "边界：不要虚构事实、引用、数据或 venue 规则；无法确认的内容必须明确标记。",
@@ -416,7 +410,7 @@ export const UI_COPY = {
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "Paper reconstruction",
     subtitle:
-      "Choose the paper type, optional length guidance, appendix rule, and overview layout, then deeply refine the manuscript with five prompts.",
+      "Choose the paper type, optional length guidance, and appendix rule, then complete four internal reconstruction steps with one prompt.",
     generalPreset: "General product preset · not an official venue rule",
     language: "Site language",
     chinese: "中文",
@@ -428,7 +422,7 @@ export const UI_COPY = {
     wordLimitOn: "Enable length guidance",
     wordLimitOff: "No length guidance by default",
     noWordLimitHint:
-      "This is the default. Section suggestions are hidden, and all five prompts omit main-text and section-length numbers.",
+      "This is the default. Section suggestions are hidden, and the reconstruction prompt omits main-text and section-length numbers.",
     introNavigation: "Introduction roadmap paragraph",
     introNavigationOn: "Include an ≈65-word roadmap",
     introNavigationOff: "No roadmap paragraph",
@@ -443,36 +437,30 @@ export const UI_COPY = {
     captionLengthMaximum: "Maximum",
     captionLengthHint:
       "The default is 10–40 words. It balances concision and self-containment, may be exceeded when necessary, and is never an acceptance or error condition.",
-    frameworkFigure: "Overall framework figure",
-    frameworkRatio: "Canvas ratio",
-    frameworkCustomWidth: "Width",
-    frameworkCustomHeight: "Height",
-    frameworkFixedRules:
-      "All other controls use the Method Overview recommendation: a pure-white canvas; Tol Vibrant with the smallest sufficient set from a 2–4 accent range; Calibri; extremely pale fills for key regions; three type-size levels; no large title; dark-neutral lines; restrained paper-specific scientific forms when useful, with no character cartoons, mascots, or marketing illustration.",
     chatExecution: "ChatGPT execution",
     chatModelPolicy: "Model policy",
     chatLatestVisibleModel: "Latest available reasoning model",
     chatReasoningPreference: "Reasoning level",
     chatProStrategy: "Pro interaction policy",
     chatProFirstTurnOnly:
-      "Pro for the first interaction of each round; Extra High afterward",
+      "Pro for the first effective interaction; Extra High afterward",
     chatProForceAll: "Force Pro for every interaction",
     chatProFirstTurnHint:
-      "Recommended. Pro can take much longer: use it for the first effective submission of each round, then switch continuations, corrections, and artifact follow-ups to Extra High.",
+      "Recommended. Pro can take much longer: use it for the first effective submission, then switch continuations, corrections, and artifact follow-ups to Extra High.",
     chatProForceAllHint:
-      "Forcing Pro throughout can substantially extend the five-round workflow, especially during continuations, corrections, and artifact follow-ups.",
+      "Forcing Pro throughout can substantially extend reconstruction, especially during continuations, corrections, and artifact follow-ups.",
     chatPollingInterval: "Result-check interval",
     chatPollingAuto:
       "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",
     chatRuntimePolicy:
-      "GPT model names are never pinned. The plugin inspects the options currently visible in ChatGPT for every round, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
+      "GPT model names are never pinned. The executor inspects currently available options, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
     exportAutomation: "Export desktop config",
     exportedAutomation: "Config downloaded",
     exportAutomationHint:
-      "Download the current paper type, optional length guidance, section, appendix, caption guidance, framework-figure, ChatGPT reasoning preference, and prompt-language settings for the YanShu plugin.",
+      "Download the current paper type, optional length guidance, section, appendix, caption guidance, reasoning preference, and prompt-language settings.",
     resetDefaults: "Restore defaults",
     resetHint:
-      "Resets paper type, length guidance, appendix, caption guidance, framework figure, ChatGPT reasoning preference, and section suggestions while keeping the current language.",
+      "Resets paper type, length guidance, appendix, caption guidance, reasoning preference, and section suggestions while keeping the current language.",
     plannerTitle: "Main-text and section length guidance",
     plannerBody:
       "Every value is optional guidance that may be accepted, adjusted, or ignored according to the paper; Method and Experiments receive no suggestion by default.",
@@ -496,15 +484,15 @@ export const UI_COPY = {
     copy: "Copy",
     copied: "Copied",
     switchPromptLanguage: "Switch prompt language",
-    copyAll: "Copy all",
-    copiedAll: "All copied",
+    copyAll: "Copy prompt",
+    copiedAll: "Prompt copied",
     reconfigure: "Reconfigure",
     promptConfig: "Current configuration",
     promptStyle: "Writing mode",
     promptTarget: "Main-text length guidance",
     promptAppendix: "Appendix",
     promptSections: "Section suggestions",
-    promptTask: "Task for this round",
+    promptTask: "Internal step",
     promptOutput: "Required output",
     promptBoundary:
       "Boundary: do not invent facts, citations, data, or venue rules. Mark anything that cannot be verified.",

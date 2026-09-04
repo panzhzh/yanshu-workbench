@@ -1,5 +1,4 @@
 import { COMMON_PROMPT_BLOCKS } from "./templates";
-import { buildFrameworkFigureReconstructionPrompt } from "../../app/figures/config";
 import {
   PROMPT_DETAILED_CONSTRAINTS,
   PROMPT_STEP_POLICIES,
@@ -210,10 +209,8 @@ function buildConfiguration(
 
   return [
     field(labels.paperStyle, context.styleLabel),
-    ...(template.showStyleDirective === false
-      ? []
-      : [field(labels.styleDirective, context.styleDirective)]),
-    ...(["scientific-positioning", "narrative-reconstruction"].includes(
+    field(labels.styleDirective, context.styleDirective),
+    ...(["scientific-positioning", "narrative-reconstruction", "full-reconstruction"].includes(
       template.id,
     )
       ? [
@@ -235,12 +232,8 @@ function buildConfiguration(
         context.language,
       ),
     ),
-    ...(template.showAppendixConfiguration === false
-      ? []
-      : [
-          field(labels.appendix, context.appendixLabel),
-          context.appendixDirective,
-        ]),
+    field(labels.appendix, context.appendixLabel),
+    context.appendixDirective,
   ].join("\n");
 }
 
@@ -323,7 +316,7 @@ function buildDeliveryBundle(
 ) {
   if (
     template.profile !== "manuscript" ||
-    template.contentKind === "framework-figure" ||
+    template.showDeliveryBundle === false ||
     !template.fileNames
   ) {
     return "";
@@ -532,13 +525,6 @@ export function buildPrompt(
   template: PromptTemplate,
   context: PromptBuildContext,
 ) {
-  if (template.contentKind === "framework-figure") {
-    return buildFrameworkFigureReconstructionPrompt(
-      context.language,
-      context.frameworkFigure,
-    );
-  }
-
   const language = context.language;
   const labels = LABELS[language];
   const common = COMMON_PROMPT_BLOCKS;
@@ -552,10 +538,7 @@ export function buildPrompt(
       ? template.styleBranches?.[context.styleId]?.[language]
       : undefined;
   const lengthBudget =
-    template.profile === "manuscript" &&
-    template.showLengthBudget !== false
-      ? buildLengthBudget(context)
-      : "";
+    template.profile === "manuscript" ? buildLengthBudget(context) : "";
   const detailedConstraints = PROMPT_DETAILED_CONSTRAINTS[template.id];
   const detailedCore = detailedConstraints
     ? buildDetailedCore(detailedConstraints, context, template.id)

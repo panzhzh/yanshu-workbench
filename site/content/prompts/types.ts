@@ -16,7 +16,6 @@ export interface PromptTemplate {
   id: string;
   sourceFile: string;
   number: number;
-  contentKind?: "standard" | "framework-figure";
   profile: "manuscript" | "targeting";
   title: LocalizedText;
   purpose: LocalizedText;
@@ -28,9 +27,7 @@ export interface PromptTemplate {
   fileNames?: LocalizedText;
   finalChecks: LocalizedText;
   styleBranches?: Record<PaperStyleId, LocalizedText>;
-  showStyleDirective?: boolean;
-  showAppendixConfiguration?: boolean;
-  showLengthBudget?: boolean;
+  showDeliveryBundle?: boolean;
 }
 
 export interface PromptSectionBudget {
@@ -69,7 +66,5 @@ export interface PromptBuildContext {
   appendixLabel: string;
   appendixDirective: string;
   captionWordRange?: readonly [number, number];
-  frameworkFigure?: FrameworkFigureLayoutPreferences;
   submissionPreferences?: SubmissionPreferences;
 }
-import type { FrameworkFigureLayoutPreferences } from "../../app/figures/config";

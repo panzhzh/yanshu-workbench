@@ -14,12 +14,12 @@ const HOME_COPY = {
     eyebrow: "CS RESEARCH WORKBENCH",
     title: "从实验完成，到论文可投稿。",
     subtitle:
-      "安装一次 YanShu，在新的 Codex 任务中说出你要完成的科研工作。论文重构先由你选择网页 ChatGPT 或当前 CLI，不再根据环境自动判断。",
+      "安装一次 YanShu，在 Codex 或 CLI 中说出任务。Skill 会读取与官网相同的 Prompt，并在当前任务直接完成，不再打开配置页或额外聊天。",
     primaryAction: "查看 3 步使用方法",
     secondaryAction: "不安装，直接使用网站",
     demoLabel: "真实启动流程",
-    demoStatus: "本地工作区 · ChatGPT / Codex CLI",
-    demoSteps: ["说出任务", "选择执行器", "配置并执行"],
+    demoStatus: "本地工作区 · Codex / CLI",
+    demoSteps: ["说出任务", "确认材料", "直接执行"],
     demoFrames: [
       {
         label: "01 · CODEX TASK",
@@ -28,19 +28,19 @@ const HOME_COPY = {
           "使用 $paper-reconstruction，",
           "重构这个论文目录。",
         ],
-        footnote: "无需记住参数，也不会在聊天里逐项问配置。",
+        footnote: "无需记住参数；未说明的选项直接使用官网默认值。",
       },
       {
-        label: "02 · CHOOSE EXECUTOR",
-        title: "先选择由谁执行",
-        lines: ["网页 ChatGPT　写作能力通常更强", "当前 CLI　启动更便捷"],
-        footnote: "网页模式必须先登录并授权；CLI 模式不依赖网页，但写作能力通常较弱。",
+        label: "02 · VERIFY MATERIALS",
+        title: "只确认真正的输入",
+        lines: ["定位论文或实验目录", "核对 TeX、BibTeX、PDF 与结果文件"],
+        footnote: "存在多个候选时只询问一次，不随机选择，也不打开内部 JSON。",
       },
       {
-        label: "03 · CONFIG & RUN",
-        title: "一次配置后直接执行",
-        lines: ["读取已确认材料", "保存版本化产物", "编译、核验并返回结果"],
-        footnote: "网页模式使用完整配置页；CLI 模式只询问三项核心设置。",
+        label: "03 · RUN IN PLACE",
+        title: "当前任务全链路完成",
+        lines: ["内部解析官网同源 Prompt", "生成、编译、核验并返回结果"],
+        footnote: "不打开本地网页或新 Chat；只有关键偏好缺失时才合并询问一次。",
       },
     ],
     guideEyebrow: "QUICK START",
@@ -58,40 +58,40 @@ const HOME_COPY = {
     exampleCommand:
       "使用 $paper-reconstruction 重构这个论文目录。",
     copyExample: "复制示例",
-    configureTitle: "选择执行方式并开始",
+    configureTitle: "在当前任务直接开始",
     configureBody:
-      "先选择网页 ChatGPT 或当前 CLI。网页模式需已登录并授权；CLI 模式更便捷，但论文写作能力通常不如网页端。",
+      "Skill 在当前 Codex/CLI 任务直接执行。网站用于查看和调整 Prompt，但插件运行时不会自动打开网站。",
     workflowEyebrow: "START WITH ONE SENTENCE",
     workflowTitle: "九个重要的全链路入口",
     workflowBody:
-      "九个独立子 Skill 均支持 $ 调用；论文重构由用户明确选择网页或 CLI 执行。网站与插件共享 Prompt 数据。",
+      "九个独立子 Skill 均支持 $ 调用，并在当前任务直接执行。网站与插件共享 Prompt 数据。",
     inputLabel: "准备",
     outputLabel: "得到",
-    openWorkbench: "查看配置页",
+    openWorkbench: "打开网页工具",
     copyCommand: "复制启动语",
     copiedCommand: "已复制",
     modesEyebrow: "TWO WAYS TO USE",
     modesTitle: "自动执行，或只复制 Prompt",
     automaticTitle: "安装插件 · 全链路",
     automaticBody:
-      "适合需要读取本地材料、长时间运行、下载产物、编译和断点恢复的任务。",
+      "适合读取本地材料、生成文件、编译和自动核验；全程留在当前 Codex/CLI 任务。",
     manualTitle: "直接打开网站 · 手动",
     manualBody:
       "适合先调整 Prompt，或把 Prompt 复制到任意模型中自行执行。网站不读取、不上传论文文件。",
     boundary:
-      "YanShu 负责配置、材料边界、状态与验证；执行器由用户选择，不根据设备或环境静默切换。所有 venue 规则仍以最新官网为准。",
+      "YanShu 负责 Prompt、材料边界与验证；未指定的选项使用官网默认值，真正影响结果的歧义最多合并询问一次。所有 venue 规则仍以最新官网为准。",
     installFailed: "复制失败，请手动选择命令。",
   },
   en: {
     eyebrow: "CS RESEARCH WORKBENCH",
     title: "From completed experiments to a submission-ready paper.",
     subtitle:
-      "Install YanShu once, then state the research job in a new Codex task. Paper Reconstruction asks you to choose Web ChatGPT or Current CLI instead of guessing from the environment.",
+      "Install YanShu once, then state the research job in Codex or a CLI. Each Skill resolves the same Prompt as the website and completes the work in the current task without opening a setup page or extra chat.",
     primaryAction: "See the three-step guide",
     secondaryAction: "Use the website without installing",
     demoLabel: "Actual launch flow",
-    demoStatus: "Local workspace · ChatGPT / Codex CLI",
-    demoSteps: ["State the task", "Choose executor", "Configure and run"],
+    demoStatus: "Local workspace · Codex / CLI",
+    demoSteps: ["State the task", "Verify materials", "Run directly"],
     demoFrames: [
       {
         label: "01 · CODEX TASK",
@@ -101,28 +101,24 @@ const HOME_COPY = {
           "to reconstruct this paper directory.",
         ],
         footnote:
-          "No flags to memorize and no setting-by-setting interview in chat.",
+          "No flags to memorize; unspecified choices use the website defaults.",
       },
       {
-        label: "02 · CHOOSE EXECUTOR",
-        title: "Choose who executes",
-        lines: [
-          "Web ChatGPT　usually stronger writing",
-          "Current CLI　more convenient",
-        ],
+        label: "02 · VERIFY MATERIALS",
+        title: "Confirm only real inputs",
+        lines: ["Locate the paper or experiment root", "Verify TeX, BibTeX, PDF, and result files"],
         footnote:
-          "Web mode requires login and authorization; CLI is browser-free but may write less strongly.",
+          "When several candidates exist, YanShu asks once, never guesses, and never opens internal JSON.",
       },
       {
-        label: "03 · CONFIG & RUN",
-        title: "Configure once, then run",
+        label: "03 · RUN IN PLACE",
+        title: "Complete the workflow here",
         lines: [
-          "Read approved evidence",
-          "Save versioned artifacts",
-          "Compile, verify, and return",
+          "Resolve the website-sourced Prompt internally",
+          "Generate, compile, verify, and return",
         ],
         footnote:
-          "Web mode uses the full setup page; CLI asks only three core settings.",
+          "No local page or new Chat; only material preferences are grouped into one question when necessary.",
       },
     ],
     guideEyebrow: "QUICK START",
@@ -140,28 +136,28 @@ const HOME_COPY = {
     exampleCommand:
       "Use $paper-reconstruction to reconstruct this paper directory.",
     copyExample: "Copy example",
-    configureTitle: "Choose an executor and start",
+    configureTitle: "Run directly in the current task",
     configureBody:
-      "Choose Web ChatGPT or Current CLI first. Web mode requires login and authorization; CLI is more convenient but may provide weaker academic writing.",
+      "Skills execute directly in the current Codex or CLI task. The website remains available for inspecting and tuning Prompts, but plugin runs do not open it automatically.",
     workflowEyebrow: "START WITH ONE SENTENCE",
     workflowTitle: "Nine essential end-to-end entry points",
     workflowBody:
-      "All eight independent sub-skills support $ invocation; Paper Reconstruction explicitly asks the user to choose Web or CLI execution. Website and plugin share one Prompt source.",
+      "All nine independent sub-skills support $ invocation and execute in the current task. Website and plugin share one Prompt source.",
     inputLabel: "Prepare",
     outputLabel: "Receive",
-    openWorkbench: "Open configuration",
+    openWorkbench: "Open web tool",
     copyCommand: "Copy start phrase",
     copiedCommand: "Copied",
     modesEyebrow: "TWO WAYS TO USE",
     modesTitle: "Run automatically or copy only the Prompt",
     automaticTitle: "Install the plugin · end to end",
     automaticBody:
-      "Best for local evidence, long-running tasks, downloads, compilation, and resumable progress.",
+      "Best for local evidence, generated files, compilation, and automatic verification, all in the current Codex or CLI task.",
     manualTitle: "Open the website · manual",
     manualBody:
       "Best for adjusting a Prompt first or running it in any model yourself. The website never reads or uploads paper files.",
     boundary:
-      "YanShu owns configuration, evidence boundaries, state, and validation. The user chooses the executor; YanShu never switches silently based on the device or environment. Always verify current venue rules on the official site.",
+      "YanShu owns its Prompt, evidence boundaries, and validation. Unspecified choices use website defaults, and material ambiguity is grouped into at most one question. Always verify current venue rules on the official site.",
     installFailed: "Copy failed. Select the commands manually.",
   },
 } as const;
@@ -340,7 +336,7 @@ export default function HomePage() {
                 <span />
                 <span />
                 <span />
-                <strong>{language === "zh" ? "全自动开始" : "Start"}</strong>
+                <strong>{language === "zh" ? "开始执行" : "Run"}</strong>
               </div>
             </li>
           </ol>

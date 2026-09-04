@@ -151,7 +151,6 @@ export const NOVELTY_POSTURES: Record<
 export const REFINEMENT_FREEDOM_IDS = [
   "preserve",
   "reframe",
-  "pivot",
 ] as const;
 export type RefinementFreedomId = (typeof REFINEMENT_FREEDOM_IDS)[number];
 
@@ -183,17 +182,6 @@ export const REFINEMENT_FREEDOMS: Record<
     prompt: {
       zh: "保留最有价值且有证据支撑的洞察；允许整体重构研究问题、机制、数据或实验主线",
       en: "retain the most valuable evidence-supported insight while allowing an integrated reframing of the question, mechanism, data, or experimental throughline",
-    },
-  },
-  pivot: {
-    label: { zh: "允许转向", en: "Allow Pivot" },
-    description: {
-      zh: "当原 Idea 不成立时，可提出更值得执行的相邻方向。",
-      en: "When the original idea fails, propose a more defensible adjacent direction.",
-    },
-    prompt: {
-      zh: "当原 Idea 的核心命题不成立或不值得投入时，允许转向相邻但更可辩护的研究方向；必须清楚说明转向原因和保留了什么",
-      en: "when the core proposition is unsound or not worth pursuing, allow a pivot to a more defensible adjacent direction and state exactly why the pivot is needed and what is retained",
     },
   },
 };
@@ -716,7 +704,7 @@ function evaluationPrompt(
 - 若存在两条都合理但互斥的路线，只保留推荐路线，把另一条列为备选，不得拼成臃肿方案。
 
 ## 最终决策
-只给一个主决策：Pursue、Refine、Pivot、Park 或 Stop。说明最关键依据、剩余最大不确定性和下一项行动。Park 必须写明重新考虑的触发条件；Pivot 或 Stop 必须说明原 Idea 为什么不值得继续投入。
+只给一个主决策：Pursue、Refine、Park 或 Stop。说明最关键依据、剩余最大不确定性和下一项行动。Park 必须写明重新考虑的触发条件；Stop 必须说明原 Idea 为什么不值得继续投入。
 
 ## 输出文件
 创建两份语义一致、可直接下载的 Markdown 文件：
@@ -786,7 +774,7 @@ Return:
 - If two routes are valid but mutually exclusive, recommend one and list the other as an alternative rather than merging them into a bloated design.
 
 ## Final decision
-Give exactly one primary decision: Pursue, Refine, Pivot, Park, or Stop. State the decisive reason, largest remaining uncertainty, and next action. Park requires explicit revisit triggers; Pivot or Stop requires a clear account of why the original idea is no longer worth the investment.
+Give exactly one primary decision: Pursue, Refine, Park, or Stop. State the decisive reason, largest remaining uncertainty, and next action. Park requires explicit revisit triggers; Stop requires a clear account of why the original idea is no longer worth the investment.
 
 ## Output files
 Create two semantically aligned, directly downloadable Markdown files:
