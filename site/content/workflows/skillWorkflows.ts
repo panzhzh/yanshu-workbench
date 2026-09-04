@@ -60,6 +60,7 @@ import {
   getDefaultExperimentalPlotValues,
   normalizeExperimentalPlotValues,
 } from "../../app/figures/toolsConfig";
+import { IMAGE_TO_SVG_WORKBENCH } from "../../app/figures/image-to-svg/config";
 import { CITATION_AUDIT_WORKBENCH } from "../../app/writing/citations/config";
 import {
   PEER_REVIEW_WORKBENCH,
@@ -75,6 +76,7 @@ export type YanShuSkillId =
   | "citation-audit"
   | "paper-reconstruction"
   | "scientific-figure"
+  | "image-to-svg"
   | "experimental-plotting"
   | "peer-review"
   | "revision-planning"
@@ -283,8 +285,31 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
     },
   },
   {
-    id: "experimental-plotting",
+    id: "image-to-svg",
     index: "06",
+    skillName: "Image to SVG",
+    websitePath: "/figures/image-to-svg",
+    title: { zh: "1:1 重建 SVG", en: "Reconstruct an image as SVG" },
+    description: {
+      zh: "把一张 PNG、JPG 等位图按原始画布与构图重建为 Calibri 文字、可编辑且经回渲染核验的 SVG。",
+      en: "Reconstruct one PNG, JPG, or other raster image as an editable, Calibri-set SVG validated by rendering at the source dimensions.",
+    },
+    command: {
+      zh: "使用 $image-to-svg 将这张图片 1:1 复刻为 SVG。",
+      en: "Use $image-to-svg to reconstruct this image as a 1:1 SVG.",
+    },
+    input: {
+      zh: "一张原始分辨率 PNG、JPG/JPEG、WebP、BMP 或 TIFF",
+      en: "One original-resolution PNG, JPG/JPEG, WebP, BMP, or TIFF",
+    },
+    output: {
+      zh: "一个可编辑 SVG 与简短校验摘要",
+      en: "One editable SVG with a concise validation summary",
+    },
+  },
+  {
+    id: "experimental-plotting",
+    index: "07",
     skillName: "Experimental Plotting",
     websitePath: "/figures/plots",
     title: { zh: "绘制实验图", en: "Create an experimental plot" },
@@ -307,7 +332,7 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   },
   {
     id: "peer-review",
-    index: "07",
+    index: "08",
     skillName: "Peer Review",
     websitePath: "/submission/review",
     title: { zh: "独立审稿", en: "Review a manuscript" },
@@ -330,7 +355,7 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   },
   {
     id: "revision-planning",
-    index: "08",
+    index: "09",
     skillName: "Revision Planning",
     websitePath: "/submission/revision",
     title: { zh: "规划论文返修", en: "Plan a manuscript revision" },
@@ -353,7 +378,7 @@ export const YANSHU_SKILL_CATALOG: readonly YanShuSkillCatalogItem[] = [
   },
   {
     id: "revision-audit",
-    index: "09",
+    index: "10",
     skillName: "Revision Audit",
     websitePath: "/submission/revision-audit",
     title: { zh: "审查论文返修稿", en: "Audit a manuscript revision" },
@@ -1069,6 +1094,68 @@ const EXPERIMENTAL_PLOTTING_MODEL: SkillWorkflowModel = {
   },
 };
 
+const IMAGE_TO_SVG_SECTIONS = [
+  {
+    id: "reconstruction",
+    index: "01",
+    title: localized("重建策略", "Reconstruction strategy"),
+    description: localized(
+      "固定使用 Calibri 与原尺寸校验，只选择矢量方式和背景处理。",
+      "Calibri and source-size validation are fixed; choose only the vector and background treatment.",
+    ),
+  },
+  {
+    id: "delivery",
+    index: "02",
+    title: localized("校验与交付", "Validation and delivery"),
+    description: localized(
+      "决定是否保留校验图，并补充少量特殊要求。",
+      "Choose whether to retain a validation image and add any narrow requirements.",
+    ),
+  },
+] as const;
+
+const IMAGE_TO_SVG_FIELD_SECTIONS: Record<string, string> = {
+  vectorMode: "reconstruction",
+  backgroundMode: "reconstruction",
+  keepValidationPreview: "delivery",
+  custom: "delivery",
+};
+
+const IMAGE_TO_SVG_MODEL: SkillWorkflowModel = {
+  id: "image-to-svg",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "image-to-svg",
+  websitePath: "/figures/image-to-svg",
+  title: localized("图片转 SVG", "Image to SVG"),
+  eyebrow: "YANSHU · IMAGE TO SVG",
+  description: localized(
+    "按原图尺寸和构图重建可编辑 SVG，并通过回渲染差异持续校正。",
+    "Reconstruct an editable SVG at the source dimensions and iteratively correct it using rendered differences.",
+  ),
+  materialTitle: localized("需要材料", "Required material"),
+  materialItems: {
+    zh: ["一张原始分辨率 PNG、JPG/JPEG、WebP、BMP 或 TIFF"],
+    en: ["One original-resolution PNG, JPG/JPEG, WebP, BMP, or TIFF image"],
+  },
+  materialHint: localized(
+    "一次只重建一张图片；低清截图和不可辨认文字会限制可验证精度。",
+    "Reconstruct one image at a time; low-resolution screenshots and illegible text limit verifiable precision.",
+  ),
+  output: localized(
+    "一个可编辑 SVG 与简短校验摘要；按配置可保留并排校验图。",
+    "One editable SVG and a concise validation summary, with an optional retained comparison image.",
+  ),
+  sections: IMAGE_TO_SVG_SECTIONS,
+  fields: IMAGE_TO_SVG_WORKBENCH.controls.map((control) =>
+    configurableWorkbenchField(
+      control,
+      IMAGE_TO_SVG_FIELD_SECTIONS[control.id] ?? "delivery",
+    ),
+  ),
+  defaults: workbenchDefaults(IMAGE_TO_SVG_WORKBENCH),
+};
+
 const CITATION_AUDIT_SECTIONS = [
   {
     id: "scope",
@@ -1416,6 +1503,7 @@ const CONFIGURABLE_MODELS: Record<
   "paper-drafting": PAPER_DRAFTING_MODEL,
   "citation-audit": CITATION_AUDIT_MODEL,
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
+  "image-to-svg": IMAGE_TO_SVG_MODEL,
   "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
   "peer-review": PEER_REVIEW_MODEL,
   "revision-planning": REVISION_PLANNING_MODEL,
@@ -1688,6 +1776,9 @@ export function normalizeSkillWorkflowPreferences(
   if (workflowId === "experimental-plotting") {
     return normalizeExperimentalPlotValues(input);
   }
+  if (workflowId === "image-to-svg") {
+    return normalizeWorkbenchPreferences(IMAGE_TO_SVG_WORKBENCH, input);
+  }
   if (workflowId === "peer-review") {
     return normalizePeerReviewPreferences(input);
   }
@@ -1760,6 +1851,17 @@ export function buildSkillWorkflowConfiguration(
       allowComposite: plotPreferences.allowComposite,
       panelCount: plotPreferences.panelCount,
       palette: plotPreferences.palette,
+    };
+  } else if (workflowId === "image-to-svg") {
+    const svgPreferences = preferences as WorkbenchValues;
+    prompt = IMAGE_TO_SVG_WORKBENCH.buildPrompt(
+      svgPreferences,
+      promptLanguage,
+    );
+    selection = {
+      vectorMode: svgPreferences.vectorMode,
+      backgroundMode: svgPreferences.backgroundMode,
+      keepValidationPreview: svgPreferences.keepValidationPreview,
     };
   } else if (workflowId === "peer-review") {
     const reviewPreferences = preferences as WorkbenchValues;

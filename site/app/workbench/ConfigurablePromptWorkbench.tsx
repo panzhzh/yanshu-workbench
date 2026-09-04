@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { PRODUCT_CONFIG, type Language } from "../config";
 import PromptResizeHandle from "../PromptResizeHandle";
 import SiteNavigation from "../SiteNavigation";
+import { usePersistentWorkbenchLanguages } from "../usePersistentLanguage";
 import type {
   MultiControl,
   NumberRange,
@@ -324,12 +325,12 @@ export default function ConfigurablePromptWorkbench({
 }: {
   definition: WorkbenchDefinition;
 }) {
-  const [uiLanguage, setUiLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultLanguage,
-  );
-  const [promptLanguage, setPromptLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultPromptLanguage,
-  );
+  const {
+    uiLanguage,
+    promptLanguage,
+    setPromptLanguage,
+    changeSiteLanguage,
+  } = usePersistentWorkbenchLanguages();
   const [values, setValues] = useState<WorkbenchValues>(() =>
     defaultValues(definition.controls),
   );
@@ -407,7 +408,7 @@ export default function ConfigurablePromptWorkbench({
         activePage={definition.activePage}
         mobileMenuOpen={mobileMenuOpen}
         onLanguageChange={(language) => {
-          setUiLanguage(language);
+          changeSiteLanguage(language);
           setCopied(false);
         }}
         onMenuToggle={() => setMobileMenuOpen((open) => !open)}

@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import PromptResizeHandle from "../../PromptResizeHandle";
 import SiteNavigation from "../../SiteNavigation";
-import { PRODUCT_CONFIG, type Language } from "../../config";
+import { PRODUCT_CONFIG } from "../../config";
+import { usePersistentWorkbenchLanguages } from "../../usePersistentLanguage";
 import {
   AUDIT_COPY,
   AUDIT_EXECUTION_MODES,
@@ -44,12 +45,12 @@ function createDefaultPreferences(): SpecializedAuditPreferences {
 }
 
 export default function SpecializedAuditWorkbench() {
-  const [uiLanguage, setUiLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultLanguage,
-  );
-  const [promptLanguage, setPromptLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultPromptLanguage,
-  );
+  const {
+    uiLanguage,
+    promptLanguage,
+    setPromptLanguage,
+    changeSiteLanguage,
+  } = usePersistentWorkbenchLanguages();
   const [preferences, setPreferences] =
     useState<SpecializedAuditPreferences>(createDefaultPreferences);
   const [expanded, setExpanded] = useState(true);
@@ -121,7 +122,6 @@ export default function SpecializedAuditWorkbench() {
 
   function resetDefaults() {
     setPreferences(createDefaultPreferences());
-    setPromptLanguage(PRODUCT_CONFIG.defaultPromptLanguage);
     clearCopyState();
   }
 
@@ -146,7 +146,7 @@ export default function SpecializedAuditWorkbench() {
         activePage="audit"
         mobileMenuOpen={mobileMenuOpen}
         onLanguageChange={(language) => {
-          setUiLanguage(language);
+          changeSiteLanguage(language);
           clearCopyState();
         }}
         onMenuToggle={() => setMobileMenuOpen((open) => !open)}

@@ -20,6 +20,7 @@ import {
 import { RECONSTRUCTION_PROMPTS } from "../content/prompts/templates";
 import { CODEX_START_GUIDE } from "./reconstruction/startGuide";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { usePersistentSiteLanguage } from "./usePersistentLanguage";
 
 type SectionWords = Record<string, number>;
 type PromptLanguages = Record<string, Language>;
@@ -102,18 +103,10 @@ function formatRatio(value: number) {
 export default function YanshuWorkbench() {
   const defaultStyle =
     PRODUCT_CONFIG.paperStyles[PRODUCT_CONFIG.defaultPaperStyle];
-  const [uiLanguage, setUiLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultLanguage,
-  );
-  const [promptLanguages, setPromptLanguages] = useState<PromptLanguages>(
-    () =>
-      Object.fromEntries(
-        RECONSTRUCTION_PROMPTS.map((round) => [
-          round.id,
-          PRODUCT_CONFIG.defaultPromptLanguage,
-        ]),
-      ),
-  );
+  const [uiLanguage, setUiLanguage] = usePersistentSiteLanguage();
+  const [promptLanguageOverrides, setPromptLanguageOverrides] = useState<
+    Partial<PromptLanguages>
+  >({});
   const [styleId, setStyleId] = useState<PaperStyleId>(
     PRODUCT_CONFIG.defaultPaperStyle,
   );
@@ -197,6 +190,16 @@ export default function YanshuWorkbench() {
         : `Check every ${chatPollingIntervalMs / 60_000} ${
             chatPollingIntervalMs === 60_000 ? "minute" : "minutes"
           }`;
+  const promptLanguages = useMemo(
+    () =>
+      Object.fromEntries(
+        RECONSTRUCTION_PROMPTS.map((round) => [
+          round.id,
+          promptLanguageOverrides[round.id] ?? uiLanguage,
+        ]),
+      ) as PromptLanguages,
+    [promptLanguageOverrides, uiLanguage],
+  );
 
   const prompts = useMemo(
     () =>
@@ -277,13 +280,15 @@ export default function YanshuWorkbench() {
 
   function changeLanguage(language: Language) {
     setUiLanguage(language);
+    setPromptLanguageOverrides({});
     setCopied(null);
   }
 
   function togglePromptLanguage(roundId: string) {
-    setPromptLanguages((current) => ({
+    setPromptLanguageOverrides((current) => ({
       ...current,
-      [roundId]: current[roundId] === "en" ? "zh" : "en",
+      [roundId]:
+        (current[roundId] ?? uiLanguage) === "en" ? "zh" : "en",
     }));
     setCopied(null);
   }

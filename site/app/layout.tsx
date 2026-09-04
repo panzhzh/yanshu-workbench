@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { PersistentLanguageProvider } from "./usePersistentLanguage";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 const siteDescription =
@@ -54,7 +55,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="zh-CN">
-      <body>{children}</body>
+      <body>
+        <PersistentLanguageProvider>{children}</PersistentLanguageProvider>
+      </body>
     </html>
   );
 }

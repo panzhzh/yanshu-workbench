@@ -18,6 +18,7 @@ export type ActivePage =
   | "results-analysis"
   | "reproducibility"
   | "figures"
+  | "image-to-svg"
   | "experimental-plots"
   | "paper-tables"
   | "figure-table-audit"
@@ -344,6 +345,17 @@ export const NAVIGATION_GROUPS: readonly NavigationGroup[] = [
         keywords: {
           zh: ["科研绘图", "方法总览", "机制图", "框架图"],
           en: ["research figures", "method overview", "mechanism", "framework"],
+        },
+      },
+      {
+        id: "image-to-svg",
+        label: { zh: "图片转 SVG", en: "Image to SVG" },
+        status: "available",
+        href: "/figures/image-to-svg",
+        activePage: "image-to-svg",
+        keywords: {
+          zh: ["位图转矢量", "PNG", "JPG", "SVG", "1:1 复刻", "Calibri"],
+          en: ["raster to vector", "png", "jpg", "svg", "1:1 reconstruction", "calibri"],
         },
       },
       {

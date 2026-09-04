@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { YANSHU_SKILL_CATALOG } from "../content/workflows/skillWorkflows";
-import { PRODUCT_CONFIG, type Language } from "./config";
+import { PRODUCT_CONFIG } from "./config";
 import SiteNavigation from "./SiteNavigation";
+import { usePersistentSiteLanguage } from "./usePersistentLanguage";
 
 const INSTALL_COMMAND = `codex plugin marketplace add panzhzh/yanshu-workbench --ref main
 codex plugin add yanshu-workbench@yanshu-workbench`;
@@ -62,9 +63,9 @@ const HOME_COPY = {
     configureBody:
       "Skill 在当前 Codex/CLI 任务直接执行。网站用于查看和调整 Prompt，但插件运行时不会自动打开网站。",
     workflowEyebrow: "START WITH ONE SENTENCE",
-    workflowTitle: "九个重要的全链路入口",
+    workflowTitle: "十个重要的全链路入口",
     workflowBody:
-      "九个独立子 Skill 均支持 $ 调用，并在当前任务直接执行。网站与插件共享 Prompt 数据。",
+      "十个独立子 Skill 均支持 $ 调用，并在当前任务直接执行。网站与插件共享 Prompt 数据。",
     inputLabel: "准备",
     outputLabel: "得到",
     openWorkbench: "打开网页工具",
@@ -140,9 +141,9 @@ const HOME_COPY = {
     configureBody:
       "Skills execute directly in the current Codex or CLI task. The website remains available for inspecting and tuning Prompts, but plugin runs do not open it automatically.",
     workflowEyebrow: "START WITH ONE SENTENCE",
-    workflowTitle: "Nine essential end-to-end entry points",
+    workflowTitle: "Ten essential end-to-end entry points",
     workflowBody:
-      "All nine independent sub-skills support $ invocation and execute in the current task. Website and plugin share one Prompt source.",
+      "All ten independent sub-skills support $ invocation and execute in the current task. Website and plugin share one Prompt source.",
     inputLabel: "Prepare",
     outputLabel: "Receive",
     openWorkbench: "Open web tool",
@@ -163,9 +164,7 @@ const HOME_COPY = {
 } as const;
 
 export default function HomePage() {
-  const [language, setLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultLanguage,
-  );
+  const [language, setLanguage] = usePersistentSiteLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [demoStep, setDemoStep] = useState(0);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);

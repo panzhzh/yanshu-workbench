@@ -46,12 +46,13 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /一句话启动/);
   assert.match(html, /在当前任务直接开始/);
   assert.match(html, /Skill 在当前 Codex\/CLI 任务直接执行/);
-  assert.match(html, /九个重要的全链路入口/);
+  assert.match(html, /十个重要的全链路入口/);
   assert.match(html, /Idea Discovery/);
   assert.match(html, /Paper Drafting/);
   assert.match(html, /Citation Audit/);
   assert.match(html, /Paper Reconstruction/);
   assert.match(html, /Scientific Figure/);
+  assert.match(html, /Image to SVG/);
   assert.match(html, /Experimental Plotting/);
   assert.match(html, /Peer Review/);
   assert.match(html, /Revision Planning/);
@@ -67,6 +68,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /\$idea-discovery/);
   assert.match(html, /\$citation-audit/);
   assert.match(html, /\$scientific-figure/);
+  assert.match(html, /\$image-to-svg/);
   assert.match(html, /\$experimental-plotting/);
   assert.match(html, /\$peer-review/);
   assert.match(html, /\$revision-planning/);
@@ -95,6 +97,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /结果分析/);
   assert.match(html, /可复现性/);
   assert.match(html, /科学示意图/);
+  assert.match(html, /图片转 SVG/);
   assert.match(html, /实验绘图/);
   assert.match(html, /论文表格/);
   assert.match(html, /图表审计/);
@@ -121,6 +124,7 @@ test("server-renders the concise YanShu home page", async () => {
   assert.match(html, /href="\/experiments\/results"/);
   assert.match(html, /href="\/experiments\/reproducibility"/);
   assert.match(html, /href="\/figures\/plots"/);
+  assert.match(html, /href="\/figures\/image-to-svg"/);
   assert.match(html, /href="\/figures\/tables"/);
   assert.match(html, /href="\/figures\/audit"/);
   assert.match(html, /href="\/submission\/check"/);
@@ -138,6 +142,55 @@ test("server-renders the concise YanShu home page", async () => {
   assert.doesNotMatch(html, /\/writing\/diagnosis|\/submission\/polishing/);
 });
 
+test("persists one site language across routes and uses it as each Prompt default", async () => {
+  const [languageStore, layout, ...workbenches] = await Promise.all([
+    readFile(new URL("../app/usePersistentLanguage.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/layout.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/HomePage.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/YanshuWorkbench.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/ideas/IdeaWorkbench.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../app/draft/DraftWorkbench.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/workbench/ConfigurablePromptWorkbench.tsx", import.meta.url),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/reconstruction/refinement/SectionRefinementWorkbench.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+    readFile(
+      new URL(
+        "../app/reconstruction/audit/SpecializedAuditWorkbench.tsx",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+    readFile(new URL("../app/figures/FigureWorkbench.tsx", import.meta.url), "utf8"),
+    readFile(
+      new URL("../app/submission/SubmissionStrategy.tsx", import.meta.url),
+      "utf8",
+    ),
+  ]);
+
+  assert.match(languageStore, /YANSHU_LANGUAGE_STORAGE_KEY = "yanshu\.language"/);
+  assert.match(languageStore, /useSyncExternalStore/);
+  assert.match(languageStore, /window\.localStorage\.setItem/);
+  assert.match(languageStore, /promptChoice\?\.baseLanguage === uiLanguage/);
+  assert.match(languageStore, /setPromptChoice\(null\)/);
+  assert.match(layout, /<PersistentLanguageProvider>\{children\}<\/PersistentLanguageProvider>/);
+
+  for (const component of workbenches) {
+    assert.match(component, /usePersistent(?:Site|Workbench)Language/);
+    assert.doesNotMatch(
+      component,
+      /useState<Language>\(\s*PRODUCT_CONFIG\.defaultLanguage/,
+    );
+  }
+});
+
 test("server-renders every configured research workbench", async (context) => {
   const pages = [
     ["/writing/sections", "分章节写作"],
@@ -149,6 +202,7 @@ test("server-renders every configured research workbench", async (context) => {
     ["/experiments/code", "实验代码"],
     ["/experiments/results", "结果分析"],
     ["/experiments/reproducibility", "可复现性"],
+    ["/figures/image-to-svg", "图片转 SVG"],
     ["/figures/plots", "实验绘图"],
     ["/figures/tables", "论文表格"],
     ["/figures/audit", "图表审计"],
@@ -1161,7 +1215,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(component, /RECONSTRUCTION_PROMPTS/);
   assert.doesNotMatch(component, /PROMPT_TEMPLATES/);
   assert.match(component, /buildPrompt\(round/);
-  assert.match(component, /setPromptLanguages/);
+  assert.match(component, /setPromptLanguageOverrides/);
   assert.match(component, /togglePromptLanguage/);
   assert.match(component, /hasWordLimit/);
   assert.match(component, /unlimitedCoreSections/);
@@ -1216,10 +1270,11 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(navigationConfig, /href:\s*"\/reconstruction\/audit"/);
   assert.match(navigationConfig, /href:\s*"\/figures"/);
+  assert.match(navigationConfig, /href:\s*"\/figures\/image-to-svg"/);
   assert.match(navigationConfig, /href:\s*"\/submission"/);
   assert.equal(
     (navigationConfig.match(/status:\s*"available",/g) ?? []).length,
-    25,
+    26,
   );
   assert.equal(
     (navigationConfig.match(/status:\s*"future",/g) ?? []).length,
@@ -1815,7 +1870,7 @@ test("keeps research-figure choices and prompt rules configuration-driven", asyn
     /Yanshu Scientific Figure Director|Content budget|NEGATIVE CONSTRAINTS|EXACT TEXT AND MATH/,
   );
   assert.match(figureComponent, /buildFigurePrompt\(\s*activePromptId/);
-  assert.match(figureComponent, /setPromptLanguages/);
+  assert.match(figureComponent, /setPromptLanguageOverrides/);
   assert.match(figureComponent, /selectFigurePrompt/);
   assert.match(figureComponent, /figure-intent-question/);
   assert.match(figureComponent, /FIGURE_PROMPT_GROUP_ORDER/);
@@ -1907,6 +1962,30 @@ test("keeps experimental plotting code-based, skill-assisted, and configuration-
   assert.match(config, /id:\s*"captionWordRange"/);
   assert.match(config, /buildExperimentalPlotPrompt/);
   assert.match(config, /normalizeExperimentalPlotValues/);
+});
+
+test("reconstructs raster images as editable render-validated SVG", async () => {
+  const response = await render("/figures/image-to-svg");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  const config = await readFile(
+    new URL("../app/figures/image-to-svg/config.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(html, /1:1 视觉复刻/);
+  assert.match(html, /纯矢量/);
+  assert.match(html, /混合保真/);
+  assert.match(html, /保留原背景/);
+  assert.match(html, /透明背景/);
+  assert.match(html, /Calibri/);
+  assert.match(html, /回渲染/);
+  assert.match(html, /只交付 SVG/);
+  assert.match(config, /defaultValue:\s*"pure"/);
+  assert.match(config, /defaultValue:\s*"preserve"/);
+  assert.match(config, /id:\s*"keepValidationPreview"/);
+  assert.match(config, /不得出现 `&lt;image&gt;`|不得出现 `<image>`/);
+  assert.match(config, /不得以处理时间作为停止理由/);
 });
 
 test("keeps paper-draft templates and provenance rules configuration-driven", async () => {

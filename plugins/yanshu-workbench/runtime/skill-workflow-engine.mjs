@@ -2617,12 +2617,199 @@ Keep unknowns unknown; never infer missing data or fabricate recomputed results.
   }
 };
 
-// app/writing/citations/config.ts
+// app/figures/image-to-svg/config.ts
 var text2 = (zh, en) => ({ zh, en });
 function scalar2(values, id) {
   return String(values[id] ?? "").trim();
 }
 function enabled2(values, id) {
+  return values[id] === true;
+}
+function workbenchCopy(seed) {
+  return {
+    zh: {
+      ...seed.zh,
+      reset: "\u6062\u590D\u9ED8\u8BA4\u914D\u7F6E",
+      resetHint: "\u6062\u590D 1:1 \u590D\u523B\u63A8\u8350\u503C\u3002",
+      switchPromptLanguage: "\u5207\u6362 Prompt \u8BED\u8A00",
+      copy: "\u590D\u5236",
+      copied: "\u5DF2\u590D\u5236",
+      expand: "\u5C55\u5F00",
+      collapse: "\u6536\u8D77",
+      clipboardError: "\u590D\u5236\u5931\u8D25\uFF0C\u8BF7\u5C55\u5F00\u540E\u624B\u52A8\u9009\u62E9\u6587\u672C\u3002",
+      on: "\u5F00\u542F",
+      off: "\u5173\u95ED"
+    },
+    en: {
+      ...seed.en,
+      reset: "Restore defaults",
+      resetHint: "Restore the recommended 1:1 reconstruction settings.",
+      switchPromptLanguage: "Switch prompt language",
+      copy: "Copy",
+      copied: "Copied",
+      expand: "Expand",
+      collapse: "Collapse",
+      clipboardError: "Copy failed. Expand the prompt and select the text manually.",
+      on: "On",
+      off: "Off"
+    }
+  };
+}
+function buildImageToSvgPrompt(values, language) {
+  const vectorMode = scalar2(values, "vectorMode") || "pure";
+  const backgroundMode = scalar2(values, "backgroundMode") || "preserve";
+  const custom = scalar2(values, "custom");
+  const modeZh = vectorMode === "hybrid" ? "\u4F7F\u7528\u6DF7\u5408\u4FDD\u771F\u6A21\u5F0F\u3002\u53EA\u6709\u8FDE\u7EED\u8272\u8C03\u7684\u7167\u7247\u6216\u590D\u6742\u7EB9\u7406\u533A\u57DF\u53EF\u4EE5\u4F5C\u4E3A\u5C40\u90E8\u4F4D\u56FE\u5D4C\u5165\uFF1B\u6587\u5B57\u3001\u7EBF\u6761\u3001\u7BAD\u5934\u3001\u8FB9\u6846\u3001\u56FE\u6807\u3001\u56FE\u8868\u6807\u8BB0\u548C\u89C4\u5219\u5F62\u72B6\u5FC5\u987B\u91CD\u5EFA\u4E3A\u77E2\u91CF\uFF0C\u5E76\u5728\u4EA4\u4ED8\u6458\u8981\u4E2D\u5217\u51FA\u6240\u6709\u4FDD\u7559\u7684\u4F4D\u56FE\u533A\u57DF\u3002" : "\u4F7F\u7528\u7EAF\u77E2\u91CF\u6A21\u5F0F\u3002SVG \u4E2D\u4E0D\u5F97\u51FA\u73B0 `<image>`\u3001Base64\u3001\u5916\u94FE\u4F4D\u56FE\u3001`foreignObject`\u3001\u6574\u56FE\u63CF\u6479\u8499\u7248\u6216\u5176\u4ED6\u628A\u539F\u56FE\u76F4\u63A5\u5305\u5165 SVG \u7684\u505A\u6CD5\uFF1B\u4F7F\u7528 SVG \u539F\u751F\u56FE\u5F62\u3001\u8DEF\u5F84\u3001\u6587\u5B57\u3001\u6E10\u53D8\u3001\u8499\u7248\u4E0E\u6EE4\u955C\u91CD\u5EFA\u3002";
+  const modeEn = vectorMode === "hybrid" ? "Use hybrid-fidelity mode. Only continuous-tone photographic or complex-texture regions may remain as local embedded rasters. Rebuild all text, lines, arrows, borders, icons, chart marks, and regular shapes as vectors, and list every retained raster region in the delivery summary." : "Use pure-vector mode. The SVG must contain no `<image>`, Base64 data, linked bitmap, `foreignObject`, whole-image tracing mask, or other method that merely wraps the source raster. Reconstruct it with native SVG shapes, paths, text, gradients, masks, and filters.";
+  const backgroundZh = backgroundMode === "transparent" ? "\u79FB\u9664\u4E14\u53EA\u79FB\u9664\u539F\u56FE\u7684\u80CC\u666F\uFF0C\u4F7F\u753B\u5E03\u900F\u660E\uFF1B\u524D\u666F\u5BF9\u8C61\u3001\u8FB9\u7F18\u548C\u539F\u59CB\u7559\u767D\u5173\u7CFB\u4FDD\u6301\u4E0D\u53D8\u3002" : "\u5B8C\u6574\u4FDD\u7559\u539F\u56FE\u80CC\u666F\u3001\u753B\u5E03\u8FB9\u754C\u4E0E\u7559\u767D\u3002";
+  const backgroundEn = backgroundMode === "transparent" ? "Remove only the source background to make the canvas transparent; preserve all foreground objects, edges, and whitespace relationships." : "Preserve the source background, canvas boundary, and whitespace exactly.";
+  const validationZh = enabled2(values, "keepValidationPreview") ? "\u9664 SVG \u5916\uFF0C\u4FDD\u7559\u4E00\u5F20\u539F\u56FE\u4E0E\u6700\u7EC8\u56DE\u6E32\u67D3\u7ED3\u679C\u7684\u5E76\u6392\u6821\u9A8C\u56FE\uFF1B\u5DEE\u5F02\u56FE\u53EF\u4F5C\u4E3A\u8F85\u52A9\u4EA7\u7269\u3002" : "\u6821\u9A8C\u7528\u56DE\u6E32\u67D3\u56FE\u548C\u5DEE\u5F02\u56FE\u53EA\u4F5C\u5185\u90E8\u8FED\u4EE3\uFF0C\u6700\u7EC8\u4E0D\u989D\u5916\u4EA4\u4ED8\u3002";
+  const validationEn = enabled2(values, "keepValidationPreview") ? "In addition to the SVG, retain one side-by-side validation image of the source and final render; a difference image may be included as a supporting artifact." : "Use render and difference images only for internal iteration and do not retain them as deliverables.";
+  if (language === "zh") {
+    return `# \u56FE\u7247\u8F6C SVG \xB7 1:1 \u89C6\u89C9\u590D\u523B
+
+\u4F60\u662F\u4E00\u540D\u7CBE\u786E\u7684 SVG \u91CD\u5EFA\u5DE5\u7A0B\u5E08\u3002\u6211\u4F1A\u63D0\u4F9B\u4E00\u5F20 PNG\u3001JPG/JPEG\u3001WebP\u3001BMP \u6216 TIFF \u56FE\u7247\u3002\u8BF7\u5C06\u5176\u91CD\u5EFA\u4E3A\u53EF\u7F16\u8F91 SVG\uFF1B\u76EE\u6807\u662F\u5728\u539F\u56FE\u50CF\u7D20\u5C3A\u5BF8\u4E0B\u56DE\u6E32\u67D3\u65F6\uFF0C\u89C6\u89C9\u4E0A\u5C3D\u53EF\u80FD\u8FBE\u5230 1:1 \u4E00\u81F4\u3002\u8D28\u91CF\u4F18\u5148\uFF0C\u4E0D\u8981\u56E0\u4E3A\u8017\u65F6\u8F83\u957F\u800C\u505C\u5728\u7C97\u7565\u7248\u672C\u3002
+
+## \u91CD\u5EFA\u8981\u6C42
+- \u5148\u8BFB\u53D6\u539F\u59CB\u50CF\u7D20\u5BBD\u9AD8\uFF0C\u5E76\u4EE5\u76F8\u540C\u5BBD\u9AD8\u548C\u6BD4\u4F8B\u8BBE\u7F6E SVG \u7684\u753B\u5E03\u4E0E \`viewBox\`\u3002\u4FDD\u7559\u88C1\u5207\u3001\u7559\u767D\u3001\u6784\u56FE\u3001\u4F4D\u7F6E\u3001\u5C3A\u5BF8\u3001\u5BF9\u9F50\u3001\u5C42\u7EA7\u548C\u906E\u6321\u5173\u7CFB\u3002
+- \u9010\u9879\u590D\u523B\u5F62\u72B6\u3001\u8FB9\u6846\u3001\u7EBF\u5BBD\u3001\u5706\u89D2\u3001\u7BAD\u5934\u3001\u56FE\u6807\u3001\u989C\u8272\u3001\u900F\u660E\u5EA6\u3001\u6E10\u53D8\u3001\u9634\u5F71\u548C\u53EF\u89C1\u7EB9\u7406\uFF1B\u4E0D\u7F8E\u5316\u3001\u4E0D\u91CD\u6392\u3001\u4E0D\u7B80\u5316\u3001\u4E0D\u8865\u5168\uFF0C\u4E5F\u4E0D\u64C5\u81EA\u5220\u9664\u6216\u65B0\u589E\u5185\u5BB9\u3002
+- \u51C6\u786E\u8BC6\u522B\u5168\u90E8\u6587\u5B57\uFF0C\u4FDD\u7559\u539F\u6587\u3001\u5927\u5C0F\u5199\u3001\u6807\u70B9\u548C\u6362\u884C\uFF0C\u4E0D\u7FFB\u8BD1\u3001\u4E0D\u7EA0\u9519\u3002\u6240\u6709\u6587\u5B57\u4F7F\u7528\u53EF\u7F16\u8F91\u7684 SVG \`<text>\`\uFF0C\u5E76\u7EDF\u4E00\u58F0\u660E \`font-family="Calibri"\`\uFF1B\u901A\u8FC7\u5B57\u53F7\u3001\u5B57\u91CD\u3001\u5B57\u8DDD\u3001\u951A\u70B9\u548C\u57FA\u7EBF\u5339\u914D\u539F\u56FE\u3002\u82E5\u8FD0\u884C\u73AF\u5883\u6CA1\u6709 Calibri\uFF0C\u4ECD\u4FDD\u7559\u8BE5\u5B57\u4F53\u58F0\u660E\u5E76\u660E\u786E\u62A5\u544A\u65E0\u6CD5\u5B8C\u6210\u5B57\u4F53\u5EA6\u91CF\u6838\u9A8C\uFF0C\u4E0D\u5F97\u9759\u9ED8\u66FF\u6362\u6216\u5206\u53D1\u5B57\u4F53\u6587\u4EF6\u3002
+- ${modeZh}
+- ${backgroundZh}
+${custom ? `- \u8865\u5145\u8981\u6C42\uFF1A${custom}
+` : ""}
+## \u6821\u9A8C\u4E0E\u4EA4\u4ED8
+\u5B8C\u6210\u521D\u7A3F\u540E\uFF0C\u5C06 SVG \u6309\u539F\u59CB\u50CF\u7D20\u5C3A\u5BF8\u56DE\u6E32\u67D3\uFF0C\u4E0E\u539F\u56FE\u8FDB\u884C\u53E0\u52A0\u548C\u5DEE\u5F02\u68C0\u67E5\uFF0C\u81F3\u5C11\u6838\u5BF9\u753B\u5E03\u3001\u51E0\u4F55\u8FB9\u754C\u3001\u6587\u5B57\u4F4D\u7F6E\u3001\u7EBF\u6761\u3001\u989C\u8272\u3001\u900F\u660E\u5EA6\u548C\u5C42\u7EA7\uFF1B\u6839\u636E\u5DEE\u5F02\u6301\u7EED\u8FED\u4EE3\uFF0C\u76F4\u5230\u4E0D\u5B58\u5728\u53EF\u8FA8\u8BA4\u4E14\u53EF\u4FEE\u6B63\u7684\u504F\u5DEE\u3002\u4E0D\u5F97\u4EE5\u5904\u7406\u65F6\u95F4\u4F5C\u4E3A\u505C\u6B62\u7406\u7531\u3002
+
+\u5148\u9A8C\u8BC1 SVG/XML \u53EF\u89E3\u6790\u3001\u65E0\u65AD\u88C2\u5F15\u7528\u3001\u65E0\u610F\u5916\u88C1\u5207\uFF0C\u4E14\u6240\u6709\u53EF\u89C1\u6587\u5B57\u786E\u5B9E\u4E3A Calibri \u58F0\u660E\u3002${validationZh}
+
+\u6700\u7EC8\u4EA4\u4ED8\u4E00\u4E2A\u5B8C\u6574\u3001\u53EF\u76F4\u63A5\u6253\u5F00\u548C\u7EE7\u7EED\u7F16\u8F91\u7684 \`.svg\` \u6587\u4EF6\uFF0C\u4EE5\u53CA\u4E00\u6BB5\u7B80\u77ED\u6821\u9A8C\u6458\u8981\u3002\u82E5\u539F\u56FE\u5206\u8FA8\u7387\u4E0D\u8DB3\u3001\u5185\u5BB9\u4E0D\u53EF\u8FA8\u8BA4\uFF0C\u6216\u6240\u9009\u6A21\u5F0F\u65E0\u6CD5\u8BDA\u5B9E\u8FBE\u5230 1:1\uFF0C\u8BF7\u6307\u51FA\u7CBE\u786E\u533A\u57DF\u548C\u539F\u56E0\uFF0C\u4E0D\u8981\u731C\u6D4B\u6216\u4F2A\u88C5\u6210\u529F\u3002`;
+  }
+  return `# Image to SVG \xB7 1:1 visual reconstruction
+
+Act as a precision SVG reconstruction engineer. I will provide one PNG, JPG/JPEG, WebP, BMP, or TIFF image. Rebuild it as an editable SVG whose render at the source pixel dimensions is visually as close to 1:1 as possible. Quality takes priority; do not stop at a rough version merely because the reconstruction takes time.
+
+## Reconstruction requirements
+- Read the source pixel dimensions first and use the same width, height, aspect ratio, and matching SVG \`viewBox\`. Preserve crop, whitespace, composition, position, size, alignment, stacking, and occlusion.
+- Reproduce shapes, borders, stroke widths, corner radii, arrows, icons, colors, opacity, gradients, shadows, and visible texture. Do not beautify, rearrange, simplify, complete, remove, or invent content.
+- Recognize all text exactly, preserving wording, case, punctuation, and line breaks without translation or correction. Use editable SVG \`<text>\` throughout and declare \`font-family="Calibri"\`; match the source through font size, weight, letter spacing, anchors, and baselines. If Calibri is unavailable, retain the declaration and report that font-metric validation could not be completed; never silently substitute or redistribute font files.
+- ${modeEn}
+- ${backgroundEn}
+${custom ? `- Additional requirement: ${custom}
+` : ""}
+## Validation and delivery
+After the first reconstruction, render the SVG at the exact source pixel dimensions and compare it with the source using overlays and visual differences. Check at least the canvas, geometric boundaries, text placement, strokes, colors, opacity, and stacking, then iterate until no visible and correctable discrepancy remains. Elapsed time is not a stopping criterion.
+
+Validate that the SVG/XML parses, has no broken references or unintended clipping, and declares Calibri for every visible text element. ${validationEn}
+
+Deliver one complete, directly openable and editable \`.svg\` file plus a concise validation summary. If low source resolution, illegible content, or the selected mode prevents an honest 1:1 result, identify the exact region and reason rather than guessing or claiming success.`;
+}
+var IMAGE_TO_SVG_WORKBENCH = {
+  id: "image-to-svg-workbench",
+  activePage: "image-to-svg",
+  copy: workbenchCopy({
+    zh: {
+      eyebrow: "IMAGE TO SVG",
+      title: "\u56FE\u7247\u8F6C SVG",
+      subtitle: "\u5C06 PNG\u3001JPG \u7B49\u4F4D\u56FE\u6309\u539F\u5C3A\u5BF8\u91CD\u5EFA\u4E3A\u53EF\u7F16\u8F91 SVG\uFF0C\u5E76\u901A\u8FC7\u56DE\u6E32\u67D3\u5DEE\u5F02\u8FED\u4EE3\u903C\u8FD1 1:1 \u89C6\u89C9\u4E00\u81F4\u3002",
+      preset: "1:1 \u89C6\u89C9\u590D\u523B \xB7 \u7EAF\u77E2\u91CF \xB7 Calibri \xB7 \u56DE\u6E32\u67D3\u6821\u9A8C",
+      inputTitle: "\u51C6\u5907\u6750\u6599",
+      inputItems: ["\u4E00\u5F20\u6E05\u6670\u7684\u539F\u59CB PNG\u3001JPG/JPEG\u3001WebP\u3001BMP \u6216 TIFF \u56FE\u7247"],
+      inputHint: "\u8BF7\u4F18\u5148\u63D0\u4F9B\u539F\u59CB\u5206\u8FA8\u7387\u6587\u4EF6\u3002\u4F4E\u6E05\u622A\u56FE\u3001\u538B\u7F29\u4F2A\u5F71\u548C\u65E0\u6CD5\u8FA8\u8BA4\u7684\u6587\u5B57\u4F1A\u9650\u5236\u53EF\u9A8C\u8BC1\u7CBE\u5EA6\u3002",
+      promptTitle: "\u56FE\u7247\u8F6C SVG Prompt",
+      promptPurpose: "\u9501\u5B9A\u539F\u56FE\u753B\u5E03\u3001\u6784\u56FE\u4E0E\u6587\u5B57\uFF0C\u751F\u6210\u771F\u6B63\u53EF\u7F16\u8F91\u5E76\u7ECF\u8FC7\u56DE\u6E32\u67D3\u6838\u9A8C\u7684 SVG\u3002"
+    },
+    en: {
+      eyebrow: "IMAGE TO SVG",
+      title: "Image to SVG",
+      subtitle: "Reconstruct a PNG, JPG, or other raster image as an editable SVG at its original dimensions, iterating against rendered differences toward 1:1 visual fidelity.",
+      preset: "1:1 visual reconstruction \xB7 pure vector \xB7 Calibri \xB7 render validation",
+      inputTitle: "Prepare material",
+      inputItems: ["One clear source PNG, JPG/JPEG, WebP, BMP, or TIFF image"],
+      inputHint: "Prefer the original-resolution file. Low-resolution screenshots, compression artifacts, and illegible text limit verifiable precision.",
+      promptTitle: "Image-to-SVG prompt",
+      promptPurpose: "Lock the source canvas, composition, and text, then deliver a genuinely editable, render-validated SVG."
+    }
+  }),
+  controls: [
+    {
+      id: "vectorMode",
+      kind: "segmented",
+      label: text2("\u77E2\u91CF\u7B56\u7565", "Vector strategy"),
+      description: text2(
+        "\u7EAF\u77E2\u91CF\u7981\u6B62\u5305\u5165\u539F\u56FE\uFF1B\u7167\u7247\u6216\u590D\u6742\u7EB9\u7406\u53EF\u6309\u9700\u9009\u62E9\u6DF7\u5408\u4FDD\u771F\u3002",
+        "Pure vector forbids wrapping the source; hybrid fidelity is available for photographs or complex textures."
+      ),
+      defaultValue: "pure",
+      options: [
+        {
+          value: "pure",
+          label: text2("\u7EAF\u77E2\u91CF", "Pure vector"),
+          description: text2("\u5168\u90E8\u5143\u7D20\u91CD\u65B0\u6784\u5EFA", "Rebuild every element")
+        },
+        {
+          value: "hybrid",
+          label: text2("\u6DF7\u5408\u4FDD\u771F", "Hybrid fidelity"),
+          description: text2(
+            "\u4EC5\u7167\u7247\u6216\u590D\u6742\u7EB9\u7406\u53EF\u5C40\u90E8\u5D4C\u5165",
+            "Only photos or complex textures may remain raster"
+          )
+        }
+      ],
+      span: "full"
+    },
+    {
+      id: "backgroundMode",
+      kind: "segmented",
+      label: text2("\u80CC\u666F", "Background"),
+      description: text2(
+        "\u9ED8\u8BA4\u4FDD\u7559\u539F\u80CC\u666F\uFF1B\u900F\u660E\u6A21\u5F0F\u53EA\u79FB\u9664\u80CC\u666F\u3002",
+        "Preserve the source by default; transparent mode removes only the background."
+      ),
+      defaultValue: "preserve",
+      options: [
+        { value: "preserve", label: text2("\u4FDD\u7559\u539F\u80CC\u666F", "Preserve source") },
+        { value: "transparent", label: text2("\u900F\u660E\u80CC\u666F", "Transparent") }
+      ],
+      span: "full"
+    },
+    {
+      id: "keepValidationPreview",
+      kind: "toggle",
+      label: text2("\u4FDD\u7559\u6821\u9A8C\u56FE", "Keep validation image"),
+      description: text2(
+        "\u65E0\u8BBA\u662F\u5426\u4FDD\u7559\uFF0C\u90FD\u4F1A\u5148\u56DE\u6E32\u67D3\u6821\u9A8C\uFF1B\u5F00\u542F\u540E\u989D\u5916\u4EA4\u4ED8\u5E76\u6392\u5BF9\u7167\u56FE\u3002",
+        "Render validation always runs; enable this only to retain a side-by-side comparison."
+      ),
+      defaultValue: false,
+      enabledLabel: text2("\u4FDD\u7559\u5BF9\u7167\u56FE", "Keep comparison"),
+      disabledLabel: text2("\u53EA\u4EA4\u4ED8 SVG", "SVG only")
+    },
+    {
+      id: "custom",
+      kind: "textarea",
+      label: text2("\u8865\u5145\u8981\u6C42\uFF08\u53EF\u9009\uFF09", "Additional requirements (optional)"),
+      description: text2(
+        "\u53EA\u5199\u786E\u5B9E\u9700\u8981\u8986\u76D6\u9ED8\u8BA4\u89C4\u5219\u7684\u5185\u5BB9\u3002",
+        "Add only requirements that genuinely override a default."
+      ),
+      defaultValue: "",
+      placeholder: text2(
+        "\u4F8B\u5982\uFF1A\u4FDD\u7559\u6240\u6709\u56FE\u5C42 ID\uFF1B\u56FE\u6807\u5FC5\u987B\u53EF\u5355\u72EC\u7F16\u8F91",
+        "e.g. preserve all layer IDs; keep each icon independently editable"
+      ),
+      span: "full"
+    }
+  ],
+  buildPrompt: buildImageToSvgPrompt
+};
+
+// app/writing/citations/config.ts
+var text3 = (zh, en) => ({ zh, en });
+function scalar3(values, id) {
+  return String(values[id] ?? "").trim();
+}
+function enabled3(values, id) {
   return values[id] === true;
 }
 function numberValue(values, id, fallback) {
@@ -2637,14 +2824,14 @@ function selected2(values, id) {
   return Array.isArray(values[id]) ? values[id] : [];
 }
 var SECTION_NAMES = {
-  introduction: text2("Introduction", "Introduction"),
-  "related-work": text2("Related Work", "Related Work"),
-  method: text2("Method", "Method"),
-  "experiments-results": text2("Experiments & Results", "Experiments & Results"),
-  discussion: text2("Discussion", "Discussion"),
-  conclusion: text2("Conclusion", "Conclusion")
+  introduction: text3("Introduction", "Introduction"),
+  "related-work": text3("Related Work", "Related Work"),
+  method: text3("Method", "Method"),
+  "experiments-results": text3("Experiments & Results", "Experiments & Results"),
+  discussion: text3("Discussion", "Discussion"),
+  conclusion: text3("Conclusion", "Conclusion")
 };
-function workbenchCopy(seed) {
+function workbenchCopy2(seed) {
   return {
     zh: {
       ...seed.zh,
@@ -2675,26 +2862,26 @@ function workbenchCopy(seed) {
   };
 }
 function buildCitationPrompt(values, language) {
-  const action = scalar2(values, "action") || "repair";
+  const action = scalar3(values, "action") || "repair";
   const scope = selected2(values, "sections");
   const scopeLabel = scope.map((id) => SECTION_NAMES[id]?.[language] ?? id).join(language === "zh" ? "\u3001" : ", ");
-  const targetType = scalar2(values, "targetType") || "none";
-  const targetVenue = scalar2(values, "targetVenue");
+  const targetType = scalar3(values, "targetType") || "none";
+  const targetVenue = scalar3(values, "targetVenue");
   const targetMinimum = numberValue(values, "targetVenueMinimum", 3);
   const referenceRange = rangeValue2(values, "referenceRange", [35, 40]);
   const recentYears = numberValue(values, "recentYears", 3);
   const recentShare = numberValue(values, "recentShare", 65);
   const citationsPerSentence = numberValue(values, "citationsPerSentence", 4);
-  const custom = scalar2(values, "custom");
+  const custom = scalar3(values, "custom");
   const targetRuleZh = targetType === "journal" ? targetVenue ? `\u76EE\u6807\u671F\u520A\u4E3A\u201C${targetVenue}\u201D\u3002\u5728\u4E0E\u8BBA\u8BC1\u771F\u5B9E\u76F8\u5173\u4E14\u7ECF\u6838\u9A8C\u7684\u524D\u63D0\u4E0B\uFF0C\u5EFA\u8BAE\u81F3\u5C11\u5F15\u7528 ${targetMinimum} \u7BC7\u8BE5\u671F\u520A\u8BBA\u6587\uFF1B\u4E0D\u5F97\u4E3A\u4E86\u547D\u4E2D\u6570\u91CF\u52A0\u5165\u65E0\u5173\u5F15\u7528\u3002` : "\u76EE\u6807\u7C7B\u578B\u4E3A\u671F\u520A\u4F46\u672A\u6307\u5B9A\u540D\u79F0\uFF1B\u5148\u5224\u65AD\u53EF\u80FD\u76EE\u6807\uFF0C\u4E0D\u8BBE\u7F6E\u76EE\u6807\u671F\u520A\u5F15\u7528\u914D\u989D\u3002" : targetType === "conference" ? targetVenue ? `\u76EE\u6807\u4F1A\u8BAE\u4E3A\u201C${targetVenue}\u201D\u3002\u4F18\u5148\u8BC6\u522B\u771F\u6B63\u76F8\u5173\u7684\u8BE5\u4F1A\u8BAE\u8BBA\u6587\uFF0C\u4F46\u4E0D\u8BBE\u7F6E\u6700\u4F4E\u5F15\u7528\u6570\u91CF\u3002` : "\u76EE\u6807\u7C7B\u578B\u4E3A\u4F1A\u8BAE\u4F46\u672A\u6307\u5B9A\u540D\u79F0\uFF1B\u4E0D\u8BBE\u7F6E\u76EE\u6807\u4F1A\u8BAE\u5F15\u7528\u914D\u989D\u3002" : "\u672A\u9884\u8BBE\u76EE\u6807 venue\uFF0C\u4E0D\u8BBE\u7F6E\u5B9A\u5411\u5F15\u7528\u6570\u91CF\u3002";
   const targetRuleEn = targetType === "journal" ? targetVenue ? `The target journal is \u201C${targetVenue}.\u201D When genuinely relevant and verified, aim to cite at least ${targetMinimum} papers from that journal; never pad the bibliography to meet the number.` : "The target type is journal but no journal is named; infer plausible targets without imposing a target-journal citation quota." : targetType === "conference" ? targetVenue ? `The target conference is \u201C${targetVenue}.\u201D Prioritize genuinely relevant papers from it, with no minimum target-venue citation count.` : "The target type is conference but no conference is named; impose no target-conference citation quota." : "No target venue is preset; impose no venue-specific citation count.";
   const sourcePolicyZh = [
-    enabled2(values, "preferTopConferences") ? "\u76F8\u5173\u9886\u57DF\u516C\u8BA4\u9876\u4F1A" : "\u76F8\u5173\u4F1A\u8BAE",
-    enabled2(values, "preferTopJournals") ? "\u76F8\u5173\u9886\u57DF\u516C\u8BA4\u9876\u520A" : "\u76F8\u5173\u671F\u520A"
+    enabled3(values, "preferTopConferences") ? "\u76F8\u5173\u9886\u57DF\u516C\u8BA4\u9876\u4F1A" : "\u76F8\u5173\u4F1A\u8BAE",
+    enabled3(values, "preferTopJournals") ? "\u76F8\u5173\u9886\u57DF\u516C\u8BA4\u9876\u520A" : "\u76F8\u5173\u671F\u520A"
   ].join("\u4E0E");
   const sourcePolicyEn = [
-    enabled2(values, "preferTopConferences") ? "established leading conferences" : "relevant conferences",
-    enabled2(values, "preferTopJournals") ? "established leading journals" : "relevant journals"
+    enabled3(values, "preferTopConferences") ? "established leading conferences" : "relevant conferences",
+    enabled3(values, "preferTopJournals") ? "established leading journals" : "relevant journals"
   ].join(" and ");
   if (language === "zh") {
     return `# \u8BBA\u6587\u5F15\u6587\u6838\u67E5\u4E0E\u8865\u5145
@@ -2707,7 +2894,7 @@ function buildCitationPrompt(values, language) {
 ## \u5F53\u524D\u914D\u7F6E
 - \u5EFA\u8BAE\u53C2\u8003\u6587\u732E\u603B\u91CF\uFF1A${referenceRange[0]}\u2013${referenceRange[1]} \u7BC7\u3002\u8FD9\u662F\u8986\u76D6\u5EA6\u53C2\u8003\uFF0C\u4E0D\u662F\u51D1\u6570\u6307\u6807\uFF1B\u8BBA\u6587\u5185\u5BB9\u4E0D\u9700\u8981\u65F6\u53EF\u4EE5\u504F\u79BB\u3002
 - \u8FD1\u671F\u6587\u732E\uFF1A\u4EE5\u6267\u884C\u65E5\u671F\u4E3A\u51C6\uFF0C\u8FD1 ${recentYears} \u5E74\u6587\u732E\u5360\u6BD4\u76EE\u6807\u9AD8\u4E8E ${recentShare}%\uFF1B\u4E0D\u53EF\u66FF\u4EE3\u7684\u5960\u57FA\u5DE5\u4F5C\u4E0D\u56E0\u5E74\u4EFD\u5220\u9664\u3002
-- \u6765\u6E90\u504F\u597D\uFF1A${sourcePolicyZh}\uFF1B${enabled2(values, "allowPreprints") ? "\u5141\u8BB8\u5F15\u7528\u5C1A\u65E0\u6B63\u5F0F\u7248\u672C\u7684\u91CD\u8981\u9884\u5370\u672C\uFF0C\u4F46\u5FC5\u987B\u6807\u660E\u7248\u672C\u72B6\u6001" : "\u9ED8\u8BA4\u4E0D\u5F15\u7528\u9884\u5370\u672C\uFF1B\u5B58\u5728\u6B63\u5F0F\u53D1\u8868\u7248\u672C\u65F6\u5FC5\u987B\u5F15\u7528\u6B63\u5F0F\u7248\u672C"}\u3002
+- \u6765\u6E90\u504F\u597D\uFF1A${sourcePolicyZh}\uFF1B${enabled3(values, "allowPreprints") ? "\u5141\u8BB8\u5F15\u7528\u5C1A\u65E0\u6B63\u5F0F\u7248\u672C\u7684\u91CD\u8981\u9884\u5370\u672C\uFF0C\u4F46\u5FC5\u987B\u6807\u660E\u7248\u672C\u72B6\u6001" : "\u9ED8\u8BA4\u4E0D\u5F15\u7528\u9884\u5370\u672C\uFF1B\u5B58\u5728\u6B63\u5F0F\u53D1\u8868\u7248\u672C\u65F6\u5FC5\u987B\u5F15\u7528\u6B63\u5F0F\u7248\u672C"}\u3002
 - \u5355\u53E5\u5F15\u7528\uFF1A\u901A\u5E38\u4E0D\u8D85\u8FC7 ${citationsPerSentence} \u7BC7\u771F\u6B63\u5171\u540C\u652F\u6491\u8BE5\u53E5\u7684\u8BBA\u6587\uFF0C\u907F\u514D citation dump\u3002
 - \u5B9A\u5411\u5F15\u7528\uFF1A${targetRuleZh}${custom ? `
 - \u8865\u5145\u8981\u6C42\uFF1A${custom}` : ""}
@@ -2716,7 +2903,7 @@ function buildCitationPrompt(values, language) {
 1. \u5148\u63D0\u53D6\u8BBA\u6587\u81EA\u5DF1\u7684\u65B9\u6CD5\u3001\u8D21\u732E\u3001\u5B9E\u9A8C\u53D1\u73B0\u548C\u6709\u8BC1\u636E\u652F\u6491\u7684\u4F5C\u8005\u7EFC\u5408\u5224\u65AD\uFF1B\u8FD9\u4E9B\u5185\u5BB9\u4E0D\u5E94\u88AB\u673A\u68B0\u8865\u5F15\u6587\u3002\u5BF9\u5916\u90E8\u4E8B\u5B9E\u3001\u5DF2\u6709\u80FD\u529B\u3001\u5386\u53F2\u53D1\u5C55\u3001\u666E\u904D\u6BD4\u8F83\u3001\u9886\u57DF\u73B0\u72B6\u548C\u4ED6\u4EBA\u7ED3\u8BBA\uFF0C\u9010\u53E5\u5224\u65AD\u662F\u5426\u9700\u8981\u6765\u6E90\u3002
 2. \u5BF9\u6BCF\u4E2A\u73B0\u6709\u5F15\u7528\u6838\u5BF9\u201C\u53E5\u5B50\u4E3B\u5F20\u2014\u539F\u8BBA\u6587\u8BC1\u636E\u201D\u7684\u8BED\u4E49\u5173\u7CFB\uFF0C\u8BC6\u522B\u9519\u5F15\u3001\u8FC7\u5EA6\u5916\u63A8\u3001\u5E76\u5217\u5F15\u7528\u4E2D\u53EA\u6709\u90E8\u5206\u652F\u6301\u3001\u91CD\u590D\u5806\u53E0\u53CA\u5F15\u7528\u4F4D\u7F6E\u542B\u6DF7\u3002\u4E0D\u5F97\u53EA\u51ED\u6807\u9898\u3001\u6458\u8981\u7247\u6BB5\u6216\u4E8C\u624B\u8F6C\u8FF0\u5224\u65AD\u3002
 3. \u6838\u5BF9 .bib \u7684\u6807\u9898\u3001\u4F5C\u8005\u3001\u5E74\u4EFD\u3001venue\u3001\u5377\u671F\u9875\u7801\u3001DOI/\u7A33\u5B9A URL \u4E0E\u53D1\u8868\u72B6\u6001\uFF1B\u5408\u5E76\u91CD\u590D\u6761\u76EE\uFF0C\u4FDD\u7559\u73B0\u6709 key\uFF0C\u9664\u975E key \u672C\u8EAB\u51B2\u7A81\u6216\u9519\u8BEF\u3002
-4. ${enabled2(values, "browse") ? `\u5141\u8BB8\u8054\u7F51\u68C0\u7D22\u548C\u6838\u9A8C\u3002\u4F18\u5148\u539F\u8BBA\u6587\u3001\u5B98\u65B9 proceedings\u3001\u51FA\u7248\u793E\u6216 DOI \u9875\u9762\uFF1B\u56F4\u7ED5\u8FD1 ${recentYears} \u5E74\u7684\u76F4\u63A5\u76F8\u5173\u5DE5\u4F5C\u8865\u8DB3\u7F3A\u53E3\u3002` : "\u4E0D\u8054\u7F51\u65B0\u589E\u6587\u732E\uFF1B\u53EA\u6838\u67E5\u5DF2\u63D0\u4F9B\u8BBA\u6587\u4E0E BibTeX\uFF0C\u5E76\u628A\u65E0\u6CD5\u786E\u8BA4\u7684\u7F3A\u53E3\u660E\u786E\u5217\u51FA\u3002"}
+4. ${enabled3(values, "browse") ? `\u5141\u8BB8\u8054\u7F51\u68C0\u7D22\u548C\u6838\u9A8C\u3002\u4F18\u5148\u539F\u8BBA\u6587\u3001\u5B98\u65B9 proceedings\u3001\u51FA\u7248\u793E\u6216 DOI \u9875\u9762\uFF1B\u56F4\u7ED5\u8FD1 ${recentYears} \u5E74\u7684\u76F4\u63A5\u76F8\u5173\u5DE5\u4F5C\u8865\u8DB3\u7F3A\u53E3\u3002` : "\u4E0D\u8054\u7F51\u65B0\u589E\u6587\u732E\uFF1B\u53EA\u6838\u67E5\u5DF2\u63D0\u4F9B\u8BBA\u6587\u4E0E BibTeX\uFF0C\u5E76\u628A\u65E0\u6CD5\u786E\u8BA4\u7684\u7F3A\u53E3\u660E\u786E\u5217\u51FA\u3002"}
 5. \u65B0\u589E\u6587\u732E\u5FC5\u987B\u89E3\u51B3\u660E\u786E\u7684\u8BBA\u8BC1\u7F3A\u53E3\uFF0C\u4E0E\u53E5\u5B50\u8BED\u4E49\u76F4\u63A5\u76F8\u5173\uFF0C\u5E76\u7ED9\u51FA\u5B8C\u6574\u3001\u53EF\u5408\u5E76\u4E14\u4E0D\u51B2\u7A81\u7684 BibTeX\u3002\u4E0D\u5F97\u4E3A\u4E86\u63D0\u9AD8\u6570\u91CF\u3001\u8FD1\u671F\u5360\u6BD4\u6216\u76EE\u6807 venue \u6570\u91CF\u52A0\u5165\u88C5\u9970\u6027\u5F15\u7528\u3002
 
 ## \u4EA4\u4ED8
@@ -2734,7 +2921,7 @@ Read the main .tex, every included section, the complete .bib, and the latest PD
 ## Configuration
 - Suggested bibliography size: ${referenceRange[0]}\u2013${referenceRange[1]} works. This is a coverage reference, never a quota; depart when the paper's content warrants it.
 - Recency: as of the execution date, aim for more than ${recentShare}% of references from the latest ${recentYears} years, while retaining indispensable foundational work.
-- Source policy: prefer ${sourcePolicyEn}; ${enabled2(values, "allowPreprints") ? "important preprints without a formal version are allowed when their status is explicit" : "exclude preprints by default and cite the formal version whenever one exists"}.
+- Source policy: prefer ${sourcePolicyEn}; ${enabled3(values, "allowPreprints") ? "important preprints without a formal version are allowed when their status is explicit" : "exclude preprints by default and cite the formal version whenever one exists"}.
 - Citation density: normally use no more than ${citationsPerSentence} papers that genuinely co-support one sentence; avoid citation dumping.
 - Targeting: ${targetRuleEn}${custom ? `
 - Additional requirement: ${custom}` : ""}
@@ -2743,7 +2930,7 @@ Read the main .tex, every included section, the complete .bib, and the latest PD
 1. Separate this paper's own method, contributions, experimental findings, and evidence-grounded synthesis from external factual, historical, comparative, field-state, and prior-work claims. Do not mechanically attach citations to the paper's own claims; assess external claims sentence by sentence.
 2. Verify the semantic relation between every cited claim and the original source. Detect miscitation, overextension, partially supporting citation clusters, redundant stacks, and ambiguous citation placement. Do not rely on titles, search snippets, or secondary summaries alone.
 3. Verify each BibTeX entry's title, authors, year, venue, volume/issue/pages, DOI or stable URL, and publication status. Merge duplicates while preserving existing keys unless a key is itself conflicting or wrong.
-4. ${enabled2(values, "browse") ? `Browse to verify and fill explicit gaps, prioritizing original papers, official proceedings, publishers, and DOI records, with special attention to directly relevant work from the latest ${recentYears} years.` : "Do not add literature from the web; audit only the supplied papers and BibTeX and list unverifiable gaps explicitly."}
+4. ${enabled3(values, "browse") ? `Browse to verify and fill explicit gaps, prioritizing original papers, official proceedings, publishers, and DOI records, with special attention to directly relevant work from the latest ${recentYears} years.` : "Do not add literature from the web; audit only the supplied papers and BibTeX and list unverifiable gaps explicitly."}
 5. Add a source only when it closes an identified argumentative gap and directly supports the sentence. Supply complete, merge-ready, non-conflicting BibTeX for every addition. Never pad the bibliography, recency ratio, or target-venue count.
 
 ## Delivery
@@ -2754,7 +2941,7 @@ Finally verify that every cite key exists, no source is duplicated, citation ord
 var CITATION_AUDIT_WORKBENCH = {
   id: "citation-audit-workbench",
   activePage: "citation-audit",
-  copy: workbenchCopy({
+  copy: workbenchCopy2({
     zh: {
       eyebrow: "CITATION REVIEW",
       title: "\u5F15\u6587\u6838\u67E5\u4E0E\u8865\u5145",
@@ -2782,20 +2969,20 @@ var CITATION_AUDIT_WORKBENCH = {
     {
       id: "action",
       kind: "segmented",
-      label: text2("\u6267\u884C\u65B9\u5F0F", "Action"),
-      description: text2("\u4EC5\u62A5\u544A\uFF0C\u6216\u5728\u6838\u9A8C\u540E\u5B89\u5168\u4FEE\u6539\u3002", "Report only, or safely revise after verification."),
+      label: text3("\u6267\u884C\u65B9\u5F0F", "Action"),
+      description: text3("\u4EC5\u62A5\u544A\uFF0C\u6216\u5728\u6838\u9A8C\u540E\u5B89\u5168\u4FEE\u6539\u3002", "Report only, or safely revise after verification."),
       defaultValue: "repair",
       options: [
-        { value: "repair", label: text2("\u6838\u67E5\u5E76\u5B89\u5168\u4FEE\u590D", "Review & safely repair") },
-        { value: "audit", label: text2("\u4EC5\u6838\u67E5", "Audit only") }
+        { value: "repair", label: text3("\u6838\u67E5\u5E76\u5B89\u5168\u4FEE\u590D", "Review & safely repair") },
+        { value: "audit", label: text3("\u4EC5\u6838\u67E5", "Audit only") }
       ],
       span: "full"
     },
     {
       id: "sections",
       kind: "multi",
-      label: text2("\u91CD\u70B9\u7AE0\u8282", "Priority sections"),
-      description: text2("\u9ED8\u8BA4\u96C6\u4E2D\u5904\u7406 Introduction \u4E0E Related Work\u3002", "Introduction and Related Work are the default focus."),
+      label: text3("\u91CD\u70B9\u7AE0\u8282", "Priority sections"),
+      description: text3("\u9ED8\u8BA4\u96C6\u4E2D\u5904\u7406 Introduction \u4E0E Related Work\u3002", "Introduction and Related Work are the default focus."),
       defaultValue: ["introduction", "related-work"],
       minSelected: 1,
       options: Object.entries(SECTION_NAMES).map(([value, label]) => ({ value, label })),
@@ -2804,113 +2991,113 @@ var CITATION_AUDIT_WORKBENCH = {
     {
       id: "targetType",
       kind: "segmented",
-      label: text2("\u76EE\u6807 venue", "Target venue"),
-      description: text2("\u671F\u520A\u53EF\u8BBE\u7F6E\u5B9A\u5411\u5F15\u6587\u5EFA\u8BAE\uFF1B\u4F1A\u8BAE\u9ED8\u8BA4\u4E0D\u8BBE\u6570\u91CF\u3002", "Journals may use a target-citation recommendation; conferences have no default count."),
+      label: text3("\u76EE\u6807 venue", "Target venue"),
+      description: text3("\u671F\u520A\u53EF\u8BBE\u7F6E\u5B9A\u5411\u5F15\u6587\u5EFA\u8BAE\uFF1B\u4F1A\u8BAE\u9ED8\u8BA4\u4E0D\u8BBE\u6570\u91CF\u3002", "Journals may use a target-citation recommendation; conferences have no default count."),
       defaultValue: "none",
       options: [
-        { value: "none", label: text2("\u4E0D\u9884\u8BBE", "Not preset") },
-        { value: "conference", label: text2("\u4F1A\u8BAE", "Conference") },
-        { value: "journal", label: text2("\u671F\u520A", "Journal") }
+        { value: "none", label: text3("\u4E0D\u9884\u8BBE", "Not preset") },
+        { value: "conference", label: text3("\u4F1A\u8BAE", "Conference") },
+        { value: "journal", label: text3("\u671F\u520A", "Journal") }
       ],
       span: "full"
     },
     {
       id: "targetVenue",
       kind: "text",
-      label: text2("\u76EE\u6807\u540D\u79F0", "Target name"),
-      description: text2("\u586B\u5199\u4F1A\u8BAE\u6216\u671F\u520A\u5168\u79F0/\u7B80\u79F0\u3002", "Enter the conference or journal name."),
+      label: text3("\u76EE\u6807\u540D\u79F0", "Target name"),
+      description: text3("\u586B\u5199\u4F1A\u8BAE\u6216\u671F\u520A\u5168\u79F0/\u7B80\u79F0\u3002", "Enter the conference or journal name."),
       defaultValue: "",
-      placeholder: text2("\u4F8B\u5982\uFF1ATNNLS", "e.g. TNNLS"),
-      visibleWhen: (values) => scalar2(values, "targetType") !== "none"
+      placeholder: text3("\u4F8B\u5982\uFF1ATNNLS", "e.g. TNNLS"),
+      visibleWhen: (values) => scalar3(values, "targetType") !== "none"
     },
     {
       id: "targetVenueMinimum",
       kind: "number",
-      label: text2("\u76EE\u6807\u671F\u520A\u5EFA\u8BAE\u5F15\u7528", "Suggested target-journal citations"),
-      description: text2("\u4EC5\u5728\u5185\u5BB9\u76F8\u5173\u65F6\u53C2\u8003\uFF0C\u9ED8\u8BA4\u81F3\u5C11 3 \u7BC7\u3002", "Use only when relevant; three is the default minimum."),
+      label: text3("\u76EE\u6807\u671F\u520A\u5EFA\u8BAE\u5F15\u7528", "Suggested target-journal citations"),
+      description: text3("\u4EC5\u5728\u5185\u5BB9\u76F8\u5173\u65F6\u53C2\u8003\uFF0C\u9ED8\u8BA4\u81F3\u5C11 3 \u7BC7\u3002", "Use only when relevant; three is the default minimum."),
       defaultValue: 3,
       min: 0,
       max: 20,
-      suffix: text2("\u7BC7", "papers"),
-      visibleWhen: (values) => scalar2(values, "targetType") === "journal"
+      suffix: text3("\u7BC7", "papers"),
+      visibleWhen: (values) => scalar3(values, "targetType") === "journal"
     },
     {
       id: "referenceRange",
       kind: "range",
-      label: text2("\u5EFA\u8BAE\u5F15\u6587\u603B\u91CF", "Suggested reference count"),
-      description: text2("\u9ED8\u8BA4 35\u201340\uFF0C\u4EC5\u4F5C\u8986\u76D6\u5EA6\u53C2\u8003\u3002", "Defaults to 35\u201340 as a coverage reference only."),
+      label: text3("\u5EFA\u8BAE\u5F15\u6587\u603B\u91CF", "Suggested reference count"),
+      description: text3("\u9ED8\u8BA4 35\u201340\uFF0C\u4EC5\u4F5C\u8986\u76D6\u5EA6\u53C2\u8003\u3002", "Defaults to 35\u201340 as a coverage reference only."),
       defaultValue: [35, 40],
       min: 5,
       max: 150,
-      suffix: text2("\u7BC7", "works")
+      suffix: text3("\u7BC7", "works")
     },
     {
       id: "recentYears",
       kind: "number",
-      label: text2("\u8FD1\u671F\u65F6\u95F4\u7A97", "Recent window"),
-      description: text2("\u4EE5\u6267\u884C\u65E5\u671F\u5411\u524D\u8BA1\u7B97\u3002", "Count backward from the execution date."),
+      label: text3("\u8FD1\u671F\u65F6\u95F4\u7A97", "Recent window"),
+      description: text3("\u4EE5\u6267\u884C\u65E5\u671F\u5411\u524D\u8BA1\u7B97\u3002", "Count backward from the execution date."),
       defaultValue: 3,
       min: 1,
       max: 10,
-      suffix: text2("\u5E74", "years")
+      suffix: text3("\u5E74", "years")
     },
     {
       id: "recentShare",
       kind: "number",
-      label: text2("\u8FD1\u671F\u6587\u732E\u5360\u6BD4", "Recent-reference share"),
-      description: text2("\u9ED8\u8BA4\u76EE\u6807\u9AD8\u4E8E 65%\uFF0C\u7ECF\u5178\u5DE5\u4F5C\u4E0D\u53D7\u5F71\u54CD\u3002", "Default target is above 65%; foundational work remains allowed."),
+      label: text3("\u8FD1\u671F\u6587\u732E\u5360\u6BD4", "Recent-reference share"),
+      description: text3("\u9ED8\u8BA4\u76EE\u6807\u9AD8\u4E8E 65%\uFF0C\u7ECF\u5178\u5DE5\u4F5C\u4E0D\u53D7\u5F71\u54CD\u3002", "Default target is above 65%; foundational work remains allowed."),
       defaultValue: 65,
       min: 0,
       max: 100,
-      suffix: text2("%", "%")
+      suffix: text3("%", "%")
     },
     {
       id: "allowPreprints",
       kind: "toggle",
-      label: text2("\u5141\u8BB8\u9884\u5370\u672C", "Allow preprints"),
-      description: text2("\u9ED8\u8BA4\u5173\u95ED\uFF1B\u4F18\u5148\u5F15\u7528\u6B63\u5F0F\u53D1\u8868\u7248\u672C\u3002", "Off by default; prefer formally published versions."),
+      label: text3("\u5141\u8BB8\u9884\u5370\u672C", "Allow preprints"),
+      description: text3("\u9ED8\u8BA4\u5173\u95ED\uFF1B\u4F18\u5148\u5F15\u7528\u6B63\u5F0F\u53D1\u8868\u7248\u672C\u3002", "Off by default; prefer formally published versions."),
       defaultValue: false,
-      enabledLabel: text2("\u5141\u8BB8\u5FC5\u8981\u9884\u5370\u672C", "Allow when necessary"),
-      disabledLabel: text2("\u4E0D\u5F15\u7528\u9884\u5370\u672C", "Exclude preprints")
+      enabledLabel: text3("\u5141\u8BB8\u5FC5\u8981\u9884\u5370\u672C", "Allow when necessary"),
+      disabledLabel: text3("\u4E0D\u5F15\u7528\u9884\u5370\u672C", "Exclude preprints")
     },
     {
       id: "preferTopConferences",
       kind: "toggle",
-      label: text2("\u4F18\u5148\u9876\u4F1A", "Prefer leading conferences"),
-      description: text2("\u6309\u8BBA\u6587\u6240\u5C5E\u5B50\u9886\u57DF\u5224\u65AD\u3002", "Determine leadership within the paper's subfield."),
+      label: text3("\u4F18\u5148\u9876\u4F1A", "Prefer leading conferences"),
+      description: text3("\u6309\u8BBA\u6587\u6240\u5C5E\u5B50\u9886\u57DF\u5224\u65AD\u3002", "Determine leadership within the paper's subfield."),
       defaultValue: true
     },
     {
       id: "preferTopJournals",
       kind: "toggle",
-      label: text2("\u4F18\u5148\u9876\u520A", "Prefer leading journals"),
-      description: text2("\u53EA\u5F15\u7528\u4E0E\u5F53\u524D\u9648\u8FF0\u771F\u6B63\u76F8\u5173\u7684\u8BBA\u6587\u3002", "Cite only work genuinely relevant to the statement."),
+      label: text3("\u4F18\u5148\u9876\u520A", "Prefer leading journals"),
+      description: text3("\u53EA\u5F15\u7528\u4E0E\u5F53\u524D\u9648\u8FF0\u771F\u6B63\u76F8\u5173\u7684\u8BBA\u6587\u3002", "Cite only work genuinely relevant to the statement."),
       defaultValue: true
     },
     {
       id: "browse",
       kind: "toggle",
-      label: text2("\u8054\u7F51\u6838\u9A8C\u4E0E\u8865\u5145", "Browse to verify and extend"),
-      description: text2("\u6838\u67E5\u539F\u6587\u548C\u5B98\u65B9\u5143\u6570\u636E\uFF0C\u4E0D\u4F9D\u8D56\u641C\u7D22\u6458\u8981\u3002", "Check original papers and official metadata, not search snippets."),
+      label: text3("\u8054\u7F51\u6838\u9A8C\u4E0E\u8865\u5145", "Browse to verify and extend"),
+      description: text3("\u6838\u67E5\u539F\u6587\u548C\u5B98\u65B9\u5143\u6570\u636E\uFF0C\u4E0D\u4F9D\u8D56\u641C\u7D22\u6458\u8981\u3002", "Check original papers and official metadata, not search snippets."),
       defaultValue: true
     },
     {
       id: "citationsPerSentence",
       kind: "number",
-      label: text2("\u5355\u53E5\u6700\u591A\u5F15\u7528", "Maximum citations per sentence"),
-      description: text2("\u9ED8\u8BA4 4 \u7BC7\uFF0C\u907F\u514D\u5806\u53E0\u4F46\u5141\u8BB8\u5FC5\u8981\u7684\u7EFC\u5408\u5F15\u7528\u3002", "Defaults to four to avoid stacks while permitting real synthesis."),
+      label: text3("\u5355\u53E5\u6700\u591A\u5F15\u7528", "Maximum citations per sentence"),
+      description: text3("\u9ED8\u8BA4 4 \u7BC7\uFF0C\u907F\u514D\u5806\u53E0\u4F46\u5141\u8BB8\u5FC5\u8981\u7684\u7EFC\u5408\u5F15\u7528\u3002", "Defaults to four to avoid stacks while permitting real synthesis."),
       defaultValue: 4,
       min: 1,
       max: 10,
-      suffix: text2("\u7BC7", "papers")
+      suffix: text3("\u7BC7", "papers")
     },
     {
       id: "custom",
       kind: "textarea",
-      label: text2("\u8865\u5145\u8981\u6C42", "Additional requirements"),
-      description: text2("\u53EF\u6307\u5B9A\u5FC5\u987B\u4FDD\u7559\u7684\u6765\u6E90\u3001\u4E3B\u9898\u6216\u6392\u9664\u8303\u56F4\u3002", "Optionally name sources, topics, or exclusions to preserve."),
+      label: text3("\u8865\u5145\u8981\u6C42", "Additional requirements"),
+      description: text3("\u53EF\u6307\u5B9A\u5FC5\u987B\u4FDD\u7559\u7684\u6765\u6E90\u3001\u4E3B\u9898\u6216\u6392\u9664\u8303\u56F4\u3002", "Optionally name sources, topics, or exclusions to preserve."),
       defaultValue: "",
-      placeholder: text2("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     }
   ],
@@ -2918,11 +3105,11 @@ var CITATION_AUDIT_WORKBENCH = {
 };
 
 // app/submission/workflowConfig.ts
-var text3 = (zh, en) => ({ zh, en });
-function scalar3(values, id) {
+var text4 = (zh, en) => ({ zh, en });
+function scalar4(values, id) {
   return String(values[id] ?? "").trim();
 }
-function enabled3(values, id) {
+function enabled4(values, id) {
   return values[id] === true;
 }
 function selected3(values, id) {
@@ -2965,33 +3152,33 @@ function sharedCopy2(seed) {
   };
 }
 var VENUE_TYPES = {
-  conference: text3("\u4F1A\u8BAE", "Conference"),
-  journal: text3("\u671F\u520A", "Journal"),
-  preprint: text3("\u9884\u5370\u672C", "Preprint")
+  conference: text4("\u4F1A\u8BAE", "Conference"),
+  journal: text4("\u671F\u520A", "Journal"),
+  preprint: text4("\u9884\u5370\u672C", "Preprint")
 };
 var SUBMISSION_STAGES = {
-  initial: text3("\u9996\u6B21\u6295\u7A3F", "Initial submission"),
-  revision: text3("\u8FD4\u4FEE\u6295\u7A3F", "Revised submission"),
-  camera: text3("\u7EC8\u7A3F / Camera-ready", "Camera-ready or final files")
+  initial: text4("\u9996\u6B21\u6295\u7A3F", "Initial submission"),
+  revision: text4("\u8FD4\u4FEE\u6295\u7A3F", "Revised submission"),
+  camera: text4("\u7EC8\u7A3F / Camera-ready", "Camera-ready or final files")
 };
 var CHECK_MODES = {
-  audit: text3("\u4EC5\u68C0\u67E5", "Check only"),
-  repair: text3("\u68C0\u67E5\u5E76\u5B89\u5168\u4FEE\u590D", "Check and safely repair")
+  audit: text4("\u4EC5\u68C0\u67E5", "Check only"),
+  repair: text4("\u68C0\u67E5\u5E76\u5B89\u5168\u4FEE\u590D", "Check and safely repair")
 };
 var CHECK_SCOPES = {
-  official: text3("\u5B98\u65B9\u89C4\u5219\u4E0E\u6A21\u677F", "Official rules and template"),
-  anonymity: text3("\u533F\u540D\u4E0E\u8EAB\u4EFD\u4FE1\u606F", "Anonymity and identity"),
-  format: text3("\u683C\u5F0F\u3001\u9875\u6570\u4E0E\u6587\u4EF6", "Format, length, and files"),
-  metadata: text3("\u6295\u7A3F\u7CFB\u7EDF\u5143\u6570\u636E", "Submission-system metadata"),
-  references: text3("\u5F15\u7528\u4E0E\u53C2\u8003\u6587\u732E", "Citations and references"),
-  visuals: text3("\u56FE\u8868\u4E0E\u8865\u5145\u6750\u6599", "Visuals and supplementary material"),
-  integrity: text3("\u4F26\u7406\u3001\u8BB8\u53EF\u4E0E\u58F0\u660E", "Ethics, licenses, and declarations"),
-  build: text3("\u7F16\u8BD1\u4E0E\u4EA4\u53C9\u5F15\u7528", "Build and cross-references")
+  official: text4("\u5B98\u65B9\u89C4\u5219\u4E0E\u6A21\u677F", "Official rules and template"),
+  anonymity: text4("\u533F\u540D\u4E0E\u8EAB\u4EFD\u4FE1\u606F", "Anonymity and identity"),
+  format: text4("\u683C\u5F0F\u3001\u9875\u6570\u4E0E\u6587\u4EF6", "Format, length, and files"),
+  metadata: text4("\u6295\u7A3F\u7CFB\u7EDF\u5143\u6570\u636E", "Submission-system metadata"),
+  references: text4("\u5F15\u7528\u4E0E\u53C2\u8003\u6587\u732E", "Citations and references"),
+  visuals: text4("\u56FE\u8868\u4E0E\u8865\u5145\u6750\u6599", "Visuals and supplementary material"),
+  integrity: text4("\u4F26\u7406\u3001\u8BB8\u53EF\u4E0E\u58F0\u660E", "Ethics, licenses, and declarations"),
+  build: text4("\u7F16\u8BD1\u4E0E\u4EA4\u53C9\u5F15\u7528", "Build and cross-references")
 };
 var SOURCE_LEVELS = {
-  project: text3("\u5B8C\u6574 LaTeX \u5DE5\u7A0B + PDF", "Complete LaTeX project and PDF"),
-  source: text3("TeX / Word + PDF", "TeX or Word source plus PDF"),
-  pdf: text3("\u4EC5\u6700\u7EC8 PDF", "Final PDF only")
+  project: text4("\u5B8C\u6574 LaTeX \u5DE5\u7A0B + PDF", "Complete LaTeX project and PDF"),
+  source: text4("TeX / Word + PDF", "TeX or Word source plus PDF"),
+  pdf: text4("\u4EC5\u6700\u7EC8 PDF", "Final PDF only")
 };
 var PRE_SUBMISSION_CHECK_WORKBENCH = {
   id: "pre-submission-check-workbench",
@@ -3034,8 +3221,8 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
     {
       id: "venueType",
       kind: "segmented",
-      label: text3("\u6295\u7A3F\u7C7B\u578B", "Venue type"),
-      description: text3(
+      label: text4("\u6295\u7A3F\u7C7B\u578B", "Venue type"),
+      description: text4(
         "\u51B3\u5B9A\u5E94\u6838\u9A8C\u54EA\u4E9B\u5B98\u65B9\u9875\u9762\u4E0E\u6D41\u7A0B\u3002",
         "Determines which official pages and workflow rules apply."
       ),
@@ -3049,13 +3236,13 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
     {
       id: "venue",
       kind: "text",
-      label: text3("\u76EE\u6807 venue \u4E0E\u5C4A\u6B21", "Target venue and edition"),
-      description: text3(
+      label: text4("\u76EE\u6807 venue \u4E0E\u5C4A\u6B21", "Target venue and edition"),
+      description: text4(
         "\u586B\u5199\u5B8C\u6574\u540D\u79F0\uFF1B\u4F1A\u8BAE\u8BF7\u5199\u5E74\u4EFD\uFF0C\u671F\u520A\u8BF7\u5199\u520A\u540D\u3002",
         "Use the full name; include the year for a conference."
       ),
       defaultValue: "",
-      placeholder: text3(
+      placeholder: text4(
         "\u4F8B\u5982\uFF1AACL 2027 / IEEE TPAMI",
         "For example: ACL 2027 / IEEE TPAMI"
       )
@@ -3063,8 +3250,8 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
     {
       id: "stage",
       kind: "select",
-      label: text3("\u6295\u7A3F\u9636\u6BB5", "Submission stage"),
-      description: text3(
+      label: text4("\u6295\u7A3F\u9636\u6BB5", "Submission stage"),
+      description: text4(
         "\u533F\u540D\u3001\u7248\u6743\u548C\u6587\u4EF6\u8981\u6C42\u968F\u9636\u6BB5\u53D8\u5316\u3002",
         "Anonymity, copyright, and file requirements vary by stage."
       ),
@@ -3077,8 +3264,8 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
     {
       id: "sourceLevel",
       kind: "select",
-      label: text3("\u53EF\u7528\u6750\u6599", "Available sources"),
-      description: text3(
+      label: text4("\u53EF\u7528\u6750\u6599", "Available sources"),
+      description: text4(
         "\u6E90\u5DE5\u7A0B\u5141\u8BB8\u68C0\u67E5\u6A21\u677F\u3001\u7F16\u8BD1\u4E0E\u9690\u85CF\u8EAB\u4EFD\u4FE1\u606F\u3002",
         "Source files enable template, build, and hidden-identity checks."
       ),
@@ -3091,8 +3278,8 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
     {
       id: "mode",
       kind: "segmented",
-      label: text3("\u5904\u7406\u65B9\u5F0F", "Action"),
-      description: text3(
+      label: text4("\u5904\u7406\u65B9\u5F0F", "Action"),
+      description: text4(
         "\u5B89\u5168\u4FEE\u590D\u53EA\u5904\u7406\u786E\u5B9A\u7684\u5408\u89C4\u9519\u8BEF\u3002",
         "Safe repair addresses confirmed compliance errors only."
       ),
@@ -3106,8 +3293,8 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
     {
       id: "scopes",
       kind: "multi",
-      label: text3("\u68C0\u67E5\u8303\u56F4", "Check scope"),
-      description: text3(
+      label: text4("\u68C0\u67E5\u8303\u56F4", "Check scope"),
+      description: text4(
         "\u9ED8\u8BA4\u8986\u76D6\u6295\u7A3F\u6700\u5E38\u89C1\u7684\u963B\u585E\u539F\u56E0\u3002",
         "Defaults cover the most common causes of a blocked submission."
       ),
@@ -3131,34 +3318,34 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
     {
       id: "portalSnapshot",
       kind: "toggle",
-      label: text3("\u6295\u7A3F\u7CFB\u7EDF\u6838\u5BF9", "Submission-system check"),
-      description: text3(
+      label: text4("\u6295\u7A3F\u7CFB\u7EDF\u6838\u5BF9", "Submission-system check"),
+      description: text4(
         "\u63D0\u4F9B\u9875\u9762\u622A\u56FE\u65F6\uFF0C\u6838\u5BF9 PDF \u4E0E\u7CFB\u7EDF\u5B57\u6BB5\u662F\u5426\u4E00\u81F4\u3002",
         "When screenshots are supplied, compare portal fields with the PDF."
       ),
       defaultValue: false,
-      enabledLabel: text3("\u6838\u5BF9\u7CFB\u7EDF\u5B57\u6BB5", "Check portal fields"),
-      disabledLabel: text3("\u4E0D\u6838\u5BF9", "Skip")
+      enabledLabel: text4("\u6838\u5BF9\u7CFB\u7EDF\u5B57\u6BB5", "Check portal fields"),
+      disabledLabel: text4("\u4E0D\u6838\u5BF9", "Skip")
     },
     {
       id: "custom",
       kind: "textarea",
-      label: text3("\u5DF2\u77E5\u7279\u6B8A\u89C4\u5219", "Known special rules"),
-      description: text3(
+      label: text4("\u5DF2\u77E5\u7279\u6B8A\u89C4\u5219", "Known special rules"),
+      description: text4(
         "\u4F8B\u5982 track\u3001\u53CC\u76F2\u4F8B\u5916\u6216\u5DF2\u83B7\u6279\u7684\u9875\u6570\u8C41\u514D\uFF1B\u4ECD\u9700\u5B98\u7F51\u6838\u9A8C\u3002",
         "For example, a track, anonymity exception, or approved length waiver; still verify it officially."
       ),
       defaultValue: "",
-      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text4("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     }
   ],
   buildPrompt(values, language) {
-    const repair = scalar3(values, "mode") === "repair";
-    const venue = scalar3(values, "venue");
-    const sourceLevel = scalar3(values, "sourceLevel");
+    const repair = scalar4(values, "mode") === "repair";
+    const venue = scalar4(values, "venue");
+    const sourceLevel = scalar4(values, "sourceLevel");
     const scopes = selected3(values, "scopes");
-    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const custom = scalar4(values, "custom") || (language === "zh" ? "\u65E0" : "None");
     const repairInstruction = sourceLevel === "pdf" ? {
       zh: "\u5F53\u524D\u53EA\u6709\u6700\u7EC8 PDF\uFF0C\u65E0\u6CD5\u5B89\u5168\u4FEE\u6539\u6E90\u7A3F\u6216\u9A8C\u8BC1\u91CD\u65B0\u7F16\u8BD1\uFF1B\u56E0\u6B64\u53EA\u8F93\u51FA\u5B9A\u4F4D\u7CBE\u786E\u7684\u4FEE\u590D\u6E05\u5355\uFF0C\u4E0D\u76F4\u63A5\u6D82\u6539 PDF\uFF0C\u4E5F\u4E0D\u5F97\u58F0\u79F0\u95EE\u9898\u5DF2\u4FEE\u590D\u3002\u53D6\u5F97\u6E90\u6587\u4EF6\u540E\u518D\u6267\u884C\u4FEE\u6539\u4E0E\u590D\u9A8C\u3002",
       en: "Only the final PDF is available, so source-safe repair and rebuild verification are impossible. Return a precisely located remediation list only; do not edit rendered pixels or claim that an issue has been fixed. Apply and revalidate changes after source files are supplied."
@@ -3191,11 +3378,11 @@ var PRE_SUBMISSION_CHECK_WORKBENCH = {
     if (language === "zh") {
       return `# \u5BF9\u8BBA\u6587\u6267\u884C\u6295\u7A3F\u524D\u7EC8\u68C0${repair ? "\u5E76\u5B89\u5168\u4FEE\u590D" : ""}
 
-\u76EE\u6807\uFF1A${venue || "\u672A\u63D0\u4F9B\uFF1B\u4E0D\u5F97\u4ECE\u76F2\u7A3F\u731C\u6D4B"}\uFF08${labelFor2(scalar3(values, "venueType"), VENUE_TYPES, language)}\uFF0C${labelFor2(scalar3(values, "stage"), SUBMISSION_STAGES, language)}\uFF09\u3002\u6750\u6599\uFF1A${labelFor2(sourceLevel, SOURCE_LEVELS, language)}\u3002
+\u76EE\u6807\uFF1A${venue || "\u672A\u63D0\u4F9B\uFF1B\u4E0D\u5F97\u4ECE\u76F2\u7A3F\u731C\u6D4B"}\uFF08${labelFor2(scalar4(values, "venueType"), VENUE_TYPES, language)}\uFF0C${labelFor2(scalar4(values, "stage"), SUBMISSION_STAGES, language)}\uFF09\u3002\u6750\u6599\uFF1A${labelFor2(sourceLevel, SOURCE_LEVELS, language)}\u3002
 
 ${venue ? "\u5F00\u59CB\u524D\u8054\u7F51\u6838\u9A8C\u672C\u6B21\u6295\u7A3F\u9002\u7528\u7684\u5B98\u65B9\u4F5C\u8005\u6307\u5357\u3001\u5F53\u524D\u6A21\u677F/author kit\u3001FAQ\u3001\u63D0\u4EA4\u7CFB\u7EDF\u8BF4\u660E\u4E0E\u8865\u5145\u6750\u6599\u653F\u7B56\u3002" : "\u76EE\u6807 venue \u7F3A\u5931\uFF0C\u4E0D\u80FD\u5B8C\u6210\u5177\u4F53\u89C4\u5219\u6838\u9A8C\uFF1B\u5148\u5217\u51FA\u5FC5\u987B\u8865\u5145\u7684 venue\u3001\u5C4A\u6B21/track \u548C\u9636\u6BB5\u4FE1\u606F\uFF0C\u5E76\u5C06\u6700\u7EC8\u72B6\u6001\u5224\u4E3A NOT READY\u3002"}\u516C\u5F00\u901A\u7528\u89C4\u5219\u4EE5 venue \u5B98\u7F51\u3001\u51FA\u7248\u793E\u6216\u5B98\u65B9\u7EC4\u7EC7\u65B9\u7EF4\u62A4\u9875\u9762\u4E3A\u51C6\uFF1B\u7528\u6237\u63D0\u4F9B\u7684\u7F16\u8F91\u51B3\u5B9A\u3001\u6295\u7A3F\u7CFB\u7EDF\u6D88\u606F\u6216\u4E66\u9762\u8C41\u514D\u662F\u672C\u7A3F\u4EF6\u4E13\u5C5E\u89C4\u5219\uFF0C\u82E5\u6765\u6E90\u53EF\u6838\u9A8C\u5219\u4F18\u5148\u4E8E\u901A\u7528\u9875\u9762\u3002\u8BB0\u5F55\u7248\u672C\u3001\u8BBF\u95EE\u65E5\u671F\u548C URL/\u6D88\u606F\u6765\u6E90\uFF1B\u51B2\u7A81\u4ECD\u65E0\u6CD5\u6D88\u89E3\u65F6\u6807\u4E3A\u201C\u9700\u4EBA\u5DE5\u786E\u8BA4\u201D\uFF0C\u4E0D\u5F97\u5957\u7528\u5F80\u5E74\u8BB0\u5FC6\u3002
 
-\u68C0\u67E5\uFF1A${labelsFor2(values, "scopes", CHECK_SCOPES, language)}${enabled3(values, "portalSnapshot") ? "\uFF0C\u4EE5\u53CA\u6295\u7A3F\u7CFB\u7EDF\u5B57\u6BB5\u4E0E\u6700\u7EC8\u7A3F\u7684\u4E00\u81F4\u6027" : ""}\u3002\u672C\u8F6E\u53EA\u6267\u884C\uFF1A${scopeInstructions.zh || "\u672A\u9009\u62E9\u6709\u6548\u8303\u56F4"}\u3002\u7279\u6B8A\u60C5\u51B5\uFF1A${custom}\u3002
+\u68C0\u67E5\uFF1A${labelsFor2(values, "scopes", CHECK_SCOPES, language)}${enabled4(values, "portalSnapshot") ? "\uFF0C\u4EE5\u53CA\u6295\u7A3F\u7CFB\u7EDF\u5B57\u6BB5\u4E0E\u6700\u7EC8\u7A3F\u7684\u4E00\u81F4\u6027" : ""}\u3002\u672C\u8F6E\u53EA\u6267\u884C\uFF1A${scopeInstructions.zh || "\u672A\u9009\u62E9\u6709\u6548\u8303\u56F4"}\u3002\u7279\u6B8A\u60C5\u51B5\uFF1A${custom}\u3002
 
 \u5C06\u7ED3\u679C\u5206\u4E3A\uFF1A\u963B\u585E\u6295\u7A3F\u3001\u63D0\u4EA4\u524D\u5FC5\u987B\u4FEE\u590D\u3001\u5EFA\u8BAE\u4F18\u5316\u3001\u5DF2\u901A\u8FC7\u3001\u6750\u6599\u4E0D\u8DB3\u65E0\u6CD5\u6838\u9A8C\u3002\u6BCF\u9879\u7ED9\u51FA\u89C4\u5219\u6216\u4E13\u5C5E\u901A\u77E5\u4F9D\u636E\u3001\u7A3F\u4EF6\u4F4D\u7F6E\u3001\u5F71\u54CD\u548C\u6700\u5C0F\u4FEE\u590D\uFF1B\u53EA\u5728\u6750\u6599\u548C\u6240\u9009\u8303\u56F4\u5141\u8BB8\u65F6\u505A\u6587\u4EF6\u9A8C\u8BC1\uFF0C\u4E0D\u4EE5\u81EA\u7136\u8BED\u8A00\u58F0\u660E\u4EE3\u66FF\u8BC1\u636E\u3002
 
@@ -3205,11 +3392,11 @@ ${repair ? repairInstruction.zh : "\u53EA\u8F93\u51FA\u7EC8\u68C0\u62A5\u544A\u5
     }
     return `# Run a Pre-submission Check${repair ? " and Repair Confirmed Issues Safely" : ""}
 
-Target: ${venue || "not supplied; do not infer it from a blind manuscript"} (${labelFor2(scalar3(values, "venueType"), VENUE_TYPES, language)}, ${labelFor2(scalar3(values, "stage"), SUBMISSION_STAGES, language)}). Sources: ${labelFor2(sourceLevel, SOURCE_LEVELS, language)}.
+Target: ${venue || "not supplied; do not infer it from a blind manuscript"} (${labelFor2(scalar4(values, "venueType"), VENUE_TYPES, language)}, ${labelFor2(scalar4(values, "stage"), SUBMISSION_STAGES, language)}). Sources: ${labelFor2(sourceLevel, SOURCE_LEVELS, language)}.
 
 ${venue ? "Before checking the paper, browse and verify the official author instructions, current template or author kit, FAQ, submission-system guidance, and supplementary-material policy for this exact submission." : "The target venue is missing, so exact rule verification is impossible. List the required venue, edition/track, and stage inputs and assign NOT READY as the final state."} Use venue-, publisher-, or organizer-maintained pages for public general rules. A supplied editor decision, portal message, or written waiver is a manuscript-specific rule and takes priority over a general page when its provenance is verifiable. Record versions, access dates, URLs, or message provenance; mark conflicts that remain unresolved for human confirmation and never rely on remembered prior-year rules.
 
-Check: ${labelsFor2(values, "scopes", CHECK_SCOPES, language)}${enabled3(values, "portalSnapshot") ? ", including consistency between submission-system fields and the final manuscript" : ""}. Perform only: ${scopeInstructions.en || "no valid scope selected"}. Special circumstances: ${custom}.
+Check: ${labelsFor2(values, "scopes", CHECK_SCOPES, language)}${enabled4(values, "portalSnapshot") ? ", including consistency between submission-system fields and the final manuscript" : ""}. Perform only: ${scopeInstructions.en || "no valid scope selected"}. Special circumstances: ${custom}.
 
 Classify results as submission blocker, mandatory fix, recommendation, passed, or unverifiable due to missing material. For each item, give the governing rule or case-specific notice, manuscript location, impact, and smallest remedy. Perform file-level verification only when the supplied sources and selected scope support it; do not trust prose claims in place of evidence.
 
@@ -3219,28 +3406,28 @@ End with exactly one readiness state\u2014READY, READY AFTER FIXES, or NOT READY
   }
 };
 var MATERIAL_TYPES = {
-  cover: text3("Cover Letter", "Cover letter"),
-  highlights: text3("Highlights", "Highlights"),
-  plain: text3("\u901A\u4FD7\u6458\u8981", "Plain-language summary"),
-  contributions: text3("CRediT \u4F5C\u8005\u8D21\u732E", "CRediT author contributions"),
-  availability: text3("\u6570\u636E\u4E0E\u4EE3\u7801\u58F0\u660E", "Data and code availability"),
-  ethics: text3("\u4F26\u7406\u4E0E\u5229\u76CA\u51B2\u7A81\u58F0\u660E", "Ethics and conflict statements"),
-  reviewers: text3("\u5EFA\u8BAE / \u56DE\u907F\u5BA1\u7A3F\u4EBA", "Suggested or excluded reviewers")
+  cover: text4("Cover Letter", "Cover letter"),
+  highlights: text4("Highlights", "Highlights"),
+  plain: text4("\u901A\u4FD7\u6458\u8981", "Plain-language summary"),
+  contributions: text4("CRediT \u4F5C\u8005\u8D21\u732E", "CRediT author contributions"),
+  availability: text4("\u6570\u636E\u4E0E\u4EE3\u7801\u58F0\u660E", "Data and code availability"),
+  ethics: text4("\u4F26\u7406\u4E0E\u5229\u76CA\u51B2\u7A81\u58F0\u660E", "Ethics and conflict statements"),
+  reviewers: text4("\u5EFA\u8BAE / \u56DE\u907F\u5BA1\u7A3F\u4EBA", "Suggested or excluded reviewers")
 };
 var MATERIAL_STAGES = {
-  initial: text3("\u9996\u6B21\u6295\u7A3F", "Initial submission"),
-  transfer: text3("\u8F6C\u6295", "Transfer"),
-  revision: text3("\u8FD4\u4FEE\u63D0\u4EA4", "Revision submission")
+  initial: text4("\u9996\u6B21\u6295\u7A3F", "Initial submission"),
+  transfer: text4("\u8F6C\u6295", "Transfer"),
+  revision: text4("\u8FD4\u4FEE\u63D0\u4EA4", "Revision submission")
 };
 var MATERIAL_OUTPUTS = {
-  english: text3("\u82F1\u6587", "English"),
-  bilingual: text3("\u4E2D\u82F1\u6587\u5BF9\u7167", "Chinese and English"),
-  official: text3("\u6309\u5B98\u65B9\u8981\u6C42", "Follow official language requirements")
+  english: text4("\u82F1\u6587", "English"),
+  bilingual: text4("\u4E2D\u82F1\u6587\u5BF9\u7167", "Chinese and English"),
+  official: text4("\u6309\u5B98\u65B9\u8981\u6C42", "Follow official language requirements")
 };
 var COVER_TONES = {
-  concise: text3("\u7B80\u6D01\u76F4\u63A5", "Concise and direct"),
-  editorial: text3("\u7F16\u8F91\u5224\u65AD\u5BFC\u5411", "Editor-oriented"),
-  neutral: text3("\u4E2D\u6027\u6B63\u5F0F", "Neutral and formal")
+  concise: text4("\u7B80\u6D01\u76F4\u63A5", "Concise and direct"),
+  editorial: text4("\u7F16\u8F91\u5224\u65AD\u5BFC\u5411", "Editor-oriented"),
+  neutral: text4("\u4E2D\u6027\u6B63\u5F0F", "Neutral and formal")
 };
 var SUBMISSION_MATERIALS_WORKBENCH = {
   id: "submission-materials-workbench",
@@ -3283,19 +3470,19 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
     {
       id: "venue",
       kind: "text",
-      label: text3("\u76EE\u6807 venue", "Target venue"),
-      description: text3(
+      label: text4("\u76EE\u6807 venue", "Target venue"),
+      description: text4(
         "\u586B\u5199\u5B8C\u6574\u540D\u79F0\u548C\u4F1A\u8BAE\u5C4A\u6B21\uFF1B\u6267\u884C\u65F6\u6838\u9A8C\u5B98\u65B9\u8981\u6C42\u3002",
         "Provide the full name and conference edition; verify official requirements at execution time."
       ),
       defaultValue: "",
-      placeholder: text3("\u4F8B\u5982\uFF1ANature Communications", "For example: Nature Communications")
+      placeholder: text4("\u4F8B\u5982\uFF1ANature Communications", "For example: Nature Communications")
     },
     {
       id: "stage",
       kind: "select",
-      label: text3("\u6295\u7A3F\u9636\u6BB5", "Submission stage"),
-      description: text3(
+      label: text4("\u6295\u7A3F\u9636\u6BB5", "Submission stage"),
+      description: text4(
         "\u6750\u6599\u5185\u5BB9\u5E94\u4E0E\u5F53\u524D\u9636\u6BB5\u4E00\u81F4\u3002",
         "Materials must match the current submission stage."
       ),
@@ -3308,8 +3495,8 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
     {
       id: "materials",
       kind: "multi",
-      label: text3("\u9700\u8981\u751F\u6210", "Generate"),
-      description: text3(
+      label: text4("\u9700\u8981\u751F\u6210", "Generate"),
+      description: text4(
         "\u672A\u9009\u62E9\u7684\u6750\u6599\u4E0D\u5F97\u751F\u6210\u3002",
         "Do not generate unselected materials."
       ),
@@ -3324,8 +3511,8 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
     {
       id: "outputLanguage",
       kind: "segmented",
-      label: text3("\u6750\u6599\u8BED\u8A00", "Material language"),
-      description: text3(
+      label: text4("\u6750\u6599\u8BED\u8A00", "Material language"),
+      description: text4(
         "\u754C\u9762\u4E0E Prompt \u8BED\u8A00\u4E0D\u9650\u5236\u6700\u7EC8\u6587\u4EF6\u8BED\u8A00\u3002",
         "The interface and prompt language do not constrain file language."
       ),
@@ -3339,8 +3526,8 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
     {
       id: "coverTone",
       kind: "select",
-      label: text3("\u6295\u7A3F\u4FE1\u8BED\u6C14", "Cover-letter tone"),
-      description: text3(
+      label: text4("\u6295\u7A3F\u4FE1\u8BED\u6C14", "Cover-letter tone"),
+      description: text4(
         "\u7A81\u51FA\u7F16\u8F91\u5224\u65AD\u6240\u9700\u4FE1\u606F\uFF0C\u4E0D\u590D\u8FF0\u6458\u8981\u3002",
         "Prioritize editorial decision signals rather than repeating the abstract."
       ),
@@ -3354,20 +3541,20 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
     {
       id: "editor",
       kind: "text",
-      label: text3("\u7F16\u8F91\u59D3\u540D\uFF08\u53EF\u9009\uFF09", "Editor name (optional)"),
-      description: text3(
+      label: text4("\u7F16\u8F91\u59D3\u540D\uFF08\u53EF\u9009\uFF09", "Editor name (optional)"),
+      description: text4(
         "\u672A\u786E\u8BA4\u65F6\u4F7F\u7528\u4E2D\u6027\u79F0\u547C\uFF0C\u4E0D\u731C\u6D4B\u59D3\u540D\u6216\u804C\u52A1\u3002",
         "Use a neutral salutation when unverified; never guess a name or title."
       ),
       defaultValue: "",
-      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text4("\u53EF\u7559\u7A7A", "Optional"),
       visibleWhen: (values) => selected3(values, "materials").includes("cover")
     },
     {
       id: "highlightCount",
       kind: "range",
-      label: text3("Highlights \u6761\u6570", "Number of highlights"),
-      description: text3(
+      label: text4("Highlights \u6761\u6570", "Number of highlights"),
+      description: text4(
         "\u5B98\u65B9\u89C4\u5219\u4F18\u5148\uFF1B\u6B64\u533A\u95F4\u4EC5\u5728\u672A\u89C4\u5B9A\u65F6\u4F7F\u7528\u3002",
         "Official rules override this range; use it only when unspecified."
       ),
@@ -3379,13 +3566,13 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
     {
       id: "reviewerConstraints",
       kind: "textarea",
-      label: text3("\u5BA1\u7A3F\u4EBA\u7EA6\u675F", "Reviewer constraints"),
-      description: text3(
+      label: text4("\u5BA1\u7A3F\u4EBA\u7EA6\u675F", "Reviewer constraints"),
+      description: text4(
         "\u63D0\u4F9B\u5730\u57DF\u3001\u673A\u6784\u3001\u8FD1\u5E74\u5408\u4F5C\u6216\u56DE\u907F\u5173\u7CFB\uFF1B\u4E0D\u51ED\u7A7A\u63A8\u8350\u3002",
         "Provide geography, institution, recent collaboration, or exclusion constraints; do not invent candidates."
       ),
       defaultValue: "",
-      placeholder: text3(
+      placeholder: text4(
         "\u4F8B\u5982\uFF1A\u8FD1 5 \u5E74\u65E0\u5408\u4F5C\uFF1B\u56DE\u907F\u540C\u673A\u6784",
         "For example: no collaboration in five years; exclude same institution"
       ),
@@ -3395,18 +3582,18 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
     {
       id: "custom",
       kind: "textarea",
-      label: text3("\u8865\u5145\u5B57\u6BB5\u4E0E\u8981\u6C42", "Additional fields and requirements"),
-      description: text3(
+      label: text4("\u8865\u5145\u5B57\u6BB5\u4E0E\u8981\u6C42", "Additional fields and requirements"),
+      description: text4(
         "\u7C98\u8D34\u6295\u7A3F\u7CFB\u7EDF\u7684\u786E\u5207\u5B57\u6BB5\u3001\u5B57\u6570\u6216\u5B57\u7B26\u9650\u5236\u3002",
         "Paste exact portal fields, word limits, or character limits."
       ),
       defaultValue: "",
-      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text4("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     }
   ],
   buildPrompt(values, language) {
-    const venue = scalar3(values, "venue");
+    const venue = scalar4(values, "venue");
     const materials = labelsFor2(
       values,
       "materials",
@@ -3416,69 +3603,69 @@ var SUBMISSION_MATERIALS_WORKBENCH = {
     const includesCover = selected3(values, "materials").includes("cover");
     const includesHighlights = selected3(values, "materials").includes("highlights");
     const includesReviewers = selected3(values, "materials").includes("reviewers");
-    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const custom = scalar4(values, "custom") || (language === "zh" ? "\u65E0" : "None");
     const highlightRange = values.highlightCount;
     if (language === "zh") {
       return `# \u751F\u6210\u672C\u6B21\u6295\u7A3F\u6240\u9700\u6750\u6599
 
-\u8BF7\u8BFB\u53D6\u6700\u7EC8\u7A3F\u548C\u4F5C\u8005\u63D0\u4F9B\u7684\u5143\u6570\u636E\u3002\u76EE\u6807\uFF1A${venue || "\u672A\u63D0\u4F9B\uFF1B\u4E0D\u5F97\u731C\u6D4B"}\uFF1B\u9636\u6BB5\uFF1A${labelFor2(scalar3(values, "stage"), MATERIAL_STAGES, language)}\uFF1B\u53EA\u751F\u6210\uFF1A${materials}\uFF1B\u8BED\u8A00\uFF1A${labelFor2(scalar3(values, "outputLanguage"), MATERIAL_OUTPUTS, language)}\u3002
+\u8BF7\u8BFB\u53D6\u6700\u7EC8\u7A3F\u548C\u4F5C\u8005\u63D0\u4F9B\u7684\u5143\u6570\u636E\u3002\u76EE\u6807\uFF1A${venue || "\u672A\u63D0\u4F9B\uFF1B\u4E0D\u5F97\u731C\u6D4B"}\uFF1B\u9636\u6BB5\uFF1A${labelFor2(scalar4(values, "stage"), MATERIAL_STAGES, language)}\uFF1B\u53EA\u751F\u6210\uFF1A${materials}\uFF1B\u8BED\u8A00\uFF1A${labelFor2(scalar4(values, "outputLanguage"), MATERIAL_OUTPUTS, language)}\u3002
 
 ${venue ? "\u5148\u8054\u7F51\u6838\u9A8C\u76EE\u6807 venue \u5F53\u524D\u5B98\u65B9\u6295\u7A3F\u8BF4\u660E\u548C\u7CFB\u7EDF\u5B57\u6BB5\uFF0C\u8BB0\u5F55 URL \u4E0E\u8BBF\u95EE\u65E5\u671F\u3002" : "\u76EE\u6807 venue \u672A\u63D0\u4F9B\u65F6\uFF0C\u53EA\u80FD\u751F\u6210 venue-neutral \u8349\u7A3F\u5E76\u5217\u51FA\u5F85\u8865\u89C4\u5219\uFF0C\u4E0D\u80FD\u58F0\u79F0\u7B26\u5408\u5B98\u65B9\u5B57\u6BB5\u3002"}\u516C\u5F00\u89C4\u5219\u4EE5\u5F53\u524D\u5B98\u7F51\u4E3A\u51C6\uFF1B\u7528\u6237\u63D0\u4F9B\u7684\u6295\u7A3F\u7CFB\u7EDF\u5B57\u6BB5\u3001\u7F16\u8F91\u6D88\u606F\u548C\u4E66\u9762\u8C41\u514D\u82E5\u6765\u6E90\u53EF\u6838\u9A8C\uFF0C\u5219\u4F5C\u4E3A\u672C\u7A3F\u4EF6\u4E13\u5C5E\u8981\u6C42\u4F18\u5148\u5904\u7406\u3002\u4E0D\u5F97\u751F\u6210\u672A\u52FE\u9009\u6750\u6599\u3002
 
 \u6240\u6709\u6807\u9898\u3001\u6458\u8981\u3001\u8D21\u732E\u3001\u6570\u5B57\u3001\u4F5C\u8005\u3001\u5355\u4F4D\u3001\u57FA\u91D1\u3001ORCID\u3001CRediT\u3001\u4F26\u7406\u3001\u51B2\u7A81\u3001\u6570\u636E\u4E0E\u4EE3\u7801\u72B6\u6001\u5FC5\u987B\u6765\u81EA\u8BBA\u6587\u6216\u4F5C\u8005\u6750\u6599\u3002\u4FE1\u606F\u7F3A\u5931\u65F6\u4F7F\u7528\u6E05\u695A\u7684 \`[AUTHOR INPUT REQUIRED: ...]\`\uFF0C\u4E0D\u5F97\u731C\u6D4B\u3002\u8F6C\u6295\u6750\u6599\u4E0D\u5F97\u6B8B\u7559\u4E0A\u4E00 venue \u540D\u79F0\u3002
 
-${includesCover ? `Cover Letter \u4F7F\u7528${labelFor2(scalar3(values, "coverTone"), COVER_TONES, language)}\u8BED\u6C14\uFF1B\u79F0\u547C ${scalar3(values, "editor") || "\u672A\u6838\u9A8C\u7F16\u8F91\u59D3\u540D\u65F6\u4F7F\u7528\u4E2D\u6027\u79F0\u547C"}\u3002\u8BF4\u660E\u8BBA\u6587\u95EE\u9898\u3001\u6838\u5FC3\u8D21\u732E\u3001venue \u5339\u914D\u548C\u5FC5\u8981\u58F0\u660E\uFF0C\u4F46\u4E0D\u9010\u53E5\u590D\u8FF0\u6458\u8981\u3001\u4E0D\u5938\u5927\u65B0\u9896\u6027\u3002` : ""}
+${includesCover ? `Cover Letter \u4F7F\u7528${labelFor2(scalar4(values, "coverTone"), COVER_TONES, language)}\u8BED\u6C14\uFF1B\u79F0\u547C ${scalar4(values, "editor") || "\u672A\u6838\u9A8C\u7F16\u8F91\u59D3\u540D\u65F6\u4F7F\u7528\u4E2D\u6027\u79F0\u547C"}\u3002\u8BF4\u660E\u8BBA\u6587\u95EE\u9898\u3001\u6838\u5FC3\u8D21\u732E\u3001venue \u5339\u914D\u548C\u5FC5\u8981\u58F0\u660E\uFF0C\u4F46\u4E0D\u9010\u53E5\u590D\u8FF0\u6458\u8981\u3001\u4E0D\u5938\u5927\u65B0\u9896\u6027\u3002` : ""}
 ${includesHighlights ? `Highlights \u5728\u5B98\u65B9\u672A\u89C4\u5B9A\u65F6\u5199 ${highlightRange[0]}\u2013${highlightRange[1]} \u6761\uFF0C\u6BCF\u6761\u53EA\u4FDD\u7559\u4E00\u4E2A\u53EF\u7531\u6B63\u6587\u652F\u6301\u7684\u8981\u70B9\u3002` : ""}
-${includesReviewers ? `\u5EFA\u8BAE/\u56DE\u907F\u5BA1\u7A3F\u4EBA\u53EA\u57FA\u4E8E\u53EF\u6838\u9A8C\u7684\u4E13\u4E1A\u5339\u914D\u548C\u7EA6\u675F\uFF1A${scalar3(values, "reviewerConstraints") || "\u672A\u63D0\u4F9B\uFF1B\u7F3A\u5C11\u72EC\u7ACB\u6027\u8BC1\u636E\u65F6\u4E0D\u8F93\u51FA\u5177\u4F53\u4EBA\u9009"}\u3002\u6838\u67E5\u673A\u6784\u3001\u8FD1\u5E74\u5408\u4F5C\u4E0E\u663E\u8457\u51B2\u7A81\uFF0C\u8BF4\u660E\u9009\u62E9\u7406\u7531\uFF0C\u7EDD\u4E0D\u865A\u6784\u90AE\u7BB1\u6216\u8EAB\u4EFD\u3002` : ""}
+${includesReviewers ? `\u5EFA\u8BAE/\u56DE\u907F\u5BA1\u7A3F\u4EBA\u53EA\u57FA\u4E8E\u53EF\u6838\u9A8C\u7684\u4E13\u4E1A\u5339\u914D\u548C\u7EA6\u675F\uFF1A${scalar4(values, "reviewerConstraints") || "\u672A\u63D0\u4F9B\uFF1B\u7F3A\u5C11\u72EC\u7ACB\u6027\u8BC1\u636E\u65F6\u4E0D\u8F93\u51FA\u5177\u4F53\u4EBA\u9009"}\u3002\u6838\u67E5\u673A\u6784\u3001\u8FD1\u5E74\u5408\u4F5C\u4E0E\u663E\u8457\u51B2\u7A81\uFF0C\u8BF4\u660E\u9009\u62E9\u7406\u7531\uFF0C\u7EDD\u4E0D\u865A\u6784\u90AE\u7BB1\u6216\u8EAB\u4EFD\u3002` : ""}
 
 \u8865\u5145\u5B57\u6BB5\uFF1A${custom}\u3002\u6BCF\u79CD\u6750\u6599\u5355\u72EC\u8F93\u51FA\u4E3A\u6E05\u695A\u547D\u540D\u7684 Markdown \u6216\u5B98\u65B9\u8981\u6C42\u683C\u5F0F\uFF1B\u5728\u56DE\u590D\u672B\u5C3E\u7528\u7CBE\u7B80\u6E05\u5355\u6807\u51FA\u4E8B\u5B9E\u6765\u6E90\u4E0E\u4ECD\u9700\u4F5C\u8005\u586B\u5199\u7684\u5B57\u6BB5\uFF0C\u4E0D\u751F\u6210\u672A\u9009\u62E9\u7684\u989D\u5916\u6295\u7A3F\u6587\u4EF6\u3002`;
     }
     return `# Generate the Required Submission Materials
 
-Read the final manuscript and author-supplied metadata. Target: ${venue || "not supplied; do not guess"}; stage: ${labelFor2(scalar3(values, "stage"), MATERIAL_STAGES, language)}; generate only: ${materials}; language: ${labelFor2(scalar3(values, "outputLanguage"), MATERIAL_OUTPUTS, language)}.
+Read the final manuscript and author-supplied metadata. Target: ${venue || "not supplied; do not guess"}; stage: ${labelFor2(scalar4(values, "stage"), MATERIAL_STAGES, language)}; generate only: ${materials}; language: ${labelFor2(scalar4(values, "outputLanguage"), MATERIAL_OUTPUTS, language)}.
 
 ${venue ? "First browse and verify the target venue's current official submission instructions and portal fields, recording URLs and access dates." : "Without a target venue, create venue-neutral drafts only and list unresolved rules; do not claim official compliance."} Public rules come from current official pages. A supplied portal field, editor message, or written waiver is a manuscript-specific requirement and takes priority when its provenance is verifiable. Do not generate any unselected material.
 
 Every title, abstract statement, contribution, value, author, affiliation, funder, ORCID, CRediT role, ethics statement, conflict, and data/code status must come from the manuscript or author material. Mark missing facts as \`[AUTHOR INPUT REQUIRED: ...]\`; never guess. Transferred materials must contain no stale venue names.
 
-${includesCover ? `Use a ${labelFor2(scalar3(values, "coverTone"), COVER_TONES, language).toLowerCase()} cover-letter tone and ${scalar3(values, "editor") ? `address ${scalar3(values, "editor")}` : "use a neutral salutation because no editor is verified"}. State the problem, core contribution, venue fit, and required declarations without paraphrasing the abstract sentence by sentence or exaggerating novelty.` : ""}
+${includesCover ? `Use a ${labelFor2(scalar4(values, "coverTone"), COVER_TONES, language).toLowerCase()} cover-letter tone and ${scalar4(values, "editor") ? `address ${scalar4(values, "editor")}` : "use a neutral salutation because no editor is verified"}. State the problem, core contribution, venue fit, and required declarations without paraphrasing the abstract sentence by sentence or exaggerating novelty.` : ""}
 ${includesHighlights ? `When no official count is specified, provide ${highlightRange[0]}\u2013${highlightRange[1]} highlights, each containing one manuscript-supported point.` : ""}
-${includesReviewers ? `Suggest or exclude reviewers only from verifiable expertise and these constraints: ${scalar3(values, "reviewerConstraints") || "none supplied; do not name candidates without evidence of independence"}. Check affiliations, recent collaboration, and material conflicts, explain each choice, and never invent an email or identity.` : ""}
+${includesReviewers ? `Suggest or exclude reviewers only from verifiable expertise and these constraints: ${scalar4(values, "reviewerConstraints") || "none supplied; do not name candidates without evidence of independence"}. Check affiliations, recent collaboration, and material conflicts, explain each choice, and never invent an email or identity.` : ""}
 
 Additional fields: ${custom}. Return each selected material as a separately named Markdown file or the officially required format. End the response with a concise source and missing-field checklist; do not create any additional unselected submission file.`;
   }
 };
 var PEER_REVIEW_MODES = {
-  full: text3("\u5B8C\u6574\u540C\u884C\u8BC4\u5BA1", "Full peer review"),
-  screening: text3("\u5FEB\u901F\u98CE\u9669\u7B5B\u67E5", "Editorial risk screening"),
-  stress: text3("\u4E25\u683C\u538B\u529B\u6D4B\u8BD5", "Adversarial stress test")
+  full: text4("\u5B8C\u6574\u540C\u884C\u8BC4\u5BA1", "Full peer review"),
+  screening: text4("\u5FEB\u901F\u98CE\u9669\u7B5B\u67E5", "Editorial risk screening"),
+  stress: text4("\u4E25\u683C\u538B\u529B\u6D4B\u8BD5", "Adversarial stress test")
 };
 var PEER_REVIEW_DIMENSIONS = {
-  contribution: text3("\u95EE\u9898\u4EF7\u503C\u4E0E\u8D21\u732E", "Problem value and contribution"),
-  positioning: text3("\u6587\u732E\u5B9A\u4F4D\u4E0E\u65B0\u9896\u6027", "Positioning and novelty"),
-  method: text3("\u65B9\u6CD5\u6B63\u786E\u6027", "Methodological soundness"),
-  evidence: text3("\u5B9E\u9A8C\u4E0E\u8BC1\u636E\u5145\u5206\u6027", "Experimental and evidential adequacy"),
-  claims: text3("\u7ED3\u8BBA\u8FB9\u754C", "Claim calibration"),
-  presentation: text3("\u7ED3\u6784\u4E0E\u8868\u8FBE", "Structure and presentation"),
-  reproducibility: text3("\u53EF\u590D\u73B0\u6027", "Reproducibility"),
-  integrity: text3("\u4F26\u7406\u4E0E\u7814\u7A76\u5B8C\u6574\u6027", "Ethics and research integrity")
+  contribution: text4("\u95EE\u9898\u4EF7\u503C\u4E0E\u8D21\u732E", "Problem value and contribution"),
+  positioning: text4("\u6587\u732E\u5B9A\u4F4D\u4E0E\u65B0\u9896\u6027", "Positioning and novelty"),
+  method: text4("\u65B9\u6CD5\u6B63\u786E\u6027", "Methodological soundness"),
+  evidence: text4("\u5B9E\u9A8C\u4E0E\u8BC1\u636E\u5145\u5206\u6027", "Experimental and evidential adequacy"),
+  claims: text4("\u7ED3\u8BBA\u8FB9\u754C", "Claim calibration"),
+  presentation: text4("\u7ED3\u6784\u4E0E\u8868\u8FBE", "Structure and presentation"),
+  reproducibility: text4("\u53EF\u590D\u73B0\u6027", "Reproducibility"),
+  integrity: text4("\u4F26\u7406\u4E0E\u7814\u7A76\u5B8C\u6574\u6027", "Ethics and research integrity")
 };
 var REVIEW_MATERIAL_SCOPES = {
-  manuscript: text3("\u8BBA\u6587\u6B63\u6587", "Manuscript"),
-  supplement: text3("\u6B63\u6587 + \u8865\u5145\u6750\u6599", "Manuscript and supplement"),
-  artifacts: text3(
+  manuscript: text4("\u8BBA\u6587\u6B63\u6587", "Manuscript"),
+  supplement: text4("\u6B63\u6587 + \u8865\u5145\u6750\u6599", "Manuscript and supplement"),
+  artifacts: text4(
     "\u6B63\u6587 + \u8865\u5145\u6750\u6599 + \u4EE3\u7801/\u6570\u636E",
     "Manuscript, supplement, code, and data"
   )
 };
 var REVIEW_TARGET_TYPES = {
-  conference: text3("\u4F1A\u8BAE", "Conference"),
-  journal: text3("\u671F\u520A", "Journal")
+  conference: text4("\u4F1A\u8BAE", "Conference"),
+  journal: text4("\u671F\u520A", "Journal")
 };
 var EVIDENCE_POLICIES = {
-  existing: text3("\u4EC5\u4F7F\u7528\u73B0\u6709\u8BC1\u636E", "Existing evidence only"),
-  analysis: text3("\u5141\u8BB8\u8865\u5145\u5206\u6790", "Allow additional analyses"),
-  experiment: text3("\u5141\u8BB8\u65B0\u589E\u5B9E\u9A8C", "Allow new experiments")
+  existing: text4("\u4EC5\u4F7F\u7528\u73B0\u6709\u8BC1\u636E", "Existing evidence only"),
+  analysis: text4("\u5141\u8BB8\u8865\u5145\u5206\u6790", "Allow additional analyses"),
+  experiment: text4("\u5141\u8BB8\u65B0\u589E\u5B9E\u9A8C", "Allow new experiments")
 };
 var PEER_REVIEW_WORKBENCH = {
   id: "peer-review-workbench",
@@ -3521,21 +3708,21 @@ var PEER_REVIEW_WORKBENCH = {
     {
       id: "useTarget",
       kind: "toggle",
-      label: text3("\u9884\u8BBE\u6295\u7A3F\u76EE\u6807", "Preset a target venue"),
-      description: text3(
+      label: text4("\u9884\u8BBE\u6295\u7A3F\u76EE\u6807", "Preset a target venue"),
+      description: text4(
         "\u5173\u95ED\u65F6\u4FDD\u6301\u72EC\u7ACB\u901A\u7528\u5BA1\u7A3F\uFF1B\u5F00\u542F\u540E\u6309\u76EE\u6807 venue \u7684\u8BC4\u5BA1\u8BED\u5883\u5224\u65AD\u3002",
         "Keep the review venue-neutral when off, or evaluate in the target venue's review context when on."
       ),
       defaultValue: false,
-      enabledLabel: text3("\u4F7F\u7528\u76EE\u6807", "Use target"),
-      disabledLabel: text3("\u4E0D\u9884\u8BBE\u76EE\u6807", "No preset target"),
+      enabledLabel: text4("\u4F7F\u7528\u76EE\u6807", "Use target"),
+      disabledLabel: text4("\u4E0D\u9884\u8BBE\u76EE\u6807", "No preset target"),
       span: "full"
     },
     {
       id: "targetType",
       kind: "segmented",
-      label: text3("\u76EE\u6807\u7C7B\u578B", "Target type"),
-      description: text3(
+      label: text4("\u76EE\u6807\u7C7B\u578B", "Target type"),
+      description: text4(
         "\u4F1A\u8BAE\u4F7F\u7528\u76EE\u6807\u8BC4\u5BA1\u5C3A\u5EA6\uFF1B\u671F\u520A\u4ECD\u4F7F\u7528\u901A\u7528\u8BC4\u5206\u5361\u3002",
         "Conferences use the target review scale; journals retain the general scorecard."
       ),
@@ -3544,27 +3731,27 @@ var PEER_REVIEW_WORKBENCH = {
         value,
         label
       })),
-      visibleWhen: (values) => enabled3(values, "useTarget"),
+      visibleWhen: (values) => enabled4(values, "useTarget"),
       span: "full"
     },
     {
       id: "targetVenue",
       kind: "text",
-      label: text3("\u76EE\u6807\u4F1A\u8BAE\u6216\u671F\u520A", "Target conference or journal"),
-      description: text3(
+      label: text4("\u76EE\u6807\u4F1A\u8BAE\u6216\u671F\u520A", "Target conference or journal"),
+      description: text4(
         "\u5EFA\u8BAE\u586B\u5199\u5B8C\u6574\u540D\u79F0\u548C\u5C4A\u6B21\uFF0C\u4EE5\u6838\u9A8C\u5F53\u524D\u516C\u5F00\u8BC4\u5BA1\u6807\u51C6\u3002",
         "Use the full name and edition to verify the current public review criteria."
       ),
       defaultValue: "",
-      placeholder: text3("\u4F8B\u5982\uFF1ANeurIPS 2027 / IEEE TPAMI", "For example: NeurIPS 2027 / IEEE TPAMI"),
-      visibleWhen: (values) => enabled3(values, "useTarget"),
+      placeholder: text4("\u4F8B\u5982\uFF1ANeurIPS 2027 / IEEE TPAMI", "For example: NeurIPS 2027 / IEEE TPAMI"),
+      visibleWhen: (values) => enabled4(values, "useTarget"),
       span: "full"
     },
     {
       id: "mode",
       kind: "segmented",
-      label: text3("\u8BC4\u5BA1\u65B9\u5F0F", "Review mode"),
-      description: text3(
+      label: text4("\u8BC4\u5BA1\u65B9\u5F0F", "Review mode"),
+      description: text4(
         "\u5B8C\u6574\u8BC4\u5BA1\u4E3A\u9ED8\u8BA4\uFF1B\u7B5B\u67E5\u66F4\u5173\u6CE8\u963B\u585E\u98CE\u9669\uFF0C\u538B\u529B\u6D4B\u8BD5\u66F4\u5F3A\u8C03\u6700\u5F3A\u53CD\u4F8B\u3002",
         "Full review is the default; screening prioritizes blockers, while stress testing seeks the strongest counterarguments."
       ),
@@ -3578,8 +3765,8 @@ var PEER_REVIEW_WORKBENCH = {
     {
       id: "materialScope",
       kind: "select",
-      label: text3("\u8BC4\u5BA1\u6750\u6599\u8303\u56F4", "Review materials"),
-      description: text3(
+      label: text4("\u8BC4\u5BA1\u6750\u6599\u8303\u56F4", "Review materials"),
+      description: text4(
         "\u53EA\u8BC4\u4EF7\u5B9E\u9645\u63D0\u4F9B\u4E14\u80FD\u591F\u8BFB\u53D6\u7684\u6750\u6599\u3002",
         "Evaluate only materials that are actually supplied and readable."
       ),
@@ -3592,8 +3779,8 @@ var PEER_REVIEW_WORKBENCH = {
     {
       id: "dimensions",
       kind: "multi",
-      label: text3("\u8BC4\u5BA1\u7EF4\u5EA6", "Review dimensions"),
-      description: text3(
+      label: text4("\u8BC4\u5BA1\u7EF4\u5EA6", "Review dimensions"),
+      description: text4(
         "\u9ED8\u8BA4\u8986\u76D6\u51B3\u5B9A\u8BBA\u6587\u53EF\u4FE1\u5EA6\u4E0E\u53EF\u8BFB\u6027\u7684\u4E3B\u8981\u7EF4\u5EA6\u3002",
         "Defaults cover the main dimensions that determine credibility and readability."
       ),
@@ -3607,78 +3794,78 @@ var PEER_REVIEW_WORKBENCH = {
     {
       id: "ignoreNonScientificPresentation",
       kind: "toggle",
-      label: text3("\u5FFD\u7565\u975E\u79D1\u5B66\u5448\u73B0\u95EE\u9898", "Ignore non-scientific presentation issues"),
-      description: text3(
+      label: text4("\u5FFD\u7565\u975E\u79D1\u5B66\u5448\u73B0\u95EE\u9898", "Ignore non-scientific presentation issues"),
+      description: text4(
         "\u5FFD\u7565\u6A21\u677F\u683C\u5F0F\u3001\u7248\u9762\u3001\u5B57\u4F53\u548C\u56FE\u7247\u7F8E\u89C2\uFF1B\u4ECD\u68C0\u67E5\u56FE\u8868\u53EF\u8BFB\u6027\u3001\u6570\u636E\u4E0E\u8BC1\u636E\u3002",
         "Ignore template formatting, layout, typography, and visual aesthetics while still checking legibility, data, and evidence."
       ),
       defaultValue: true,
-      enabledLabel: text3("\u53EA\u5173\u5FC3\u79D1\u5B66\u4E0E\u8868\u8FBE", "Science and exposition only"),
-      disabledLabel: text3("\u540C\u65F6\u5173\u6CE8\u5448\u73B0", "Also assess presentation"),
+      enabledLabel: text4("\u53EA\u5173\u5FC3\u79D1\u5B66\u4E0E\u8868\u8FBE", "Science and exposition only"),
+      disabledLabel: text4("\u540C\u65F6\u5173\u6CE8\u5448\u73B0", "Also assess presentation"),
       span: "full"
     },
     {
       id: "browseLiterature",
       kind: "toggle",
-      label: text3("\u8054\u7F51\u6838\u67E5\u76F8\u5173\u6587\u732E", "Verify related literature online"),
-      description: text3(
+      label: text4("\u8054\u7F51\u6838\u67E5\u76F8\u5173\u6587\u732E", "Verify related literature online"),
+      description: text4(
         "\u6838\u67E5\u65B0\u9896\u6027\u3001\u5B9A\u4F4D\u548C\u91CD\u8981\u5F15\u7528\u65F6\u4F7F\u7528\u539F\u59CB\u8BBA\u6587\u4E0E\u53EF\u9760\u51FA\u7248\u8BB0\u5F55\u3002",
         "Use original papers and reliable publication records when checking novelty, positioning, and important citations."
       ),
       defaultValue: true,
-      enabledLabel: text3("\u6838\u67E5\u6587\u732E", "Verify literature"),
-      disabledLabel: text3("\u53EA\u7528\u63D0\u4F9B\u6750\u6599", "Use supplied materials only")
+      enabledLabel: text4("\u6838\u67E5\u6587\u732E", "Verify literature"),
+      disabledLabel: text4("\u53EA\u7528\u63D0\u4F9B\u6750\u6599", "Use supplied materials only")
     },
     {
       id: "scorecard",
       kind: "toggle",
-      label: text3("\u901A\u7528\u8BC4\u5206\u5361", "General scorecard"),
-      description: text3(
+      label: text4("\u901A\u7528\u8BC4\u5206\u5361", "General scorecard"),
+      description: text4(
         "\u9ED8\u8BA4\u4F7F\u7528\u8DE8 venue \u7684 1\u20135 \u5206\u8BC4\u5206\uFF1B\u9884\u8BBE\u4F1A\u8BAE\u65F6\u9ED8\u8BA4\u5173\u95ED\u5E76\u6539\u7528\u76EE\u6807\u5C3A\u5EA6\uFF0C\u671F\u520A\u4FDD\u6301\u5F00\u542F\u3002",
         "Use a venue-neutral 1\u20135 scorecard by default. A preset conference uses its target scale instead; journals keep this enabled."
       ),
       defaultValue: true,
-      enabledLabel: text3("\u8F93\u51FA\u8BC4\u5206\u5361", "Include scorecard"),
-      disabledLabel: text3("\u53EA\u8F93\u51FA\u6587\u5B57\u5224\u65AD", "Narrative judgment only")
+      enabledLabel: text4("\u8F93\u51FA\u8BC4\u5206\u5361", "Include scorecard"),
+      disabledLabel: text4("\u53EA\u8F93\u51FA\u6587\u5B57\u5224\u65AD", "Narrative judgment only")
     },
     {
       id: "custom",
       kind: "textarea",
-      label: text3("\u8865\u5145\u8BC4\u5BA1\u8981\u6C42", "Additional review requirements"),
-      description: text3(
+      label: text4("\u8865\u5145\u8BC4\u5BA1\u8981\u6C42", "Additional review requirements"),
+      description: text4(
         "\u4F8B\u5982\u91CD\u70B9\u68C0\u67E5\u67D0\u9879\u7406\u8BBA\u5047\u8BBE\u3001\u5E94\u7528\u98CE\u9669\u6216\u7279\u5B9A\u8BC4\u5BA1\u6807\u51C6\u3002",
         "For example, inspect a theoretical assumption, deployment risk, or specific review criterion."
       ),
       defaultValue: "",
-      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text4("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     }
   ],
   updateValues(current, id, value) {
     const next = { ...current, [id]: value };
     if (id === "useTarget") {
-      next.scorecard = value === true ? scalar3(current, "targetType") === "journal" : true;
+      next.scorecard = value === true ? scalar4(current, "targetType") === "journal" : true;
     }
-    if (id === "targetType" && enabled3(current, "useTarget")) {
+    if (id === "targetType" && enabled4(current, "useTarget")) {
       next.scorecard = value === "journal";
     }
     return next;
   },
   buildPrompt(values, language) {
-    const mode = scalar3(values, "mode");
-    const materialScope = scalar3(values, "materialScope");
-    const useTarget = enabled3(values, "useTarget");
-    const targetType = scalar3(values, "targetType") || "conference";
-    const targetVenue = scalar3(values, "targetVenue");
+    const mode = scalar4(values, "mode");
+    const materialScope = scalar4(values, "materialScope");
+    const useTarget = enabled4(values, "useTarget");
+    const targetType = scalar4(values, "targetType") || "conference";
+    const targetVenue = scalar4(values, "targetVenue");
     const dimensions = labelsFor2(
       values,
       "dimensions",
       PEER_REVIEW_DIMENSIONS,
       language
     );
-    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const custom = scalar4(values, "custom") || (language === "zh" ? "\u65E0" : "None");
     const targetContext = useTarget ? language === "zh" ? `\u9884\u8BBE\u76EE\u6807\uFF1A${labelFor2(targetType, REVIEW_TARGET_TYPES, language)}${targetVenue ? `\uFF0C${targetVenue}` : "\uFF08\u672A\u586B\u5199\u5177\u4F53\u540D\u79F0\uFF09"}\u3002${targetVenue ? "\u8054\u7F51\u6838\u9A8C\u8BE5\u76EE\u6807\u5F53\u524D\u516C\u5F00\u7684 scope\u3001\u8BC4\u5BA1\u7EF4\u5EA6\u3001\u8BC4\u5206\u5B9A\u4E49\u548C\u51B3\u7B56\u8BED\u5883\uFF0C\u5E76\u8BB0\u5F55\u5B98\u65B9\u6765\u6E90\u4E0E\u6838\u9A8C\u65E5\u671F\u3002" : "\u672A\u63D0\u4F9B\u5177\u4F53 venue \u65F6\u4E0D\u5F97\u7F16\u9020\u5B98\u65B9\u8BC4\u5206\u5C3A\u5EA6\uFF0C\u53EA\u80FD\u6309\u8BE5\u7C7B\u578B\u7684\u4E00\u822C\u8BC4\u5BA1\u8BED\u5883\u5224\u65AD\u3002"}${targetType === "conference" ? "\u4F1A\u8BAE\u8BC4\u5206\u5E94\u4F7F\u7528\u6838\u9A8C\u540E\u7684\u76EE\u6807\u8BC4\u5BA1\u7EF4\u5EA6\u4E0E\u5C3A\u5EA6\uFF0C\u4E0D\u7528\u901A\u7528 1\u20135 \u5206\u5192\u5145\u8BE5\u4F1A\u8BAE\u8BC4\u5206\u3002" : "\u671F\u520A\u76EE\u6807\u7528\u4E8E\u5224\u65AD scope\u3001\u6587\u7AE0\u7C7B\u578B\u3001\u8BC1\u636E\u95E8\u69DB\u548C\u7F16\u8F91\u98CE\u9669\uFF0C\u6570\u503C\u90E8\u5206\u4ECD\u4F7F\u7528\u901A\u7528\u8BC4\u5206\u5361\u3002"}` : `Preset target: ${labelFor2(targetType, REVIEW_TARGET_TYPES, language)}${targetVenue ? `, ${targetVenue}` : " (specific venue not supplied)"}. ${targetVenue ? "Browse and verify the target's current public scope, review criteria, score definitions, and decision context, recording official sources and access dates." : "Without a named venue, do not invent an official scale; use only the general context for that venue type."} ${targetType === "conference" ? "Use the verified target conference criteria and scale rather than presenting a general 1\u20135 score as the conference score." : "Use the journal target for scope, article type, evidence threshold, and editorial risk, while retaining the general scorecard for numerical assessment."}` : language === "zh" ? "\u672A\u9884\u8BBE\u6295\u7A3F\u76EE\u6807\uFF1A\u4FDD\u6301 venue-neutral\uFF0C\u4E0D\u5957\u7528\u4EFB\u4F55\u5177\u4F53\u6295\u7A3F\u7CFB\u7EDF\u7684\u8BC4\u5206\u5C3A\u5EA6\u3002" : "No target is preset: remain venue-neutral and do not imitate a specific submission portal's scale.";
-    const presentationBoundary = enabled3(values, "ignoreNonScientificPresentation") ? language === "zh" ? "\u672C\u8F6E\u4E0D\u8BC4\u4EF7\u6A21\u677F\u683C\u5F0F\u3001\u9875\u8FB9\u8DDD\u3001\u5B57\u4F53\u3001\u6392\u7248\u7EC6\u8282\u3001\u56FE\u7247\u914D\u8272\u6216\u7F8E\u89C2\u5EA6\u3002\u4ECD\u5FC5\u987B\u68C0\u67E5\u56FE\u8868\u662F\u5426\u53EF\u8BFB\u3001\u6807\u6CE8\u662F\u5426\u660E\u786E\u3001\u6570\u636E\u662F\u5426\u6B63\u786E\uFF0C\u4EE5\u53CA\u56FE\u8868\u548C caption \u80FD\u5426\u652F\u6301\u6B63\u6587 claim\uFF0C\u56E0\u4E3A\u8FD9\u4E9B\u5C5E\u4E8E\u79D1\u5B66\u8BC1\u636E\u3002" : "Do not assess template compliance, margins, typography, layout polish, image color styling, or aesthetics. Still assess figure/table legibility, labeling, data correctness, and whether visuals and captions support manuscript claims, because these are scientific evidence issues." : language === "zh" ? "\u53EF\u6307\u51FA\u4F1A\u5B9E\u8D28\u5F71\u54CD\u5BA1\u7A3F\u7406\u89E3\u7684\u6A21\u677F\u3001\u7248\u9762\u6216\u56FE\u7247\u5448\u73B0\u95EE\u9898\uFF0C\u4F46\u4E0D\u8981\u628A\u672C\u8F6E\u53D8\u6210\u5168\u9762\u683C\u5F0F\u5408\u89C4\u68C0\u67E5\uFF1B\u5B98\u65B9\u683C\u5F0F\u7EC8\u68C0\u5C5E\u4E8E\u72EC\u7ACB\u4EFB\u52A1\u3002" : "You may report template, layout, or visual-presentation problems that materially affect review, but do not turn this into a full format-compliance audit; official submission-format checking is a separate task.";
+    const presentationBoundary = enabled4(values, "ignoreNonScientificPresentation") ? language === "zh" ? "\u672C\u8F6E\u4E0D\u8BC4\u4EF7\u6A21\u677F\u683C\u5F0F\u3001\u9875\u8FB9\u8DDD\u3001\u5B57\u4F53\u3001\u6392\u7248\u7EC6\u8282\u3001\u56FE\u7247\u914D\u8272\u6216\u7F8E\u89C2\u5EA6\u3002\u4ECD\u5FC5\u987B\u68C0\u67E5\u56FE\u8868\u662F\u5426\u53EF\u8BFB\u3001\u6807\u6CE8\u662F\u5426\u660E\u786E\u3001\u6570\u636E\u662F\u5426\u6B63\u786E\uFF0C\u4EE5\u53CA\u56FE\u8868\u548C caption \u80FD\u5426\u652F\u6301\u6B63\u6587 claim\uFF0C\u56E0\u4E3A\u8FD9\u4E9B\u5C5E\u4E8E\u79D1\u5B66\u8BC1\u636E\u3002" : "Do not assess template compliance, margins, typography, layout polish, image color styling, or aesthetics. Still assess figure/table legibility, labeling, data correctness, and whether visuals and captions support manuscript claims, because these are scientific evidence issues." : language === "zh" ? "\u53EF\u6307\u51FA\u4F1A\u5B9E\u8D28\u5F71\u54CD\u5BA1\u7A3F\u7406\u89E3\u7684\u6A21\u677F\u3001\u7248\u9762\u6216\u56FE\u7247\u5448\u73B0\u95EE\u9898\uFF0C\u4F46\u4E0D\u8981\u628A\u672C\u8F6E\u53D8\u6210\u5168\u9762\u683C\u5F0F\u5408\u89C4\u68C0\u67E5\uFF1B\u5B98\u65B9\u683C\u5F0F\u7EC8\u68C0\u5C5E\u4E8E\u72EC\u7ACB\u4EFB\u52A1\u3002" : "You may report template, layout, or visual-presentation problems that materially affect review, but do not turn this into a full format-compliance audit; official submission-format checking is a separate task.";
     if (language === "zh") {
       return `# \u5BF9\u8BBA\u6587\u8FDB\u884C\u72EC\u7ACB\u540C\u884C\u8BC4\u5BA1
 
@@ -3688,7 +3875,7 @@ var PEER_REVIEW_WORKBENCH = {
 
 ${presentationBoundary}
 
-${enabled3(values, "browseLiterature") ? "\u8054\u7F51\u6838\u67E5\u6587\u732E\u5B9A\u4F4D\u3001\u65B0\u9896\u6027\u548C\u5173\u952E\u5F15\u7528\u3002\u4F18\u5148\u4F7F\u7528\u539F\u59CB\u8BBA\u6587\u3001\u5B98\u65B9\u51FA\u7248\u9875\u6216\u53EF\u9760\u7D22\u5F15\uFF0C\u7ED9\u51FA\u94FE\u63A5\u4E0E\u6838\u67E5\u65E5\u671F\uFF1B\u533A\u5206\u5DF2\u6838\u9A8C\u4E8B\u5B9E\u4E0E\u5BA1\u7A3F\u5224\u65AD\u3002" : "\u4E0D\u8054\u7F51\u6269\u5C55\u6587\u732E\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u6750\u6599\u5224\u65AD\uFF1B\u6D89\u53CA\u65B0\u9896\u6027\u6216\u6587\u732E\u5B8C\u6574\u6027\u7684\u7ED3\u8BBA\u987B\u8BF4\u660E\u8BC1\u636E\u8303\u56F4\u3002"}
+${enabled4(values, "browseLiterature") ? "\u8054\u7F51\u6838\u67E5\u6587\u732E\u5B9A\u4F4D\u3001\u65B0\u9896\u6027\u548C\u5173\u952E\u5F15\u7528\u3002\u4F18\u5148\u4F7F\u7528\u539F\u59CB\u8BBA\u6587\u3001\u5B98\u65B9\u51FA\u7248\u9875\u6216\u53EF\u9760\u7D22\u5F15\uFF0C\u7ED9\u51FA\u94FE\u63A5\u4E0E\u6838\u67E5\u65E5\u671F\uFF1B\u533A\u5206\u5DF2\u6838\u9A8C\u4E8B\u5B9E\u4E0E\u5BA1\u7A3F\u5224\u65AD\u3002" : "\u4E0D\u8054\u7F51\u6269\u5C55\u6587\u732E\uFF0C\u53EA\u4F9D\u636E\u63D0\u4F9B\u6750\u6599\u5224\u65AD\uFF1B\u6D89\u53CA\u65B0\u9896\u6027\u6216\u6587\u732E\u5B8C\u6574\u6027\u7684\u7ED3\u8BBA\u987B\u8BF4\u660E\u8BC1\u636E\u8303\u56F4\u3002"}
 
 \u5148\u7528\u7B80\u77ED\u6587\u5B57\u590D\u8FF0\u8BBA\u6587\u8BD5\u56FE\u89E3\u51B3\u7684\u95EE\u9898\u3001\u6838\u5FC3\u4E3B\u5F20\u4E0E\u8BC1\u636E\u8DEF\u5F84\uFF0C\u518D\u8BC4\u4F30\u4F18\u70B9\u548C\u95EE\u9898\u3002\u6BCF\u4E2A\u95EE\u9898\u5206\u914D\u7A33\u5B9A ID\uFF0C\u5E76\u5199\u660E\uFF1A\u4E25\u91CD\u6027\uFF08\u963B\u585E / \u4E3B\u8981 / \u6B21\u8981\uFF09\u3001\u8BBA\u6587\u4F4D\u7F6E\u3001\u4F9D\u636E\u3001\u4E3A\u4F55\u91CD\u8981\u3001\u8FBE\u5230\u4F55\u79CD\u8BC1\u636E\u6216\u4FEE\u6539\u6807\u51C6\u624D\u7B97\u89E3\u51B3\u3002\u533A\u5206\u79D1\u5B66\u9519\u8BEF\u3001\u8BC1\u636E\u4E0D\u8DB3\u3001\u7ED3\u8BBA\u8D8A\u754C\u3001\u53EF\u590D\u73B0\u6027\u98CE\u9669\u548C\u8868\u8FBE\u4E0D\u6E05\uFF0C\u907F\u514D\u628A\u4E2A\u4EBA\u504F\u597D\u5305\u88C5\u6210\u786C\u6027\u8981\u6C42\u3002
 
@@ -3700,8 +3887,8 @@ ${enabled3(values, "browseLiterature") ? "\u8054\u7F51\u6838\u67E5\u6587\u732E\u
 3. \u4E3B\u8981\u95EE\u9898\u8868\uFF08ID\u3001\u4E25\u91CD\u6027\u3001\u4F4D\u7F6E\u3001\u8BC1\u636E\u3001\u5F71\u54CD\u3001\u89E3\u51B3\u6807\u51C6\uFF09\uFF1B
 4. \u6B21\u8981\u95EE\u9898\u4E0E\u53EF\u76F4\u63A5\u4FEE\u6B63\u9879\uFF1B
 5. \u9700\u8981\u4F5C\u8005\u6F84\u6E05\u7684\u95EE\u9898\uFF1B
-${useTarget && targetType === "conference" ? `${targetVenue ? "6. \u6309\u76EE\u6807\u4F1A\u8BAE\u5F53\u524D\u5B98\u65B9\u8BC4\u5BA1\u7EF4\u5EA6\u3001\u8BC4\u5206\u5B9A\u4E49\u4E0E\u5C3A\u5EA6\u9010\u9879\u6253\u5206\uFF0C\u7ED9\u51FA\u603B\u4F53 recommendation \u548C\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\uFF1B\u4E0D\u5F97\u628A\u901A\u7528 1\u20135 \u5206\u66FF\u4EE3\u4E3A\u5B98\u65B9\u4F1A\u8BAE\u5206\u6570\u3002" : "6. \u672A\u63D0\u4F9B\u5177\u4F53\u4F1A\u8BAE\uFF0C\u4E0D\u80FD\u751F\u6210\u4F2A\u5B98\u65B9\u5206\u6570\uFF1B\u7ED9\u51FA\u4F1A\u8BAE\u8BED\u5883\u4E0B\u7684\u6587\u5B57 recommendation \u548C\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\u3002"}${enabled3(values, "scorecard") ? " \u53E6\u9644\u901A\u7528 1\u20135 \u5206\u8BC4\u5206\u5361\uFF0C\u5E76\u660E\u786E\u6807\u4E3A\u8F85\u52A9\u8BC4\u4F30\u800C\u975E\u76EE\u6807\u4F1A\u8BAE\u5B98\u65B9\u5206\u6570\u3002" : ""}
-7. \u9488\u5BF9\u76EE\u6807\u4F1A\u8BAE\u7684\u5C31\u7EEA\u5EA6\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002` : enabled3(values, "scorecard") ? "6. \u901A\u7528 1\u20135 \u5206\u8BC4\u5206\u5361\uFF1A\u95EE\u9898\u4EF7\u503C\u3001\u8D21\u732E\u6E05\u6670\u5EA6\u3001\u65B9\u6CD5\u6B63\u786E\u6027\u3001\u8BC1\u636E\u5145\u5206\u6027\u3001\u8868\u8FBE\u8D28\u91CF\u548C\u53EF\u590D\u73B0\u6027\uFF0C\u5E76\u7ED9\u51FA\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\uFF1B\n7. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002" : "6. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002"}
+${useTarget && targetType === "conference" ? `${targetVenue ? "6. \u6309\u76EE\u6807\u4F1A\u8BAE\u5F53\u524D\u5B98\u65B9\u8BC4\u5BA1\u7EF4\u5EA6\u3001\u8BC4\u5206\u5B9A\u4E49\u4E0E\u5C3A\u5EA6\u9010\u9879\u6253\u5206\uFF0C\u7ED9\u51FA\u603B\u4F53 recommendation \u548C\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\uFF1B\u4E0D\u5F97\u628A\u901A\u7528 1\u20135 \u5206\u66FF\u4EE3\u4E3A\u5B98\u65B9\u4F1A\u8BAE\u5206\u6570\u3002" : "6. \u672A\u63D0\u4F9B\u5177\u4F53\u4F1A\u8BAE\uFF0C\u4E0D\u80FD\u751F\u6210\u4F2A\u5B98\u65B9\u5206\u6570\uFF1B\u7ED9\u51FA\u4F1A\u8BAE\u8BED\u5883\u4E0B\u7684\u6587\u5B57 recommendation \u548C\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\u3002"}${enabled4(values, "scorecard") ? " \u53E6\u9644\u901A\u7528 1\u20135 \u5206\u8BC4\u5206\u5361\uFF0C\u5E76\u660E\u786E\u6807\u4E3A\u8F85\u52A9\u8BC4\u4F30\u800C\u975E\u76EE\u6807\u4F1A\u8BAE\u5B98\u65B9\u5206\u6570\u3002" : ""}
+7. \u9488\u5BF9\u76EE\u6807\u4F1A\u8BAE\u7684\u5C31\u7EEA\u5EA6\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002` : enabled4(values, "scorecard") ? "6. \u901A\u7528 1\u20135 \u5206\u8BC4\u5206\u5361\uFF1A\u95EE\u9898\u4EF7\u503C\u3001\u8D21\u732E\u6E05\u6670\u5EA6\u3001\u65B9\u6CD5\u6B63\u786E\u6027\u3001\u8BC1\u636E\u5145\u5206\u6027\u3001\u8868\u8FBE\u8D28\u91CF\u548C\u53EF\u590D\u73B0\u6027\uFF0C\u5E76\u7ED9\u51FA\u8BC4\u5BA1\u7F6E\u4FE1\u5EA6\uFF1B\n7. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002" : "6. \u5C31\u7EEA\u5EA6\uFF1A\u53EF\u7EE7\u7EED\u6295\u7A3F / \u5C0F\u5E45\u4FEE\u6539 / \u91CD\u5927\u4FEE\u6539 / \u5B58\u5728\u57FA\u7840\u6027\u98CE\u9669\uFF0C\u4EE5\u53CA\u6700\u53EF\u80FD\u5F71\u54CD\u5224\u65AD\u7684 3 \u4E2A\u95EE\u9898\u3002"}
 
 \u8865\u5145\u8981\u6C42\uFF1A${custom}\u3002\u5F53\u524D\u4EFB\u52A1\u53EA\u8F93\u51FA\u5BA1\u7A3F\u62A5\u544A\uFF0C\u4E0D\u4FEE\u6539\u8BBA\u6587\uFF0C\u4E0D\u64B0\u5199\u4F5C\u8005\u56DE\u590D\uFF0C\u4E5F\u4E0D\u66FF\u4F5C\u8005\u4F5C\u51FA\u4E0D\u5B58\u5728\u8BC1\u636E\u652F\u6301\u7684\u627F\u8BFA\u3002`;
     }
@@ -3713,7 +3900,7 @@ Review mode: ${labelFor2(mode, PEER_REVIEW_MODES, language)}; materials: ${label
 
 ${presentationBoundary}
 
-${enabled3(values, "browseLiterature") ? "Browse to verify positioning, novelty, and important citations. Prefer original papers, official publication pages, and reliable indexes; provide links and access dates and distinguish verified facts from reviewer judgment." : "Use only supplied materials. State the evidence boundary for any judgment about novelty or literature coverage."}
+${enabled4(values, "browseLiterature") ? "Browse to verify positioning, novelty, and important citations. Prefer original papers, official publication pages, and reliable indexes; provide links and access dates and distinguish verified facts from reviewer judgment." : "Use only supplied materials. State the evidence boundary for any judgment about novelty or literature coverage."}
 
 Briefly reconstruct the paper's problem, central claim, and evidence path before assessing strengths and weaknesses. Give every concern a stable ID and state its severity (blocking, major, or minor), manuscript location, basis, importance, and the evidence or change required for resolution. Distinguish scientific error, insufficient evidence, overclaiming, reproducibility risk, and unclear exposition. Do not present personal preference as a mandatory rule.
 
@@ -3725,8 +3912,8 @@ Return:
 3. Major-concern table (ID, severity, location, evidence, impact, resolution threshold);
 4. Minor concerns and directly repairable issues;
 5. Questions requiring author clarification;
-${useTarget && targetType === "conference" ? `${targetVenue ? "6. Score each verified official target-conference review dimension using its current definitions and scale, then give an overall recommendation and review confidence; do not substitute a general 1\u20135 score for the official conference score." : "6. No specific conference is supplied, so do not fabricate official scores; give a conference-context narrative recommendation and review confidence."}${enabled3(values, "scorecard") ? " Also append the general 1\u20135 scorecard, explicitly labeled as a supplemental assessment rather than an official target-conference score." : ""}
-7. Target-conference readiness and the three issues most likely to affect the decision.` : enabled3(values, "scorecard") ? "6. Venue-neutral 1\u20135 scorecard for problem value, contribution clarity, methodological soundness, evidence adequacy, presentation, and reproducibility, plus review confidence;\n7. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment." : "6. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment."}
+${useTarget && targetType === "conference" ? `${targetVenue ? "6. Score each verified official target-conference review dimension using its current definitions and scale, then give an overall recommendation and review confidence; do not substitute a general 1\u20135 score for the official conference score." : "6. No specific conference is supplied, so do not fabricate official scores; give a conference-context narrative recommendation and review confidence."}${enabled4(values, "scorecard") ? " Also append the general 1\u20135 scorecard, explicitly labeled as a supplemental assessment rather than an official target-conference score." : ""}
+7. Target-conference readiness and the three issues most likely to affect the decision.` : enabled4(values, "scorecard") ? "6. Venue-neutral 1\u20135 scorecard for problem value, contribution clarity, methodological soundness, evidence adequacy, presentation, and reproducibility, plus review confidence;\n7. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment." : "6. Readiness: ready to proceed / minor revision / major revision / foundational risk, with the three issues most likely to affect the judgment."}
 
 Additional requirements: ${custom}. Produce only the review report. Do not edit the manuscript, draft an author response, or make unsupported commitments on the author's behalf.`;
   }
@@ -3772,8 +3959,8 @@ var REVISION_PLANNING_WORKBENCH = {
     {
       id: "evidencePolicy",
       kind: "segmented",
-      label: text3("\u53EF\u8003\u8651\u7684\u65B0\u589E\u8BC1\u636E", "Permitted new evidence"),
-      description: text3(
+      label: text4("\u53EF\u8003\u8651\u7684\u65B0\u589E\u8BC1\u636E", "Permitted new evidence"),
+      description: text4(
         "\u8FD9\u662F\u89C4\u5212\u4E0A\u9650\uFF0C\u4E0D\u4EE3\u8868\u9ED8\u8BA4\u9700\u8981\u8865\u5B9E\u9A8C\u3002",
         "This is the planning ceiling, not a default requirement to add experiments."
       ),
@@ -3787,60 +3974,60 @@ var REVISION_PLANNING_WORKBENCH = {
     {
       id: "resourceWindow",
       kind: "text",
-      label: text3("\u8D44\u6E90\u4E0E\u65F6\u95F4\u7A97\u53E3", "Resource and time window"),
-      description: text3(
+      label: text4("\u8D44\u6E90\u4E0E\u65F6\u95F4\u7A97\u53E3", "Resource and time window"),
+      description: text4(
         "\u7528\u4E8E\u5224\u65AD\u6700\u5C0F\u53EF\u884C\u5B9E\u9A8C\u548C\u4FEE\u6539\u987A\u5E8F\uFF0C\u4E0D\u7528\u6765\u63A9\u76D6\u5173\u952E\u8BC1\u636E\u7F3A\u53E3\u3002",
         "Use this to scope minimum viable experiments and ordering, not to conceal critical evidence gaps."
       ),
       defaultValue: "",
-      placeholder: text3(
+      placeholder: text4(
         "\u4F8B\u5982\uFF1A14 \u5929\uFF0C2\xD7A100\uFF0C\u4E0D\u80FD\u65B0\u589E\u4EBA\u5DE5\u6807\u6CE8",
         "For example: 14 days, 2\xD7A100, no new manual annotation"
       ),
-      visibleWhen: (values) => scalar3(values, "evidencePolicy") !== "existing"
+      visibleWhen: (values) => scalar4(values, "evidencePolicy") !== "existing"
     },
     {
       id: "executionPlan",
       kind: "toggle",
-      label: text3("\u4EFB\u52A1\u4F9D\u8D56\u4E0E\u6267\u884C\u6279\u6B21", "Dependencies and execution batches"),
-      description: text3(
+      label: text4("\u4EFB\u52A1\u4F9D\u8D56\u4E0E\u6267\u884C\u6279\u6B21", "Dependencies and execution batches"),
+      description: text4(
         "\u5728\u63A8\u8350\u987A\u5E8F\u4E4B\u5916\uFF0C\u6807\u51FA\u53EF\u5E76\u884C\u4EFB\u52A1\u548C\u5FC5\u987B\u7B49\u5F85\u7684\u4F9D\u8D56\u3002",
         "Beyond the recommended order, identify parallel tasks and blocking dependencies."
       ),
       defaultValue: true,
-      enabledLabel: text3("\u8F93\u51FA\u6267\u884C\u6279\u6B21", "Include execution batches"),
-      disabledLabel: text3("\u53EA\u7ED9\u63A8\u8350\u987A\u5E8F", "Recommended order only")
+      enabledLabel: text4("\u8F93\u51FA\u6267\u884C\u6279\u6B21", "Include execution batches"),
+      disabledLabel: text4("\u53EA\u7ED9\u63A8\u8350\u987A\u5E8F", "Recommended order only")
     },
     {
       id: "decisionContext",
       kind: "textarea",
-      label: text3("\u7F16\u8F91\u51B3\u5B9A\u4E0E\u672C\u8F6E\u80CC\u666F", "Decision and revision context"),
-      description: text3(
+      label: text4("\u7F16\u8F91\u51B3\u5B9A\u4E0E\u672C\u8F6E\u80CC\u666F", "Decision and revision context"),
+      description: text4(
         "\u53EF\u586B\u5199\u7F16\u8F91\u6458\u8981\u3001\u622A\u6B62\u65F6\u95F4\u3001\u56DE\u590D\u7BC7\u5E45\u6216\u672C\u8F6E\u5FC5\u987B\u5904\u7406\u7684\u4E8B\u9879\u3002",
         "Optionally include the editor summary, deadline, response limit, or mandatory items for this round."
       ),
       defaultValue: "",
-      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text4("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     },
     {
       id: "custom",
       kind: "textarea",
-      label: text3("\u4F5C\u8005\u8D44\u6E90\u4E0E\u8FB9\u754C", "Author resources and boundaries"),
-      description: text3(
+      label: text4("\u4F5C\u8005\u8D44\u6E90\u4E0E\u8FB9\u754C", "Author resources and boundaries"),
+      description: text4(
         "\u4F8B\u5982\u65E0\u6CD5\u83B7\u53D6\u65B0\u6570\u636E\u3001\u67D0\u9879\u5B9E\u9A8C\u5DF2\u5931\u8D25\uFF0C\u6216\u67D0\u4E2A\u7ED3\u8BBA\u5141\u8BB8\u4E3B\u52A8\u6536\u7F29\u3002",
         "For example, unavailable new data, a failed experiment, or a claim that may be narrowed."
       ),
       defaultValue: "",
-      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text4("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     }
   ],
   buildPrompt(values, language) {
-    const evidencePolicy = scalar3(values, "evidencePolicy");
-    const resourceWindow = scalar3(values, "resourceWindow");
-    const decisionContext = scalar3(values, "decisionContext") || (language === "zh" ? "\u672A\u63D0\u4F9B" : "Not supplied");
-    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const evidencePolicy = scalar4(values, "evidencePolicy");
+    const resourceWindow = scalar4(values, "resourceWindow");
+    const decisionContext = scalar4(values, "decisionContext") || (language === "zh" ? "\u672A\u63D0\u4F9B" : "Not supplied");
+    const custom = scalar4(values, "custom") || (language === "zh" ? "\u65E0" : "None");
     if (language === "zh") {
       return `# \u6574\u7406\u5BA1\u7A3F\u610F\u89C1\u5E76\u5236\u5B9A\u8FD4\u4FEE\u8BA1\u5212
 
@@ -3867,7 +4054,7 @@ var REVISION_PLANNING_WORKBENCH = {
 3. \u5BA1\u7A3F\u4EBA\u8981\u6C42\u5B9E\u9A8C\u4F46\u53EF\u4EE5\u4E89\u53D6\u4E0D\u8865\u7684\u95EE\u9898\uFF1B
 4. \u591A\u4F4D\u5BA1\u7A3F\u4EBA\u91CD\u590D\u63D0\u51FA\u7684\u95EE\u9898\uFF1B
 5. \u6700\u53EF\u80FD\u5F71\u54CD\u8BBA\u6587\u63A5\u6536\u7684 3 \u4E2A\u95EE\u9898\uFF1B
-6. \u63A8\u8350\u7684\u4FEE\u6539\u987A\u5E8F\u3002${enabled3(values, "executionPlan") ? "\n7. \u4EFB\u52A1\u4F9D\u8D56\u4E0E\u6267\u884C\u6279\u6B21\uFF1A\u6807\u51FA\u53EF\u5E76\u884C\u4EFB\u52A1\u3001\u524D\u7F6E\u4F9D\u8D56\u548C\u963B\u585E\u70B9\u3002" : ""}
+6. \u63A8\u8350\u7684\u4FEE\u6539\u987A\u5E8F\u3002${enabled4(values, "executionPlan") ? "\n7. \u4EFB\u52A1\u4F9D\u8D56\u4E0E\u6267\u884C\u6279\u6B21\uFF1A\u6807\u51FA\u53EF\u5E76\u884C\u4EFB\u52A1\u3001\u524D\u7F6E\u4F9D\u8D56\u548C\u963B\u585E\u70B9\u3002" : ""}
 
 \u4E0D\u8981\u9ED8\u8BA4\u6240\u6709\u5B9E\u9A8C\u90FD\u5FC5\u987B\u8865\uFF0C\u4E5F\u4E0D\u8981\u4E3A\u4E86\u51CF\u5C11\u5DE5\u4F5C\u91CF\u800C\u62D2\u7EDD\u652F\u6491\u6838\u5FC3\u7ED3\u8BBA\u6240\u5FC5\u9700\u7684\u5B9E\u9A8C\u3002\u82E5\u610F\u89C1\u53EF\u80FD\u6765\u81EA\u8BBA\u6587\u8868\u8FBE\u4E0D\u6E05\uFF0C\u6307\u51FA\u6700\u9700\u8981\u6F84\u6E05\u7684\u4F4D\u7F6E\u548C\u8BEF\u8BFB\u8DEF\u5F84\u3002\u6240\u6709\u201C\u5DF2\u6709\u7ED3\u679C\u201D\u201C\u5DF2\u5B8C\u6210\u4FEE\u6539\u201D\u6216\u201C\u6587\u732E\u652F\u6301\u201D\u90FD\u5FC5\u987B\u6765\u81EA\u5B9E\u9645\u6750\u6599\uFF1B\u5F53\u524D\u53EA\u4EA4\u4ED8\u4FEE\u6539\u8BA1\u5212\uFF0C\u4E0D\u751F\u6210\u5B8C\u6574\u56DE\u590D\u4FE1\u3001\u4FEE\u6539\u7A3F\u6216\u865A\u6784\u627F\u8BFA\u3002`;
     }
@@ -3896,15 +4083,15 @@ Then summarize:
 3. Experiment requests that may reasonably be declined;
 4. Concerns repeated by multiple reviewers;
 5. The three issues most likely to affect acceptance;
-6. Recommended revision order.${enabled3(values, "executionPlan") ? "\n7. Dependencies and execution batches, including parallel tasks, prerequisites, and blockers." : ""}
+6. Recommended revision order.${enabled4(values, "executionPlan") ? "\n7. Dependencies and execution batches, including parallel tasks, prerequisites, and blockers." : ""}
 
 Do not assume every requested experiment is necessary, but do not reject evidence essential to the central claim merely to reduce workload. When a concern may arise from unclear writing, identify the likely location and misreading path. Every statement that a result exists, a change is complete, or literature supports a claim must come from supplied evidence. Deliver only the revision plan\u2014no full response letter, revised manuscript, or invented commitment.`;
   }
 };
 var REVISION_AUDIT_SCENARIOS = {
-  auto: text3("\u81EA\u52A8\u5224\u65AD", "Infer automatically"),
-  journal: text3("\u671F\u520A\u8FD4\u4FEE", "Journal revision"),
-  conference: text3("\u4F1A\u8BAE Rebuttal / Discussion", "Conference rebuttal or discussion")
+  auto: text4("\u81EA\u52A8\u5224\u65AD", "Infer automatically"),
+  journal: text4("\u671F\u520A\u8FD4\u4FEE", "Journal revision"),
+  conference: text4("\u4F1A\u8BAE Rebuttal / Discussion", "Conference rebuttal or discussion")
 };
 var REVISION_AUDIT_WORKBENCH = {
   id: "revision-audit-workbench",
@@ -3947,8 +4134,8 @@ var REVISION_AUDIT_WORKBENCH = {
     {
       id: "scenario",
       kind: "segmented",
-      label: text3("\u8FD4\u4FEE\u573A\u666F\uFF08\u53EF\u9009\uFF09", "Revision context (optional)"),
-      description: text3("\u4E0D\u786E\u5B9A\u65F6\u4FDD\u6301\u81EA\u52A8\u5224\u65AD\u3002", "Keep automatic inference when uncertain."),
+      label: text4("\u8FD4\u4FEE\u573A\u666F\uFF08\u53EF\u9009\uFF09", "Revision context (optional)"),
+      description: text4("\u4E0D\u786E\u5B9A\u65F6\u4FDD\u6301\u81EA\u52A8\u5224\u65AD\u3002", "Keep automatic inference when uncertain."),
       defaultValue: "auto",
       options: Object.entries(REVISION_AUDIT_SCENARIOS).map(([value, label]) => ({ value, label })),
       span: "full"
@@ -3956,35 +4143,35 @@ var REVISION_AUDIT_WORKBENCH = {
     {
       id: "venue",
       kind: "text",
-      label: text3("\u671F\u520A\u6216\u4F1A\u8BAE\uFF08\u53EF\u9009\uFF09", "Journal or conference (optional)"),
-      description: text3("\u4EC5\u7528\u4E8E\u7406\u89E3\u672C\u8F6E\u89C4\u5219\u4E0E\u51B3\u7B56\u8BED\u5883\u3002", "Used only to understand the rules and decision context."),
+      label: text4("\u671F\u520A\u6216\u4F1A\u8BAE\uFF08\u53EF\u9009\uFF09", "Journal or conference (optional)"),
+      description: text4("\u4EC5\u7528\u4E8E\u7406\u89E3\u672C\u8F6E\u89C4\u5219\u4E0E\u51B3\u7B56\u8BED\u5883\u3002", "Used only to understand the rules and decision context."),
       defaultValue: "",
-      placeholder: text3("\u4F8B\u5982\uFF1AIEEE TPAMI / NeurIPS 2027", "For example: IEEE TPAMI / NeurIPS 2027")
+      placeholder: text4("\u4F8B\u5982\uFF1AIEEE TPAMI / NeurIPS 2027", "For example: IEEE TPAMI / NeurIPS 2027")
     },
     {
       id: "decisionContext",
       kind: "textarea",
-      label: text3("\u672C\u8F6E\u89C4\u5219\u4E0E\u80CC\u666F", "Round rules and context"),
-      description: text3("\u53EF\u586B\u5199 major/minor revision\u3001rebuttal \u7BC7\u5E45\u3001\u5141\u8BB8\u4FEE\u6539\u8303\u56F4\u6216\u622A\u6B62\u65F6\u95F4\u3002", "Optionally include major/minor revision, rebuttal limit, permitted changes, or deadline."),
+      label: text4("\u672C\u8F6E\u89C4\u5219\u4E0E\u80CC\u666F", "Round rules and context"),
+      description: text4("\u53EF\u586B\u5199 major/minor revision\u3001rebuttal \u7BC7\u5E45\u3001\u5141\u8BB8\u4FEE\u6539\u8303\u56F4\u6216\u622A\u6B62\u65F6\u95F4\u3002", "Optionally include major/minor revision, rebuttal limit, permitted changes, or deadline."),
       defaultValue: "",
-      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text4("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     },
     {
       id: "custom",
       kind: "textarea",
-      label: text3("\u7279\u522B\u5173\u6CE8", "Special focus"),
-      description: text3("\u4F8B\u5982\u91CD\u70B9\u6838\u67E5\u65B0\u589E\u5B9E\u9A8C\u3001\u964D\u7EA7 claim \u6216\u67D0\u4F4D reviewer\u3002", "For example, focus on new experiments, narrowed claims, or one reviewer."),
+      label: text4("\u7279\u522B\u5173\u6CE8", "Special focus"),
+      description: text4("\u4F8B\u5982\u91CD\u70B9\u6838\u67E5\u65B0\u589E\u5B9E\u9A8C\u3001\u964D\u7EA7 claim \u6216\u67D0\u4F4D reviewer\u3002", "For example, focus on new experiments, narrowed claims, or one reviewer."),
       defaultValue: "",
-      placeholder: text3("\u53EF\u7559\u7A7A", "Optional"),
+      placeholder: text4("\u53EF\u7559\u7A7A", "Optional"),
       span: "full"
     }
   ],
   buildPrompt(values, language) {
-    const scenario = scalar3(values, "scenario") || "auto";
-    const venue = scalar3(values, "venue") || (language === "zh" ? "\u672A\u6307\u5B9A" : "Not specified");
-    const decisionContext = scalar3(values, "decisionContext") || (language === "zh" ? "\u672A\u63D0\u4F9B\uFF1B\u4F9D\u636E\u6750\u6599\u81EA\u52A8\u5224\u65AD" : "Not supplied; infer from the materials");
-    const custom = scalar3(values, "custom") || (language === "zh" ? "\u65E0" : "None");
+    const scenario = scalar4(values, "scenario") || "auto";
+    const venue = scalar4(values, "venue") || (language === "zh" ? "\u672A\u6307\u5B9A" : "Not specified");
+    const decisionContext = scalar4(values, "decisionContext") || (language === "zh" ? "\u672A\u63D0\u4F9B\uFF1B\u4F9D\u636E\u6750\u6599\u81EA\u52A8\u5224\u65AD" : "Not supplied; infer from the materials");
+    const custom = scalar4(values, "custom") || (language === "zh" ? "\u65E0" : "None");
     const scenarioLabel = labelFor2(scenario, REVISION_AUDIT_SCENARIOS, language);
     if (language === "zh") {
       return `# \u5BA1\u67E5\u8FD4\u4FEE\u7A3F\u662F\u5426\u5145\u5206\u56DE\u5E94\u5BA1\u7A3F\u610F\u89C1
@@ -4155,8 +4342,31 @@ var YANSHU_SKILL_CATALOG = [
     }
   },
   {
-    id: "experimental-plotting",
+    id: "image-to-svg",
     index: "06",
+    skillName: "Image to SVG",
+    websitePath: "/figures/image-to-svg",
+    title: { zh: "1:1 \u91CD\u5EFA SVG", en: "Reconstruct an image as SVG" },
+    description: {
+      zh: "\u628A\u4E00\u5F20 PNG\u3001JPG \u7B49\u4F4D\u56FE\u6309\u539F\u59CB\u753B\u5E03\u4E0E\u6784\u56FE\u91CD\u5EFA\u4E3A Calibri \u6587\u5B57\u3001\u53EF\u7F16\u8F91\u4E14\u7ECF\u56DE\u6E32\u67D3\u6838\u9A8C\u7684 SVG\u3002",
+      en: "Reconstruct one PNG, JPG, or other raster image as an editable, Calibri-set SVG validated by rendering at the source dimensions."
+    },
+    command: {
+      zh: "\u4F7F\u7528 $image-to-svg \u5C06\u8FD9\u5F20\u56FE\u7247 1:1 \u590D\u523B\u4E3A SVG\u3002",
+      en: "Use $image-to-svg to reconstruct this image as a 1:1 SVG."
+    },
+    input: {
+      zh: "\u4E00\u5F20\u539F\u59CB\u5206\u8FA8\u7387 PNG\u3001JPG/JPEG\u3001WebP\u3001BMP \u6216 TIFF",
+      en: "One original-resolution PNG, JPG/JPEG, WebP, BMP, or TIFF"
+    },
+    output: {
+      zh: "\u4E00\u4E2A\u53EF\u7F16\u8F91 SVG \u4E0E\u7B80\u77ED\u6821\u9A8C\u6458\u8981",
+      en: "One editable SVG with a concise validation summary"
+    }
+  },
+  {
+    id: "experimental-plotting",
+    index: "07",
     skillName: "Experimental Plotting",
     websitePath: "/figures/plots",
     title: { zh: "\u7ED8\u5236\u5B9E\u9A8C\u56FE", en: "Create an experimental plot" },
@@ -4179,7 +4389,7 @@ var YANSHU_SKILL_CATALOG = [
   },
   {
     id: "peer-review",
-    index: "07",
+    index: "08",
     skillName: "Peer Review",
     websitePath: "/submission/review",
     title: { zh: "\u72EC\u7ACB\u5BA1\u7A3F", en: "Review a manuscript" },
@@ -4202,7 +4412,7 @@ var YANSHU_SKILL_CATALOG = [
   },
   {
     id: "revision-planning",
-    index: "08",
+    index: "09",
     skillName: "Revision Planning",
     websitePath: "/submission/revision",
     title: { zh: "\u89C4\u5212\u8BBA\u6587\u8FD4\u4FEE", en: "Plan a manuscript revision" },
@@ -4225,7 +4435,7 @@ var YANSHU_SKILL_CATALOG = [
   },
   {
     id: "revision-audit",
-    index: "09",
+    index: "10",
     skillName: "Revision Audit",
     websitePath: "/submission/revision-audit",
     title: { zh: "\u5BA1\u67E5\u8BBA\u6587\u8FD4\u4FEE\u7A3F", en: "Audit a manuscript revision" },
@@ -4913,6 +5123,65 @@ var EXPERIMENTAL_PLOTTING_MODEL = {
     ...getDefaultExperimentalPlotValues()
   }
 };
+var IMAGE_TO_SVG_SECTIONS = [
+  {
+    id: "reconstruction",
+    index: "01",
+    title: localized("\u91CD\u5EFA\u7B56\u7565", "Reconstruction strategy"),
+    description: localized(
+      "\u56FA\u5B9A\u4F7F\u7528 Calibri \u4E0E\u539F\u5C3A\u5BF8\u6821\u9A8C\uFF0C\u53EA\u9009\u62E9\u77E2\u91CF\u65B9\u5F0F\u548C\u80CC\u666F\u5904\u7406\u3002",
+      "Calibri and source-size validation are fixed; choose only the vector and background treatment."
+    )
+  },
+  {
+    id: "delivery",
+    index: "02",
+    title: localized("\u6821\u9A8C\u4E0E\u4EA4\u4ED8", "Validation and delivery"),
+    description: localized(
+      "\u51B3\u5B9A\u662F\u5426\u4FDD\u7559\u6821\u9A8C\u56FE\uFF0C\u5E76\u8865\u5145\u5C11\u91CF\u7279\u6B8A\u8981\u6C42\u3002",
+      "Choose whether to retain a validation image and add any narrow requirements."
+    )
+  }
+];
+var IMAGE_TO_SVG_FIELD_SECTIONS = {
+  vectorMode: "reconstruction",
+  backgroundMode: "reconstruction",
+  keepValidationPreview: "delivery",
+  custom: "delivery"
+};
+var IMAGE_TO_SVG_MODEL = {
+  id: "image-to-svg",
+  version: SKILL_WORKFLOW_VERSION,
+  skillId: "image-to-svg",
+  websitePath: "/figures/image-to-svg",
+  title: localized("\u56FE\u7247\u8F6C SVG", "Image to SVG"),
+  eyebrow: "YANSHU \xB7 IMAGE TO SVG",
+  description: localized(
+    "\u6309\u539F\u56FE\u5C3A\u5BF8\u548C\u6784\u56FE\u91CD\u5EFA\u53EF\u7F16\u8F91 SVG\uFF0C\u5E76\u901A\u8FC7\u56DE\u6E32\u67D3\u5DEE\u5F02\u6301\u7EED\u6821\u6B63\u3002",
+    "Reconstruct an editable SVG at the source dimensions and iteratively correct it using rendered differences."
+  ),
+  materialTitle: localized("\u9700\u8981\u6750\u6599", "Required material"),
+  materialItems: {
+    zh: ["\u4E00\u5F20\u539F\u59CB\u5206\u8FA8\u7387 PNG\u3001JPG/JPEG\u3001WebP\u3001BMP \u6216 TIFF"],
+    en: ["One original-resolution PNG, JPG/JPEG, WebP, BMP, or TIFF image"]
+  },
+  materialHint: localized(
+    "\u4E00\u6B21\u53EA\u91CD\u5EFA\u4E00\u5F20\u56FE\u7247\uFF1B\u4F4E\u6E05\u622A\u56FE\u548C\u4E0D\u53EF\u8FA8\u8BA4\u6587\u5B57\u4F1A\u9650\u5236\u53EF\u9A8C\u8BC1\u7CBE\u5EA6\u3002",
+    "Reconstruct one image at a time; low-resolution screenshots and illegible text limit verifiable precision."
+  ),
+  output: localized(
+    "\u4E00\u4E2A\u53EF\u7F16\u8F91 SVG \u4E0E\u7B80\u77ED\u6821\u9A8C\u6458\u8981\uFF1B\u6309\u914D\u7F6E\u53EF\u4FDD\u7559\u5E76\u6392\u6821\u9A8C\u56FE\u3002",
+    "One editable SVG and a concise validation summary, with an optional retained comparison image."
+  ),
+  sections: IMAGE_TO_SVG_SECTIONS,
+  fields: IMAGE_TO_SVG_WORKBENCH.controls.map(
+    (control) => configurableWorkbenchField(
+      control,
+      IMAGE_TO_SVG_FIELD_SECTIONS[control.id] ?? "delivery"
+    )
+  ),
+  defaults: workbenchDefaults(IMAGE_TO_SVG_WORKBENCH)
+};
 var CITATION_AUDIT_SECTIONS = [
   {
     id: "scope",
@@ -5235,6 +5504,7 @@ var CONFIGURABLE_MODELS = {
   "paper-drafting": PAPER_DRAFTING_MODEL,
   "citation-audit": CITATION_AUDIT_MODEL,
   "scientific-figure": SCIENTIFIC_FIGURE_MODEL,
+  "image-to-svg": IMAGE_TO_SVG_MODEL,
   "experimental-plotting": EXPERIMENTAL_PLOTTING_MODEL,
   "peer-review": PEER_REVIEW_MODEL,
   "revision-planning": REVISION_PLANNING_MODEL,
@@ -5465,6 +5735,9 @@ function normalizeSkillWorkflowPreferences(workflowId, input = {}) {
   if (workflowId === "experimental-plotting") {
     return normalizeExperimentalPlotValues(input);
   }
+  if (workflowId === "image-to-svg") {
+    return normalizeWorkbenchPreferences(IMAGE_TO_SVG_WORKBENCH, input);
+  }
   if (workflowId === "peer-review") {
     return normalizePeerReviewPreferences(input);
   }
@@ -5527,6 +5800,17 @@ function buildSkillWorkflowConfiguration(workflowId, input = {}, promptLanguage 
       allowComposite: plotPreferences.allowComposite,
       panelCount: plotPreferences.panelCount,
       palette: plotPreferences.palette
+    };
+  } else if (workflowId === "image-to-svg") {
+    const svgPreferences = preferences;
+    prompt = IMAGE_TO_SVG_WORKBENCH.buildPrompt(
+      svgPreferences,
+      promptLanguage
+    );
+    selection = {
+      vectorMode: svgPreferences.vectorMode,
+      backgroundMode: svgPreferences.backgroundMode,
+      keepValidationPreview: svgPreferences.keepValidationPreview
     };
   } else if (workflowId === "peer-review") {
     const reviewPreferences = preferences;

@@ -13,6 +13,7 @@ The Cloudflare Pages URL above is the only public website deployment. `*.chatgpt
 | Citation Audit | `$citation-audit` |
 | Paper Reconstruction | `$paper-reconstruction` |
 | Scientific Figure | `$scientific-figure` |
+| Image to SVG | `$image-to-svg` |
 | Experimental Plotting | `$experimental-plotting` |
 | Peer Review | `$peer-review` |
 | Revision Planning | `$revision-planning` |
@@ -42,6 +43,7 @@ Use $paper-drafting to draft a paper from this experiment directory.
 Use $citation-audit to verify and strengthen citations in this manuscript.
 Use $paper-reconstruction to reconstruct this paper directory.
 Use $scientific-figure to create one research figure for this paper.
+Use $image-to-svg to reconstruct this raster image as an editable SVG.
 Use $experimental-plotting to create a publication plot from this experiment directory.
 Use $peer-review to review this manuscript independently.
 Use $revision-planning to organize these reviews into a revision plan.
@@ -62,7 +64,7 @@ Every Skill:
 
 Skills do not open a local configuration page, internal JSON file, browser bridge, visible ChatGPT session, or nested Codex process. When a missing choice would materially change the result and cannot be inferred, YanShu groups it into one compact question.
 
-Analysis workflows—Peer Review, Revision Planning, Revision Audit, and audit-only Citation Audit—return their result in chat by default. Creation and repair workflows keep only their real artifacts, such as bilingual Idea reports, LaTeX/PDF, revised TeX/BibTeX, PNG, plotting code, and derived data. No Prompt copy, configuration snapshot, generic report, or `run.json` is created merely for bookkeeping.
+Analysis workflows—Peer Review, Revision Planning, Revision Audit, and audit-only Citation Audit—return their result in chat by default. Creation and repair workflows keep only their real artifacts, such as bilingual Idea reports, LaTeX/PDF, revised TeX/BibTeX, PNG, editable SVG, plotting code, and derived data. No Prompt copy, configuration snapshot, generic report, or `run.json` is created merely for bookkeeping.
 
 Paper Reconstruction is one external task with four internal steps: scientific positioning and structure, Method and Experiments, narrative refinement, and source-aware quality regression. It creates no round folders, intermediate manuscripts, or framework image and delivers exactly:
 

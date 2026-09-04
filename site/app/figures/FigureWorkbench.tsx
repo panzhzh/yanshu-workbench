@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import SiteNavigation from "../SiteNavigation";
 import PromptResizeHandle from "../PromptResizeHandle";
 import { PRODUCT_CONFIG, type Language } from "../config";
+import { usePersistentSiteLanguage } from "../usePersistentLanguage";
 import {
   buildFigurePrompt,
   DEFAULT_FIGURE_PREFERENCES,
@@ -34,15 +35,6 @@ import {
 type PromptLanguages = Record<FigurePromptId, Language>;
 type PromptExpansion = Record<FigurePromptId, boolean>;
 type FigurePreferenceMap = Record<FigurePromptId, FigurePreferences>;
-
-const DEFAULT_PROMPT_LANGUAGES: PromptLanguages = {
-  ...Object.fromEntries(
-    FIGURE_PROMPT_ORDER.map((promptId) => [
-      promptId,
-      PRODUCT_CONFIG.defaultPromptLanguage,
-    ]),
-  ),
-} as PromptLanguages;
 
 const DEFAULT_PROMPT_EXPANSION: PromptExpansion = {
   ...Object.fromEntries(
@@ -79,12 +71,10 @@ async function writeClipboard(text: string) {
 }
 
 export default function FigureWorkbench() {
-  const [uiLanguage, setUiLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultLanguage,
-  );
-  const [promptLanguages, setPromptLanguages] = useState<PromptLanguages>({
-    ...DEFAULT_PROMPT_LANGUAGES,
-  });
+  const [uiLanguage, setUiLanguage] = usePersistentSiteLanguage();
+  const [promptLanguageOverrides, setPromptLanguageOverrides] = useState<
+    Partial<PromptLanguages>
+  >({});
   const [activePromptId, setActivePromptId] = useState<FigurePromptId>(
     DEFAULT_FIGURE_PREFERENCES.promptId,
   );
@@ -100,6 +90,16 @@ export default function FigureWorkbench() {
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const copy = FIGURE_COPY[uiLanguage];
+  const promptLanguages = useMemo(
+    () =>
+      Object.fromEntries(
+        FIGURE_PROMPT_ORDER.map((promptId) => [
+          promptId,
+          promptLanguageOverrides[promptId] ?? uiLanguage,
+        ]),
+      ) as PromptLanguages,
+    [promptLanguageOverrides, uiLanguage],
+  );
   const preferences = preferencesByPrompt[activePromptId];
   const activePromptSpec = FIGURE_PROMPTS[activePromptId];
   const activePromptLanguage = promptLanguages[activePromptId];
@@ -204,9 +204,10 @@ export default function FigureWorkbench() {
   }
 
   function togglePromptLanguage(promptId: FigurePromptId) {
-    setPromptLanguages((current) => ({
+    setPromptLanguageOverrides((current) => ({
       ...current,
-      [promptId]: current[promptId] === "zh" ? "en" : "zh",
+      [promptId]:
+        (current[promptId] ?? uiLanguage) === "zh" ? "en" : "zh",
     }));
     setCopiedPrompt(null);
     setCopyError(false);
@@ -263,6 +264,7 @@ export default function FigureWorkbench() {
         mobileMenuOpen={mobileMenuOpen}
         onLanguageChange={(language) => {
           setUiLanguage(language);
+          setPromptLanguageOverrides({});
           setCopiedPrompt(null);
         }}
         onMenuToggle={() => setMobileMenuOpen((open) => !open)}

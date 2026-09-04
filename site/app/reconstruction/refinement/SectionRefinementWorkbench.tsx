@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import PromptResizeHandle from "../../PromptResizeHandle";
 import SiteNavigation from "../../SiteNavigation";
-import { PRODUCT_CONFIG, type Language } from "../../config";
+import { PRODUCT_CONFIG } from "../../config";
+import { usePersistentWorkbenchLanguages } from "../../usePersistentLanguage";
 import {
   buildSectionRefinementPrompt,
   CITATION_MODES,
@@ -97,12 +98,12 @@ async function writeClipboard(text: string) {
 }
 
 export default function SectionRefinementWorkbench() {
-  const [uiLanguage, setUiLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultLanguage,
-  );
-  const [promptLanguage, setPromptLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultPromptLanguage,
-  );
+  const {
+    uiLanguage,
+    promptLanguage,
+    setPromptLanguage,
+    changeSiteLanguage,
+  } = usePersistentWorkbenchLanguages();
   const [preferences, setPreferences] =
     useState<SectionRefinementPreferences>({
       ...DEFAULT_SECTION_REFINEMENT_PREFERENCES,
@@ -251,7 +252,6 @@ export default function SectionRefinementWorkbench() {
 
   function resetDefaults() {
     setPreferences(createSectionPreferences(preferences.sectionId));
-    setPromptLanguage(PRODUCT_CONFIG.defaultPromptLanguage);
     clearCopyState();
   }
 
@@ -748,7 +748,7 @@ export default function SectionRefinementWorkbench() {
         activePage="refinement"
         mobileMenuOpen={mobileMenuOpen}
         onLanguageChange={(language) => {
-          setUiLanguage(language);
+          changeSiteLanguage(language);
           clearCopyState();
         }}
         onMenuToggle={() => setMobileMenuOpen((open) => !open)}

@@ -55,7 +55,7 @@ YanShu 同时提供插件执行层：每个 `$子技能` 都从网站同一份�
 
 3. YanShu 只确认真正有歧义的材料。已在请求中说明的偏好会直接采用，未说明项使用官网默认值；只有会实质改变结果且无法推断时，才合并成一次简短询问。随后在当前任务直接执行。
 
-首页也提供相同的动态三步演示和九个核心工作流的可复制启动语。
+首页也提供相同的动态三步演示和十个核心工作流的可复制启动语。
 
 ## 一个 YanShu，多项科研工作流
 
@@ -69,6 +69,7 @@ YanShu 同时提供插件执行层：每个 `$子技能` 都从网站同一份�
 | 写作 | **Citation Audit** | `$citation-audit` | 核验 Claim–引用关系、补足真实缺口并检查 BibTeX |
 | 重构 | **Paper Reconstruction** | `$paper-reconstruction` | 单次全文重构、四个内部步骤与原稿质量回归 |
 | 绘图 | **Scientific Figure** | `$scientific-figure` | 从论文证据生成一张高清科研示意图 |
+| 矢量化 | **Image to SVG** | `$image-to-svg` | 将一张位图按原尺寸与构图重建为 Calibri 文字、可编辑且经过回渲染核验的 SVG |
 | 图表 | **Experimental Plotting** | `$experimental-plotting` | 从真实实验数据生成可复现的出版级代码图 |
 | 审校 | **Peer Review** | `$peer-review` | 独立检查贡献、方法、证据、结论边界和可复现性 |
 | 审校 | **Revision Planning** | `$revision-planning` | 合并审稿意见并形成优先级、实验决策与修改顺序 |
@@ -96,6 +97,7 @@ YanShu 同时提供插件执行层：每个 `$子技能` 都从网站同一份�
 | [结果分析](https://yanshu-workbench.pages.dev/experiments/results/) | 已有表格、日志或统计结果 | 区分观察、解释与推测，按主结果、消融、效率、稳健性和失败案例组织证据 |
 | [可复现性](https://yanshu-workbench.pages.dev/experiments/reproducibility/) | 准备交付代码与实验材料 | 检查环境、随机性、数据、命令、产物和独立复现路径，生成可验证清单 |
 | [科学示意图](https://yanshu-workbench.pages.dev/figures/) | 需要论文插图 | 方法总览图默认，并提供引言、任务定义、核心机制、流程、系统与专业图型；参考图默认关闭，开启后才把视觉样式参考规则写入 Prompt |
+| [图片转 SVG](https://yanshu-workbench.pages.dev/figures/image-to-svg/) | 需要把位图转换为可编辑矢量文件 | 按原图尺寸、构图、层级和颜色进行 1:1 视觉复刻；文字固定为 Calibri，默认纯矢量并通过回渲染差异反复校验 |
 | [实验绘图](https://yanshu-workbench.pages.dev/figures/plots/) | 需要从数据生成统计图 | 以真实数据和绘图代码为核心，配置统计表达、组合图与 1–3 个默认子图、精确科研配色、图型策略和导出格式，不调用生图模型 |
 | [论文表格](https://yanshu-workbench.pages.dev/figures/tables/) | 需要整理结果或对比表 | 逐格核对数值与单位，配置表格职责、排序、高亮、显著性和单栏/双栏可读性 |
 | [图表审计](https://yanshu-workbench.pages.dev/figures/audit/) | 图表接近交付 | 联合检查数据、caption、正文引用、标签、可读性和一致性；安全修复只触及已确认错误及其直接依赖 |
@@ -105,7 +107,7 @@ YanShu 同时提供插件执行层：每个 `$子技能` 都从网站同一份�
 | [审稿](https://yanshu-workbench.pages.dev/submission/review/) | 投稿前独立评估 | 不区分会议与期刊，从贡献、方法、证据、结论边界、表达和可复现性生成分级审稿报告，不修改论文 |
 | [返修规划](https://yanshu-workbench.pages.dev/submission/revision/) | 收到审稿意见后 | 拆分并合并多位 reviewer 意见，完成 P0/P1/P2 与 A/B/C/D 分类，规划最小实验、风险和修改顺序；不提前写回复信 |
 | [返修稿审查](https://yanshu-workbench.pages.dev/submission/revision-audit/) | 完成回复与修改后 | 逐条核查 reviewer concern、回复主张、修改稿与 diff，区分期刊返修和会议 rebuttal |
-| YanShu 插件 | 需要直接执行 | 九个核心子 Skill 均使用官网同源配置和 Prompt，并在当前 Codex/CLI 任务执行；不自动打开网页、JSON 或额外 Chat |
+| YanShu 插件 | 需要直接执行 | 十个核心子 Skill 均使用官网同源配置和 Prompt，并在当前 Codex/CLI 任务执行；不自动打开网页、JSON 或额外 Chat |
 
 ## 设计原则
 
@@ -120,7 +122,7 @@ YanShu 同时提供插件执行层：每个 `$子技能` 都从网站同一份�
 
 ## 安装 YanShu 插件
 
-仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件。当前提供九个独立子 Skill：
+仓库中的 [`plugins/yanshu-workbench`](./plugins/yanshu-workbench/) 是 YanShu 插件。当前提供十个独立子 Skill：
 
 | Skill | 启动语示例 |
 | --- | --- |
@@ -129,6 +131,7 @@ YanShu 同时提供插件执行层：每个 `$子技能` 都从网站同一份�
 | **Citation Audit** | `使用 $citation-audit 核查并补充这个论文目录中的引文。` |
 | **Paper Reconstruction** | `使用 $paper-reconstruction 重构这个论文目录。` |
 | **Scientific Figure** | `使用 $scientific-figure 为这个论文目录绘制一张科研配图。` |
+| **Image to SVG** | `使用 $image-to-svg 将这张图片 1:1 复刻为 SVG。` |
 | **Experimental Plotting** | `使用 $experimental-plotting 根据这个实验目录绘制论文实验图。` |
 | **Peer Review** | `使用 $peer-review 审稿这个论文目录。` |
 | **Revision Planning** | `使用 $revision-planning 整理这些审稿意见并制定返修计划。` |
@@ -150,7 +153,7 @@ codex plugin add yanshu-workbench@yanshu-workbench
 
 安装或更新后新建一个 Codex 任务以载入最新 Skill。每次调用会先静默完成版本握手，再通过 `workflow-resolve` 从网站同源运行时解析完整 Prompt。解析结果只在内部读取，不会打开配置页、JSON 文件、浏览器或额外 Chat；当前任务就是执行器。
 
-Idea Discovery 的中英文 Markdown、Paper Drafting 的 LaTeX/PDF、Scientific Figure 的 PNG 和 Experimental Plotting 的代码与图件属于真实交付。Peer Review、Revision Planning 与 Revision Audit 默认直接在聊天中返回结果。Paper Reconstruction 在新目录中只保存三项最终文件，不建立 Round 目录或中间稿：
+Idea Discovery 的中英文 Markdown、Paper Drafting 的 LaTeX/PDF、Scientific Figure 的 PNG、Image to SVG 的可编辑 SVG 和 Experimental Plotting 的代码与图件属于真实交付。Peer Review、Revision Planning 与 Revision Audit 默认直接在聊天中返回结果。Paper Reconstruction 在新目录中只保存三项最终文件，不建立 Round 目录或中间稿：
 
 ```text
 <base_name>_restructured.tex
@@ -202,7 +205,7 @@ npm run build:pages
 yanshu-workbench/
 ├── README.md
 ├── plugins/
-│   └── yanshu-workbench/      # YanShu 插件、九个子 Skill 与官网同源运行时
+│   └── yanshu-workbench/      # YanShu 插件、十个子 Skill 与官网同源运行时
 └── site/
     ├── app/
     │   ├── draft/              # 论文初稿配置与 Prompt
@@ -210,7 +213,7 @@ yanshu-workbench/
     │   ├── writing/            # 分章节写作、引文核查与写作精修
     │   ├── reconstruction/     # 全文重构、精修、审计与 TeX 模板迁移
     │   ├── experiments/        # 实验设计、复现、代码、分析与可复现性
-    │   ├── figures/            # 科研示意图、实验图、表格与图表审计
+    │   ├── figures/            # 科研示意图、图片转 SVG、实验图、表格与图表审计
     │   ├── submission/         # 投稿定位、终检、材料、审稿与返修
     │   └── workbench/          # 配置式工作台共用组件
     ├── content/prompts/        # 重构模板、变量模型与字数规则
@@ -226,10 +229,10 @@ yanshu-workbench/
 - [x] 论文初稿工作台
 - [x] 全文重构、章节精修、专项审计、分章节写作与 TeX 模板迁移
 - [x] 实验设计、Baseline 复现、实验代码、结果分析与可复现性
-- [x] 科学示意图、实验绘图、论文表格与图表审计
+- [x] 科学示意图、图片转 SVG、实验绘图、论文表格与图表审计
 - [x] 投稿定位、投稿前终检、投稿材料、审稿、返修规划与返修稿审查
 - [x] 单任务、四个内部步骤的论文重构与原稿质量回归
-- [x] 九个核心子 Skill 使用网站同源配置；初稿与实验绘图支持可选外部增强
+- [x] 十个核心子 Skill 使用网站同源配置；初稿与实验绘图支持可选外部增强
 - [x] 所有子 Skill 在当前 Codex/CLI 任务直接执行，不打开本地配置页或内部 JSON
 - [ ] 为更多专项工作台补充直接执行的子 Skill
 - [ ] 更细的会议、期刊和出版商配置

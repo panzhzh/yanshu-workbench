@@ -17,6 +17,7 @@ const configurableIds = [
   "paper-drafting",
   "citation-audit",
   "scientific-figure",
+  "image-to-svg",
   "experimental-plotting",
   "peer-review",
   "revision-planning",
@@ -29,6 +30,7 @@ const catalogIds = [
   "citation-audit",
   "paper-reconstruction",
   "scientific-figure",
+  "image-to-svg",
   "experimental-plotting",
   "peer-review",
   "revision-planning",
@@ -54,13 +56,13 @@ function resolveWithCli(workflow, preferences = {}, language = "zh") {
   return JSON.parse(result.stdout);
 }
 
-test("website-sourced runtime exposes nine direct YanShu sub-skills", () => {
+test("website-sourced runtime exposes ten direct YanShu sub-skills", () => {
   assert.deepEqual(CONFIGURABLE_SKILL_WORKFLOW_IDS, configurableIds);
   assert.deepEqual(
     YANSHU_SKILL_CATALOG.map((item) => item.id),
     catalogIds,
   );
-  assert.equal(new Set(catalogIds).size, 9);
+  assert.equal(new Set(catalogIds).size, 10);
 });
 
 test("shared workflow models retain the reviewed website defaults", () => {
@@ -94,6 +96,15 @@ test("shared workflow models retain the reviewed website defaults", () => {
   assert.equal(figure.preferences.hasReferenceImage, false);
   assert.match(figure.prompt, /方法总览图/);
   assert.doesNotMatch(figure.prompt, /如有另行提供的图片/);
+
+  const svg = buildSkillWorkflowConfiguration("image-to-svg", {}, "zh");
+  assert.equal(svg.preferences.vectorMode, "pure");
+  assert.equal(svg.preferences.backgroundMode, "preserve");
+  assert.equal(svg.preferences.keepValidationPreview, false);
+  assert.match(svg.prompt, /1:1 视觉复刻/);
+  assert.match(svg.prompt, /font-family="Calibri"/);
+  assert.match(svg.prompt, /不得出现 `<image>`、Base64/);
+  assert.match(svg.prompt, /原始像素尺寸回渲染/);
 
   const plot = buildSkillWorkflowConfiguration("experimental-plotting", {}, "zh");
   assert.equal(plot.preferences.allowComposite, true);
@@ -151,6 +162,18 @@ test("workflow-resolve returns canonical prompts without opening configuration a
   assert.match(citation.instruction, /current task/);
   assert.match(citation.instruction, /Do not open a configuration page or internal JSON file/);
 
+  const svg = resolveWithCli("image-to-svg", {
+    vectorMode: "hybrid",
+    backgroundMode: "transparent",
+    keepValidationPreview: true,
+  });
+  assert.equal(svg.ok, true);
+  assert.equal(svg.websitePath, "/figures/image-to-svg");
+  assert.equal(svg.preferences.vectorMode, "hybrid");
+  assert.match(svg.prompt, /混合保真模式/);
+  assert.match(svg.prompt, /使画布透明/);
+  assert.match(svg.prompt, /保留一张原图与最终回渲染结果的并排校验图/);
+
   const reconstruction = resolveWithCli(
     "paper-reconstruction",
     { styleId: "journal", includeAppendix: false },
@@ -180,6 +203,7 @@ test("Skill delivery remains lightweight and artifact-focused", async () => {
   assert.match(await readSkill("paper-drafting"), /complete LaTeX project and compiled PDF paths/);
   assert.match(await readSkill("citation-audit"), /Create no configuration snapshot, Prompt copy, or state file/);
   assert.match(await readSkill("scientific-figure"), /Save one final PNG/);
+  assert.match(await readSkill("image-to-svg"), /final `\.svg` path/);
   assert.match(await readSkill("experimental-plotting"), /reproducible code and final figure paths/);
   assert.match(await readSkill("peer-review"), /directly in chat/);
   assert.match(await readSkill("revision-planning"), /directly in chat/);

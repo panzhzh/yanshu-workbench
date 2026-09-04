@@ -1,6 +1,6 @@
 {
   "name": "yanshu-workbench",
-  "version": "0.2.0+codex.20260904171839",
+  "version": "0.2.0+codex.20260904173548",
   "description": "Extensible research workflows coordinated across local files, pluggable executors, and deterministic validation.",
   "author": {
     "name": "panzhzh",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "YanShu",
     "shortDescription": "Installable research workflows for writing, figures, and publication.",
-    "longDescription": "YanShu is an extensible research-workflow plugin with nine directly invokable sub-skills: $idea-discovery, $paper-drafting, $citation-audit, $paper-reconstruction, $scientific-figure, $experimental-plotting, $peer-review, $revision-planning, and $revision-audit. Every Skill resolves the same configuration and Prompt source as the website, then executes directly in the current Codex or CLI task without opening a local page, internal JSON file, or extra chat. Optional external writing and experimental-plotting skills use one explicit consent receipt and exact sub-skill allowlists; YanShu never installs an entire third-party skill repository.",
+    "longDescription": "YanShu is an extensible research-workflow plugin with ten directly invokable sub-skills: $idea-discovery, $paper-drafting, $citation-audit, $paper-reconstruction, $scientific-figure, $image-to-svg, $experimental-plotting, $peer-review, $revision-planning, and $revision-audit. Every Skill resolves the same configuration and Prompt source as the website, then executes directly in the current Codex or CLI task without opening a local page, internal JSON file, or extra chat. Optional external writing and experimental-plotting skills use one explicit consent receipt and exact sub-skill allowlists; YanShu never installs an entire third-party skill repository.",
     "developerName": "panzhzh",
     "category": "Productivity",
     "capabilities": [
@@ -36,6 +36,7 @@
       "Use $paper-drafting to draft a paper from completed experiments.",
       "Use $citation-audit to verify and strengthen citations in this manuscript.",
       "Use $scientific-figure to create one publication-ready research figure.",
+      "Use $image-to-svg to reconstruct one raster image as a validated editable SVG.",
       "Use $experimental-plotting to create a reproducible publication plot from experimental data.",
       "Use $peer-review to review this manuscript independently.",
       "Use $revision-planning to organize these reviews into a revision plan.",

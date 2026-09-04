@@ -1,0 +1,5 @@
+interface:
+  display_name: "YanShu Image to SVG"
+  short_description: "Reconstruct one raster image as a validated editable SVG"
+  default_prompt: "Use $image-to-svg to reconstruct this image as a visually faithful editable SVG."
+

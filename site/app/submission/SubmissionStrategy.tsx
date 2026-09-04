@@ -3,10 +3,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import SiteNavigation from "../SiteNavigation";
 import PromptResizeHandle from "../PromptResizeHandle";
-import {
-  PRODUCT_CONFIG,
-  type Language,
-} from "../config";
+import { PRODUCT_CONFIG } from "../config";
+import { usePersistentWorkbenchLanguages } from "../usePersistentLanguage";
 import { buildPrompt } from "../../content/prompts/buildPrompt";
 import { SUBMISSION_PROMPT_TEMPLATE } from "../../content/prompts/templates";
 import type {
@@ -86,12 +84,12 @@ function toggleValue<T extends string>(values: T[], value: T) {
 }
 
 export default function SubmissionStrategy() {
-  const [uiLanguage, setUiLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultLanguage,
-  );
-  const [promptLanguage, setPromptLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultPromptLanguage,
-  );
+  const {
+    uiLanguage,
+    promptLanguage,
+    setPromptLanguage,
+    changeSiteLanguage,
+  } = usePersistentWorkbenchLanguages();
   const [preferences, setPreferences] = useState<SubmissionPreferences>(
     DEFAULT_SUBMISSION_PREFERENCES,
   );
@@ -216,7 +214,7 @@ export default function SubmissionStrategy() {
         activePage="submission"
         mobileMenuOpen={mobileMenuOpen}
         onLanguageChange={(language) => {
-          setUiLanguage(language);
+          changeSiteLanguage(language);
           setCopied(false);
         }}
         onMenuToggle={() => setMobileMenuOpen((open) => !open)}

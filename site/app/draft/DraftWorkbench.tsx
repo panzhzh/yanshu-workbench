@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { PRODUCT_CONFIG, type Language } from "../config";
+import { PRODUCT_CONFIG } from "../config";
 import PromptResizeHandle from "../PromptResizeHandle";
 import SiteNavigation from "../SiteNavigation";
+import { usePersistentWorkbenchLanguages } from "../usePersistentLanguage";
 import {
   ARXIV_STYLE_REPOSITORY,
   buildDraftPrompt,
@@ -36,12 +37,12 @@ async function writeClipboard(text: string) {
 }
 
 export default function DraftWorkbench() {
-  const [uiLanguage, setUiLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultLanguage,
-  );
-  const [promptLanguage, setPromptLanguage] = useState<Language>(
-    PRODUCT_CONFIG.defaultPromptLanguage,
-  );
+  const {
+    uiLanguage,
+    promptLanguage,
+    setPromptLanguage,
+    changeSiteLanguage,
+  } = usePersistentWorkbenchLanguages();
   const [templateId, setTemplateId] = useState<DraftTemplateId>(
     DEFAULT_DRAFT_TEMPLATE_ID,
   );
@@ -128,7 +129,7 @@ export default function DraftWorkbench() {
         activePage="draft"
         mobileMenuOpen={mobileMenuOpen}
         onLanguageChange={(language) => {
-          setUiLanguage(language);
+          changeSiteLanguage(language);
           setCopied(false);
         }}
         onMenuToggle={() => setMobileMenuOpen((open) => !open)}
