@@ -902,6 +902,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
     packageJson,
     chatExecutionConfig,
     sourceFiles,
+    redirects,
   ] = await Promise.all([
     readFile(new URL("../app/config.ts", import.meta.url), "utf8"),
     readFile(new URL("../app/YanshuWorkbench.tsx", import.meta.url), "utf8"),
@@ -945,6 +946,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
       "utf8",
     ),
     readdir(new URL("../content/prompts/source/", import.meta.url)),
+    readFile(new URL("../public/_redirects", import.meta.url), "utf8"),
   ]);
 
   assert.match(config, /defaultTargetWords:\s*4500/);
@@ -1383,6 +1385,8 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(packageJson, /"name": "yanshu-workbench-site"/);
   assert.match(packageJson, /"build:pages":\s*"CLOUDFLARE_PAGES_STATIC=1 next build"/);
   assert.doesNotMatch(packageJson, /react-loading-skeleton/);
+  assert.match(redirects, /\/writing\/diagnosis\s+\/writing\/citations\/\s+301/);
+  assert.match(redirects, /\/submission\/polishing\s+\/writing\/polishing\/\s+301/);
 
   await assert.rejects(
     access(new URL("app/_sites-preview/", templateRoot)),
