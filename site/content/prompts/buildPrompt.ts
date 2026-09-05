@@ -18,6 +18,11 @@ const LABELS = {
     role: "## 你的角色",
     configuration: "## 当前配置",
     paperStyle: "论文类型",
+    targetConference: "目标会议",
+    targetJournal: "目标期刊",
+    targetVenueNotSpecified: "未指定",
+    targetVenueVerification:
+      "已指定目标时，执行前必须核验该会议当届或该期刊当前官方作者指南；页面预设与 CCF 分组仅用于便捷填写，不视为 venue 官方规则。",
     lengthMode: "篇幅建议",
     flexibleCoreMode: "不设正文总建议；仅为方法和实验以外的章节提供参考范围",
     targetType: "投稿类型",
@@ -75,6 +80,11 @@ const LABELS = {
     role: "## Your Role",
     configuration: "## Current Configuration",
     paperStyle: "Paper type",
+    targetConference: "Target conference",
+    targetJournal: "Target journal",
+    targetVenueNotSpecified: "Not specified",
+    targetVenueVerification:
+      "When a target is specified, verify the current official author guidelines for that conference edition or journal before execution. Website presets and CCF groups are input shortcuts, not official venue rules.",
     lengthMode: "Length guidance",
     flexibleCoreMode:
       "No suggested main-text total; optional ranges only for sections other than Method and Experiments",
@@ -209,6 +219,19 @@ function buildConfiguration(
 
   return [
     field(labels.paperStyle, context.styleLabel),
+    ...(context.targetVenueName !== undefined
+      ? [
+          field(
+            context.styleId === "conference"
+              ? labels.targetConference
+              : labels.targetJournal,
+            context.targetVenueName || labels.targetVenueNotSpecified,
+          ),
+          ...(context.targetVenueName
+            ? [labels.targetVenueVerification]
+            : []),
+        ]
+      : []),
     field(labels.styleDirective, context.styleDirective),
     ...(["scientific-positioning", "narrative-reconstruction", "full-reconstruction"].includes(
       template.id,

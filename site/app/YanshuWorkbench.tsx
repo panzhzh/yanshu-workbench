@@ -18,14 +18,29 @@ import {
   type ChatReasoningPreferenceId,
 } from "../content/prompts/chatExecution";
 import { RECONSTRUCTION_PROMPTS } from "../content/prompts/templates";
+import {
+  CUSTOM_RECONSTRUCTION_VENUE_ID,
+  formatReconstructionVenueName,
+} from "../content/prompts/reconstructionVenues";
 import { CODEX_START_GUIDE } from "./reconstruction/startGuide";
-import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import { usePersistentSiteLanguage } from "./usePersistentLanguage";
 
 type SectionWords = Record<string, number>;
 type PromptLanguages = Record<string, Language>;
 type CopyState = string | "all" | null;
 type AllocationMode = "preset" | "custom";
+type TargetVenueSelection = {
+  presetId: string;
+  customName: string;
+};
+type TargetVenueSelections = Record<PaperStyleId, TargetVenueSelection>;
 
 const SECTION_COLORS = [
   "#24495f",
@@ -40,6 +55,33 @@ const SECTION_COLORS = [
 const UNLIMITED_CORE_SECTION_IDS = new Set<string>(
   PRODUCT_CONFIG.wordCount.unlimitedSectionIds,
 );
+
+const EMPTY_TARGET_VENUE_SELECTIONS: TargetVenueSelections = {
+  conference: { presetId: "", customName: "" },
+  journal: { presetId: "", customName: "" },
+};
+
+function subscribeToLocalExecutionHost() {
+  return () => undefined;
+}
+
+function isLocalExecutionHost() {
+  if (typeof window === "undefined") return false;
+  const hostname = window.location.hostname.toLowerCase();
+  return (
+    window.location.protocol === "file:" ||
+    hostname === "localhost" ||
+    hostname.endsWith(".localhost") ||
+    hostname === "127.0.0.1" ||
+    hostname === "0.0.0.0" ||
+    hostname === "::1" ||
+    hostname === "[::1]"
+  );
+}
+
+function isServerExecutionHost() {
+  return false;
+}
 
 function allocateWords(
   target: number,
@@ -110,6 +152,11 @@ export default function YanshuWorkbench() {
   const [styleId, setStyleId] = useState<PaperStyleId>(
     PRODUCT_CONFIG.defaultPaperStyle,
   );
+  const [targetVenueSelections, setTargetVenueSelections] =
+    useState<TargetVenueSelections>(() => ({
+      conference: { ...EMPTY_TARGET_VENUE_SELECTIONS.conference },
+      journal: { ...EMPTY_TARGET_VENUE_SELECTIONS.journal },
+    }));
   const [
     includeSectionNavigationSentence,
     setIncludeSectionNavigationSentence,
@@ -148,10 +195,26 @@ export default function YanshuWorkbench() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const copyTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const targetInputRef = useRef<HTMLInputElement>(null);
+  const showLocalChatExecution = useSyncExternalStore(
+    subscribeToLocalExecutionHost,
+    isLocalExecutionHost,
+    isServerExecutionHost,
+  );
 
   const copy = UI_COPY[uiLanguage];
   const codexStart = CODEX_START_GUIDE[uiLanguage];
   const style = PRODUCT_CONFIG.paperStyles[styleId];
+  const targetVenueSelection = targetVenueSelections[styleId];
+  const targetVenueOptions = PRODUCT_CONFIG.targetVenues.presets[styleId];
+  const selectedTargetVenue = targetVenueOptions.find(
+    (venue) => venue.id === targetVenueSelection.presetId,
+  );
+  const targetVenueName =
+    targetVenueSelection.presetId === CUSTOM_RECONSTRUCTION_VENUE_ID
+      ? targetVenueSelection.customName.trim()
+      : selectedTargetVenue
+        ? formatReconstructionVenueName(selectedTargetVenue)
+        : "";
   const allocatedWords = Object.values(sectionWords).reduce(
     (sum, value) => sum + value,
     0,
@@ -215,6 +278,7 @@ export default function YanshuWorkbench() {
             styleId,
             styleLabel: style.label[language],
             styleDirective: style.promptDirective[language],
+            targetVenueName,
             includeSectionNavigationSentence,
             targetWords,
             hasWordLimit,
@@ -238,6 +302,7 @@ export default function YanshuWorkbench() {
     [
       promptLanguages,
       styleId,
+      targetVenueName,
       includeSectionNavigationSentence,
       targetWords,
       hasWordLimit,
@@ -318,6 +383,28 @@ export default function YanshuWorkbench() {
     setCopied(null);
   }
 
+  function changeTargetVenue(presetId: string) {
+    setTargetVenueSelections((current) => ({
+      ...current,
+      [styleId]: {
+        ...current[styleId],
+        presetId,
+      },
+    }));
+    setCopied(null);
+  }
+
+  function changeCustomTargetVenue(customName: string) {
+    setTargetVenueSelections((current) => ({
+      ...current,
+      [styleId]: {
+        presetId: CUSTOM_RECONSTRUCTION_VENUE_ID,
+        customName,
+      },
+    }));
+    setCopied(null);
+  }
+
   function changeTarget(rawValue: number) {
     if (!Number.isFinite(rawValue)) return;
     const nextTarget = clampTarget(rawValue);
@@ -392,6 +479,10 @@ export default function YanshuWorkbench() {
     const nextStyle =
       PRODUCT_CONFIG.paperStyles[PRODUCT_CONFIG.defaultPaperStyle];
     setStyleId(PRODUCT_CONFIG.defaultPaperStyle);
+    setTargetVenueSelections({
+      conference: { ...EMPTY_TARGET_VENUE_SELECTIONS.conference },
+      journal: { ...EMPTY_TARGET_VENUE_SELECTIONS.journal },
+    });
     setIncludeSectionNavigationSentence(
       nextStyle.defaultIncludeSectionNavigationSentence,
     );
@@ -409,47 +500,6 @@ export default function YanshuWorkbench() {
     setAllocationMode("preset");
     setAllocationExpanded(true);
     setCopied(null);
-  }
-
-  function exportAutomationConfig() {
-    try {
-      const primaryPromptLanguage =
-        promptLanguages[RECONSTRUCTION_PROMPTS[0].id] ??
-        PRODUCT_CONFIG.defaultPromptLanguage;
-      const payload = {
-        schemaVersion: 1,
-        source: "yanshu-workbench-web",
-        createdAt: new Date().toISOString(),
-        workflow: {
-          language: primaryPromptLanguage,
-          roundLanguages: promptLanguages,
-          styleId,
-          includeSectionNavigationSentence,
-          hasWordLimit,
-          unlimitedCoreSections,
-          targetWords,
-          sectionBudgets: sectionWords,
-          includeAppendix,
-          captionWordRange,
-          chatExecution,
-        },
-      };
-      const blob = new Blob([`${JSON.stringify(payload, null, 2)}\n`], {
-        type: "application/json",
-      });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement("a");
-      anchor.href = url;
-      anchor.download = `yanshu-reconstruction-${styleId}.yanshu.json`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      anchor.remove();
-      URL.revokeObjectURL(url);
-      announceCopied("config");
-    } catch {
-      setCopied(null);
-      setCopyError(true);
-    }
   }
 
   function toggleRound(id: string) {
@@ -499,17 +549,6 @@ export default function YanshuWorkbench() {
               <p>{copy.subtitle}</p>
             </div>
             <div className="config-heading-actions">
-              <button
-                className="text-button config-export-button"
-                type="button"
-                onClick={exportAutomationConfig}
-                title={copy.exportAutomationHint}
-              >
-                <span aria-hidden="true">↓</span>
-                {copied === "config"
-                  ? copy.exportedAutomation
-                  : copy.exportAutomation}
-              </button>
               <button
                 className="text-button reset-button"
                 type="button"
@@ -595,9 +634,68 @@ export default function YanshuWorkbench() {
               <small>{style.description[uiLanguage]}</small>
             </div>
 
-            <div className="config-control intro-navigation-control">
+            <div className="config-control venue-control">
               <div className="control-label-row">
                 <span className="control-index">02</span>
+                <label htmlFor="target-venue">
+                  {styleId === "conference"
+                    ? copy.targetConference
+                    : copy.targetJournal}
+                </label>
+              </div>
+              <div className="target-venue-fields">
+                <select
+                  id="target-venue"
+                  value={targetVenueSelection.presetId}
+                  onChange={(event) => changeTargetVenue(event.target.value)}
+                >
+                  <option value="">{copy.targetVenueNone}</option>
+                  {(["A", "B"] as const).map((tier) => (
+                    <optgroup
+                      key={tier}
+                      label={`${copy.targetVenueTier} ${tier}`}
+                    >
+                      {targetVenueOptions
+                        .filter((venue) => venue.tier === tier)
+                        .map((venue) => (
+                          <option value={venue.id} key={venue.id}>
+                            {formatReconstructionVenueName(venue)}
+                          </option>
+                        ))}
+                    </optgroup>
+                  ))}
+                  <option value={CUSTOM_RECONSTRUCTION_VENUE_ID}>
+                    {copy.targetVenueCustom}
+                  </option>
+                </select>
+                {targetVenueSelection.presetId ===
+                  CUSTOM_RECONSTRUCTION_VENUE_ID && (
+                  <input
+                    type="text"
+                    maxLength={160}
+                    value={targetVenueSelection.customName}
+                    onChange={(event) =>
+                      changeCustomTargetVenue(event.target.value)
+                    }
+                    aria-label={
+                      styleId === "conference"
+                        ? copy.targetConference
+                        : copy.targetJournal
+                    }
+                    placeholder={
+                      styleId === "conference"
+                        ? copy.targetVenueCustomPlaceholder
+                        : copy.targetJournalCustomPlaceholder
+                    }
+                  />
+                )}
+              </div>
+              <small>{copy.targetVenueHint}</small>
+            </div>
+
+            <div className="config-control intro-navigation-control">
+              <div className="control-label-row">
+                <span className="control-index">03</span>
                 <span>{copy.introNavigation}</span>
               </div>
               <button
@@ -626,7 +724,7 @@ export default function YanshuWorkbench() {
 
             <div className="config-control target-control">
               <div className="control-label-row">
-                <span className="control-index">03</span>
+                <span className="control-index">04</span>
                 <span>{copy.targetWords}</span>
               </div>
               <button
@@ -650,7 +748,7 @@ export default function YanshuWorkbench() {
 
             <div className="config-control appendix-control">
               <div className="control-label-row">
-                <span className="control-index">04</span>
+                <span className="control-index">05</span>
                 <span>{copy.appendix}</span>
               </div>
               <button
@@ -679,7 +777,7 @@ export default function YanshuWorkbench() {
 
             <fieldset className="config-control caption-length-control">
               <legend className="control-label-row">
-                <span className="control-index">05</span>
+                <span className="control-index">06</span>
                 <span>{copy.captionLength}</span>
               </legend>
               <div className="framework-custom-ratio caption-word-range">
@@ -721,9 +819,10 @@ export default function YanshuWorkbench() {
               <small>{copy.captionLengthHint}</small>
             </fieldset>
 
-            <fieldset className="config-control chat-execution-control">
+            {showLocalChatExecution && (
+              <fieldset className="config-control chat-execution-control">
               <legend className="control-label-row">
-                <span className="control-index">06</span>
+                <span className="control-index">07</span>
                 <span>{copy.chatExecution}</span>
               </legend>
               <div className="chat-execution-row">
@@ -825,7 +924,8 @@ export default function YanshuWorkbench() {
                 </strong>{" "}
                 {copy.chatRuntimePolicy}
               </small>
-            </fieldset>
+              </fieldset>
+            )}
           </div>
 
           {hasWordLimit && (
@@ -835,7 +935,9 @@ export default function YanshuWorkbench() {
             >
             <div className="allocation-control-header">
               <div className="allocation-title">
-                <span className="control-index">07</span>
+                <span className="control-index">
+                  {showLocalChatExecution ? "08" : "07"}
+                </span>
                 <div>
                   <strong>{copy.plannerTitle}</strong>
                   <span>{copy.plannerBody}</span>

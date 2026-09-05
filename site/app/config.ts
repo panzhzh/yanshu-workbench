@@ -8,6 +8,10 @@ import {
   DEFAULT_CHAT_EXECUTION_PREFERENCES,
 } from "../content/prompts/chatExecution";
 import { CAPTION_LENGTH_POLICY } from "../content/prompts/captionLength";
+import {
+  RECONSTRUCTION_VENUES,
+  RECONSTRUCTION_VENUE_REFERENCE,
+} from "../content/prompts/reconstructionVenues";
 import { WORD_COUNT_POLICY } from "../content/prompts/wordCountPolicy";
 
 export type { Language, LocalizedText, PaperStyleId };
@@ -55,6 +59,10 @@ export const PRODUCT_CONFIG = {
     step: 100,
   },
   captionLength: CAPTION_LENGTH_POLICY,
+  targetVenues: {
+    presets: RECONSTRUCTION_VENUES,
+    reference: RECONSTRUCTION_VENUE_REFERENCE,
+  },
   chatExecution: {
     default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
     reasoningPreferences: CHAT_REASONING_PREFERENCES,
@@ -309,12 +317,21 @@ export const UI_COPY = {
     comingSoon: "即将推出",
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "论文重构",
-    subtitle: "选择论文类型、可选篇幅建议与附录规则，再用一个 Prompt 连续完成四个内部重构步骤。",
+    subtitle: "选择论文类型、可选目标 venue、篇幅建议与附录规则，再用一个 Prompt 连续完成四个内部重构步骤。",
     generalPreset: "通用产品预设 · 非 venue 官方要求",
     language: "网站语言",
     chinese: "中文",
     english: "English",
     paperStyle: "论文风格",
+    targetConference: "目标会议",
+    targetJournal: "目标期刊",
+    targetVenueNone: "未指定",
+    targetVenueCustom: "自定义名称",
+    targetVenueCustomPlaceholder: "输入会议全名或常用简称",
+    targetJournalCustomPlaceholder: "输入期刊全名或常用简称",
+    targetVenueTier: "CCF 第七版（2026）· 常用",
+    targetVenueHint:
+      "内置 A/B 项仅用于快速填写；执行时仍须核验目标当届或当前官方作者指南。",
     targetWords: "建议正文参考值",
     targetWordsHint:
       "开启后显示可选章节建议；可根据论文内容采纳、调整或忽略。附录不计入正文，每张表格或图片按 200 词估算。",
@@ -352,13 +369,9 @@ export const UI_COPY = {
       "按实际档位自动采用：Medium / High 1 分钟，Extra High 3 分钟，Pro 5 分钟；无法识别时按 1 分钟。",
     chatRuntimePolicy:
       "不锁定 GPT 型号名称；执行器读取当前可用选项。发生回退时先明确提示，名称无法判断时选择最强可用档位。",
-    exportAutomation: "导出桌面配置",
-    exportedAutomation: "配置已下载",
-    exportAutomationHint:
-      "下载当前论文类型、篇幅建议、章节、附录、Caption 建议、推理偏好和 Prompt 语言设置。",
     resetDefaults: "恢复默认配置",
     resetHint:
-      "重置论文类型、篇幅建议、附录、Caption 建议、推理偏好和章节建议；保留当前语言。",
+      "重置论文类型、目标 venue、篇幅建议、附录、Caption 建议、推理偏好和章节建议；保留当前语言。",
     plannerTitle: "正文与章节篇幅建议",
     plannerBody:
       "所有数值仅供参考，可按论文内容接受、调整或忽略；方法和实验默认不设置建议范围。",
@@ -416,6 +429,15 @@ export const UI_COPY = {
     chinese: "中文",
     english: "English",
     paperStyle: "Paper style",
+    targetConference: "Target conference",
+    targetJournal: "Target journal",
+    targetVenueNone: "Not specified",
+    targetVenueCustom: "Custom venue",
+    targetVenueCustomPlaceholder: "Enter the conference name or acronym",
+    targetJournalCustomPlaceholder: "Enter the journal name or acronym",
+    targetVenueTier: "CCF 7th edition (2026) · common",
+    targetVenueHint:
+      "Built-in A/B entries are shortcuts only; verify the current edition or author guidelines before execution.",
     targetWords: "Suggested main-text reference",
     targetWordsHint:
       "When enabled, optional section suggestions appear; accept, adjust, or ignore them according to the paper. The appendix is excluded, and each table or figure is estimated as 200 words.",
@@ -454,13 +476,9 @@ export const UI_COPY = {
       "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",
     chatRuntimePolicy:
       "GPT model names are never pinned. The executor inspects currently available options, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
-    exportAutomation: "Export desktop config",
-    exportedAutomation: "Config downloaded",
-    exportAutomationHint:
-      "Download the current paper type, optional length guidance, section, appendix, caption guidance, reasoning preference, and prompt-language settings.",
     resetDefaults: "Restore defaults",
     resetHint:
-      "Resets paper type, length guidance, appendix, caption guidance, reasoning preference, and section suggestions while keeping the current language.",
+      "Resets paper type, target venue, length guidance, appendix, caption guidance, reasoning preference, and section suggestions while keeping the current language.",
     plannerTitle: "Main-text and section length guidance",
     plannerBody:
       "Every value is optional guidance that may be accepted, adjusted, or ignored according to the paper; Method and Experiments receive no suggestion by default.",

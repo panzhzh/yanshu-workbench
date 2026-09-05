@@ -135,6 +135,101 @@ function buildCaptionLengthGuidance(value, language) {
   return language === "zh" ? `\u6BCF\u6761 Caption \u5EFA\u8BAE\u7EA6 ${minimum}\u2013${maximum} words\u3002\u8BE5\u533A\u95F4\u53EA\u7528\u4E8E\u5E73\u8861\u7B80\u6D01\u4E0E\u81EA\u5305\u542B\u6027\uFF0C\u4E0D\u662F\u786C\u6027\u9650\u5236\uFF1B\u5F53\u8BF4\u660E\u5B50\u56FE\u3001\u5BF9\u8C61\u3001\u6761\u4EF6\u3001\u6307\u6807\u6216\u5FC5\u8981\u7EDF\u8BA1\u8BED\u4E49\u786E\u6709\u9700\u8981\u65F6\u53EF\u4EE5\u8D85\u51FA\uFF0C\u4E5F\u4E0D\u8981\u4E3A\u51D1\u8DB3\u4E0B\u9650\u673A\u68B0\u8865\u5199\u3002` : `Aim for roughly ${minimum}\u2013${maximum} words per caption. This range is advisory, balancing concision with self-containment rather than imposing a hard limit. Exceed it when panels, objects, conditions, metrics, or essential statistical semantics genuinely require more explanation, and never pad a caption merely to reach the lower bound.`;
 }
 
+// content/prompts/reconstructionVenues.ts
+var RECONSTRUCTION_VENUE_REFERENCE = {
+  edition: "CCF 7th edition (2026)",
+  url: "https://www.ccf.org.cn/Academic_Evaluation/By_category/"
+};
+var RECONSTRUCTION_VENUES = {
+  conference: [
+    { id: "aaai", tier: "A", shortName: "AAAI", fullName: "AAAI Conference on Artificial Intelligence" },
+    { id: "neurips", tier: "A", shortName: "NeurIPS", fullName: "Conference on Neural Information Processing Systems" },
+    { id: "acl", tier: "A", shortName: "ACL", fullName: "Annual Meeting of the Association for Computational Linguistics" },
+    { id: "cvpr", tier: "A", shortName: "CVPR", fullName: "IEEE/CVF Conference on Computer Vision and Pattern Recognition" },
+    { id: "iccv", tier: "A", shortName: "ICCV", fullName: "IEEE/CVF International Conference on Computer Vision" },
+    { id: "icml", tier: "A", shortName: "ICML", fullName: "International Conference on Machine Learning" },
+    { id: "ijcai", tier: "A", shortName: "IJCAI", fullName: "International Joint Conference on Artificial Intelligence" },
+    { id: "sigmod", tier: "A", shortName: "SIGMOD", fullName: "ACM SIGMOD Conference" },
+    { id: "sigkdd", tier: "A", shortName: "SIGKDD", fullName: "ACM SIGKDD Conference on Knowledge Discovery and Data Mining" },
+    { id: "icde", tier: "A", shortName: "ICDE", fullName: "IEEE International Conference on Data Engineering" },
+    { id: "sigir", tier: "A", shortName: "SIGIR", fullName: "International ACM SIGIR Conference on Research and Development in Information Retrieval" },
+    { id: "vldb", tier: "A", shortName: "VLDB", fullName: "International Conference on Very Large Data Bases" },
+    { id: "www", tier: "A", shortName: "WWW", fullName: "The Web Conference" },
+    { id: "ccs", tier: "A", shortName: "CCS", fullName: "ACM Conference on Computer and Communications Security" },
+    { id: "sp", tier: "A", shortName: "IEEE S&P", fullName: "IEEE Symposium on Security and Privacy" },
+    { id: "usenix-security", tier: "A", shortName: "USENIX Security", fullName: "USENIX Security Symposium" },
+    { id: "ndss", tier: "A", shortName: "NDSS", fullName: "Network and Distributed System Security Symposium" },
+    { id: "pldi", tier: "A", shortName: "PLDI", fullName: "ACM SIGPLAN Conference on Programming Language Design and Implementation" },
+    { id: "popl", tier: "A", shortName: "POPL", fullName: "ACM SIGPLAN Symposium on Principles of Programming Languages" },
+    { id: "fse", tier: "A", shortName: "FSE", fullName: "ACM International Conference on the Foundations of Software Engineering" },
+    { id: "icse", tier: "A", shortName: "ICSE", fullName: "International Conference on Software Engineering" },
+    { id: "fast", tier: "A", shortName: "FAST", fullName: "USENIX Conference on File and Storage Technologies" },
+    { id: "hpca", tier: "A", shortName: "HPCA", fullName: "IEEE International Symposium on High-Performance Computer Architecture" },
+    { id: "micro", tier: "A", shortName: "MICRO", fullName: "IEEE/ACM International Symposium on Microarchitecture" },
+    { id: "sc", tier: "A", shortName: "SC", fullName: "International Conference for High Performance Computing, Networking, Storage, and Analysis" },
+    { id: "stoc", tier: "A", shortName: "STOC", fullName: "ACM Symposium on Theory of Computing" },
+    { id: "soda", tier: "A", shortName: "SODA", fullName: "ACM-SIAM Symposium on Discrete Algorithms" },
+    { id: "cav", tier: "A", shortName: "CAV", fullName: "International Conference on Computer Aided Verification" },
+    { id: "focs", tier: "A", shortName: "FOCS", fullName: "IEEE Symposium on Foundations of Computer Science" },
+    { id: "lics", tier: "A", shortName: "LICS", fullName: "ACM/IEEE Symposium on Logic in Computer Science" },
+    { id: "colt", tier: "B", shortName: "COLT", fullName: "Conference on Learning Theory" },
+    { id: "emnlp", tier: "B", shortName: "EMNLP", fullName: "Conference on Empirical Methods in Natural Language Processing" },
+    { id: "ecai", tier: "B", shortName: "ECAI", fullName: "European Conference on Artificial Intelligence" },
+    { id: "eccv", tier: "B", shortName: "ECCV", fullName: "European Conference on Computer Vision" },
+    { id: "icra", tier: "B", shortName: "ICRA", fullName: "IEEE International Conference on Robotics and Automation" },
+    { id: "icaps", tier: "B", shortName: "ICAPS", fullName: "International Conference on Automated Planning and Scheduling" },
+    { id: "cikm", tier: "B", shortName: "CIKM", fullName: "ACM International Conference on Information and Knowledge Management" },
+    { id: "acsac", tier: "B", shortName: "ACSAC", fullName: "Annual Computer Security Applications Conference" },
+    { id: "asiacrypt", tier: "B", shortName: "ASIACRYPT", fullName: "International Conference on the Theory and Application of Cryptology and Information Security" },
+    { id: "esorics", tier: "B", shortName: "ESORICS", fullName: "European Symposium on Research in Computer Security" },
+    { id: "dsn", tier: "B", shortName: "DSN", fullName: "International Conference on Dependable Systems and Networks" },
+    { id: "cogsci", tier: "B", shortName: "CogSci", fullName: "Annual Meeting of the Cognitive Science Society" },
+    { id: "bibm", tier: "B", shortName: "BIBM", fullName: "IEEE International Conference on Bioinformatics and Biomedicine" },
+    { id: "emsoft", tier: "B", shortName: "EMSOFT", fullName: "International Conference on Embedded Software" }
+  ],
+  journal: [
+    { id: "ai", tier: "A", shortName: "AI", fullName: "Artificial Intelligence" },
+    { id: "tpami", tier: "A", shortName: "TPAMI", fullName: "IEEE Transactions on Pattern Analysis and Machine Intelligence" },
+    { id: "ijcv", tier: "A", shortName: "IJCV", fullName: "International Journal of Computer Vision" },
+    { id: "jmlr", tier: "A", shortName: "JMLR", fullName: "Journal of Machine Learning Research" },
+    { id: "tods", tier: "A", shortName: "TODS", fullName: "ACM Transactions on Database Systems" },
+    { id: "tois", tier: "A", shortName: "TOIS", fullName: "ACM Transactions on Information Systems" },
+    { id: "tkde", tier: "A", shortName: "TKDE", fullName: "IEEE Transactions on Knowledge and Data Engineering" },
+    { id: "vldbj", tier: "A", shortName: "VLDBJ", fullName: "The VLDB Journal" },
+    { id: "tog", tier: "A", shortName: "TOG", fullName: "ACM Transactions on Graphics" },
+    { id: "tip", tier: "A", shortName: "TIP", fullName: "IEEE Transactions on Image Processing" },
+    { id: "tvcg", tier: "A", shortName: "TVCG", fullName: "IEEE Transactions on Visualization and Computer Graphics" },
+    { id: "tdsc", tier: "A", shortName: "TDSC", fullName: "IEEE Transactions on Dependable and Secure Computing" },
+    { id: "tifs", tier: "A", shortName: "TIFS", fullName: "IEEE Transactions on Information Forensics and Security" },
+    { id: "journal-of-cryptology", tier: "A", shortName: "JoC", fullName: "Journal of Cryptology" },
+    { id: "tocs", tier: "A", shortName: "TOCS", fullName: "ACM Transactions on Computer Systems" },
+    { id: "tos", tier: "A", shortName: "TOS", fullName: "ACM Transactions on Storage" },
+    { id: "tcad", tier: "A", shortName: "TCAD", fullName: "IEEE Transactions on Computer-Aided Design of Integrated Circuits and Systems" },
+    { id: "tc", tier: "A", shortName: "TC", fullName: "IEEE Transactions on Computers" },
+    { id: "tpds", tier: "A", shortName: "TPDS", fullName: "IEEE Transactions on Parallel and Distributed Systems" },
+    { id: "taco", tier: "A", shortName: "TACO", fullName: "ACM Transactions on Architecture and Code Optimization" },
+    { id: "tit", tier: "A", shortName: "TIT", fullName: "IEEE Transactions on Information Theory" },
+    { id: "jacm", tier: "A", shortName: "JACM", fullName: "Journal of the ACM" },
+    { id: "tap", tier: "B", shortName: "TAP", fullName: "ACM Transactions on Applied Perception" },
+    { id: "aamas", tier: "B", shortName: "AAMAS", fullName: "Autonomous Agents and Multi-Agent Systems" },
+    { id: "computational-linguistics", tier: "B", shortName: "CL", fullName: "Computational Linguistics" },
+    { id: "cviu", tier: "B", shortName: "CVIU", fullName: "Computer Vision and Image Understanding" },
+    { id: "tkdd", tier: "B", shortName: "TKDD", fullName: "ACM Transactions on Knowledge Discovery from Data" },
+    { id: "tweb", tier: "B", shortName: "TWEB", fullName: "ACM Transactions on the Web" },
+    { id: "aei", tier: "B", shortName: "AEI", fullName: "Advanced Engineering Informatics" },
+    { id: "dke", tier: "B", shortName: "DKE", fullName: "Data & Knowledge Engineering" },
+    { id: "dmkd", tier: "B", shortName: "DMKD", fullName: "Data Mining and Knowledge Discovery" },
+    { id: "tomm", tier: "B", shortName: "TOMM", fullName: "ACM Transactions on Multimedia Computing, Communications, and Applications" },
+    { id: "cgf", tier: "B", shortName: "CGF", fullName: "Computer Graphics Forum" },
+    { id: "tcsvt", tier: "B", shortName: "TCSVT", fullName: "IEEE Transactions on Circuits and Systems for Video Technology" },
+    { id: "tmm", tier: "B", shortName: "TMM", fullName: "IEEE Transactions on Multimedia" },
+    { id: "tops", tier: "B", shortName: "TOPS", fullName: "ACM Transactions on Privacy and Security" },
+    { id: "computers-security", tier: "B", shortName: "C&S", fullName: "Computers & Security" },
+    { id: "designs-codes-cryptography", tier: "B", shortName: "DCC", fullName: "Designs, Codes and Cryptography" },
+    { id: "jcs", tier: "B", shortName: "JCS", fullName: "Journal of Computer Security" }
+  ]
+};
+
 // content/prompts/wordCountPolicy.ts
 var WORD_COUNT_POLICY = {
   unlimitedCoreSectionIds: ["method", "experiments-results"],
@@ -158,6 +253,10 @@ var PRODUCT_CONFIG = {
     step: 100
   },
   captionLength: CAPTION_LENGTH_POLICY,
+  targetVenues: {
+    presets: RECONSTRUCTION_VENUES,
+    reference: RECONSTRUCTION_VENUE_REFERENCE
+  },
   chatExecution: {
     default: DEFAULT_CHAT_EXECUTION_PREFERENCES,
     reasoningPreferences: CHAT_REASONING_PREFERENCES
@@ -411,12 +510,20 @@ var UI_COPY = {
     comingSoon: "\u5373\u5C06\u63A8\u51FA",
     configEyebrow: "PAPER RECONSTRUCTION",
     title: "\u8BBA\u6587\u91CD\u6784",
-    subtitle: "\u9009\u62E9\u8BBA\u6587\u7C7B\u578B\u3001\u53EF\u9009\u7BC7\u5E45\u5EFA\u8BAE\u4E0E\u9644\u5F55\u89C4\u5219\uFF0C\u518D\u7528\u4E00\u4E2A Prompt \u8FDE\u7EED\u5B8C\u6210\u56DB\u4E2A\u5185\u90E8\u91CD\u6784\u6B65\u9AA4\u3002",
+    subtitle: "\u9009\u62E9\u8BBA\u6587\u7C7B\u578B\u3001\u53EF\u9009\u76EE\u6807 venue\u3001\u7BC7\u5E45\u5EFA\u8BAE\u4E0E\u9644\u5F55\u89C4\u5219\uFF0C\u518D\u7528\u4E00\u4E2A Prompt \u8FDE\u7EED\u5B8C\u6210\u56DB\u4E2A\u5185\u90E8\u91CD\u6784\u6B65\u9AA4\u3002",
     generalPreset: "\u901A\u7528\u4EA7\u54C1\u9884\u8BBE \xB7 \u975E venue \u5B98\u65B9\u8981\u6C42",
     language: "\u7F51\u7AD9\u8BED\u8A00",
     chinese: "\u4E2D\u6587",
     english: "English",
     paperStyle: "\u8BBA\u6587\u98CE\u683C",
+    targetConference: "\u76EE\u6807\u4F1A\u8BAE",
+    targetJournal: "\u76EE\u6807\u671F\u520A",
+    targetVenueNone: "\u672A\u6307\u5B9A",
+    targetVenueCustom: "\u81EA\u5B9A\u4E49\u540D\u79F0",
+    targetVenueCustomPlaceholder: "\u8F93\u5165\u4F1A\u8BAE\u5168\u540D\u6216\u5E38\u7528\u7B80\u79F0",
+    targetJournalCustomPlaceholder: "\u8F93\u5165\u671F\u520A\u5168\u540D\u6216\u5E38\u7528\u7B80\u79F0",
+    targetVenueTier: "CCF \u7B2C\u4E03\u7248\uFF082026\uFF09\xB7 \u5E38\u7528",
+    targetVenueHint: "\u5185\u7F6E A/B \u9879\u4EC5\u7528\u4E8E\u5FEB\u901F\u586B\u5199\uFF1B\u6267\u884C\u65F6\u4ECD\u987B\u6838\u9A8C\u76EE\u6807\u5F53\u5C4A\u6216\u5F53\u524D\u5B98\u65B9\u4F5C\u8005\u6307\u5357\u3002",
     targetWords: "\u5EFA\u8BAE\u6B63\u6587\u53C2\u8003\u503C",
     targetWordsHint: "\u5F00\u542F\u540E\u663E\u793A\u53EF\u9009\u7AE0\u8282\u5EFA\u8BAE\uFF1B\u53EF\u6839\u636E\u8BBA\u6587\u5185\u5BB9\u91C7\u7EB3\u3001\u8C03\u6574\u6216\u5FFD\u7565\u3002\u9644\u5F55\u4E0D\u8BA1\u5165\u6B63\u6587\uFF0C\u6BCF\u5F20\u8868\u683C\u6216\u56FE\u7247\u6309 200 \u8BCD\u4F30\u7B97\u3002",
     wordLimitOn: "\u542F\u7528\u7BC7\u5E45\u5EFA\u8BAE",
@@ -446,11 +553,8 @@ var UI_COPY = {
     chatPollingInterval: "\u7ED3\u679C\u68C0\u67E5\u95F4\u9694",
     chatPollingAuto: "\u6309\u5B9E\u9645\u6863\u4F4D\u81EA\u52A8\u91C7\u7528\uFF1AMedium / High 1 \u5206\u949F\uFF0CExtra High 3 \u5206\u949F\uFF0CPro 5 \u5206\u949F\uFF1B\u65E0\u6CD5\u8BC6\u522B\u65F6\u6309 1 \u5206\u949F\u3002",
     chatRuntimePolicy: "\u4E0D\u9501\u5B9A GPT \u578B\u53F7\u540D\u79F0\uFF1B\u6267\u884C\u5668\u8BFB\u53D6\u5F53\u524D\u53EF\u7528\u9009\u9879\u3002\u53D1\u751F\u56DE\u9000\u65F6\u5148\u660E\u786E\u63D0\u793A\uFF0C\u540D\u79F0\u65E0\u6CD5\u5224\u65AD\u65F6\u9009\u62E9\u6700\u5F3A\u53EF\u7528\u6863\u4F4D\u3002",
-    exportAutomation: "\u5BFC\u51FA\u684C\u9762\u914D\u7F6E",
-    exportedAutomation: "\u914D\u7F6E\u5DF2\u4E0B\u8F7D",
-    exportAutomationHint: "\u4E0B\u8F7D\u5F53\u524D\u8BBA\u6587\u7C7B\u578B\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u7AE0\u8282\u3001\u9644\u5F55\u3001Caption \u5EFA\u8BAE\u3001\u63A8\u7406\u504F\u597D\u548C Prompt \u8BED\u8A00\u8BBE\u7F6E\u3002",
     resetDefaults: "\u6062\u590D\u9ED8\u8BA4\u914D\u7F6E",
-    resetHint: "\u91CD\u7F6E\u8BBA\u6587\u7C7B\u578B\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u9644\u5F55\u3001Caption \u5EFA\u8BAE\u3001\u63A8\u7406\u504F\u597D\u548C\u7AE0\u8282\u5EFA\u8BAE\uFF1B\u4FDD\u7559\u5F53\u524D\u8BED\u8A00\u3002",
+    resetHint: "\u91CD\u7F6E\u8BBA\u6587\u7C7B\u578B\u3001\u76EE\u6807 venue\u3001\u7BC7\u5E45\u5EFA\u8BAE\u3001\u9644\u5F55\u3001Caption \u5EFA\u8BAE\u3001\u63A8\u7406\u504F\u597D\u548C\u7AE0\u8282\u5EFA\u8BAE\uFF1B\u4FDD\u7559\u5F53\u524D\u8BED\u8A00\u3002",
     plannerTitle: "\u6B63\u6587\u4E0E\u7AE0\u8282\u7BC7\u5E45\u5EFA\u8BAE",
     plannerBody: "\u6240\u6709\u6570\u503C\u4EC5\u4F9B\u53C2\u8003\uFF0C\u53EF\u6309\u8BBA\u6587\u5185\u5BB9\u63A5\u53D7\u3001\u8C03\u6574\u6216\u5FFD\u7565\uFF1B\u65B9\u6CD5\u548C\u5B9E\u9A8C\u9ED8\u8BA4\u4E0D\u8BBE\u7F6E\u5EFA\u8BAE\u8303\u56F4\u3002",
     targetTotal: "\u5EFA\u8BAE\u6B63\u6587\u53C2\u8003\u503C",
@@ -504,6 +608,14 @@ var UI_COPY = {
     chinese: "\u4E2D\u6587",
     english: "English",
     paperStyle: "Paper style",
+    targetConference: "Target conference",
+    targetJournal: "Target journal",
+    targetVenueNone: "Not specified",
+    targetVenueCustom: "Custom venue",
+    targetVenueCustomPlaceholder: "Enter the conference name or acronym",
+    targetJournalCustomPlaceholder: "Enter the journal name or acronym",
+    targetVenueTier: "CCF 7th edition (2026) \xB7 common",
+    targetVenueHint: "Built-in A/B entries are shortcuts only; verify the current edition or author guidelines before execution.",
     targetWords: "Suggested main-text reference",
     targetWordsHint: "When enabled, optional section suggestions appear; accept, adjust, or ignore them according to the paper. The appendix is excluded, and each table or figure is estimated as 200 words.",
     wordLimitOn: "Enable length guidance",
@@ -533,11 +645,8 @@ var UI_COPY = {
     chatPollingInterval: "Result-check interval",
     chatPollingAuto: "Resolved from the level actually selected: Medium / High 1 minute, Extra High 3 minutes, and Pro 5 minutes; unknown labels use 1 minute.",
     chatRuntimePolicy: "GPT model names are never pinned. The executor inspects currently available options, announces any fallback, and chooses the strongest available level when labels cannot be interpreted.",
-    exportAutomation: "Export desktop config",
-    exportedAutomation: "Config downloaded",
-    exportAutomationHint: "Download the current paper type, optional length guidance, section, appendix, caption guidance, reasoning preference, and prompt-language settings.",
     resetDefaults: "Restore defaults",
-    resetHint: "Resets paper type, length guidance, appendix, caption guidance, reasoning preference, and section suggestions while keeping the current language.",
+    resetHint: "Resets paper type, target venue, length guidance, appendix, caption guidance, reasoning preference, and section suggestions while keeping the current language.",
     plannerTitle: "Main-text and section length guidance",
     plannerBody: "Every value is optional guidance that may be accepted, adjusted, or ignored according to the paper; Method and Experiments receive no suggestion by default.",
     targetTotal: "Suggested main-text reference",
@@ -2090,6 +2199,10 @@ var LABELS = {
     role: "## \u4F60\u7684\u89D2\u8272",
     configuration: "## \u5F53\u524D\u914D\u7F6E",
     paperStyle: "\u8BBA\u6587\u7C7B\u578B",
+    targetConference: "\u76EE\u6807\u4F1A\u8BAE",
+    targetJournal: "\u76EE\u6807\u671F\u520A",
+    targetVenueNotSpecified: "\u672A\u6307\u5B9A",
+    targetVenueVerification: "\u5DF2\u6307\u5B9A\u76EE\u6807\u65F6\uFF0C\u6267\u884C\u524D\u5FC5\u987B\u6838\u9A8C\u8BE5\u4F1A\u8BAE\u5F53\u5C4A\u6216\u8BE5\u671F\u520A\u5F53\u524D\u5B98\u65B9\u4F5C\u8005\u6307\u5357\uFF1B\u9875\u9762\u9884\u8BBE\u4E0E CCF \u5206\u7EC4\u4EC5\u7528\u4E8E\u4FBF\u6377\u586B\u5199\uFF0C\u4E0D\u89C6\u4E3A venue \u5B98\u65B9\u89C4\u5219\u3002",
     lengthMode: "\u7BC7\u5E45\u5EFA\u8BAE",
     flexibleCoreMode: "\u4E0D\u8BBE\u6B63\u6587\u603B\u5EFA\u8BAE\uFF1B\u4EC5\u4E3A\u65B9\u6CD5\u548C\u5B9E\u9A8C\u4EE5\u5916\u7684\u7AE0\u8282\u63D0\u4F9B\u53C2\u8003\u8303\u56F4",
     targetType: "\u6295\u7A3F\u7C7B\u578B",
@@ -2143,6 +2256,10 @@ var LABELS = {
     role: "## Your Role",
     configuration: "## Current Configuration",
     paperStyle: "Paper type",
+    targetConference: "Target conference",
+    targetJournal: "Target journal",
+    targetVenueNotSpecified: "Not specified",
+    targetVenueVerification: "When a target is specified, verify the current official author guidelines for that conference edition or journal before execution. Website presets and CCF groups are input shortcuts, not official venue rules.",
     lengthMode: "Length guidance",
     flexibleCoreMode: "No suggested main-text total; optional ranges only for sections other than Method and Experiments",
     targetType: "Submission type",
@@ -2248,6 +2365,13 @@ function buildConfiguration(template, context) {
   }
   return [
     field(labels.paperStyle, context.styleLabel),
+    ...context.targetVenueName !== void 0 ? [
+      field(
+        context.styleId === "conference" ? labels.targetConference : labels.targetJournal,
+        context.targetVenueName || labels.targetVenueNotSpecified
+      ),
+      ...context.targetVenueName ? [labels.targetVenueVerification] : []
+    ] : [],
     field(labels.styleDirective, context.styleDirective),
     ...["scientific-positioning", "narrative-reconstruction", "full-reconstruction"].includes(
       template.id
@@ -2546,6 +2670,10 @@ function getReconstructionConfigurationModel() {
     defaultPromptLanguage: PRODUCT_CONFIG.defaultPromptLanguage,
     wordCount: PRODUCT_CONFIG.wordCount,
     captionLength: PRODUCT_CONFIG.captionLength,
+    targetVenues: {
+      reference: RECONSTRUCTION_VENUE_REFERENCE,
+      presets: RECONSTRUCTION_VENUES
+    },
     paperStyles: Object.fromEntries(
       Object.entries(PRODUCT_CONFIG.paperStyles).map(([id, style]) => [
         id,
@@ -2601,6 +2729,13 @@ function normalizeInput(input = {}) {
     throw new Error(`Unsupported paper style: ${String(styleId)}.`);
   }
   const style = PRODUCT_CONFIG.paperStyles[styleId];
+  if (input.targetVenueName !== void 0 && typeof input.targetVenueName !== "string") {
+    throw new Error("targetVenueName must be a string.");
+  }
+  const targetVenueName = input.targetVenueName?.trim() ?? "";
+  if (targetVenueName.length > 160) {
+    throw new Error("targetVenueName must not exceed 160 characters.");
+  }
   const hasWordLimit = input.hasWordLimit ?? PRODUCT_CONFIG.wordCount.defaultMode === "target";
   const unlimitedCoreSections = input.unlimitedCoreSections ?? PRODUCT_CONFIG.wordCount.defaultUnlimitedCoreSections;
   const includeSectionNavigationSentence = input.includeSectionNavigationSentence ?? style.defaultIncludeSectionNavigationSentence;
@@ -2689,6 +2824,7 @@ function normalizeInput(input = {}) {
     ),
     styleId,
     style,
+    targetVenueName,
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
@@ -2706,6 +2842,7 @@ function buildReconstructionWorkflow(input = {}) {
     roundLanguages,
     styleId,
     style,
+    targetVenueName,
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
@@ -2720,6 +2857,7 @@ function buildReconstructionWorkflow(input = {}) {
     styleId,
     styleLabel: style.label[promptLanguage],
     styleDirective: style.promptDirective[promptLanguage],
+    targetVenueName,
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
@@ -2742,6 +2880,7 @@ function buildReconstructionWorkflow(input = {}) {
       language,
       roundLanguages,
       styleId,
+      targetVenueName,
       hasWordLimit,
       unlimitedCoreSections,
       includeSectionNavigationSentence,

@@ -3,7 +3,10 @@ import { mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import test from "node:test";
-import { buildReconstructionWorkflow } from "../runtime/prompt-engine.mjs";
+import {
+  buildReconstructionWorkflow,
+  getReconstructionConfigurationModel,
+} from "../runtime/prompt-engine.mjs";
 import { resolvePaperInputs } from "../scripts/lib/run-store.mjs";
 
 const pluginRoot = path.resolve(new URL("..", import.meta.url).pathname);
@@ -12,12 +15,16 @@ test("Paper Reconstruction compiles to one current-task Prompt", () => {
   const workflow = buildReconstructionWorkflow({
     language: "zh",
     styleId: "conference",
+    targetVenueName: "NeurIPS",
     includeAppendix: true,
   });
 
   assert.equal(workflow.workflowVersion, "2026.09.05");
   assert.equal(workflow.rounds.length, 1);
   assert.equal(workflow.rounds[0].id, "full-reconstruction");
+  assert.equal(workflow.config.targetVenueName, "NeurIPS");
+  assert.match(workflow.rounds[0].prompt, /目标会议：NeurIPS/);
+  assert.match(workflow.rounds[0].prompt, /当届或该期刊当前官方作者指南/);
   assert.match(workflow.rounds[0].prompt, /四个 Step 作为同一次完整重构/);
   assert.match(workflow.rounds[0].prompt, /Step 1 · 科学定位与宏观结构/);
   assert.match(workflow.rounds[0].prompt, /Step 2 · 方法与实验深度重构/);
@@ -38,10 +45,27 @@ test("default reconstruction uses advisory length policy and protects core evide
 
   assert.equal(workflow.config.hasWordLimit, false);
   assert.equal(workflow.config.unlimitedCoreSections, true);
+  assert.equal(workflow.config.targetVenueName, "");
+  assert.match(prompt, /Target conference: Not specified/);
   assert.doesNotMatch(prompt, /Suggested main-text and section length guidance/);
   assert.match(prompt, /Preserve every protocol, core result, unfavorable result/);
   assert.match(prompt, /Do not change the template, generate images/);
   assert.match(prompt, /Repair only confirmed regressions cohesively/);
+});
+
+test("reconstruction exposes common conference and journal targets", () => {
+  const model = getReconstructionConfigurationModel();
+  assert.equal(model.targetVenues.reference.edition, "CCF 7th edition (2026)");
+  assert.ok(
+    model.targetVenues.presets.conference.some(
+      (venue) => venue.shortName === "NeurIPS" && venue.tier === "A",
+    ),
+  );
+  assert.ok(
+    model.targetVenues.presets.journal.some(
+      (venue) => venue.shortName === "TPAMI" && venue.tier === "A",
+    ),
+  );
 });
 
 test("paper input discovery remains read-only and handles spaces and Unicode", async () => {
@@ -85,4 +109,5 @@ test("the Paper Reconstruction Skill forbids pages, nested tasks, and intermedia
   assert.match(skill, /Never launch nested `codex`/);
   assert.match(skill, /Do not save Step outputs, round reports, Prompt copies, ZIP files/);
   assert.match(skill, /output directory contains exactly/);
+  assert.match(skill, /leave the target unspecified instead of asking a fourth question/);
 });

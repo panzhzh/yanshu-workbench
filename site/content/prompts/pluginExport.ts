@@ -15,6 +15,10 @@ import {
   type CaptionWordRange,
 } from "./captionLength";
 import { RECONSTRUCTION_PROMPTS } from "./templates";
+import {
+  RECONSTRUCTION_VENUES,
+  RECONSTRUCTION_VENUE_REFERENCE,
+} from "./reconstructionVenues";
 import { RECONSTRUCTION_WORKFLOW_VERSION } from "./version";
 import type {
   Language,
@@ -26,6 +30,7 @@ export interface ReconstructionWorkflowInput {
   language?: Language;
   roundLanguages?: Record<string, Language>;
   styleId?: PaperStyleId;
+  targetVenueName?: string;
   hasWordLimit?: boolean;
   unlimitedCoreSections?: boolean;
   includeSectionNavigationSentence?: boolean;
@@ -43,6 +48,10 @@ export function getReconstructionConfigurationModel() {
     defaultPromptLanguage: PRODUCT_CONFIG.defaultPromptLanguage,
     wordCount: PRODUCT_CONFIG.wordCount,
     captionLength: PRODUCT_CONFIG.captionLength,
+    targetVenues: {
+      reference: RECONSTRUCTION_VENUE_REFERENCE,
+      presets: RECONSTRUCTION_VENUES,
+    },
     paperStyles: Object.fromEntries(
       Object.entries(PRODUCT_CONFIG.paperStyles).map(([id, style]) => [
         id,
@@ -108,6 +117,16 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     throw new Error(`Unsupported paper style: ${String(styleId)}.`);
   }
   const style = PRODUCT_CONFIG.paperStyles[styleId];
+  if (
+    input.targetVenueName !== undefined &&
+    typeof input.targetVenueName !== "string"
+  ) {
+    throw new Error("targetVenueName must be a string.");
+  }
+  const targetVenueName = input.targetVenueName?.trim() ?? "";
+  if (targetVenueName.length > 160) {
+    throw new Error("targetVenueName must not exceed 160 characters.");
+  }
   const hasWordLimit =
     input.hasWordLimit ??
     (PRODUCT_CONFIG.wordCount.defaultMode === "target");
@@ -221,6 +240,7 @@ function normalizeInput(input: ReconstructionWorkflowInput = {}) {
     ),
     styleId,
     style,
+    targetVenueName,
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
@@ -241,6 +261,7 @@ export function buildReconstructionWorkflow(
     roundLanguages,
     styleId,
     style,
+    targetVenueName,
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
@@ -257,6 +278,7 @@ export function buildReconstructionWorkflow(
     styleId,
     styleLabel: style.label[promptLanguage],
     styleDirective: style.promptDirective[promptLanguage],
+    targetVenueName,
     hasWordLimit,
     unlimitedCoreSections,
     includeSectionNavigationSentence,
@@ -289,6 +311,7 @@ export function buildReconstructionWorkflow(
       language,
       roundLanguages,
       styleId,
+      targetVenueName,
       hasWordLimit,
       unlimitedCoreSections,
       includeSectionNavigationSentence,

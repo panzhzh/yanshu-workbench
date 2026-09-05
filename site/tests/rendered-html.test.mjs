@@ -510,23 +510,22 @@ test("server-renders the YanShu reconstruction workbench", async () => {
   assert.match(html, /class="workflow-section content-section prompt-rail"/);
   assert.match(html, /会议/);
   assert.match(html, /期刊/);
+  assert.match(html, /目标会议/);
+  assert.match(html, /CCF 第七版（2026）· 常用 A/);
+  assert.match(html, /NeurIPS — Conference on Neural Information Processing Systems/);
+  assert.match(html, /自定义名称/);
+  assert.match(html, /目标会议：未指定/);
   assert.match(html, /建议正文参考值/);
   assert.match(html, /默认不设篇幅建议/);
   assert.match(html, /默认状态。关闭后不显示章节建议/);
   assert.doesNotMatch(html, /总体框架图|画布比例|Tol 鲜明色系/);
-  assert.match(html, /ChatGPT 执行/);
-  assert.match(html, /最新可用推理模型/);
-  assert.match(html, /结果检查间隔/);
-  assert.match(html, /Medium \/ High 1 分钟/);
-  assert.match(html, /自动最强/);
-  assert.match(html, /Extra High/);
-  assert.match(html, /不锁定 GPT 型号名称/);
-  assert.match(html, /发生回退时先明确提示/);
+  assert.doesNotMatch(html, /ChatGPT 执行/);
+  assert.doesNotMatch(html, /最新可用推理模型|结果检查间隔/);
   assert.doesNotMatch(html, /class="allocation-control/);
   assert.match(html, /Introduction 章节导航段/);
   assert.match(html, /启用时约 65 词、单独成段且不计入 Introduction 建议字数/);
   assert.doesNotMatch(html, /默认保留原标题与缩写|标题与品牌候选/);
-  assert.match(html, /导出桌面配置/);
+  assert.doesNotMatch(html, /导出桌面配置|Export desktop config/);
   assert.match(html, /class="codex-launch-guide"/);
   assert.match(html, /在 Codex 中启动/);
   assert.match(html, /发送给 Codex/);
@@ -1006,6 +1005,7 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(config, /defaultTargetWords:\s*4500/);
   assert.match(config, /defaultTargetWords:\s*5000/);
   assert.match(config, /captionLength: CAPTION_LENGTH_POLICY/);
+  assert.match(config, /targetVenues:/);
   assert.match(config, /默认 10–40 words/);
   assert.match(component, /captionWordRange/);
   assert.match(component, /caption-length-control/);
@@ -1210,6 +1210,18 @@ test("keeps presets and production prompts configuration-driven", async () => {
   );
   assert.match(reconstructionSource, /four internal steps/);
   assert.match(reconstructionSource, /no intermediate manuscripts or reconstructed figure/);
+  const venueCatalog = await readFile(
+    new URL(
+      "../content/prompts/reconstructionVenues.ts",
+      import.meta.url,
+    ),
+    "utf8",
+  );
+  assert.match(venueCatalog, /CCF 7th edition \(2026\)/);
+  assert.match(venueCatalog, /shortName: "NeurIPS"/);
+  assert.match(venueCatalog, /shortName: "TPAMI"/);
+  assert.match(venueCatalog, /tier: "A"/);
+  assert.match(venueCatalog, /tier: "B"/);
 
   assert.match(component, /allocateWords/);
   assert.match(component, /RECONSTRUCTION_PROMPTS/);
@@ -1225,15 +1237,25 @@ test("keeps presets and production prompts configuration-driven", async () => {
   assert.match(component, /allocation-item-unlimited/);
   assert.match(component, /setTargetWords\(nextTotal\)/);
   assert.match(component, /setAllocationMode\("custom"\)/);
-  assert.match(component, /yanshu-workbench-web/);
-  assert.match(component, /roundLanguages:\s*promptLanguages/);
+  assert.match(component, /showLocalChatExecution/);
+  assert.match(component, /useSyncExternalStore/);
+  assert.match(component, /hostname === "localhost"/);
+  assert.match(component, /targetVenueSelections/);
+  assert.match(component, /CUSTOM_RECONSTRUCTION_VENUE_ID/);
+  assert.match(component, /targetVenueName/);
+  assert.doesNotMatch(
+    component,
+    /exportAutomationConfig|\.yanshu\.json|config-export-button/,
+  );
   assert.match(component, /chatExecution/);
   assert.match(component, /reasoningPreference:\s*preferenceId/);
   assert.match(component, /forceProForAllTurns/);
   assert.match(component, /chat-pro-policy/);
   assert.match(component, /chatPollingDescription/);
   assert.match(component, /chatRuntimePolicy/);
-  assert.match(component, /\.yanshu\.json/);
+  assert.match(builder, /context\.targetVenueName/);
+  assert.match(builder, /目标会议/);
+  assert.match(builder, /目标期刊/);
   assert.match(
     component,
     /allocationExpanded,\s*setAllocationExpanded\]\s*=\s*useState\(true\)/,

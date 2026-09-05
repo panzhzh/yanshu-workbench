@@ -57,6 +57,7 @@ export interface PromptBuildContext {
   styleId: PaperStyleId;
   styleLabel: string;
   styleDirective: string;
+  targetVenueName?: string;
   includeSectionNavigationSentence: boolean;
   hasWordLimit: boolean;
   unlimitedCoreSections: boolean;

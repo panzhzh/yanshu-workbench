@@ -1039,11 +1039,6 @@ a {
   flex: 0 0 auto;
 }
 
-.config-export-button {
-  color: var(--green);
-  border-bottom-color: #aab9af;
-}
-
 .config-panel {
   display: grid;
   grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -1073,6 +1068,40 @@ a {
 
 .style-control {
   grid-column: span 4;
+}
+
+.venue-control {
+  grid-column: span 4;
+}
+
+.target-venue-fields {
+  display: grid;
+  gap: 7px;
+}
+
+.target-venue-fields select,
+.target-venue-fields input {
+  width: 100%;
+  min-width: 0;
+  min-height: 42px;
+  padding: 8px 10px;
+  color: var(--ink-soft);
+  background: #fafbf9;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 680;
+}
+
+.target-venue-fields input {
+  color: var(--ink);
+}
+
+.target-venue-fields select:focus,
+.target-venue-fields input:focus {
+  border-color: #7e9b9f;
+  box-shadow: 0 0 0 3px rgb(92 130 144 / 0.12);
+  outline: none;
 }
 
 .intro-navigation-control {
@@ -6362,6 +6391,7 @@ body.is-resizing-prompt * {
 
   .target-control,
   .style-control,
+  .venue-control,
   .intro-navigation-control,
   .appendix-control,
   .caption-length-control,

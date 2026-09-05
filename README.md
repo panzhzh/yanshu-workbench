@@ -86,7 +86,7 @@ YanShu 同时提供插件执行层：每个 `$子技能` 都从网站同一份�
 | [全文初稿](https://yanshu-workbench.pages.dev/draft/) | 实验已经完成 | 从证据材料生成完整、可编译的英文 LaTeX 初稿；arXiv 默认样式或当届顶会官方模板 |
 | [引文核查与补充](https://yanshu-workbench.pages.dev/writing/citations/) | 引言或相关工作引用需要核验 | 默认重点检查 Introduction 与 Related Work，区分作者自身 Claim 与外部 Claim；支持目标 venue、35–40 篇参考量、近三年占比、预印本与来源质量配置 |
 | [写作精修](https://yanshu-workbench.pages.dev/writing/polishing/) | 完成稿需要投稿前语言精修 | 聚焦冗余、机械化表达、防御性写作、术语与语言专业度，保持研究逻辑、整体结构和作者声音 |
-| [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 一个 Prompt 连续完成科学定位、方法实验、前后叙事与原稿质量回归；只交付最终 TeX、BibTeX 和中文说明，不生成中间轮次或框架图 |
+| [全文重构](https://yanshu-workbench.pages.dev/reconstruction/) | 已有论文或初稿 | 可选常用 CCF A/B 会议、期刊或自定义目标；一个 Prompt 连续完成科学定位、方法实验、前后叙事与原稿质量回归，只交付最终 TeX、BibTeX 和中文说明 |
 | [章节精修](https://yanshu-workbench.pages.dev/reconstruction/refinement/) | 需要精修单章或合并实验叙事 | 按 Abstract、Introduction、Related Work、Method、Experiments & Results、Discussion、Conclusion 分别生成章节专用 Prompt |
 | [专项审计](https://yanshu-workbench.pages.dev/reconstruction/audit/) | 论文接近终稿 | 可组合审计术语、引用与 BibTeX、数据、图表、Claim–证据、符号、可复现性和跨章节重复 |
 | [分章节写作](https://yanshu-workbench.pages.dev/writing/sections/) | 从提纲或局部证据撰写章节 | 根据章节功能显示专用配置，覆盖贡献列表、引用核验、Method Overview、伪代码、图表对应段落和 Discussion 主题 |
