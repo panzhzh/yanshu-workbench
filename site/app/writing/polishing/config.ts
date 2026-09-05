@@ -86,10 +86,11 @@ function chineseFocusSections(focus: readonly string[]) {
 - 一段结尾总结一次，下一段开头又重复总结；
 - 为显得完整而加入没有实际信息量的过渡句；
 - 过度使用三段式、排比式或机械性的学术表达；
+- 机械或过密地使用连字符复合结构、名词所有格（'s）或分号，导致句法生硬或信息关系被人为切割；
 - 内容已经明确，却继续补充“换句话说”式解释；
 - 明显为了语言流畅而产生的信息重复。
 
-请将这些内容改得更加自然、克制、专业，接近真实论文作者的表达，而不是“AI academic writing”。`);
+请将这些内容改得更加自然、克制、专业，接近真实论文作者的表达，而不是“AI academic writing”。只纠正确有滥用或影响自然度的连字符、所有格与分号，不应将这些形式一律删除。`);
   }
 
   if (focus.includes("defensive")) {
@@ -138,7 +139,7 @@ function chineseFocusSections(focus: readonly string[]) {
 function englishFocusSections(focus: readonly string[]) {
   const sections: string[] = [];
   if (focus.includes("redundancy")) sections.push("### Redundancy and repetition\nFind repeated claims across sections, repeated definitions, adjacent paraphrases, duplication among the abstract, introduction, method, experiments, conclusion, prose, and captions, and explanations repeated after they are already clear. Delete, merge, or compress content with no information gain instead of retaining a paraphrase.");
-  if (focus.includes("ai-patterns")) sections.push("### Obvious AI writing patterns\nFind overly regular sentence structures, repeated recap sentences, excessive This demonstrates / This highlights / It is worth noting that / Importantly / Notably, empty transitions, formulaic triads, repeated summaries across paragraph boundaries, and fluent-sounding restatements with no information gain. Make the prose natural, restrained, professional, and consistent with real scholarly writing.");
+  if (focus.includes("ai-patterns")) sections.push("### Obvious AI writing patterns\nFind overly regular sentence structures, repeated recap sentences, excessive This demonstrates / This highlights / It is worth noting that / Importantly / Notably, empty transitions, formulaic triads, repeated summaries across paragraph boundaries, fluent-sounding restatements with no information gain, and mechanical or overly dense use of hyphenated compounds, noun possessives ('s), or semicolons that makes the syntax feel forced or artificially partitions ideas. Make the prose natural, restrained, professional, and consistent with real scholarly writing. Correct only genuine overuse or loss of naturalness; do not ban hyphens, possessives, or semicolons categorically.");
   if (focus.includes("defensive")) sections.push("### Overly defensive writing\nFind repeated scope qualifiers, repeated we do not claim or rather than constructions, clusters of may / might / potentially / arguably, excessive pre-emptive explanation, repeated limitations, and needlessly cautious descriptions of direct results. Preserve warranted rigor, but remove unnecessary defensiveness without strengthening the claims beyond the evidence.");
   if (focus.includes("terminology")) sections.push("### Terminology, notation, and naming consistency\nCheck method, module, dataset, and metric names; repeated abbreviation definitions; capitalization, singular/plural forms, hyphenation, mathematical notation, and terminology across prose, figures, equations, Method, and Experiments. Do not invent terminology; unify terms that denote the same concept.");
   if (focus.includes("language")) sections.push("### Language quality\nCheck grammar, awkward expressions, long sentences, unclear references, unnecessary passive voice, wordiness, unnatural academic English, paragraph transitions, logical flow, tense, articles, prepositions, punctuation, and academic tone. Aim for accurate, natural, concise, professional, readable prose. Leave already strong sentences unchanged.");

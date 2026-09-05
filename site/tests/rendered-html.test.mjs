@@ -283,6 +283,8 @@ test("server-renders conservative writing polishing", async () => {
   assert.match(html, /写作精修/);
   assert.match(html, /冗余与重复/);
   assert.match(html, /明显的 AI 写作痕迹/);
+  assert.match(html, /机械或过密地使用连字符复合结构、名词所有格/);
+  assert.match(html, /不应将这些形式一律删除/);
   assert.match(html, /过于防御性的写作/);
   assert.doesNotMatch(html, /修改强度|Caption 建议长度/);
   assert.match(html, /minimum necessary intervention/);
