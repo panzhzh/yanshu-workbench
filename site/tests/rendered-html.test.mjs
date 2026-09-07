@@ -286,6 +286,9 @@ test("server-renders conservative writing polishing", async () => {
   assert.match(html, /机械或过密地使用连字符复合结构、名词所有格/);
   assert.match(html, /不应将这些形式一律删除/);
   assert.match(html, /过于防御性的写作/);
+  assert.match(html, /任何孤儿图表都必须/);
+  assert.match(html, /正文图表必须在正文引用；附录图表必须在附录引用/);
+  assert.match(html, /无需让正文引用所有附录 section/);
   assert.doesNotMatch(html, /修改强度|Caption 建议长度/);
   assert.match(html, /minimum necessary intervention/);
   assert.match(html, /不要只给修改建议或零散修改片段/);

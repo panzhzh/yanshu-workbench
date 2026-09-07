@@ -22,7 +22,7 @@ const FOCUS_AREAS = {
   defensive: text("过于防御性的写作", "Overly defensive writing"),
   terminology: text("术语、符号和命名一致性", "Terminology, notation, and naming consistency"),
   language: text("语言质量", "Language quality"),
-  displays: text("图表与 Caption", "Figures, tables, and captions"),
+  displays: text("图表、Caption 与引用", "Figures, tables, captions, and references"),
 };
 
 function sharedCopy(seed: Record<Language, Pick<WorkbenchCopy, "eyebrow" | "title" | "subtitle" | "preset" | "inputTitle" | "inputItems" | "inputHint" | "promptTitle" | "promptPurpose">>) {
@@ -126,9 +126,13 @@ function chineseFocusSections(focus: readonly string[]) {
   }
 
   if (focus.includes("displays")) {
-    sections.push(`### 图表与 caption
+    sections.push(`### 图表、caption 与引用
 
 检查图表名称、变量名称、legend 与正文术语是否一致，以及图表引用顺序是否合理。LaTeX caption 或正文可以直接修改。
+
+逐一核查每张图和表是否在叙述中被引用。任何孤儿图表都必须在其承担证据或解释功能的相关段落中自然补入精简、准确的引用，不能只为消除孤儿项机械插入一句。正文图表必须在正文引用；附录图表必须在附录引用，正文也可以在需要时引用附录图表。
+
+同时判断每个附录 section 是否承载了正文应当引导读者查看的细节、证据、证明或补充实验。无需让正文引用所有附录 section；只在确有必要时，于正文最相关的位置补充精简、准确的指向。
 
 如果问题存在于图片本身的文字、坐标轴、legend、流程图内部文字等无法通过 .tex 修改的内容，不要假装已经修改，而应明确给出：哪张图、哪一部分、当前文字、建议文字和修改原因。`);
   }
@@ -143,7 +147,7 @@ function englishFocusSections(focus: readonly string[]) {
   if (focus.includes("defensive")) sections.push("### Overly defensive writing\nFind repeated scope qualifiers, repeated we do not claim or rather than constructions, clusters of may / might / potentially / arguably, excessive pre-emptive explanation, repeated limitations, and needlessly cautious descriptions of direct results. Preserve warranted rigor, but remove unnecessary defensiveness without strengthening the claims beyond the evidence.");
   if (focus.includes("terminology")) sections.push("### Terminology, notation, and naming consistency\nCheck method, module, dataset, and metric names; repeated abbreviation definitions; capitalization, singular/plural forms, hyphenation, mathematical notation, and terminology across prose, figures, equations, Method, and Experiments. Do not invent terminology; unify terms that denote the same concept.");
   if (focus.includes("language")) sections.push("### Language quality\nCheck grammar, awkward expressions, long sentences, unclear references, unnecessary passive voice, wordiness, unnatural academic English, paragraph transitions, logical flow, tense, articles, prepositions, punctuation, and academic tone. Aim for accurate, natural, concise, professional, readable prose. Leave already strong sentences unchanged.");
-  if (focus.includes("displays")) sections.push("### Figures, tables, and captions\nCheck names, variables, legends, terminology, and citation order. Edit LaTeX captions and prose directly. When a problem is embedded in image pixels and cannot be changed through .tex, report the figure, exact location, current wording, proposed wording, and rationale instead of pretending it was edited.");
+  if (focus.includes("displays")) sections.push("### Figures, tables, captions, and references\nCheck names, variables, legends, terminology, and citation order. Verify that every figure and table is cited in the prose. Resolve any orphan by integrating a concise, accurate reference into the paragraph where it serves an evidential or explanatory purpose, rather than appending a token sentence. Every main-text figure or table must be cited in the main text; every appendix figure or table must be cited within the appendix, while the main text may additionally cite appendix figures and tables when useful. Assess whether each appendix section contains details, evidence, proofs, or supplementary experiments that the main text should signpost. Do not require a main-text reference to every appendix section; add a concise, precise pointer at the most relevant location only when warranted. Edit LaTeX captions and prose directly. When a problem is embedded in image pixels and cannot be changed through .tex, report the figure, exact location, current wording, proposed wording, and rationale instead of pretending it was edited.");
   return sections.join("\n\n");
 }
 
